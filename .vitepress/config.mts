@@ -254,8 +254,8 @@ function nav(): DefaultTheme.NavItem[] {
         { text: 'Кофейни // Новосибирск', link: '/radar/signal/coffee-points-nsk-2025/launch.md' }
       ]
     },
-    { text: 'B‑R‑E‑W', link: '/brew/run' },
     { text: 'Чекап', link: '/checkup/overview' },
+    { text: 'Система', link: '/checkup/overview' },
     { 
       text: 'Компания', items: [
         { text: 'Кто мы', link: '/about/company' },
