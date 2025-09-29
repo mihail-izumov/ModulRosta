@@ -10,8 +10,8 @@ hero:
     alt: Модуль Роста®
   actions:
     - theme: brand
-      text: Ваша Умная Кофейня
-      link: /brew/run
+      text: Индекс Роста
+      link: /radar/overview
 
 features:
   - title: Радар
