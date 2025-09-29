@@ -255,7 +255,7 @@ function nav(): DefaultTheme.NavItem[] {
       ]
     },
     { text: 'Чекап', link: '/checkup/overview' },
-    { text: 'Система', link: '/checkup/overview' },
+    { text: 'Система', link: '/system/overview' },
     { 
       text: 'Компания', items: [
         { text: 'Кто мы', link: '/about/company' },
