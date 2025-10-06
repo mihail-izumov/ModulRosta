@@ -12,9 +12,9 @@
   <thead>
     <tr>
       <th>Компания</th>
-      <th><a href="/radar/overview.html#как-мы-находим-компании-со-скрытым-потенциалом">Потенциал</a></th>
-      <th><a href="/radar/overview.html#что-такое-«сигнал-радара»">Сигнал</a></th>
-      <th><a href="/radar/overview.html#почему-в-архиве">Статус</a></th>
+      <th><a href="/radar/overview#как-мы-находим-компании-со-скрытым-потенциалом">Потенциал</a></th>
+      <th><a href="/radar/overview">Радар</a></th>
+      <th><a href="/radar/overview#почему-в-архиве">Статус</a></th>
     </tr>
   </thead>
   <tbody>
