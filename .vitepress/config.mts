@@ -223,14 +223,7 @@ export default defineConfig({
 
 function nav(): DefaultTheme.NavItem[] {
   return [
-    {
-      text: 'Индекс Роста',
-      items: [
-        { text: 'Кофейни // Россия', link: '/radar/overview' },
-        { text: 'Кофейни // Самара', link: '/radar/index-smr/overview' },
-        { text: 'Кофейни // Новосибирск', link: '/radar/signal/coffee-points-nsk-2025/launch.md' }
-      ]
-    },
+    { text: 'Радар', link: '/radar/overview' },
     { text: 'Чекап', link: '/checkup/overview' },
     { text: 'Система', link: '/system/overview' },
     { 
