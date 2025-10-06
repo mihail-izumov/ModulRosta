@@ -297,6 +297,7 @@ function sidebarRadarRussia(): DefaultTheme.SidebarItem[] {
       items: [
         { text: 'Технология', link: '/radar/overview' },
         { text: 'Скрытый потенциал', link: '/radar/scale_index' },
+        { text: 'Фильтр потенциала', link: '/radar/filter' },
         { text: 'Кто Анна', link: '/radar/who-is-anna' },
         { text: 'Радар', link: '/radar/signal/log' }
       ]
@@ -317,7 +318,6 @@ function sidebarCheckup(): DefaultTheme.SidebarItem[] {
         { text: 'Глубокий чекап', link: '/checkup/deep' },
         { text: 'Платите за движение', link: '/checkup/pay-as-you-go' },
         { text: 'Чек-лист готовности', link: '/checkup/checklist' },
-        { text: 'Фильтр потенциала', link: '/radar/filter' },
         { text: 'Программа рекомендаций', link: '/radar/invite' }
       ]
     }
