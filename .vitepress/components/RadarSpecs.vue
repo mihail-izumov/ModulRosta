@@ -88,11 +88,11 @@
           <p class="spec-label">Назначение</p>
         </div>
         <div class="spec-item">
-<span class="spec-value">
-  <a href="https://cffx.ru/invest/sim.html" target="_blank" rel="noopener noreferrer">
-    Самара // Фокус на «Корж»
-  </a>
-</span>
+          <span class="spec-value">
+            <a href="https://cffx.ru/invest/sim.html" target="_blank" rel="noopener noreferrer">
+              Самара // Фокус на «Корж»
+            </a>
+          </span>
           <p class="spec-label">Доступные Симуляторы</p>
         </div>
         <div class="spec-item">
@@ -127,7 +127,7 @@
       <div class="specs-grid three-cols">
         <div class="spec-item">
           <span class="spec-value">
-            <a href="https://cffx.ru">Сигнал</a>
+          <a href="https://cffx.ru" target="_blank" rel="noopener noreferrer">Сигнал»</a>
           </span>
           <p class="spec-label">Система-партнер</p>
         </div>
