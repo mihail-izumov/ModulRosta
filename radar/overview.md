@@ -6,6 +6,45 @@
 Мы находим в обратной связи клиентов то, что не видят другие. <br><br>
 **Радар показывает не размер бизнеса сегодня, а возможности, которые он может реализовать завтра.**
 
+## Компании в фокусе
+
+<table class="radar-table-html">
+  <thead>
+    <tr>
+      <th>Компания</th>
+      <th><a href="/radar/overview.html#как-мы-находим-компании-со-скрытым-потенциалом">Потенциал</a></th>
+      <th><a href="/radar/overview.html#что-такое-«сигнал-радара»">Сигнал</a></th>
+      <th><a href="/radar/overview.html#почему-в-архиве">Статус</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://rchc.ru/" target="_blank" rel="noopener noreferrer">Ресторан Честных Цен</a></td>
+      <td>81,5%</td>
+      <td><span class="signal-passive-symbol">·</span></td>
+      <td>В архиве <a href="/radar/overview.html#почему-в-архиве">(Почему?)</a></td>
+    </tr>
+    <tr>
+      <td><a href="https://brooklynbowl.ru/" target="_blank" rel="noopener noreferrer">Brooklyn Bowl</a></td>
+      <td>75,6%</td>
+      <td><span class="signal-passive-symbol">·</span></td>
+      <td>В архиве <a href="/radar/overview.html#почему-в-архиве">(Почему?)</a></td>
+    </tr>
+    <tr>
+      <td><a href="https://vaffel.ru/" target="_blank" rel="noopener noreferrer">Vaffel</a></td>
+      <td>56,2%</td>
+      <td><span class="signal-passive-symbol">·</span></td>
+      <td>В архиве <a href="/radar/overview.html#почему-в-архиве">(Почему?)</a></td>
+    </tr>
+    <tr>
+      <td><a href="https://reimaginedvillas.com/" target="_blank" rel="noopener noreferrer">Re:Imagined Villas Ubud</a></td>
+      <td>52,1%</td>
+      <td><span class="signal-passive-symbol">·</span></td>
+      <td>В архиве <a href="/radar/overview.html#почему-в-архиве">(Почему?)</a></td>
+    </tr>
+  </tbody>
+</table>
+
 ## Анализ конкурентов в реальном времени
 
 ### Видеть рынок → Находить возможности → Расти в выручке
@@ -49,46 +88,6 @@
 Анна сканирует публичное поле компаний, находит структурные разрывы и точки роста, и далее связывает с командой Модуля Роста®.
 
 [Кто Анна](/radar/who-is-anna)
-
-
-## В архиве
-
-<table class="radar-table-html">
-  <thead>
-    <tr>
-      <th>Компания</th>
-      <th><a href="/radar/overview.html#как-мы-находим-компании-со-скрытым-потенциалом">Потенциал</a></th>
-      <th><a href="/radar/overview.html#что-такое-«сигнал-радара»">Сигнал</a></th>
-      <th><a href="/radar/overview.html#почему-в-архиве">Статус</a></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="https://rchc.ru/" target="_blank" rel="noopener noreferrer">Ресторан Честных Цен</a></td>
-      <td>81,5%</td>
-      <td><span class="signal-passive-symbol">·</span></td>
-      <td>В архиве <a href="/radar/overview.html#почему-в-архиве">(Почему?)</a></td>
-    </tr>
-    <tr>
-      <td><a href="https://brooklynbowl.ru/" target="_blank" rel="noopener noreferrer">Brooklyn Bowl</a></td>
-      <td>75,6%</td>
-      <td><span class="signal-passive-symbol">·</span></td>
-      <td>В архиве <a href="/radar/overview.html#почему-в-архиве">(Почему?)</a></td>
-    </tr>
-    <tr>
-      <td><a href="https://vaffel.ru/" target="_blank" rel="noopener noreferrer">Vaffel</a></td>
-      <td>56,2%</td>
-      <td><span class="signal-passive-symbol">·</span></td>
-      <td>В архиве <a href="/radar/overview.html#почему-в-архиве">(Почему?)</a></td>
-    </tr>
-    <tr>
-      <td><a href="https://reimaginedvillas.com/" target="_blank" rel="noopener noreferrer">Re:Imagined Villas Ubud</a></td>
-      <td>52,1%</td>
-      <td><span class="signal-passive-symbol">·</span></td>
-      <td>В архиве <a href="/radar/overview.html#почему-в-архиве">(Почему?)</a></td>
-    </tr>
-  </tbody>
-</table>
 
 ### Почему в архиве
 
