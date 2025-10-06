@@ -31,7 +31,7 @@ export default defineConfig({
           { text: 'Поддержка', href: '/support' },
           { text: 'Условия использования', href: '/terms' },
           { text: 'Контакт', href: '/about/contacts' },
-          { text: '⚡️ Сигнал', href: 'https://сffx.ru', target: '_blank' },
+          { text: 'Реквизиты', href: '/credits' },
           { text: 'Orxaos', href: 'https://orxaos.sbs', target: '_blank' }
         ];
         let html = '<hr style="border: 0; border-top: 1px solid var(--vp-c-divider); margin: 24px 0;">';
@@ -246,7 +246,14 @@ export default defineConfig({
 
 function nav(): DefaultTheme.NavItem[] {
   return [
-    { text: 'Радар', link: '/radar/overview' },
+    {
+      text: 'Индекс Роста',
+      items: [
+        { text: 'Кофейни // Россия', link: '/radar/overview' },
+        { text: 'Кофейни // Самара', link: '/radar/index-smr/overview' },
+        { text: 'Кофейни // Новосибирск', link: '/radar/signal/coffee-points-nsk-2025/launch.md' }
+      ]
+    },
     { text: 'Чекап', link: '/checkup/overview' },
     { text: 'Система', link: '/system/overview' },
     { 
@@ -292,12 +299,11 @@ function sidebarRadarSamara(): DefaultTheme.SidebarItem[] {
 function sidebarRadarRussia(): DefaultTheme.SidebarItem[] {
   return [
     {
-      text: 'Радар', // <--- Заголовок для сайдбара
+      text: 'Индекс Роста // Россия', // <--- Заголовок для сайдбара
       collapsed: false,
       items: [
-        { text: 'Технология', link: '/radar/overview' },
+        { text: 'Обзор рынка', link: '/radar/overview' },
         { text: 'Скрытый потенциал', link: '/radar/scale_index' },
-        { text: 'Фильтр потенциала', link: '/radar/filter' },
         { text: 'Кто Анна', link: '/radar/who-is-anna' },
         { text: 'Радар', link: '/radar/signal/log' }
       ]
@@ -318,6 +324,7 @@ function sidebarCheckup(): DefaultTheme.SidebarItem[] {
         { text: 'Глубокий чекап', link: '/checkup/deep' },
         { text: 'Платите за движение', link: '/checkup/pay-as-you-go' },
         { text: 'Чек-лист готовности', link: '/checkup/checklist' },
+        { text: 'Фильтр потенциала', link: '/radar/filter' },
         { text: 'Программа рекомендаций', link: '/radar/invite' }
       ]
     }
