@@ -62,7 +62,7 @@
         </div>
         <div class="spec-item">
           <span class="spec-value">
-            <a href="/signals">Анна</a>
+            <a href="/radar/who-is-anna">Анна</a>
           </span>
           <p class="spec-label">ИИ-ассистент</p>
         </div>
@@ -88,7 +88,9 @@
           <p class="spec-label">Назначение</p>
         </div>
         <div class="spec-item">
-          <span class="spec-value">Самара // Фокус на «Корж»</span>
+          <span class="spec-value">
+            <a href="https://cffx.ru/invest/sim.html">Самара // Фокус на «Корж»</a>
+          </span>
           <p class="spec-label">Доступные Симуляторы</p>
         </div>
         <div class="spec-item">
