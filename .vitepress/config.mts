@@ -21,10 +21,9 @@ export default defineConfig({
       function createFooterContent() {
         const links = [
           { text: 'Журнал', href: '/journal/contents/overview' },
-          { text: 'Телеграм-канал', href: 'https://t.me/izumov', target: '_blank' },
-          { text: 'Поддержка', href: '/support' },
-          { text: 'Условия использования', href: '/terms' },
           { text: 'Контакт', href: '/about/contacts' },
+          { text: 'Условия использования', href: '/terms' },
+          { text: 'Телеграм-канал', href: 'https://t.me/runScale', target: '_blank' },
           { text: '⚡️ Сигнал', href: 'https://cffx.ru', target: '_blank' },
           { text: 'Orxaos', href: 'https://orxaos.sbs', target: '_blank' }
         ];
