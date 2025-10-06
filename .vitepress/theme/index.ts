@@ -34,6 +34,7 @@ import ReviewsWidget from '../components/ReviewsWidget.vue'
 import RadarApproach from '../components/RadarApproach.vue'
 import GrowthPotentialMethod from '../components/GrowthPotentialMethod.vue'
 import RadarHowItWorks from '../components/RadarHowItWorks.vue'
+import RadarSpecs from '../components/RadarSpecs.vue'
 
 export default {
   extends: DefaultTheme,
@@ -74,5 +75,6 @@ export default {
     app.component('RadarApproach', RadarApproach)
     app.component('GrowthPotentialMethod', GrowthPotentialMethod)
     app.component('RadarHowItWorks', RadarHowItWorks)
+    app.component('RadarSpecs', RadarSpecs)
   }
 }
