@@ -13,12 +13,6 @@ export default defineConfig({
       description: 'Находим то, что другие упускают.',
     },
   },
-  transformPageData(pageData) {
-    return pageData
-  },
-  buildEnd(siteConfig) {
-    // Этот хук выполняется после сборки
-  },
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     ['meta', { name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
@@ -31,7 +25,7 @@ export default defineConfig({
           { text: 'Поддержка', href: '/support' },
           { text: 'Условия использования', href: '/terms' },
           { text: 'Контакт', href: '/about/contacts' },
-          { text: 'Реквизиты', href: '/credits' },
+          { text: 'Сигнал', href: 'https://cffx.ru', target: '_blank' },
           { text: 'Orxaos', href: 'https://orxaos.sbs', target: '_blank' }
         ];
         let html = '<hr style="border: 0; border-top: 1px solid var(--vp-c-divider); margin: 24px 0;">';
@@ -177,44 +171,28 @@ export default defineConfig({
       prev: 'Предыдущая страница',
       next: 'Следующая страница'
     },
-    
-    // --- ДОБАВЛЕННЫЙ БЛОК ДЛЯ СТРАНИЦЫ 404 ---
     notFound: {
       title: 'СТРАНИЦА НЕ НАЙДЕНА',
       quote: 'Но если вы не измените направление, и если вы продолжите искать, вы можете в конечном итоге оказаться там, куда вы направляетесь.',
       linkText: 'Вернуться домой'
     },
-    // --- КОНЕЦ ДОБАВЛЕННОГО БЛОКА ---
     
-    // ВАЖНО: порядок от более специфичных к более общим!
+    // Стандартный сайдбар: путь папки = ключ объекта
     sidebar: {
-      // BREW
-      '/brew/': { items: sidebarBrew() },
-      // Самара: обзор/метод
-      '/radar/index-smr/': { items: sidebarRadarSamara() },
-      // ИСПРАВЛЕНИЕ: Принудительная привязка страницы log к сайдбару России (ПЕРЕД /radar/signal/)
-      '/radar/signal/log': { items: sidebarRadarRussia() },
-      // Новосибирск — без сайдбара
-      '/radar/signal/coffee-points-nsk-2025/': { items: [] },
-      // Самара: весь остальной блок signal
-      '/radar/signal/': { items: sidebarRadarSamara() },
-      // Фильтр и Программа рекомендаций — привязка к Чекапу
-      '/radar/filter': { items: sidebarCheckup() },
-      '/radar/invite': { items: sidebarCheckup() },
-      // Чекап
-      '/checkup/': { items: sidebarCheckup() },
-      '/checkup/prep/': { items: sidebarCheckupPrep() },
-      // Общий Радар (Россия)
-      '/radar/': { items: sidebarRadarRussia() },
-      // Остальные разделы
-      '/about/': { items: sidebarAbout() },
-      '/method/': { items: sidebarMethod() },
-      '/technology/': { items: sidebarTechnology() },
-      '/system/': { items: sidebarSystem() },
-      '/journal/': { items: sidebarJournal() },
-      '/clients/': { items: sidebarClients() },
-      '/terms/': { items: sidebarTerms() }
+      '/brew/': sidebarBrew(),
+      '/radar/index-smr/': sidebarRadarSamara(),
+      '/radar/': sidebarRadarRussia(),
+      '/checkup/': sidebarCheckup(),
+      '/checkup/prep/': sidebarCheckupPrep(),
+      '/about/': sidebarAbout(),
+      '/method/': sidebarMethod(),
+      '/technology/': sidebarTechnology(),
+      '/system/': sidebarSystem(),
+      '/journal/': sidebarJournal(),
+      '/clients/': sidebarClients(),
+      '/terms/': sidebarTerms()
     },
+    
     search: {
       provider: 'local',
       options: {
@@ -285,7 +263,7 @@ function sidebarBrew(): DefaultTheme.SidebarItem[] {
 function sidebarRadarSamara(): DefaultTheme.SidebarItem[] {
   return [
     {
-      text: 'Индекс Роста // Самара', // <--- Заголовок для сайдбара
+      text: 'Индекс Роста // Самара',
       collapsed: false,
       items: [
         { text: 'Рейтинг', link: '/radar/index-smr/overview' },
@@ -299,7 +277,7 @@ function sidebarRadarSamara(): DefaultTheme.SidebarItem[] {
 function sidebarRadarRussia(): DefaultTheme.SidebarItem[] {
   return [
     {
-      text: 'Индекс Роста // Россия', // <--- Заголовок для сайдбара
+      text: 'Индекс Роста // Россия',
       collapsed: false,
       items: [
         { text: 'Обзор рынка', link: '/radar/overview' },
@@ -383,57 +361,4 @@ function sidebarTechnology(): DefaultTheme.SidebarItem[] {
         { text: 'Аналитика 360°', link: '/technology/analytics-360' },
         { text: 'ИИ-ассистент продаж', link: '/technology/anna' },
         { text: 'Речевая аналитика', link: '/technology/wordpower' },
-        { text: 'Дистанционные стратегические сессии', link: '/technology/vision-now' },
-        { text: 'Живые Стандарты', link: '/technology/live-standarts' },
-      ]
-    }]
-}
-
-function sidebarSystem(): DefaultTheme.SidebarItem[] {
-  return [{
-      text: 'Система роста бизнеса', collapsed: false, items: [
-        { text: 'Обзор', link: '/system/overview' },
-        { text: '12-нед. интенсив', link: '/system/12-weeks' }
-      ]
-    }]
-}
-
-function sidebarJournal(): DefaultTheme.SidebarItem[] {
-  return [{
-      text: 'Журнал', collapsed: false, items: [
-        { text: 'Содержание', link: '/journal/contents/overview' },        
-        { text: 'Кейсы', link: '/journal/contents/cases' },
-        { text: 'Статьи', link: '/journal/contents/articles' }
-      ]
-    }]
-}
-
-function sidebarClients(): DefaultTheme.SidebarItem[] {
-  return [{
-      text: 'Клиенты', collapsed: false, items: [
-        { text: 'Обзор', link: '/clients/list' },
-        { text: 'Конкордия-Авто', link: '/clients/konkordiya-auto' },
-        { text: 'Блумкидс', link: '/clients/bloomkids' },
-        { text: 'Чишминский Молочный Завод', link: '/clients/chishminskiy' },
-        { text: 'Ермолаевъ', link: '/clients/ermolaev' },
-        { text: 'FIZ Культура', link: '/clients/fiz-kultura.md' },
-        { text: 'Фонд им. Дмитрия Хворостовского', link: '/clients/hvorostovsky-foundation' },
-        { text: 'Milimon', link: '/clients/milimon.md' },
-        { text: 'SM Live', link: '/clients/sm-live' },
-        { text: 'SMSTRETCHING', link: '/clients/smstretching' },
-        { text: 'СУПЕРЛЕНД', link: '/clients/superland' },
-        { text: 'WOODLED', link: '/clients/woodled' },
-        { text: 'World Plastics Summit 2022', link: '/clients/world-plastics-summit-2022' },
-      ]
-    }]
-}
-
-function sidebarTerms(): DefaultTheme.SidebarItem[] {
-  return [{
-      text: 'Условия использования', collapsed: false, items: [
-        { text: 'Соглашения', link: '/terms' },
-        { text: 'Политика конфиденциальности', link: '/terms/policy' },
-        { text: 'Согласие на обработку данных', link: '/terms/privacy' }
-      ]
-    }]
-}
+        { text: 'Дистанционные стратегические сессии', link: '/technology/vision
