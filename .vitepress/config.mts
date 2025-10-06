@@ -21,11 +21,11 @@ export default defineConfig({
       function createFooterContent() {
         const links = [
           { text: 'Журнал', href: '/journal/contents/overview' },
-          { text: 'Телеграм-канал', href: 'https://t.me/runscale', target: '_blank' },
+          { text: 'Телеграм-канал', href: 'https://t.me/izumov', target: '_blank' },
           { text: 'Поддержка', href: '/support' },
           { text: 'Условия использования', href: '/terms' },
           { text: 'Контакт', href: '/about/contacts' },
-          { text: 'Реквизиты', href: '/credits' },
+          { text: '⚡️ Сигнал', href: 'https://cffx.ru', target: '_blank' },
           { text: 'Orxaos', href: 'https://orxaos.sbs', target: '_blank' }
         ];
         let html = '<hr style="border: 0; border-top: 1px solid var(--vp-c-divider); margin: 24px 0;">';
@@ -269,7 +269,7 @@ function sidebarRadarSamara(): DefaultTheme.SidebarItem[] {
 function sidebarRadarRussia(): DefaultTheme.SidebarItem[] {
   return [
     {
-      text: 'Индекс Роста // Россия',
+      text: 'Радар',
       collapsed: false,
       items: [
         { text: 'Обзор рынка', link: '/radar/overview' },
