@@ -31,7 +31,7 @@ export default defineConfig({
           { text: 'Поддержка', href: '/support' },
           { text: 'Условия использования', href: '/terms' },
           { text: 'Контакт', href: '/about/contacts' },
-          { text: 'Реквизиты', href: '/credits' },
+          { text: '⚡️ Сигнал', href: 'https://сffx.ru', target: '_blank' },
           { text: 'Orxaos', href: 'https://orxaos.sbs', target: '_blank' }
         ];
         let html = '<hr style="border: 0; border-top: 1px solid var(--vp-c-divider); margin: 24px 0;">';
