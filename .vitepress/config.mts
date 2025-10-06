@@ -1,5 +1,5 @@
 import { defineConfig, DefaultTheme } from 'vitepress'
-import pkg from '../package.json' assert { type: 'json' }
+import pkg from '../package.json' with { type: 'json' }
 
 const { version } = pkg
 
@@ -25,7 +25,7 @@ export default defineConfig({
           { text: 'Поддержка', href: '/support' },
           { text: 'Условия использования', href: '/terms' },
           { text: 'Контакт', href: '/about/contacts' },
-          { text: 'Сигнал', href: 'https://cffx.ru', target: '_blank' },
+          { text: 'Реквизиты', href: '/credits' },
           { text: 'Orxaos', href: 'https://orxaos.sbs', target: '_blank' }
         ];
         let html = '<hr style="border: 0; border-top: 1px solid var(--vp-c-divider); margin: 24px 0;">';
@@ -177,7 +177,6 @@ export default defineConfig({
       linkText: 'Вернуться домой'
     },
     
-    // Стандартный сайдбар: путь папки = ключ объекта
     sidebar: {
       '/brew/': sidebarBrew(),
       '/radar/index-smr/': sidebarRadarSamara(),
@@ -361,4 +360,57 @@ function sidebarTechnology(): DefaultTheme.SidebarItem[] {
         { text: 'Аналитика 360°', link: '/technology/analytics-360' },
         { text: 'ИИ-ассистент продаж', link: '/technology/anna' },
         { text: 'Речевая аналитика', link: '/technology/wordpower' },
-        { text: 'Дистанционные стратегические сессии', link: '/technology/vision
+        { text: 'Дистанционные стратегические сессии', link: '/technology/vision-now' },
+        { text: 'Живые Стандарты', link: '/technology/live-standarts' }
+      ]
+    }]
+}
+
+function sidebarSystem(): DefaultTheme.SidebarItem[] {
+  return [{
+      text: 'Система роста бизнеса', collapsed: false, items: [
+        { text: 'Обзор', link: '/system/overview' },
+        { text: '12-нед. интенсив', link: '/system/12-weeks' }
+      ]
+    }]
+}
+
+function sidebarJournal(): DefaultTheme.SidebarItem[] {
+  return [{
+      text: 'Журнал', collapsed: false, items: [
+        { text: 'Содержание', link: '/journal/contents/overview' },        
+        { text: 'Кейсы', link: '/journal/contents/cases' },
+        { text: 'Статьи', link: '/journal/contents/articles' }
+      ]
+    }]
+}
+
+function sidebarClients(): DefaultTheme.SidebarItem[] {
+  return [{
+      text: 'Клиенты', collapsed: false, items: [
+        { text: 'Обзор', link: '/clients/list' },
+        { text: 'Конкордия-Авто', link: '/clients/konkordiya-auto' },
+        { text: 'Блумкидс', link: '/clients/bloomkids' },
+        { text: 'Чишминский Молочный Завод', link: '/clients/chishminskiy' },
+        { text: 'Ермолаевъ', link: '/clients/ermolaev' },
+        { text: 'FIZ Культура', link: '/clients/fiz-kultura.md' },
+        { text: 'Фонд им. Дмитрия Хворостовского', link: '/clients/hvorostovsky-foundation' },
+        { text: 'Milimon', link: '/clients/milimon.md' },
+        { text: 'SM Live', link: '/clients/sm-live' },
+        { text: 'SMSTRETCHING', link: '/clients/smstretching' },
+        { text: 'СУПЕРЛЕНД', link: '/clients/superland' },
+        { text: 'WOODLED', link: '/clients/woodled' },
+        { text: 'World Plastics Summit 2022', link: '/clients/world-plastics-summit-2022' }
+      ]
+    }]
+}
+
+function sidebarTerms(): DefaultTheme.SidebarItem[] {
+  return [{
+      text: 'Условия использования', collapsed: false, items: [
+        { text: 'Соглашения', link: '/terms' },
+        { text: 'Политика конфиденциальности', link: '/terms/policy' },
+        { text: 'Согласие на обработку данных', link: '/terms/privacy' }
+      ]
+    }]
+}
