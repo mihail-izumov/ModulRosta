@@ -127,7 +127,7 @@
       <div class="specs-grid three-cols">
         <div class="spec-item">
           <span class="spec-value">
-          <a href="https://cffx.ru" target="_blank" rel="noopener noreferrer">Сигнал»</a>
+          <a href="https://cffx.ru" target="_blank" rel="noopener noreferrer">Сигнал</a>
           </span>
           <p class="spec-label">Система-партнер</p>
         </div>
