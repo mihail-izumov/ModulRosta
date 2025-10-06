@@ -33,6 +33,7 @@ import BrewFirst30Days from '../components/BrewFirst30Days.vue'
 import ReviewsWidget from '../components/ReviewsWidget.vue'
 import RadarApproach from '../components/RadarApproach.vue'
 import GrowthPotentialMethod from '../components/GrowthPotentialMethod.vue'
+import RadarHowItWorks from '../components/RadarHowItWorks.vue'
 
 export default {
   extends: DefaultTheme,
@@ -72,5 +73,6 @@ export default {
     app.component('ReviewsWidget', ReviewsWidget)
     app.component('RadarApproach', RadarApproach)
     app.component('GrowthPotentialMethod', GrowthPotentialMethod)
+    app.component('RadarHowItWorks', RadarHowItWorks)
   }
 }
