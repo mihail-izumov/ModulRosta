@@ -298,7 +298,8 @@ function sidebarRadarRussia(): DefaultTheme.SidebarItem[] {
         { text: 'Технология', link: '/radar/overview' },
         { text: 'Скрытый потенциал', link: '/radar/scale_index' },
         { text: 'Фильтр потенциала', link: '/radar/filter' },
-        { text: 'Кто Анна', link: '/radar/who-is-anna' }
+        { text: 'Кто Анна', link: '/radar/who-is-anna' },
+        { text: 'Радар', link: '/radar/signal/log' }
       ]
     }
   ]
