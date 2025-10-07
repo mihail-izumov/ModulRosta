@@ -2,9 +2,9 @@
   <div class="user-coffee-cards-container">
     <div class="user-coffee-card">
       <div class="user-card-content">
-        <h3 class="user-card-title">Для Гостя</h3>
+        <h3 class="user-card-title">У меня уже есть доступ</h3>
         <p class="user-card-description">
-          <strong>У меня уже есть доступ</strong>
+          <strong>???</strong>
         </p>
         <p class="user-card-highlight">
           Каждый Сигнал помогает любимым кофейням стать лучше уже сегодня.
