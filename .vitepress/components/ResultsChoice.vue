@@ -2,7 +2,7 @@
   <div class="user-coffee-cards-container">
     <div class="user-coffee-card">
       <div class="user-card-content">
-        <h3 class="user-card-title">У меня уже есть доступ</h3>
+        <h3 class="user-card-title">Уже есть доступ</h3>
         <p class="user-card-description">
           <strong>???</strong>
         </p>
@@ -17,7 +17,7 @@
     
     <div class="user-coffee-card">
       <div class="user-card-content">
-        <h3 class="user-card-title">Хочу получить свои результаты</h3>
+        <h3 class="user-card-title">Получить результаты</h3>
         <p class="user-card-description">
           <strong>Настоящая аналитика для роста.</strong>
         </p>
