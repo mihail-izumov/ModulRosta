@@ -2,12 +2,12 @@
   <div class="user-coffee-cards-container">
     <div class="user-coffee-card">
       <div class="user-card-content">
-        <h3 class="user-card-title">Уже есть доступ</h3>
+        <h3 class="user-card-title">Чекап пройден</h3>
         <p class="user-card-description">
-          <strong>???</strong>
+          <strong>Текущее состояние и прогресс.</strong>
         </p>
         <p class="user-card-highlight">
-          Каждый Сигнал помогает любимым кофейням стать лучше уже сегодня.
+          Посмотреть результаты и принять решения.
         </p>
       </div>
       <a href="https://app.mplan.sbs" target="_blank" class="user-card-button">
@@ -17,12 +17,12 @@
     
     <div class="user-coffee-card">
       <div class="user-card-content">
-        <h3 class="user-card-title">Получить результаты</h3>
+        <h3 class="user-card-title">Получить диагностику</h3>
         <p class="user-card-description">
-          <strong>Настоящая аналитика для роста.</strong>
+          <strong>5 дней → отчёт и приоритеты</strong>
         </p>
         <p class="user-card-highlight">
-          Получайте не просто оценки, а понимание того, как именно расти.
+          Результаты придут в личный кабинет.
         </p>
       </div>
       <a href="/apply" class="user-card-button">
