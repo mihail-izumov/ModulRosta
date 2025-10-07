@@ -4,20 +4,20 @@
       <div class="user-card-content">
         <h3 class="user-card-title">Для Гостя</h3>
         <p class="user-card-description">
-          <strong>Ваши отзывы меняют всё.</strong>
+          <strong>У меня уже есть доступ</strong>
         </p>
         <p class="user-card-highlight">
           Каждый Сигнал помогает любимым кофейням стать лучше уже сегодня.
         </p>
       </div>
-      <button @click="openModal" class="user-card-button">
-        <strong>Отправить ⚡ Сигнал</strong>
-      </button>
+      <a href="https://app.mplan.sbs" target="_blank" class="user-card-button">
+        <strong>Войти</strong>
+      </a>
     </div>
     
     <div class="user-coffee-card">
       <div class="user-card-content">
-        <h3 class="user-card-title">Для Кофейни</h3>
+        <h3 class="user-card-title">Хочу получить свои результаты</h3>
         <p class="user-card-description">
           <strong>Настоящая аналитика для роста.</strong>
         </p>
@@ -25,22 +25,12 @@
           Получайте не просто оценки, а понимание того, как именно расти.
         </p>
       </div>
-      <a href="/pro/dialogs" class="user-card-button">
-        <strong>Подключить Диалоги</strong>
+      <a href="/apply" class="user-card-button">
+        <strong>Начать</strong>
       </a>
     </div>
   </div>
 </template>
-
-<script setup>
-const openModal = () => {
-  if (window.openSignalModal) {
-    window.openSignalModal()
-  } else {
-    console.error('Modal function not available')
-  }
-}
-</script>
 
 <style scoped>
 .user-coffee-cards-container {
