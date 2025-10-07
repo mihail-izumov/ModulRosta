@@ -141,13 +141,13 @@ export default defineConfig({
       .VPNavScreen .VPNavScreenSocialLinks{display:flex!important;flex-direction:column!important;gap:12px!important}
       .VPNavScreen .VPSocialLink{display:flex!important;align-items:center!important;justify-content:center!important;padding:12px!important;background:var(--vp-c-bg)!important;border-radius:6px!important;border:1px solid var(--vp-c-divider)!important;transition:all .3s ease!important;text-decoration:none!important}
       .VPNavScreen .VPSocialLink:hover{background:var(--vp-c-bg-mute)!important;border-color:var(--vp-c-brand)!important}
-      .VPNavScreen .VPSocialLink[aria-label="login-link"]::after{content:"Войти"!important;font-size:16px!important;font-weight:600!important;color:var(--vp-c-text-1)!important}
+      .VPNavScreen .VPSocialLink[aria-label="login-link"]::after{content:"Результаты Чекапов"!important;font-size:16px!important;font-weight:600!important;color:var(--vp-c-text-1)!important}
       .footer-row{flex-direction:column!important;gap:8px!important}
       .dot-separator{display:none!important}
     }
     .VPSocialLink .vpi-social-github{display:none!important}
     .VPSocialLink{width:auto!important;height:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important}
-    .VPSocialLink[aria-label="login-link"]::after{content:"Войти";font-size:14px;color:var(--vp-c-text-1);padding:6px 12px;border:1px solid var(--vp-c-divider);border-radius:6px;background:transparent;transition:all .3s ease;white-space:nowrap;margin:0;flex-shrink:0}
+    .VPSocialLink[aria-label="login-link"]::after{content:"Результаты Чекапов";font-size:14px;color:var(--vp-c-text-1);padding:6px 12px;border:1px solid var(--vp-c-divider);border-radius:6px;background:transparent;transition:all .3s ease;white-space:nowrap;margin:0;flex-shrink:0}
     .VPSocialLink[aria-label="login-link"]:hover::after{background:var(--vp-c-bg-soft);border-color:var(--vp-c-brand)}
     .custom-footer-links{display:flex;flex-direction:column;gap:3px;align-items:center}
     .footer-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
@@ -222,8 +222,8 @@ export default defineConfig({
 
 function nav(): DefaultTheme.NavItem[] {
   return [
+    { text: 'Чекапы', link: '/checkup/overview' },
     { text: 'Радар', link: '/radar/overview' },
-    { text: 'Чекап', link: '/checkup/overview' },
     { text: 'Система', link: '/system/overview' },
     { 
       text: 'Компания', items: [
