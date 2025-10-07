@@ -215,7 +215,7 @@ export default defineConfig({
         }, 
         link: 'https://t.me/runscale' 
       },
-      { icon: 'github', link: 'https://app.mplan.sbs', ariaLabel: 'login-link' }
+      { icon: 'github', link: '/results', ariaLabel: 'login-link' }
     ],
   }
 })
