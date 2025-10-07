@@ -10,18 +10,18 @@ hero:
     alt: Модуль Роста®
   actions:
     - theme: brand
-      text: Получить Ответ
-      link: /apply
+      text: Результаты Чекапов
+      link: /results
 
 features:
+  - title: Чекапы
+    details: Найти скрытые разрывы в процессах. Получить 3 конкретных улучшения за 30 дней.
+    link: /checkup/overview
+    linkText: Пройти Чекап
   - title: Радар
     details: Видеть больше, угадывать меньше. Расти быстрее конкурентов.
     link: /radar/overview
     linkText: Оценить Потенциал
-  - title: Чекап
-    details: Найти скрытые разрывы в процессах. Получить 3 конкретных улучшения за 30 дней.
-    link: /checkup/overview
-    linkText: Пройти Чекап
   - title: Система Роста Бизнеса
     details: От Чекапа к устойчивой Системе за 12 недель.
     link: /system/overview
