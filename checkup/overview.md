@@ -4,39 +4,18 @@
 </span>
 
 <style>
-.signal-badge {
-  display: inline-block;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.5;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-  transition: transform 0.2s ease;
-}
-
-.signal-badge:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-/* Увеличиваем специфичность для переопределения стилей VitePress */
 .signal-badge a.signal-link {
-  color: white !important;
-  text-decoration: none !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-  transition: border-color 0.2s ease;
+  color: inherit !important;
+  text-decoration: underline !important;
+  text-decoration-color: currentColor !important;
 }
 
 .signal-badge a.signal-link:hover {
-  color: white !important;
-  border-bottom-color: white;
+  opacity: 0.8;
 }
 </style>
 
-<br>
+<br><br>
 
 # Чекап
 
