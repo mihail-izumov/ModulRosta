@@ -11,7 +11,7 @@
 </h3>
 
 <div class="checkup-cta-section">
-  <h3 class="checkup-price">От ₽249,000</h3>
+  <div class="checkup-price">От ₽249,000</div>
   <a href="/apply" class="btn-cta">Пройти Чекап</a>
 </div>
 
@@ -123,10 +123,10 @@
   opacity: 0.8;
 }
 
-/* Checkup CTA Section - Single Line Pill */
+/* Checkup CTA Section - Perfect Single Line */
 .checkup-cta-section {
   background-color: #2a2a2a;
-  padding: 8px 12px 8px 20px;
+  padding: 10px 12px 10px 20px;
   border-radius: 999px;
   margin: 24px 0;
   display: inline-flex;
@@ -138,20 +138,21 @@
 .checkup-price {
   color: #ffffff;
   margin: 0;
+  padding: 0;
   font-size: 18px;
   font-weight: 500;
   white-space: nowrap;
-  line-height: 1.2;
+  line-height: 1;
 }
 
-/* CTA Button - Pill */
+/* CTA Button - Same Size, Normal Weight */
 .btn-cta {
   background-color: #C5F946;
   color: #000 !important;
-  padding: 8px 20px;
+  padding: 10px 20px;
   border-radius: 999px;
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 400;
+  font-size: 18px;
   text-align: center;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -159,7 +160,7 @@
   border: none;
   white-space: nowrap;
   display: inline-block;
-  line-height: 1.2;
+  line-height: 1;
 }
 
 .btn-cta:hover {
