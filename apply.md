@@ -6,8 +6,6 @@
 [Анализ по 10 разделам бизнеса](/checkup/prep/06-10-diagnostic-sections) <br>
 [ИИ-аналитика на основе RAG-модели](/checkup/prep/05-ai-analytics-rag-management) <br>
 
-<span class="signal-badge">⚡️ Сигнал</span>
-
 Если вы уже изучили эти материалы и готовы войти в процесс, заполните форму ниже.
 
 ## Форма запроса на Чекап
