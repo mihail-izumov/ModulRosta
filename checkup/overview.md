@@ -3,21 +3,7 @@
   <a href="/technology/overview" class="signal-link">Модуля Роста®</a>
 </span>
 
-<style>
-.signal-badge a.signal-link {
-  color: inherit !important;
-  text-decoration: underline !important;
-  text-decoration-color: currentColor !important;
-  text-underline-offset: 2px !important;
-  border-bottom: none !important;
-}
-
-.signal-badge a.signal-link:hover {
-  opacity: 0.8;
-}
-</style>
-
-<br><br>
+<br>
 
 # Чекап
 
@@ -113,6 +99,20 @@
 ### Ещё не готовы?
 - [Посмотреть детали](/checkup/specs)
 - [Проверить готовность по чек-листу](/checkup/checklist)
+
+<style>
+.signal-badge a.signal-link {
+  color: inherit !important;
+  text-decoration: underline !important;
+  text-decoration-color: currentColor !important;
+  text-underline-offset: 2px !important;
+  border-bottom: none !important;
+}
+
+.signal-badge a.signal-link:hover {
+  opacity: 0.8;
+}
+</style>
 
 <style>
 /* --- ОБЩИЕ СТИЛИ ФОРМЫ --- */
