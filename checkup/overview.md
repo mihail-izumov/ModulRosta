@@ -6,7 +6,9 @@
 <style>
 .signal-badge a.signal-link {
   color: inherit !important;
-  text-decoration: none !important;
+  text-decoration: underline !important;
+  text-decoration-color: currentColor !important;
+  text-underline-offset: 2px !important;
   border-bottom: none !important;
 }
 
