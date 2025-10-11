@@ -2,6 +2,7 @@
   ⚡️ Работает на технологии 
   <a href="/technology/overview" class="signal-link">Модуля Роста®</a>
 </span> <br><br>
+
 <h1>
   <span>Чекапы</span><br class="mobile-break"> <span>Модуля Роста®</span>
 </h1>
@@ -9,23 +10,10 @@
   <strong>Глубокий аудит эффективности для компаний, </strong><br class="mobile-break"> готовых к радикальной оптимизации
 </h3>
 
-<div class="start-button-container">
-  <a href="/apply" class="btn btn-primary">Пройти Чекап →</a>
+<div class="checkup-cta-section">
+  <h3 class="checkup-price">От ₽249,000</h3>
+  <a href="/apply" class="btn-cta">Пройти Чекап</a>
 </div>
-
-<style>
-/* По умолчанию скрываем тег <br> с классом .mobile-break */
-.mobile-break {
-  display: none;
-}
-
-/* Показываем <br> только на мобильных устройствах (экраны до 767px включительно) */
-@media (max-width: 767px) {
-  .mobile-break {
-    display: inline;
-  }
-}
-</style>
 
 Не ещё один отчёт, а системный подход шаг за шагом: все одинаково видят цели, оценивают как работает бизнес, непрерывно его улучшают и действуют в соответствии с точным и гибким планом.
 
@@ -35,14 +23,12 @@
 
 ### Результаты
 - [X] **Конкретные цифры** — не общие советы, а точные метрики: "Увеличить маржинальность на X% через оптимизацию закупок" или "Снизить текучесть персонала на Y% через изменение системы мотивации"
-- [X] **Приоритизированный план** — что делать в первую очередь для максимального эффекта, а что может подождать. Ранжированный список действий с указанием потенциального эффекта и сроков внедрения.
-- [X] **Готовые решения** — не только диагностика проблем, но и пошаговые алгоритмы их устранения с учетом взаимосвязей между процессами.
-### Финальное резюме чекапа
-- [X]  **Детальный отчёт** с анализом ~180 ключевых метрик
-- [X]  **Карта приоритетов** — что делать в первую очередь
-- [X]  **Конкретные цифры** потенциала роста по каждому направлению
-- [X]  **Пошаговый план** внедрения с временными рамками
-- [X]  **Система контроля** для отслеживания результатов
+- [X] **Приоритизированный план** — что делать в первую очередь для максимального эффекта, а что может подождать. Ранжированный список действий с указанием потенциального эффекта и сроков внедрения
+- [X] **Готовые решения** — не только диагностика проблем, но и пошаговые алгоритмы их устранения с учетом взаимосвязей между процессами
+- [X] **Детальный отчёт** с анализом ~180 ключевых метрик
+- [X] **Пошаговый план** внедрения с временными рамками
+- [X] **Система контроля** для отслеживания результатов
+
 ### Результат для собственника
 - [X] **Новый уровень стратегического мышления** (как применить фрейм-менеджмент к конкретному бизнесу)
 - [X] **Конкретные инструменты** для решения текущих задач (план изменений)
@@ -113,6 +99,18 @@
 - [Проверить готовность по чек-листу](/checkup/checklist)
 
 <style>
+/* Mobile break */
+.mobile-break {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-break {
+    display: inline;
+  }
+}
+
+/* Signal badge */
 .signal-badge a.signal-link {
   color: inherit !important;
   text-decoration: underline !important;
@@ -124,116 +122,32 @@
 .signal-badge a.signal-link:hover {
   opacity: 0.8;
 }
-</style>
 
-<style>
-/* --- ОБЩИЕ СТИЛИ ФОРМЫ --- */
-.custom-form { 
-  max-width: 500px; 
-  margin: 0; 
-  padding: 20px; 
-  background-color: #000000; 
-  border-radius: 5px; 
-  color: #ffffff; 
-}
-.form-group { 
-  margin-bottom: 15px; 
-}
-.form-input { 
-  width: 100%; 
-  padding: 10px; 
-  box-sizing: border-box; 
-  border: 1px solid #444; 
-  border-radius: 4px; 
-  font-size: 16px; 
-  background-color: #000000; 
-  color: #ffffff; 
-}
-.checkbox-group { 
-  display: flex; 
-  align-items: flex-start; 
-  gap: 8px; 
-  margin-bottom: 20px; 
-}
-.checkbox-group input { 
-  margin-top: 3px; 
-  width: auto; 
-}
-.checkbox-group label { 
-  font-size: 14px; 
-  line-height: 1.4; 
-}
-.policy-link { 
-  color: #4CAF50; 
-  text-decoration: underline; 
+/* Checkup CTA Section */
+.checkup-cta-section {
+  background-color: #2a2a2a;
+  padding: 32px 40px;
+  border-radius: 12px;
+  margin: 32px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
 }
 
-/* --- СТИЛИ КНОПКИ И СООБЩЕНИЙ --- */
-.submit-btn { 
-  background-color: #ffffff; 
-  color: #000000; 
-  padding: 12px 20px; 
-  border: none; 
-  border-radius: 4px; 
-  cursor: pointer; 
-  font-size: 16px; 
-  width: 100%; 
-  font-weight: bold; 
-  transition: opacity 0.3s; 
-}
-.submit-btn:hover { 
-  opacity: 0.9; 
-}
-.submit-btn:disabled { 
-  opacity: 0.5; 
-  cursor: not-allowed; 
-}
-.success-message { 
-  margin-top: 15px; 
-  color: white; 
-  font-weight: normal; 
-  font-size: 16px; 
-  display: flex; 
-  align-items: center; 
-  gap: 8px; 
-}
-.success-message::before { 
-  content: "✓"; 
-  color: white; 
-  font-size: 18px; 
+.checkup-price {
+  color: #ffffff;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
 }
 
-/* --- СТИЛИ ДЛЯ БЛОКА РЕКОМЕНДАЦИЙ --- */
-.recommendation-section { 
-  border-top: 1px solid #444; 
-  margin-top: 20px; 
-  padding-top: 30px; 
-  padding-bottom: 30px; 
-}
-.recommendation-section h4 { 
-  margin-top: 0; 
-  margin-bottom: 15px; 
-  color: #ffffff; 
-  font-weight: 500; 
-}
-.recommendation-section .form-group label { 
-  display: block; 
-  margin-bottom: 10px; 
-}
-.form-hint { 
-  color: #808080; 
-  font-style: normal; 
-  text-align: left; 
-  font-size: 0.8em; 
-  line-height: 1.5; 
-  margin-top: 15px; 
-}
-
-/* --- ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ КНОПОК --- */
-.btn {
-  display: inline-block;
-  padding: 12px 24px;
-  border-radius: 8px;
+/* CTA Button */
+.btn-cta {
+  background-color: #C5F946;
+  color: #000 !important;
+  padding: 14px 32px;
+  border-radius: 999px;
   font-weight: 700;
   font-size: 16px;
   text-align: center;
@@ -241,113 +155,33 @@
   transition: all 0.3s ease;
   cursor: pointer;
   border: none;
-  margin: 10px 0;
+  white-space: nowrap;
+  display: inline-block;
 }
 
-.btn:hover {
+.btn-cta:hover {
+  background-color: #b3e63d;
   transform: translateY(-2px);
   text-decoration: none !important;
+  box-shadow: 0 4px 12px rgba(197, 249, 70, 0.3);
 }
 
-/* --- СТИЛЬ 1: ОСНОВНАЯ КНОПКА (ЯРКАЯ) --- */
-.btn-primary {
-  background-color: #C5F946; /* Яркий лаймовый */
-  color: #000 !important;
-}
-
-.btn-primary:hover {
-  background-color: #347b6c; /* Темный при наведении */
-  color: white !important;
-}
-
-/* --- СТИЛЬ 2: ВТОРОСТЕПЕННАЯ КНОПКА (ТЕМНАЯ) --- */
-.btn-secondary {
-  background-color: #347b6c; /* Темный */
-  color: white !important;
-}
-
-.btn-secondary:hover {
-  background-color: #C5F946; /* Яркий при наведении */
-  color: #000 !important;
-}
-
-/* --- Контейнер для отдельной кнопки --- */
-.start-button-container {
-  margin: 20px 0;
-  text-align: left;
-}
-
-.start-button-container .btn {
-  display: inline-block;
-  margin: 0;
-}
-</style>
-
-<script>
-export default {
-  mounted() {
-    this.initForm();
-  },
-  methods: {
-    initForm() {
-      if (typeof document === 'undefined') return;
-      const form = document.getElementById('myForm');
-      if (!form) return;
-      const successMessage = document.getElementById('successMessage');
-      const submitBtn = form.querySelector('.submit-btn');
-      const requiredInputs = Array.from(form.querySelectorAll('input[required]'));
-      
-      const checkFormValidity = () => {
-        const allRequiredFilled = requiredInputs.every(input => {
-          if (input.type === 'checkbox') {
-            return input.checked; // Для чекбокса проверяем, нажат ли он
-          } else {
-            return input.value.trim() !== ''; // Для остальных полей - не пустое ли значение
-          }
-        });
-        submitBtn.disabled = !allRequiredFilled;
-      };
-      
-      requiredInputs.forEach(input => {
-        // Для чекбокса событие 'change' подходит лучше, чем 'input'
-        const eventType = input.type === 'checkbox' ? 'change' : 'input';
-        input.addEventListener(eventType, checkFormValidity);
-      });
-      
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (submitBtn.disabled) return;
-        const friendContact = form.friendContact.value.trim();
-        const formData = {
-          name: form.name.value,
-          phone: form.phone.value,
-          email: form.email.value,
-          _subject: `Новый запрос на аудит ${friendContact ? '(+ Рекомендация)' : ''}`,
-          ...(friendContact && { recommendation_for: friendContact })
-        };
-        form.reset();
-        successMessage.style.display = 'flex';
-        submitBtn.disabled = true;
-        fetch('https://formspree.io/f/mdkzjopz', {
-          method: 'POST',
-          headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
-        }).then(response => { 
-          if (!response.ok) throw new Error('Ошибка сервера');
-        }).catch(error => { 
-          console.error('Ошибка:', error);
-          const mailtoBody = `Имя: ${formData.name}\nТелефон: ${formData.phone}\nEmail: ${formData.email}${friendContact ? `\nРекомендация для: ${friendContact}`:''}`;
-          window.location.href = `mailto:theorchestramanco@gmail.com?subject=${encodeURIComponent(formData._subject)}&body=${encodeURIComponent(mailtoBody)}`;
-        }).finally(() => { 
-          setTimeout(() => { 
-            successMessage.style.display = 'none'; 
-            checkFormValidity(); 
-          }, 15000); 
-        });
-      });
-      
-      checkFormValidity();
-    }
+/* Responsive */
+@media (max-width: 767px) {
+  .checkup-cta-section {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 24px 20px;
+    gap: 16px;
+  }
+  
+  .checkup-price {
+    font-size: 24px;
+    text-align: center;
+  }
+  
+  .btn-cta {
+    width: 100%;
   }
 }
-</script>
+</style>
