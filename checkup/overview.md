@@ -1,9 +1,9 @@
 <span class="signal-badge">
   ⚡️ Работает на технологии 
-  <a href="https://signal-samara.ru/modul-rosta">Модуля Роста®</a>
+  <a href="https://signal-samara.ru/modul-rosta" class="signal-link">Модуля Роста®</a>
 </span>
 
-<style module>
+<style>
 .signal-badge {
   display: inline-block;
   padding: 8px 16px;
@@ -22,14 +22,16 @@
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
-.signal-badge a {
-  color: inherit;
-  text-decoration: none;
+/* Увеличиваем специфичность для переопределения стилей VitePress */
+.signal-badge a.signal-link {
+  color: white !important;
+  text-decoration: none !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
   transition: border-color 0.2s ease;
 }
 
-.signal-badge a:hover {
+.signal-badge a.signal-link:hover {
+  color: white !important;
   border-bottom-color: white;
 }
 </style>
