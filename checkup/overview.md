@@ -6,8 +6,8 @@
 <style>
 .signal-badge a.signal-link {
   color: inherit !important;
-  text-decoration: underline !important;
-  text-decoration-color: currentColor !important;
+  text-decoration: none !important;
+  border-bottom: none !important;
 }
 
 .signal-badge a.signal-link:hover {
@@ -15,7 +15,7 @@
 }
 </style>
 
-<br><br>
+<br>
 
 # Чекап
 
