@@ -24,8 +24,7 @@ export default defineConfig({
           { text: 'Контакт', href: '/about/contacts' },
           { text: 'Условия использования', href: '/terms' },
           { text: 'Телеграм-канал', href: 'https://t.me/runScale', target: '_blank' },
-          { text: '⚡️ Сигнал', href: 'https://cffx.ru', target: '_blank' },
-          { text: 'Создано в Orxaos', href: 'https://orxaos.sbs', target: '_blank' }
+          { text: '⚡️ Сигнал', href: 'https://cffx.ru', target: '_blank' }
         ];
         let html = '<hr style="border: 0; border-top: 1px solid var(--vp-c-divider); margin: 24px 0;">';
         html += '<div class="custom-footer-links"><div class="footer-row">';
@@ -41,7 +40,7 @@ export default defineConfig({
         html += '</div></div>';
         html += '<div style="margin-top: 24px; text-align: center;">';
         html += '<div style="color: white; font-size: 14px;">Расти по своим правилам</div>';
-        html += '<div style="color: var(--vp-c-text-2); margin-top: 4px; font-size: 14px; text-align: center;">© Модуль Роста® 2010 — 2025 • Создано в Orxaos</div>';
+        html += '<div style="color: var(--vp-c-text-2); margin-top: 4px; font-size: 14px; text-align: center;">© Модуль Роста® 2010&nbsp;—&nbsp;2025&nbsp;•&nbsp;Создано в <a href="https://orxaos.sbs" target="_blank" rel="noopener noreferrer">Orxaos</a></div>';
         return html;
       }
       function replaceFooter() {
