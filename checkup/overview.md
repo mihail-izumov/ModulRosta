@@ -123,31 +123,32 @@
   opacity: 0.8;
 }
 
-/* Checkup CTA Section - Compact */
+/* Checkup CTA Section - Single Line Pill */
 .checkup-cta-section {
   background-color: #2a2a2a;
-  padding: 16px 24px;
-  border-radius: 16px;
+  padding: 8px 12px 8px 20px;
+  border-radius: 999px;
   margin: 24px 0;
   display: inline-flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   width: fit-content;
 }
 
 .checkup-price {
   color: #ffffff;
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
-/* CTA Button - Compact */
+/* CTA Button - Pill */
 .btn-cta {
   background-color: #C5F946;
   color: #000 !important;
-  padding: 10px 24px;
+  padding: 8px 20px;
   border-radius: 999px;
   font-weight: 600;
   font-size: 15px;
@@ -158,6 +159,7 @@
   border: none;
   white-space: nowrap;
   display: inline-block;
+  line-height: 1.2;
 }
 
 .btn-cta:hover {
@@ -173,8 +175,9 @@
     display: flex;
     width: 100%;
     flex-direction: column;
-    padding: 20px;
-    gap: 14px;
+    padding: 16px 20px;
+    gap: 12px;
+    border-radius: 20px;
   }
   
   .checkup-price {
