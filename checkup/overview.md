@@ -1,6 +1,6 @@
 <span class="signal-badge">
   ⚡️ Работает на технологии 
-  <a href="https://signal-samara.ru/modul-rosta" class="signal-link">Модуля Роста®</a>
+  <a href="/technology/overview" class="signal-link">Модуля Роста®</a>
 </span>
 
 <style>
