@@ -7,7 +7,7 @@
   <span>Чекапы</span><br class="mobile-break"> <span>Модуля Роста®</span>
 </h1>
 <h3>
-  <strong>Глубокий аудит эффективности для компаний, </strong><br class="mobile-break"> готовых к радикальной оптимизации
+  <strong>Глубокий аудит эффективности для&nbsp;компаний, готовых к&nbsp;радикальной оптимизации</strong>
 </h3>
 
 <div class="checkup-cta-section">
@@ -123,33 +123,34 @@
   opacity: 0.8;
 }
 
-/* Checkup CTA Section */
+/* Checkup CTA Section - Compact */
 .checkup-cta-section {
   background-color: #2a2a2a;
-  padding: 32px 40px;
-  border-radius: 12px;
-  margin: 32px 0;
-  display: flex;
+  padding: 16px 24px;
+  border-radius: 16px;
+  margin: 24px 0;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
+  width: fit-content;
 }
 
 .checkup-price {
   color: #ffffff;
   margin: 0;
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
-/* CTA Button */
+/* CTA Button - Compact */
 .btn-cta {
   background-color: #C5F946;
   color: #000 !important;
-  padding: 14px 32px;
+  padding: 10px 24px;
   border-radius: 999px;
-  font-weight: 700;
-  font-size: 16px;
+  font-weight: 600;
+  font-size: 15px;
   text-align: center;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -161,27 +162,29 @@
 
 .btn-cta:hover {
   background-color: #b3e63d;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   text-decoration: none !important;
-  box-shadow: 0 4px 12px rgba(197, 249, 70, 0.3);
+  box-shadow: 0 4px 12px rgba(197, 249, 70, 0.25);
 }
 
-/* Responsive */
+/* Responsive - Full width on mobile */
 @media (max-width: 767px) {
   .checkup-cta-section {
+    display: flex;
+    width: 100%;
     flex-direction: column;
-    align-items: stretch;
-    padding: 24px 20px;
-    gap: 16px;
+    padding: 20px;
+    gap: 14px;
   }
   
   .checkup-price {
-    font-size: 24px;
+    font-size: 18px;
     text-align: center;
   }
   
   .btn-cta {
     width: 100%;
+    padding: 12px 24px;
   }
 }
 </style>
