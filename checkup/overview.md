@@ -1,14 +1,14 @@
 <span class="signal-badge">
   ⚡️ Работает на технологии 
   <a href="/technology/overview" class="signal-link">Модуля Роста®</a>
-</span>
+</span> <br>
 <h1>
   <span>Чекапы</span><br class="mobile-break"> <span>Модуля Роста®</span>
 </h1>
 
-<p>
+<h2>
   <strong>Глубокий аудит эффективности для компаний, </strong><br class="mobile-break"> готовых к радикальной оптимизации
-</p>
+</h2>
 
 <style>
 /* По умолчанию скрываем тег <br> с классом .mobile-break */
