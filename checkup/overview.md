@@ -9,6 +9,10 @@
   <strong>Глубокий аудит эффективности для компаний, </strong><br class="mobile-break"> готовых к радикальной оптимизации
 </h3>
 
+<div class="start-button-container">
+  <a href="/apply" class="btn btn-primary">Пройти Чекап →</a>
+</div>
+
 <style>
 /* По умолчанию скрываем тег <br> с классом .mobile-break */
 .mobile-break {
@@ -103,12 +107,6 @@
 
 Результат любого способа:
 90-мин. диагностическая сессия → персонализированный план чекапа → взвешенное решение о дальнейшей работе
-
-## Старт
-
-<div class="start-button-container">
-  <a href="/apply" class="btn btn-primary">Пройти Чекап →</a>
-</div>
 
 ### Ещё не готовы?
 - [Посмотреть детали](/checkup/specs)
