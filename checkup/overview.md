@@ -1,7 +1,38 @@
 <span class="signal-badge">
   ⚡️ Работает на технологии 
-  <a href="/technology/overview">Модуля Роста®</a>
+  <a href="https://signal-samara.ru/modul-rosta">Модуля Роста®</a>
 </span>
+
+<style module>
+.signal-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.signal-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.signal-badge a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  transition: border-color 0.2s ease;
+}
+
+.signal-badge a:hover {
+  border-bottom-color: white;
+}
+</style>
 
 <br>
 
