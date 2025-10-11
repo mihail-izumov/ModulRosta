@@ -98,7 +98,7 @@ export default defineConfig({
       }).observe(document, { subtree: true, childList: true });
     })();
     `],
-    ['style', {}, `
+['style', {}, `
     .VPSwitchAppearance{display:none!important}
     .VPSocialLink[aria-label="login-link"]::after{font-weight:600!important}
     .VPHero .name,.VPHero .text,.VPHero .tagline{color:white!important}
@@ -117,8 +117,21 @@ export default defineConfig({
     html:not(.dark) .VPFeature .link-text{color:#347b6c!important}
     html:not(.dark) .VPFeature .link-text .icon{fill:#347b6c!important}
     html:not(.dark) a.VPFeature.link:hover{background-color:#2f2f2f!important;border-color:#555!important}
-    :root{--vp-c-brand-1:#347b6c;--vp-c-brand-2:#C5F946;--vp-c-brand-3:#347b6c;--vp-c-brand-soft:rgba(52,123,108,.14)}
+    
+    :root{
+      --vp-c-brand-1:#347b6c;
+      --vp-c-brand-2:#C5F946;
+      --vp-c-brand-3:#347b6c;
+      --vp-c-brand-soft:rgba(52,123,108,.14);
+      --vp-c-bg-mute:rgba(52,123,108,.1);
+      --vp-c-bg-soft:rgba(52,123,108,.1);
+      --vp-c-divider:rgba(52,123,108,.2);
+      --vp-c-gutter:rgba(52,123,108,.1);
+      --vp-c-text-2:#b3b3b3;
+    }
+    
     .VPNavBarTitle .logo{height:32px!important;width:auto!important}
+    
     @media (min-width:961px){
       .VPNavBar .content{gap:0!important}
       .VPNavBarMenu{margin-right:0!important}
@@ -154,7 +167,7 @@ export default defineConfig({
     .footer-row a:hover{color:var(--vp-c-brand)}
     .dot-separator{color:var(--vp-c-text-3);font-weight:bold}
     .VPFooter .copyright{margin-top:2px!important}
-    `]
+`]
   ],
   base: '/',
   outDir: '.vitepress/dist',
