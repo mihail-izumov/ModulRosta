@@ -98,9 +98,8 @@ export default defineConfig({
       }).observe(document, { subtree: true, childList: true });
     })();
     `],
-['style', {}, `
+    ['style', {}, `
     .VPSwitchAppearance{display:none!important}
-    .VPSocialLink[aria-label="login-link"]::after{font-weight:600!important}
     .VPHero .name,.VPHero .text,.VPHero .tagline{color:white!important}
     .VPHero .tagline a{color:var(--vp-c-brand-2)!important;text-decoration:none;transition:all .3s ease}
     .VPHero .tagline a:hover{color:var(--vp-c-brand-1)!important;text-decoration:underline}
@@ -138,12 +137,14 @@ export default defineConfig({
       .VPNavBarSocialLinks{min-width:auto!important;justify-content:flex-end!important;gap:16px!important;margin-left:0!important;flex-shrink:0!important}
       .VPSocialLink:not(:last-child){margin-right:4px!important}
     }
+    
     @media (max-width:960px) and (min-width:769px){
       .VPNavBar .content{gap:0!important}
       .VPNavBarMenu{margin-right:0!important}
       .VPNavBarSocialLinks{margin-left:4px!important;gap:12px!important;flex-shrink:0!important}
       .VPSocialLink:not(:last-child){margin-right:2px!important}
     }
+    
     @media (max-width:768px){
       .VPNavBar .VPNavBarSocialLinks{display:none!important}
       .VPNavScreen{overflow-y:auto!important}
@@ -151,23 +152,67 @@ export default defineConfig({
       .VPNavScreen .VPNavScreenSocialLinks,.VPNavScreen .VPNavScreenAppearance{margin:16px!important;padding:16px!important;border:1px solid var(--vp-c-divider)!important;border-radius:8px!important;background:var(--vp-c-bg-soft)!important}
       .VPNavScreen .VPNavScreenAppearance{display:none!important}
       .VPNavScreen .VPNavScreenSocialLinks{display:flex!important;flex-direction:column!important;gap:12px!important}
-      .VPNavScreen .VPSocialLink{display:flex!important;align-items:center!important;justify-content:center!important;padding:12px!important;background:var(--vp-c-bg)!important;border-radius:6px!important;border:1px solid var(--vp-c-divider)!important;transition:all .3s ease!important;text-decoration:none!important}
-      .VPNavScreen .VPSocialLink:hover{background:var(--vp-c-bg-mute)!important;border-color:var(--vp-c-brand)!important}
-      .VPNavScreen .VPSocialLink[aria-label="login-link"]::after{content:"Результаты Чекапов"!important;font-size:16px!important;font-weight:600!important;color:var(--vp-c-text-1)!important}
+      .VPNavScreen .VPSocialLink{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;background:transparent!important;border-radius:0!important;border:none!important;transition:all .3s ease!important;text-decoration:none!important}
+      .VPNavScreen .VPSocialLink:hover{background:transparent!important;border-color:transparent!important}
+      .VPNavScreen .VPSocialLink[aria-label="login-link"]::after{
+        display:flex!important;
+        align-items:center!important;
+        justify-content:center!important;
+        width:100%!important;
+        content:"Результаты Чекапов"!important;
+        background-image:linear-gradient(-45deg, #c5f946, #85a931, #c5f946, #85a931);
+        background-size:400% 400%;
+        animation:liquid-fluid 6s ease infinite;
+        color:#000!important;
+        border:none!important;
+        font-size:18px!important;
+        font-weight:600!important;
+        border-radius:12px!important;
+        padding:18px!important;
+        margin:0!important;
+        height:52px!important;
+        min-height:52px!important;
+      }
       .footer-row{flex-direction:column!important;gap:8px!important}
       .dot-separator{display:none!important}
     }
+    
+    @keyframes liquid-fluid {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
     .VPSocialLink .vpi-social-github{display:none!important}
     .VPSocialLink{width:auto!important;height:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important}
-    .VPSocialLink[aria-label="login-link"]::after{content:"Результаты Чекапов";font-size:14px;color:var(--vp-c-text-1);padding:6px 12px;border:1px solid var(--vp-c-divider);border-radius:6px;background:transparent;transition:all .3s ease;white-space:nowrap;margin:0;flex-shrink:0}
-    .VPSocialLink[aria-label="login-link"]:hover::after{background:var(--vp-c-bg-soft);border-color:var(--vp-c-brand)}
+    .VPSocialLink[aria-label="login-link"]::after{
+      content:"Результаты Чекапов";
+      font-size:14px;
+      color:#000;
+      padding:8px 16px;
+      border-radius:12px;
+      background-image:linear-gradient(-45deg, #c5f946, #85a931, #c5f946, #85a931);
+      background-size:400% 400%;
+      animation:liquid-fluid 6s ease infinite;
+      transition:all 0.3s ease;
+      white-space:nowrap;
+      margin:0;
+      flex-shrink:0;
+      font-weight:600;
+      border:none;
+    }
+    .VPSocialLink[aria-label="login-link"]:hover::after{
+      background-image:linear-gradient(-45deg, #85a931, #c5f946, #85a931, #c5f946);
+      color:#000;
+      transform:translateY(-2px);
+    }
+    
     .custom-footer-links{display:flex;flex-direction:column;gap:3px;align-items:center}
     .footer-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
     .footer-row a{color:var(--vp-c-text-2);text-decoration:none;transition:color .3s ease}
     .footer-row a:hover{color:var(--vp-c-brand)}
     .dot-separator{color:var(--vp-c-text-3);font-weight:bold}
     .VPFooter .copyright{margin-top:2px!important}
-`]
+    `]
   ],
   base: '/',
   outDir: '.vitepress/dist',
@@ -187,7 +232,6 @@ export default defineConfig({
       quote: 'Но если вы не измените направление, и если вы продолжите искать, вы можете в конечном итоге оказаться там, куда вы направляетесь.',
       linkText: 'Вернуться домой'
     },
-    
     sidebar: {
       '/brew/': sidebarBrew(),
       '/radar/index-smr/': sidebarRadarSamara(),
@@ -202,7 +246,6 @@ export default defineConfig({
       '/clients/': sidebarClients(),
       '/terms/': sidebarTerms()
     },
-    
     search: {
       provider: 'local',
       options: {
@@ -232,6 +275,7 @@ export default defineConfig({
   }
 })
 
+// Остальные функции остаются без изменений
 function nav(): DefaultTheme.NavItem[] {
   return [
     { text: 'Чекапы', link: '/checkup/overview' },
