@@ -11,31 +11,26 @@
 .layout-home .VPFeature a:hover { color: #4ade80 !important; }
 
 /* --- ЦЕНТРИРОВАНИЕ ДЛЯ pageClass: centered-page --- */
-/* 1) Убираем grid у документа, чтобы не было левой колонки под сайдбар */
 .centered-page .VPDoc {
   display: block !important;
 }
 
-/* 2) На всякий случай скрываем aside/outline, если они рендерятся */
 .centered-page .VPDoc .aside,
 .centered-page .VPDoc .outline {
   display: none !important;
 }
 
-/* 3) Центрируем контейнер и задаём ширины */
 .centered-page .VPDoc .container {
   max-width: 1152px;
   margin: 0 auto;
   padding: 0 24px;
 }
 
-/* Внутренний контент немного уже контейнера для комфортного чтения */
 .centered-page .VPDoc .content {
   max-width: 928px;
   margin: 0 auto;
 }
 
-/* 4) Мобильная адаптация */
 @media (max-width: 768px) {
   .centered-page .VPDoc .container { padding: 0 16px; }
   .centered-page .VPDoc .content { max-width: 100%; }
@@ -44,20 +39,19 @@
 /* --- Фирменный лаймовый бейдж Signal (v3: Стиль тега) --- */
 .signal-badge {
   display: inline-block;
-  padding: 2px 12px;           /* Минимальные отступы для компактности */
-  border-radius: 16px;         /* Полное скругление, как у тегов */
-  background: #282A2E;         /* Слегка измененный фон для контраста */
-  border: 1px solid #bfff2a;   /* Тонкая лаймовая обводка */
-  color: #bfff2a;               /* Лаймовый цвет текста */
+  padding: 2px 12px;
+  border-radius: 16px;
+  background: #282A2E;
+  border: 1px solid #bfff2a;
+  color: #bfff2a;
   font-weight: 500;
-  font-size: 0.875em;          /* Маленький размер шрифта */
-  line-height: 1.5;            /* Для лучшего вертикального выравнивания */
-  box-shadow: none;              /* Полное отсутствие теней */
-  transition: none;              /* Отключены все анимации */
-  cursor: default;               /* Стандартный курсор без намека на клик */
+  font-size: 0.875em;
+  line-height: 1.5;
+  box-shadow: none;
+  transition: none;
+  cursor: default;
 }
 
-/* Убираем любые возможные изменения при наведении */
 .signal-badge:hover {
   background: #282A2E;
   border-color: #bfff2a;
@@ -65,3 +59,37 @@
   box-shadow: none;
 }
 
+/* --- Фирменный фиолетовый бейдж Korzh (v4: С градиентом) --- */
+.korzh-badge {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 16px;
+  background: #2D2A33;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+  color: #c5a8f0;
+  font-weight: 500;
+  font-size: 0.875em;
+  line-height: 1.5;
+  box-shadow: none;
+  transition: none;
+  cursor: default;
+}
+
+.korzh-badge::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(180deg, #7d6db8 0%, #544d7a 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.korzh-badge:hover {
+  color: #c5a8f0;
+}
