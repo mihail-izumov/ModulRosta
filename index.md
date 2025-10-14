@@ -24,7 +24,7 @@ features:
     link: /radar/overview
     linkText: Оценить Потенциал
   - title: Система Роста Бизнеса
-    details: От Чекапа к устойчивой Системе за 12 недель.
+    details: От Чекапа к устойчивой Системы роста бизнеса за 12 недель.
     link: /system/overview
     linkText: Построить Систему
 ---
