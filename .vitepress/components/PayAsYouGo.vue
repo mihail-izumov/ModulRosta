@@ -1,7 +1,20 @@
 <script setup>
 import { ref } from 'vue'
-// По умолчанию открыта первая вкладка
+
 const activeTab = ref('why-not-promise')
+
+const openAccordions = ref({
+  commitment1: false,
+  commitment2: false,
+  commitment3: false,
+  // группы внутри
+  commitment1a: false,
+  commitment2a: false,
+  commitment3a: false
+})
+const toggleAccordion = (key) => {
+  openAccordions.value[key] = !openAccordions.value[key]
+}
 </script>
 
 <template>
@@ -14,6 +27,9 @@ const activeTab = ref('why-not-promise')
     </button>
     <button :class="{ active: activeTab === 'guarantee-details' }" @click="activeTab = 'guarantee-details'">
       Как это работает
+    </button>
+    <button :class="{ active: activeTab === 'cause' }" @click="activeTab = 'cause'">
+      Что значит «по нашей вине»
     </button>
     <button :class="{ active: activeTab === 'comparison' }" @click="activeTab = 'comparison'">
       Сравнение с рынком
@@ -37,50 +53,75 @@ const activeTab = ref('why-not-promise')
         <li><strong>Возврат денег</strong> означает, что аналитик <strong>не несет ответственности</strong> за внедрение</li>
         <li><strong>Красивые цифры</strong> отвлекают от главного — <strong>реальных изменений</strong> в бизнесе</li>
       </ul>
-      <h4>Мы выбрали другой путь</h4>
-      <p>
-        Вместо маркетинговых обещаний мы взяли на себя <strong>конкретное обязательство</strong> — <strong>работать до получения результата</strong>. Это означает, что ваши деньги оплачивают <strong>движение вперед</strong>, а не отчеты.
-      </p>
+      <div class="custom-dark-block">
+        <p>
+          <strong>Мы выбрали другой путь</strong><br>
+          Вместо маркетинговых обещаний мы взяли на себя <strong>конкретное обязательство</strong> — <strong>работать до получения результата</strong>.<br>
+          Это означает, что ваши деньги оплачивают <strong>движение вперед</strong>, а не отчеты.
+        </p>
+      </div>
     </div>
 
     <!-- Вкладка: Наше обязательство -->
     <div v-show="activeTab === 'commitment'" class="content-mr">
       <h3>Как работает наше обязательство</h3>
-      <p>В течение первых 30 дней совместной работы вы получаете:</p>
-      <ul>
-        <li>
-          <strong>Карту системных узких мест</strong>
-          <ul>
+
+      <!-- Аккордеон 1 -->
+      <div>
+        <button class="accordion-btn" @click="toggleAccordion('commitment1')">
+          <span :class="{'arrow-open': openAccordions.commitment1}">▸</span> Карту системных узких мест
+        </button>
+        <div v-show="openAccordions.commitment1" class="accordion-content">
+          <button class="accordion-sub-btn" @click="toggleAccordion('commitment1a')">
+            <span :class="{'arrow-open': openAccordions.commitment1a}">▸</span> Подробнее
+          </button>
+          <ul v-show="openAccordions.commitment1a">
             <li>Конкретные данные о потерях эффективности</li>
             <li>Измеримые показатели каждой проблемы</li>
             <li>Приоритизация по влиянию на результат</li>
             <li>Валидация командой — не теоретические выводы, а подтверждённые факты</li>
           </ul>
-        </li>
-        <li>
-          <strong>Три готовых к внедрению решения</strong>
-          <ul>
+        </div>
+      </div>
+      <!-- Аккордеон 2 -->
+      <div>
+        <button class="accordion-btn" @click="toggleAccordion('commitment2')">
+          <span :class="{'arrow-open': openAccordions.commitment2}">▸</span> Три готовых к внедрению решения
+        </button>
+        <div v-show="openAccordions.commitment2" class="accordion-content">
+          <button class="accordion-sub-btn" @click="toggleAccordion('commitment2a')">
+            <span :class="{'arrow-open': openAccordions.commitment2a}">▸</span> Подробнее
+          </button>
+          <ul v-show="openAccordions.commitment2a">
             <li>Согласованные с командой планы действий</li>
             <li>Назначенные ответственные за каждое направление</li>
             <li>Чёткие критерии успеха по каждому решению</li>
             <li>Ресурсы и инструменты для реализации</li>
           </ul>
-        </li>
-        <li>
-          <strong>Запущенные пилотные проекты</strong>
-          <ul>
+        </div>
+      </div>
+      <!-- Аккордеон 3 -->
+      <div>
+        <button class="accordion-btn" @click="toggleAccordion('commitment3')">
+          <span :class="{'arrow-open': openAccordions.commitment3}">▸</span> Запущенные пилотные проекты
+        </button>
+        <div v-show="openAccordions.commitment3" class="accordion-content">
+          <button class="accordion-sub-btn" @click="toggleAccordion('commitment3a')">
+            <span :class="{'arrow-open': openAccordions.commitment3a}">▸</span> Подробнее
+          </button>
+          <ul v-show="openAccordions.commitment3a">
             <li>Работающие процессы по каждому из решений</li>
             <li>Первые измеримые результаты пилотов</li>
             <li>Обратная связь от команды по каждому нововведению</li>
             <li>План масштабирования успешных пилотов</li>
           </ul>
-        </li>
-      </ul>
-      <h4>Что происходит, если мы не выполняем обязательство</h4>
-      <p>
-        Если по истечении 30 дней <strong>хотя бы один</strong> из трёх пунктов не выполнен <strong>по нашей вине</strong>, мы продолжаем работать до его выполнения <strong>без дополнительной оплаты</strong>.
-      </p>
-      <p><strong>Ключевое условие</strong>: "по нашей вине" означает, что мы не переносим ответственность на клиента за <strong>наши</strong> методологические ошибки или <strong>нашу</strong> неспособность найти решения.</p>
+        </div>
+      </div>
+      <div class="mini-prompt">
+        <strong>Что происходит, если мы не выполняем обязательство</strong><br>
+        Если по истечении 30 дней <strong>хотя бы один</strong> из трёх пунктов не выполнен <strong>по нашей вине</strong>, мы продолжаем работать до его выполнения <strong>без дополнительной оплаты</strong>.<br>
+        <strong>Ключевое условие:</strong> "по нашей вине" означает, что мы не переносим ответственность на клиента за <strong>наши</strong> методологические ошибки или <strong>нашу</strong> неспособность найти решения.
+      </div>
     </div>
 
     <!-- Вкладка: Как это работает -->
@@ -109,7 +150,11 @@ const activeTab = ref('why-not-promise')
           Наш подход: Движение видно через 30 дней</span>
         </li>
       </ul>
-      <h4>Что значит "по нашей вине"</h4>
+    </div>
+
+    <!-- Вкладка: Что значит "по нашей вине" -->
+    <div v-show="activeTab === 'cause'" class="content-mr">
+      <h3>Что значит «по нашей вине»</h3>
       <p>Мы несём <strong>полную ответственность</strong> за:</p>
       <ul>
         <li>Качество аналитики и точность выводов</li>
@@ -176,19 +221,25 @@ const activeTab = ref('why-not-promise')
     <!-- Вкладка: Для кого это -->
     <div v-show="activeTab === 'for-whom'" class="content-mr">
       <h3>Для кого это обязательство</h3>
-      <h4>✅ Подходит, если вы:</h4>
-      <ul>
-        <li>Устали от красивых отчётов без реальных изменений</li>
-        <li>Готовы вкладываться в системные улучшения</li>
-        <li>Хотите видеть прогресс с первого месяца</li>
-        <li>Готовы работать с нашей командой как партнёры</li>
-      </ul>
-      <h4>❌ Не подходит, если вы:</h4>
-      <ul>
-        <li>Ищете советы, которые подкрепляют вашу картину бизнеса</li>
-        <li>Не готовы вовлекать команду в изменения</li>
-        <li>Хотите только анализ без внедрения</li>
-      </ul>
+      <div class="for-whom-cards">
+        <div class="forwhom-card positive">
+          <h4>✅ Подходит, если вы:</h4>
+          <ul>
+            <li>Устали от красивых отчётов без реальных изменений</li>
+            <li>Готовы вкладываться в системные улучшения</li>
+            <li>Хотите видеть прогресс с первого месяца</li>
+            <li>Готовы работать с нашей командой как партнёры</li>
+          </ul>
+        </div>
+        <div class="forwhom-card negative">
+          <h4>❌ Не подходит, если вы:</h4>
+          <ul>
+            <li>Ищете советы, которые подкрепляют вашу картину бизнеса</li>
+            <li>Не готовы вовлекать команду в изменения</li>
+            <li>Хотите только анализ без внедрения</li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <!-- Вкладка: Как начать -->
@@ -200,10 +251,12 @@ const activeTab = ref('why-not-promise')
         <li><strong>Подпишите договор</strong> с зафиксированным обязательством</li>
         <li><strong>Получите результат</strong> в течение 30 дней или продолжение работы бесплатно</li>
       </ol>
-      <div class="result-block">
+      <div class="result-block result-block-equal">
         <p><strong>Готовы работать на результат?</strong></p>
-        <p>Платите только за движение вперед. Обязательство включено в каждый проект.</p>
-        <p>Если вы готовы к системным изменениям, наше обязательство превратит ваш потенциал в <strong>измеримые результаты</strong> уже через месяц.</p>
+        <p>
+          Платите только за движение вперед. Обязательство включено в каждый проект.<br>
+          Если вы готовы к системным изменениям, наше обязательство превратит ваш потенциал в <strong>измеримые результаты</strong> уже через месяц.
+        </p>
         <a href="/apply" class="calc-button">Подать заявку на бизнес-чекап →</a>
       </div>
     </div>
@@ -211,7 +264,6 @@ const activeTab = ref('why-not-promise')
 </template>
 
 <style scoped>
-/* Оставьте ваши стили без изменений */
 .tabs-mr {
   display: flex;
   flex-wrap: wrap;
@@ -252,9 +304,14 @@ const activeTab = ref('why-not-promise')
   font-size: 13px;
   line-height: 1.46;
 }
+.content-mr p,
+.content-mr ul,
+.content-mr li,
+.content-mr ol {
+  font-size: 13px;
+}
 .content-mr p {
   margin: 0;
-  font-size: 13px;
   color: rgba(255,255,255,0.88);
   line-height: 1.46;
 }
@@ -283,60 +340,153 @@ const activeTab = ref('why-not-promise')
   font-weight: 600;
   color: #fff;
 }
-.result-block {
-  background-color: rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+
+/* --- Плашки/блоки --- */
+.result-block,
+.custom-dark-block,
+.mini-prompt {
+  background-color: rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.1);
   padding: 12px 14px;
   border-radius: 8px;
   margin-top: 20px;
 }
-.result-block p {
-  margin: 0 0 12px 0;
-  font-size: 16px;
+.custom-dark-block {
+  margin-bottom: 0;
+  margin-top: 18px;
+}
+.mini-prompt {
+  margin-top: 24px;
+  font-size: 13px;
+}
+
+/* Одинаковый размер текста и стиля для итоговой плашки */
+.result-block-equal p {
+  font-size: 13px;
+}
+
+/* --- Аккордеоны --- */
+.accordion-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 9px 0 9px 2px;
+  text-align: left;
+  color: #c8ff5a;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  cursor: pointer;
+  position: relative;
+  transition: background .2s;
+}
+.accordion-btn .arrow-open {
+  display: inline-block;
+  transform: rotate(90deg);
+  transition: transform 0.18s;
+  margin-right: 5px;
+}
+.accordion-btn span {
+  margin-right: 5px;
+}
+.accordion-content {
+  background: rgba(255,255,255,0.02);
+  border-left: 2px solid #c8ff5a;
+  margin-bottom: 8px;
+  margin-left: 0.5em;
+  border-radius: 6px;
+  padding: 4px 0 6px 12px;
+}
+.accordion-sub-btn {
+  background: none;
+  border: none;
+  color: #dbff75;
+  font-size: 13px;
+  margin: 3px 0 4px 0;
+  cursor: pointer;
+  padding: 2px 0 2px 9px;
+}
+.accordion-sub-btn .arrow-open {
+  transform: rotate(90deg);
+}
+.accordion-sub-btn span { margin-right: 4px; }
+.accordion-content ul {
+  margin: 0 0 7px 0.3em;
+  padding: 0 0 0 15px;
+}
+
+/* --- Карточки Для Кого --- */
+.for-whom-cards {
+  display: flex;
+  gap: 24px;
+  margin: 16px 0 0 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap; /* Чтобы уходило вниз на мобилке */
+}
+.forwhom-card {
+  flex: 1;
+  min-width: 260px;
+  background: rgba(0,0,0,0.25);
+  border: 1.8px solid #c8ff5a;
+  border-radius: 11px;
+  padding: 20px 14px 18px 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.09);
+  transition: box-shadow .22s, transform .22s;
+}
+.forwhom-card.positive {
+  border: 1.8px solid #55e74d;
+}
+.forwhom-card.negative {
+  border: 1.8px solid #f05555;
+}
+.forwhom-card h4 {
+  color: #fff;
+  margin-bottom: 1em;
+  font-size: 14px;
+  text-align: left;
+}
+.forwhom-card ul {
+  margin: 0;
+  padding-left: 15px;
+}
+.forwhom-card ul li {
+  color: #fff;
+  font-size: 13px;
+  margin-bottom: 7px;
   line-height: 1.5;
 }
-.result-highlight {
-  color: #c8ff5a;
+
+@media (max-width: 720px) {
+  .for-whom-cards {
+    flex-direction: column;
+    gap: 13px;
+  }
+  .forwhom-card {
+    min-width: 0;
+    width: 100%;
+  }
 }
-.calc-button {
-  display: inline-block;
-  background: #c8ff5a;
-  color: #0a0a0a;
-  padding: 6px 12px;
-  border-radius: 6px;
-  text-decoration: none;
+
+/* --- Таблица сравнения --- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+th, td {
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.11);
   font-size: 13px;
+}
+th {
+  background: rgba(255,255,255,0.05);
+  color: #c8ff5a;
   font-weight: 600;
-  margin-top: 0;
-  transition: all .2s ease;
+  text-align: left;
 }
-.calc-button:hover {
-  background: #b8ef4a;
-  transform: translateY(-1px);
-}
-/* Card styles retained if using cards elsewhere */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 12px;
-  margin-top: 16px;
-}
-.guarantee-card, .result-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 14px;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-@media (max-width: 768px) {
-  .cards-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  .guarantee-card, .result-card {
-    padding: 12px;
-  }
+tr:last-child td {
+  border-bottom: none;
 }
 </style>
