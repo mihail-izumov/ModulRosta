@@ -32,16 +32,6 @@
   </div>
 </template>
 
-<script setup>
-const openModal = () => {
-  if (window.openSignalModal) {
-    window.openSignalModal()
-  } else {
-    console.error('Modal function not available')
-  }
-}
-</script>
-
 <style scoped>
 .user-coffee-cards-container {
   display: grid;
