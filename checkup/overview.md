@@ -1,6 +1,7 @@
 <span class="signal-badge">
-  ⚡️ Работает на технологии 
-  <a href="/technology/overview" class="signal-link">Модуля Роста®</a>
+  ⚡️ Работает 
+  <a href="/technology/overview" class="signal-link">на технологии</a>
+  Модуля Роста®
 </span> <br><br>
 
 <h1>
