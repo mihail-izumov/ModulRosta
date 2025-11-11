@@ -54,52 +54,58 @@
 </template>
 
 <script setup>
-// Логика не требуется, компонент статический
+// Статический компонент, логика не требуется
 </script>
 
 <style scoped>
 .custom-dropdown-list {
-  margin: 1em 0;
+  margin: 0.7em 0;
 }
 .custom-dropdown-list details {
   background: #23262c;
-  border-radius: 16px;
-  margin-bottom: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-  padding: 0.5em 1em;
+  border-radius: 13px;
+  margin-bottom: 9px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+  padding: 0.45em 0.8em;
   overflow: hidden;
+  transition: all 0.2s;
 }
 .custom-dropdown-list summary {
-  font-size: 1.18em;
+  font-size: 1.13em;
   font-weight: 600;
   color: #fff;
   cursor: pointer;
-  padding: 1em 0 0.8em 0;
+  padding: 0.7em 0 0.5em 0;
   list-style: none;
   outline: none;
   user-select: none;
 }
 .custom-dropdown-list ul.custom-bullets {
-  padding-left: 1.5em;
-  margin: 0.5em 0 1em 0;
+  padding-left: 1em;
+  margin: 0.5em 0 0.3em 0;
 }
 .custom-dropdown-list ul.custom-bullets li {
-  color: #fff;
+  color: #eaeaea;
   background: none;
   position: relative;
-  margin-bottom: 0.85em;
-  padding-left: 1.2em;
+  margin-bottom: 0.67em;
+  padding-left: 1em;
   list-style: none;
+  font-size: 0.98em;
+  line-height: 1.45;
+}
+.custom-dropdown-list ul.custom-bullets li:last-child {
+  margin-bottom: 0;
 }
 .custom-dropdown-list ul.custom-bullets li::before {
   content: '';
   display: inline-block;
   position: absolute;
   left: 0;
-  top: 0.6em;
+  top: 0.62em;
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #eeb900;
+  background: #888a8c;
 }
 </style>
