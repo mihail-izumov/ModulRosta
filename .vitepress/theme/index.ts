@@ -38,6 +38,8 @@ import RadarHowItWorks from '../components/RadarHowItWorks.vue'
 import RadarSpecs from '../components/RadarSpecs.vue'
 import ResultsChoice from '../components/ResultsChoice.vue'
 import CheckupProblemsAccordion from '../components/CheckupProblemsAccordion.vue'
+import PrepTwoCards from '../components/PrepTwoCards.vue'
+
 
 export default {
   extends: DefaultTheme,
@@ -81,5 +83,7 @@ export default {
     app.component('RadarSpecs', RadarSpecs)
     app.component('ResultsChoice', ResultsChoice)
     app.component('CheckupProblemsAccordion', CheckupProblemsAccordion)
+    app.component('PrepTwoCards', PrepTwoCards)
+    
   }
 }
