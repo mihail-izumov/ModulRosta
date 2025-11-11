@@ -2,31 +2,31 @@
   <div class="user-coffee-cards-container">
     <div class="user-coffee-card">
       <div class="user-card-content">
-        <h3 class="user-card-title">5-дневный план подготовки</h3>
+        <h3 class="user-card-title">Карта подготовки к работе с нами</h3>
         <p class="user-card-description">
-          <strong>Ваши отзывы меняют всё.</strong>
+          <strong>Не просто серия статей, а комплексная методология диагностики бизнеса.</strong>
         </p>
         <p class="user-card-highlight">
-          Карта подготовки к работе с нами. Изучите их, чтобы понять, как мы работаем, и приходите на чекап готовыми к быстрым изменениям.
+          Изучите их, чтобы понять, как мы работаем, и приходите на чекап готовыми к быстрым изменениям.
         </p>
       </div>
       <a href="/checkup/prep/overview.html" class="user-card-button">
-        <strong>Отправить ⚡ Сигнал</strong>
+        <strong>К статьям</strong>
       </a>
     </div>
     
     <div class="user-coffee-card">
       <div class="user-card-content">
-        <h3 class="user-card-title">Для Бизнеса</h3>
+        <h3 class="user-card-title">Чек-лист подготовки</h3>
         <p class="user-card-description">
-          <strong>Подготовьтесь к чекапу за 5 дней: лёгкий старт к системному росту</strong>
+          <strong>Простой 5-дневный план</strong>
         </p>
         <p class="user-card-highlight">
-          Вот простой 5-дневный план подготовки, который даст ключевое ощущение нашего подхода и создаст почву для серьёзных изменений.
+          Дает ключевое ощущение нашего подхода и создаст почву для серьёзных изменений.
         </p>
       </div>
       <a href="/checkup/checklist" class="user-card-button">
-        <strong>Чек-лист подготовки к чекапу →</strong>
+        <strong>К чек-листу</strong>
       </a>
     </div>
   </div>
