@@ -62,7 +62,8 @@ const toggleAccordion = (key) => {
       <!-- Аккордеон 1 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment1')">
-          <span :class="{'arrow-open': openAccordions.commitment1}">▸</span> Карту системных узких мест
+          <span :class="{'arrow-open': openAccordions.commitment1}">▸</span>
+          <span class="acc-title">Карту системных узких мест</span>
         </button>
         <ul v-show="openAccordions.commitment1" class="accordion-content">
           <li>Конкретные данные о потерях эффективности</li>
@@ -74,7 +75,8 @@ const toggleAccordion = (key) => {
       <!-- Аккордеон 2 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment2')">
-          <span :class="{'arrow-open': openAccordions.commitment2}">▸</span> Три готовых к внедрению решения
+          <span :class="{'arrow-open': openAccordions.commitment2}">▸</span>
+          <span class="acc-title">Три готовых к внедрению решения</span>
         </button>
         <ul v-show="openAccordions.commitment2" class="accordion-content">
           <li>Согласованные с командой планы действий</li>
@@ -86,7 +88,8 @@ const toggleAccordion = (key) => {
       <!-- Аккордеон 3 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment3')">
-          <span :class="{'arrow-open': openAccordions.commitment3}">▸</span> Запущенные пилотные проекты
+          <span :class="{'arrow-open': openAccordions.commitment3}">▸</span>
+          <span class="acc-title">Запущенные пилотные проекты</span>
         </button>
         <ul v-show="openAccordions.commitment3" class="accordion-content">
           <li>Работающие процессы по каждому из решений</li>
@@ -314,10 +317,7 @@ const toggleAccordion = (key) => {
   color: #fff;
 }
 
-/* --- Плашки/блоки --- */
-.result-block,
-.custom-dark-block,
-.mini-prompt {
+.custom-dark-block, .result-block, .mini-prompt {
   background-color: rgba(0,0,0,0.15);
   border: 1px solid rgba(255,255,255,0.1);
   padding: 12px 14px;
@@ -336,42 +336,48 @@ const toggleAccordion = (key) => {
   font-size: 13px;
 }
 
-/* --- Аккордеоны --- */
+/* ----- АККОРДЕОН ----- */
 .accordion-btn {
   width: 100%;
   background: none;
   border: none;
-  padding: 9px 0 9px 2px;
+  padding: 9px 0 9px 0;
   text-align: left;
   color: #c8ff5a;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  font-size: 15px;
+  font-weight: 700;
+  margin-top: 18px;
+  margin-bottom: 12px;
+  font-size: 18px;
   cursor: pointer;
   position: relative;
   transition: background .2s;
   display: flex;
   align-items: center;
 }
+.accordion-btn:first-child {
+  margin-top: 0;
+}
 .accordion-btn .arrow-open {
   display: inline-block;
   transform: rotate(90deg);
   transition: transform 0.18s;
-  font-size: 23px;
-  margin-right: 8px;
+  font-size: 28px;
+  margin-right: 14px;
   font-weight: bold;
   color: #c8ff5a;
 }
-.accordion-btn span:not(.arrow-open) {
-  margin-right: 5px;
-}
 .accordion-content {
   background: rgba(255,255,255,0.02);
-  border-left: 2px solid #c8ff5a;
-  margin-bottom: 8px;
-  margin-left: 0.5em;
-  border-radius: 6px;
-  padding: 4px 0 6px 12px;
+  border-left: 3px solid #c8ff5a;
+  margin-left: 24px;
+  margin-bottom: 24px;
+  border-radius: 7px;
+  padding: 12px 0 12px 22px;
+}
+.acc-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #dafe55;
 }
 
 /* --- Карточки Для Кого --- */
