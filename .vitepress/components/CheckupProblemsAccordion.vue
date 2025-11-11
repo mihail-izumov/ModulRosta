@@ -54,59 +54,61 @@
 </template>
 
 <script setup>
-// No logic required
+// Статический компонент
 </script>
 
 <style scoped>
-/* Сброс базовых стилей для details и summary */
+.custom-dropdown-list {
+  margin: 1.1em 0 1.1em 0;
+  padding: 0;
+}
+
+/* Сброс дефолтных внешних стилей VitePress для максимального контроля */
 .custom-dropdown-list details,
 .custom-dropdown-list summary {
   margin: 0 !important;
   padding: 0 !important;
   background: none !important;
-  box-shadow: none !important;
   border: none !important;
+  box-shadow: none !important;
 }
 
-.custom-dropdown-list {
-  margin: 0;
-  padding: 0;
-}
 .custom-dropdown-list details {
   background: #23262c !important;
-  border-radius: 9px;
-  margin-bottom: 6px !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.02);
-  padding: 0 !important;
-  transition: all 0.18s;
+  border-radius: 11px;
+  margin-bottom: 13px !important;
+  box-shadow: 0 1.5px 7px rgba(0,0,0,0.031);
+  padding: 0.11em 0 0.11em 0;
+  transition: all 0.16s;
   overflow: hidden;
 }
 
 .custom-dropdown-list summary {
-  font-size: 1.1em;
-  font-weight: 700;
-  color: #fff;
+  font-size: 1em;
+  font-weight: 500;
+  color: #e7e8ea;
   cursor: pointer;
-  padding: 0.38em 0.85em 0.38em 0.85em !important;
-  line-height: 1.2;
+  padding: 0.6em 0.95em 0.6em 0.95em !important;
+  margin: 0.15em 0 0.15em 0 !important;
+  line-height: 1.19;
   user-select: none;
-  /* минимальные строгие отступы для компактности */
 }
 
 .custom-dropdown-list ul.custom-bullets {
   padding-left: 1em;
-  margin: 0.4em 0 0.35em 0;
+  margin: 0.13em 0 0.35em 0;
 }
 
 .custom-dropdown-list ul.custom-bullets li {
-  color: #eaeaea;
+  color: #dedede;
   background: none;
   position: relative;
-  margin-bottom: 0.45em;
+  margin-bottom: 0.4em;
   padding-left: 1em;
   list-style: none;
-  font-size: 0.98em;
-  line-height: 1.43;
+  font-size: 0.96em;
+  font-weight: 500;
+  line-height: 1.37;
 }
 .custom-dropdown-list ul.custom-bullets li:last-child {
   margin-bottom: 0;
@@ -116,10 +118,10 @@
   display: inline-block;
   position: absolute;
   left: 0;
-  top: 0.61em;
+  top: 0.66em;
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #97999d;
+  background: #909296;
 }
 </style>
