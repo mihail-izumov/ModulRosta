@@ -2,15 +2,10 @@
 import { ref } from 'vue'
 
 const activeTab = ref('why-not-promise')
-
 const openAccordions = ref({
   commitment1: false,
   commitment2: false,
-  commitment3: false,
-  // группы внутри
-  commitment1a: false,
-  commitment2a: false,
-  commitment3a: false
+  commitment3: false
 })
 const toggleAccordion = (key) => {
   openAccordions.value[key] = !openAccordions.value[key]
@@ -61,61 +56,44 @@ const toggleAccordion = (key) => {
         </p>
       </div>
     </div>
-
     <!-- Вкладка: Наше обязательство -->
     <div v-show="activeTab === 'commitment'" class="content-mr">
       <h3>Как работает наше обязательство</h3>
-
       <!-- Аккордеон 1 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment1')">
           <span :class="{'arrow-open': openAccordions.commitment1}">▸</span> Карту системных узких мест
         </button>
-        <div v-show="openAccordions.commitment1" class="accordion-content">
-          <button class="accordion-sub-btn" @click="toggleAccordion('commitment1a')">
-            <span :class="{'arrow-open': openAccordions.commitment1a}">▸</span> Подробнее
-          </button>
-          <ul v-show="openAccordions.commitment1a">
-            <li>Конкретные данные о потерях эффективности</li>
-            <li>Измеримые показатели каждой проблемы</li>
-            <li>Приоритизация по влиянию на результат</li>
-            <li>Валидация командой — не теоретические выводы, а подтверждённые факты</li>
-          </ul>
-        </div>
+        <ul v-show="openAccordions.commitment1" class="accordion-content">
+          <li>Конкретные данные о потерях эффективности</li>
+          <li>Измеримые показатели каждой проблемы</li>
+          <li>Приоритизация по влиянию на результат</li>
+          <li>Валидация командой — не теоретические выводы, а подтверждённые факты</li>
+        </ul>
       </div>
       <!-- Аккордеон 2 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment2')">
           <span :class="{'arrow-open': openAccordions.commitment2}">▸</span> Три готовых к внедрению решения
         </button>
-        <div v-show="openAccordions.commitment2" class="accordion-content">
-          <button class="accordion-sub-btn" @click="toggleAccordion('commitment2a')">
-            <span :class="{'arrow-open': openAccordions.commitment2a}">▸</span> Подробнее
-          </button>
-          <ul v-show="openAccordions.commitment2a">
-            <li>Согласованные с командой планы действий</li>
-            <li>Назначенные ответственные за каждое направление</li>
-            <li>Чёткие критерии успеха по каждому решению</li>
-            <li>Ресурсы и инструменты для реализации</li>
-          </ul>
-        </div>
+        <ul v-show="openAccordions.commitment2" class="accordion-content">
+          <li>Согласованные с командой планы действий</li>
+          <li>Назначенные ответственные за каждое направление</li>
+          <li>Чёткие критерии успеха по каждому решению</li>
+          <li>Ресурсы и инструменты для реализации</li>
+        </ul>
       </div>
       <!-- Аккордеон 3 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment3')">
           <span :class="{'arrow-open': openAccordions.commitment3}">▸</span> Запущенные пилотные проекты
         </button>
-        <div v-show="openAccordions.commitment3" class="accordion-content">
-          <button class="accordion-sub-btn" @click="toggleAccordion('commitment3a')">
-            <span :class="{'arrow-open': openAccordions.commitment3a}">▸</span> Подробнее
-          </button>
-          <ul v-show="openAccordions.commitment3a">
-            <li>Работающие процессы по каждому из решений</li>
-            <li>Первые измеримые результаты пилотов</li>
-            <li>Обратная связь от команды по каждому нововведению</li>
-            <li>План масштабирования успешных пилотов</li>
-          </ul>
-        </div>
+        <ul v-show="openAccordions.commitment3" class="accordion-content">
+          <li>Работающие процессы по каждому из решений</li>
+          <li>Первые измеримые результаты пилотов</li>
+          <li>Обратная связь от команды по каждому нововведению</li>
+          <li>План масштабирования успешных пилотов</li>
+        </ul>
       </div>
       <div class="mini-prompt">
         <strong>Что происходит, если мы не выполняем обязательство</strong><br>
@@ -123,35 +101,33 @@ const toggleAccordion = (key) => {
         <strong>Ключевое условие:</strong> "по нашей вине" означает, что мы не переносим ответственность на клиента за <strong>наши</strong> методологические ошибки или <strong>нашу</strong> неспособность найти решения.
       </div>
     </div>
-
     <!-- Вкладка: Как это работает -->
     <div v-show="activeTab === 'guarantee-details'" class="content-mr">
       <h3>Почему это работает лучше традиционных гарантий</h3>
       <ul>
         <li>
           <strong>Конкретность вместо абстракций</strong><br>
-          <span>Традиционный подход: "Увеличим эффективность на 30%"<br>
-          Наш подход: "Запустим 3 пилота с назначенными ответственными"</span>
+          <span class="gray-compare">Традиционный подход: "Увеличим эффективность на 30%"</span><br>
+          Наш подход: "Запустим 3 пилота с назначенными ответственными"
         </li>
         <li>
           <strong>Фокус на внедрении, а не на анализе</strong><br>
-          <span>Традиционный подход: Дают рекомендации и уходят<br>
-          Наш подход: Запускаем изменения и сопровождаем процесс</span>
-          <br>80% провалов аналитических проектов происходит на этапе внедрения. Мы берём ответственность за этот этап.
+          <span class="gray-compare">Традиционный подход: Дают рекомендации и уходят</span><br>
+          Наш подход: Запускаем изменения и сопровождаем процесс<br>
+          80% провалов аналитических проектов происходит на этапе внедрения. Мы берём ответственность за этот этап.
         </li>
         <li>
           <strong>Совместная ответственность</strong><br>
-          <span>Традиционный подход: "Если не сработает — вернём деньги"<br>
-          Наш подход: "Если не работает — работаем дальше"</span>
+          <span class="gray-compare">Традиционный подход: "Если не сработает — вернём деньги"</span><br>
+          Наш подход: "Если не работает — работаем дальше"
         </li>
         <li>
           <strong>Измеримость с первых дней</strong><br>
-          <span>Традиционный подход: Результат через 6–12 месяцев<br>
-          Наш подход: Движение видно через 30 дней</span>
+          <span class="gray-compare">Традиционный подход: Результат через 6–12 месяцев</span><br>
+          Наш подход: Движение видно через 30 дней
         </li>
       </ul>
     </div>
-
     <!-- Вкладка: Что значит "по нашей вине" -->
     <div v-show="activeTab === 'cause'" class="content-mr">
       <h3>Что значит «по нашей вине»</h3>
@@ -176,7 +152,6 @@ const toggleAccordion = (key) => {
         <li><strong>Проверенная команда</strong> — каждый участник лично проверен на проектах</li>
       </ul>
     </div>
-
     <!-- Вкладка: Сравнение с рынком -->
     <div v-show="activeTab === 'comparison'" class="content-mr">
       <h3>Сравнение с рынком</h3>
@@ -217,7 +192,6 @@ const toggleAccordion = (key) => {
         </tbody>
       </table>
     </div>
-
     <!-- Вкладка: Для кого это -->
     <div v-show="activeTab === 'for-whom'" class="content-mr">
       <h3>Для кого это обязательство</h3>
@@ -241,7 +215,6 @@ const toggleAccordion = (key) => {
         </div>
       </div>
     </div>
-
     <!-- Вкладка: Как начать -->
     <div v-show="activeTab === 'how-to-start'" class="content-mr">
       <h3>Начать работу с обязательством</h3>
@@ -359,8 +332,6 @@ const toggleAccordion = (key) => {
   margin-top: 24px;
   font-size: 13px;
 }
-
-/* Одинаковый размер текста и стиля для итоговой плашки */
 .result-block-equal p {
   font-size: 13px;
 }
@@ -379,14 +350,19 @@ const toggleAccordion = (key) => {
   cursor: pointer;
   position: relative;
   transition: background .2s;
+  display: flex;
+  align-items: center;
 }
 .accordion-btn .arrow-open {
   display: inline-block;
   transform: rotate(90deg);
   transition: transform 0.18s;
-  margin-right: 5px;
+  font-size: 23px;
+  margin-right: 8px;
+  font-weight: bold;
+  color: #c8ff5a;
 }
-.accordion-btn span {
+.accordion-btn span:not(.arrow-open) {
   margin-right: 5px;
 }
 .accordion-content {
@@ -397,23 +373,6 @@ const toggleAccordion = (key) => {
   border-radius: 6px;
   padding: 4px 0 6px 12px;
 }
-.accordion-sub-btn {
-  background: none;
-  border: none;
-  color: #dbff75;
-  font-size: 13px;
-  margin: 3px 0 4px 0;
-  cursor: pointer;
-  padding: 2px 0 2px 9px;
-}
-.accordion-sub-btn .arrow-open {
-  transform: rotate(90deg);
-}
-.accordion-sub-btn span { margin-right: 4px; }
-.accordion-content ul {
-  margin: 0 0 7px 0.3em;
-  padding: 0 0 0 15px;
-}
 
 /* --- Карточки Для Кого --- */
 .for-whom-cards {
@@ -422,7 +381,7 @@ const toggleAccordion = (key) => {
   margin: 16px 0 0 0;
   align-items: flex-start;
   justify-content: space-between;
-  flex-wrap: wrap; /* Чтобы уходило вниз на мобилке */
+  flex-wrap: wrap;
 }
 .forwhom-card {
   flex: 1;
@@ -488,5 +447,12 @@ th {
 }
 tr:last-child td {
   border-bottom: none;
+}
+
+/* --- Серый текст для сравнений --- */
+.gray-compare {
+  color: #a1a1a1;
+  font-weight: 500;
+  font-size: 13px;
 }
 </style>
