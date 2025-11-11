@@ -2,7 +2,7 @@
   <div class="user-coffee-cards-container">
     <div class="user-coffee-card">
       <div class="user-card-content">
-        <h3 class="user-card-title">Карта подготовки к работе с нами</h3>
+        <h3 class="user-card-title">Карта подготовки</h3>
         <p class="user-card-description">
           <strong>Не просто серия статей, а комплексная методология диагностики бизнеса.</strong>
         </p>
@@ -19,7 +19,7 @@
       <div class="user-card-content">
         <h3 class="user-card-title">Чек-лист подготовки</h3>
         <p class="user-card-description">
-          <strong>Простой 5-дневный план</strong>
+          <strong>Простой 5-дневный план.</strong>
         </p>
         <p class="user-card-highlight">
           Дает ключевое ощущение нашего подхода и создаст почву для серьёзных изменений.
