@@ -39,6 +39,7 @@ import RadarSpecs from '../components/RadarSpecs.vue'
 import ResultsChoice from '../components/ResultsChoice.vue'
 import CheckupProblemsAccordion from '../components/CheckupProblemsAccordion.vue'
 import PrepTwoCards from '../components/PrepTwoCards.vue'
+import PayAsYouGo from '../components/PayAsYouGo.vue'
 
 
 export default {
@@ -84,6 +85,7 @@ export default {
     app.component('ResultsChoice', ResultsChoice)
     app.component('CheckupProblemsAccordion', CheckupProblemsAccordion)
     app.component('PrepTwoCards', PrepTwoCards)
+    app.component('PayAsYouGo', PayAsYouGo)
     
   }
 }
