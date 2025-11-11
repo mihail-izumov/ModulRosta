@@ -37,6 +37,7 @@ import GrowthPotentialMethod from '../components/GrowthPotentialMethod.vue'
 import RadarHowItWorks from '../components/RadarHowItWorks.vue'
 import RadarSpecs from '../components/RadarSpecs.vue'
 import ResultsChoice from '../components/ResultsChoice.vue'
+import CheckupProblemsAccordion from '../components/CheckupProblemsAccordion.vue'
 
 export default {
   extends: DefaultTheme,
@@ -79,5 +80,6 @@ export default {
     app.component('RadarHowItWorks', RadarHowItWorks)
     app.component('RadarSpecs', RadarSpecs)
     app.component('ResultsChoice', ResultsChoice)
+    app.component('CheckupProblemsAccordion', CheckupProblemsAccordion)
   }
 }
