@@ -12,7 +12,7 @@
       </div>
       <a href="/checkup/prep/overview.html" class="user-card-button">
         <strong>Отправить ⚡ Сигнал</strong>
-      </button>
+      </a>
     </div>
     
     <div class="user-coffee-card">
