@@ -100,7 +100,7 @@
 
 ## Задачи, которые решает чекап.
 
-
+<CheckupProblemsAccordion />
 
 
 <style>
