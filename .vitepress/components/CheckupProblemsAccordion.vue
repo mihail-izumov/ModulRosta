@@ -59,11 +59,9 @@
 
 <style scoped>
 .custom-dropdown-list {
-  margin: 1.1em 0 1.1em 0;
+  margin: 1.15em 0 1.15em 0;
   padding: 0;
 }
-
-/* Сброс дефолтных внешних стилей VitePress для максимального контроля */
 .custom-dropdown-list details,
 .custom-dropdown-list summary {
   margin: 0 !important;
@@ -88,15 +86,16 @@
   font-weight: 500;
   color: #e7e8ea;
   cursor: pointer;
-  padding: 0.6em 0.95em 0.6em 0.95em !important;
-  margin: 0.15em 0 0.15em 0 !important;
+  padding: 0.62em 1.4em 0.62em 0.95em !important; /* увеличен right padding */
+  margin: 0.18em 0 0.18em 0 !important;
   line-height: 1.19;
   user-select: none;
 }
 
 .custom-dropdown-list ul.custom-bullets {
   padding-left: 1em;
-  margin: 0.13em 0 0.35em 0;
+  padding-right: 1.35em; /* увеличен right padding для контента внутри блока */
+  margin: 0.13em 0 0.38em 0;
 }
 
 .custom-dropdown-list ul.custom-bullets li {
@@ -107,7 +106,7 @@
   padding-left: 1em;
   list-style: none;
   font-size: 0.96em;
-  font-weight: 500;
+  font-weight: 400; /* обычный */
   line-height: 1.37;
 }
 .custom-dropdown-list ul.custom-bullets li:last-child {
