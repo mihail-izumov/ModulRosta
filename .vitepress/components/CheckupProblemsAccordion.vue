@@ -54,45 +54,59 @@
 </template>
 
 <script setup>
-// Статический компонент, логика не требуется
+// No logic required
 </script>
 
 <style scoped>
+/* Сброс базовых стилей для details и summary */
+.custom-dropdown-list details,
+.custom-dropdown-list summary {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
 .custom-dropdown-list {
-  margin: 0.7em 0;
+  margin: 0;
+  padding: 0;
 }
 .custom-dropdown-list details {
-  background: #23262c;
-  border-radius: 13px;
-  margin-bottom: 9px;
+  background: #23262c !important;
+  border-radius: 9px;
+  margin-bottom: 6px !important;
   box-shadow: 0 1px 4px rgba(0,0,0,0.02);
-  padding: 0.45em 0.8em;
+  padding: 0 !important;
+  transition: all 0.18s;
   overflow: hidden;
-  transition: all 0.2s;
 }
+
 .custom-dropdown-list summary {
-  font-size: 1.13em;
-  font-weight: 600;
+  font-size: 1.1em;
+  font-weight: 700;
   color: #fff;
   cursor: pointer;
-  padding: 0.7em 0 0.5em 0;
-  list-style: none;
-  outline: none;
+  padding: 0.38em 0.85em 0.38em 0.85em !important;
+  line-height: 1.2;
   user-select: none;
+  /* минимальные строгие отступы для компактности */
 }
+
 .custom-dropdown-list ul.custom-bullets {
   padding-left: 1em;
-  margin: 0.5em 0 0.3em 0;
+  margin: 0.4em 0 0.35em 0;
 }
+
 .custom-dropdown-list ul.custom-bullets li {
   color: #eaeaea;
   background: none;
   position: relative;
-  margin-bottom: 0.67em;
+  margin-bottom: 0.45em;
   padding-left: 1em;
   list-style: none;
   font-size: 0.98em;
-  line-height: 1.45;
+  line-height: 1.43;
 }
 .custom-dropdown-list ul.custom-bullets li:last-child {
   margin-bottom: 0;
@@ -102,10 +116,10 @@
   display: inline-block;
   position: absolute;
   left: 0;
-  top: 0.62em;
-  width: 7px;
-  height: 7px;
+  top: 0.61em;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #888a8c;
+  background: #97999d;
 }
 </style>
