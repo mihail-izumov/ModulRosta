@@ -7,7 +7,6 @@ const openAccordions = ref({
   commitment2: false,
   commitment3: false
 })
-
 const toggleAccordion = (key) => {
   Object.keys(openAccordions.value).forEach(name => {
     openAccordions.value[name] = (name === key) ? !openAccordions.value[name] : false
@@ -51,7 +50,7 @@ const toggleAccordion = (key) => {
         <li><strong>Возврат денег</strong> означает, что аналитик <strong>не несет ответственности</strong> за внедрение</li>
         <li><strong>Красивые цифры</strong> отвлекают от главного — <strong>реальных изменений</strong> в бизнесе</li>
       </ul>
-      <div class="block-uni">
+      <div class="custom-dark-block block-text">
         <p>
           <strong>Мы выбрали другой путь</strong><br>
           Вместо маркетинговых обещаний мы взяли на себя <strong>конкретное обязательство</strong> — <strong>работать до получения результата</strong>.<br>
@@ -66,7 +65,7 @@ const toggleAccordion = (key) => {
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment1')">
           <span class="chevron-col">
-            <svg :class="{ 'chevron-svg': true, 'chevron-open': openAccordions.commitment1 }" width="16" height="16" fill="none" stroke="currentColor"
+            <svg :class="{'chevron-svg': true, 'chevron-open': openAccordions.commitment1}" width="16" height="16" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                  viewBox="0 0 24 24">
               <path d="m6 9 6 6 6-6"/>
@@ -74,7 +73,7 @@ const toggleAccordion = (key) => {
           </span>
           <span class="acc-title">Карту системных узких мест</span>
         </button>
-        <ul v-show="openAccordions.commitment1" class="accordion-content block-uni">
+        <ul v-show="openAccordions.commitment1" class="accordion-content">
           <li>Конкретные данные о потерях эффективности</li>
           <li>Измеримые показатели каждой проблемы</li>
           <li>Приоритизация по влиянию на результат</li>
@@ -84,7 +83,7 @@ const toggleAccordion = (key) => {
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment2')">
           <span class="chevron-col">
-            <svg :class="{ 'chevron-svg': true, 'chevron-open': openAccordions.commitment2 }" width="16" height="16" fill="none" stroke="currentColor"
+            <svg :class="{'chevron-svg': true, 'chevron-open': openAccordions.commitment2}" width="16" height="16" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                  viewBox="0 0 24 24">
               <path d="m6 9 6 6 6-6"/>
@@ -92,7 +91,7 @@ const toggleAccordion = (key) => {
           </span>
           <span class="acc-title">Три готовых к внедрению решения</span>
         </button>
-        <ul v-show="openAccordions.commitment2" class="accordion-content block-uni">
+        <ul v-show="openAccordions.commitment2" class="accordion-content">
           <li>Согласованные с командой планы действий</li>
           <li>Назначенные ответственные за каждое направление</li>
           <li>Чёткие критерии успеха по каждому решению</li>
@@ -102,7 +101,7 @@ const toggleAccordion = (key) => {
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment3')">
           <span class="chevron-col">
-            <svg :class="{ 'chevron-svg': true, 'chevron-open': openAccordions.commitment3 }" width="16" height="16" fill="none" stroke="currentColor"
+            <svg :class="{'chevron-svg': true, 'chevron-open': openAccordions.commitment3}" width="16" height="16" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                  viewBox="0 0 24 24">
               <path d="m6 9 6 6 6-6"/>
@@ -110,14 +109,14 @@ const toggleAccordion = (key) => {
           </span>
           <span class="acc-title">Запущенные пилотные проекты</span>
         </button>
-        <ul v-show="openAccordions.commitment3" class="accordion-content block-uni">
+        <ul v-show="openAccordions.commitment3" class="accordion-content">
           <li>Работающие процессы по каждому из решений</li>
           <li>Первые измеримые результаты пилотов</li>
           <li>Обратная связь от команды по каждому нововведению</li>
           <li>План масштабирования успешных пилотов</li>
         </ul>
       </div>
-      <div class="block-uni mini-prompt">
+      <div class="mini-prompt block-text">
         <div class="prompt-title"><strong>Что происходит, если мы не выполняем обязательство</strong></div>
         <div class="prompt-main">
           Если по истечении 30 дней <strong>хотя бы один</strong> из трёх пунктов не выполнен <strong>по нашей вине</strong>, мы продолжаем работать до его выполнения <strong>без дополнительной оплаты</strong>.
@@ -157,7 +156,7 @@ const toggleAccordion = (key) => {
     </div>
     <div v-show="activeTab === 'cause'" class="content-mr">
       <h3 class="tab-title">Что значит «по нашей вине»</h3>
-      <div class="block-uni">
+      <div class="block-text">
         <p>Мы несём <strong>полную ответственность</strong> за:</p>
         <ul>
           <li>Качество аналитики и точность выводов</li>
@@ -171,7 +170,7 @@ const toggleAccordion = (key) => {
           <li>Кардинальные изменения в команде или стратегии во время проекта</li>
           <li>Отказ руководства выполнять согласованные ранее решения</li>
         </ul>
-        <h4 style="margin-top:1.5em">Как мы можем это гарантировать</h4>
+        <h4>Как мы можем это гарантировать</h4>
         <ul>
           <li><strong>Опыт 15+ лет системной аналитики</strong></li>
           <li><strong>Фокус на быстрых победах</strong> — решения с быстрой реализацией для первого месяца</li>
@@ -182,49 +181,47 @@ const toggleAccordion = (key) => {
     </div>
     <div v-show="activeTab === 'comparison'" class="content-mr">
       <h3 class="tab-title">Сравнение с рынком</h3>
-      <div class="block-uni">
-        <table>
-          <thead>
-            <tr>
-              <th>Критерий</th>
-              <th>Традиционные консультанты</th>
-              <th>Модуль Роста</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Что обещают</td>
-              <td>Абстрактные проценты роста</td>
-              <td>Конкретные запущенные изменения</td>
-            </tr>
-            <tr>
-              <td>Когда результат</td>
-              <td>Через 6-12 месяцев</td>
-              <td>Через 30 дней</td>
-            </tr>
-            <tr>
-              <td>Что делают при неудаче</td>
-              <td>Возвращают деньги</td>
-              <td>Работаем до результата</td>
-            </tr>
-            <tr>
-              <td>Ответственность</td>
-              <td>За качество отчета</td>
-              <td>За внедрение решений</td>
-            </tr>
-            <tr>
-              <td>Фокус</td>
-              <td>На анализе</td>
-              <td>На действии</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Критерий</th>
+            <th>Традиционные консультанты</th>
+            <th>Модуль Роста</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Что обещают</td>
+            <td>Абстрактные проценты роста</td>
+            <td>Конкретные запущенные изменения</td>
+          </tr>
+          <tr>
+            <td>Когда результат</td>
+            <td>Через 6-12 месяцев</td>
+            <td>Через 30 дней</td>
+          </tr>
+          <tr>
+            <td>Что делают при неудаче</td>
+            <td>Возвращают деньги</td>
+            <td>Работаем до результата</td>
+          </tr>
+          <tr>
+            <td>Ответственность</td>
+            <td>За качество отчета</td>
+            <td>За внедрение решений</td>
+          </tr>
+          <tr>
+            <td>Фокус</td>
+            <td>На анализе</td>
+            <td>На действии</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <div v-show="activeTab === 'for-whom'" class="content-mr">
       <h3 class="tab-title">Для кого это обязательство</h3>
-      <div class="block-uni for-whom-cards">
-        <div class="forwhom-card positive">
+      <div class="for-whom-cards">
+        <div class="forwhom-card positive block-text">
           <h4>✅ Подходит, если вы:</h4>
           <ul>
             <li>Устали от красивых отчётов без реальных изменений</li>
@@ -233,7 +230,7 @@ const toggleAccordion = (key) => {
             <li>Готовы работать с нашей командой как партнёры</li>
           </ul>
         </div>
-        <div class="forwhom-card negative">
+        <div class="forwhom-card negative block-text">
           <h4>❌ Не подходит, если вы:</h4>
           <ul>
             <li>Ищете советы, которые подкрепляют вашу картину бизнеса</li>
@@ -245,18 +242,10 @@ const toggleAccordion = (key) => {
     </div>
     <div v-show="activeTab === 'how-to-start'" class="content-mr">
       <h3 class="tab-title">Начать работу с обязательством</h3>
-      <div class="block-uni">
-        <ol>
-          <li>Подайте <strong>заявку на чекап</strong></li>
-          <li><strong>Пройдите подготовительный чекап</strong>, чтобы оценить готовность к изменениям</li>
-          <li><strong>Подпишите договор</strong> с зафиксированным обязательством</li>
-          <li><strong>Получите результат</strong> в течение 30 дней или продолжение работы бесплатно</li>
-        </ol>
-        <div class="result-title"><strong>Готовы работать на результат?</strong></div>
+      <div class="result-block result-block-equal block-text">
+        <p class="result-title"><strong>Готовы работать на результат?</strong></p>
         <p>Платите только за движение вперед. Обязательство включено в каждый проект.</p>
-        <p>
-          Если вы готовы к системным изменениям, наше обязательство превратит ваш потенциал в <strong>измеримые результаты</strong> уже через месяц.
-        </p>
+        <p>Если вы готовы к системным изменениям, наше обязательство превратит ваш потенциал в <strong>измеримые результаты</strong> уже через месяц.</p>
         <a href="/apply" class="calc-button">Подать заявку на бизнес-чекап →</a>
       </div>
     </div>
@@ -304,86 +293,42 @@ const toggleAccordion = (key) => {
   font-size: 13px;
   line-height: 1.46;
 }
-.tab-title {
-  font-size: 13px !important;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  margin-bottom: 12px;
-  color: rgba(255,255,255,0.9);
-}
+.tab-title { font-size: 13px !important; font-weight: 700; letter-spacing: 0.01em; margin-bottom: 12px; color: rgba(255,255,255,0.9);}
 .content-mr h3,
-.content-mr h4 {
-  font-size: 13px;
-  font-weight: 700;
-  margin: 0 0 8px;
-  color: rgba(255,255,255,0.9);
-}
-.content-mr strong {
-  font-weight: 600;
-  color: #fff;
-}
+.content-mr h4 { font-size: 13px; font-weight: 700; margin: 0 0 8px; color: rgba(255,255,255,0.9);}
+.content-mr strong { font-weight: 600; color: #fff; }
 
-.block-uni {
+/* -- Блок с едиными правилами отступов-- */
+.block-text {
+  padding: 16px 22px;
+}
+.block-text > * {
+  margin-bottom: 1.5em !important;
+  margin-top: 0 !important;
+}
+.block-text > *:last-child {
+  margin-bottom: 0 !important;
+}
+.block-text ul,
+.block-text ol {
+  padding-left: 20px !important;
+  margin-left: 0 !important;
+}
+.block-text li { padding-left: 0; }
+
+/* Блоки с рамкой (плашки, mini, result) */
+.custom-dark-block, .result-block, .mini-prompt {
   background-color: rgba(0,0,0,0.15);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
-  padding: 24px 30px;
   margin-top: 20px;
-  margin-bottom: 0;
-  line-height: 1.46;
 }
+.custom-dark-block { margin-bottom: 0; margin-top: 18px;}
+.result-block { margin-top: 20px; }
+.result-block-equal p { font-size: 13px;}
+.result-title { margin-bottom: 10px; font-size: 13px;}
 
-/* Одинаковые вертикальные отступы у .block-uni */
-.block-uni > *:not(:last-child) {
-  margin-bottom: 1.5em !important;
-}
-
-/* Никогда не прижимать */
-.block-uni, .block-uni * {
-  box-sizing: border-box;
-}
-
-.block-uni ul,
-.block-uni ol {
-  padding-left: 23px; /* отступ для списков справа от контейнера */
-  margin-left: 0;
-}
-
-.block-uni li {
-  padding-left: 0;
-  margin-left: 0;
-}
-
-.block-uni p {
-  margin-top: 0;
-  margin-bottom: 0;
-  font-size: 13px;
-  line-height: 1.46;
-}
-
-.block-uni .result-title {
-  font-size: 13px;
-  font-weight: bold;
-  margin-bottom: 1.5em;
-}
-
-.calc-button {
-  display: inline-block;
-  background: #c8ff5a;
-  color: #0a0a0a;
-  padding: 6px 12px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-  margin-top: 0;
-  transition: all .2s ease;
-}
-.calc-button:hover {
-  background: #b8ef4a;
-  transform: translateY(-1px);
-}
-
+/* АККОРДЕОН */
 .accordion-btn {
   width: 100%;
   display: flex;
@@ -401,114 +346,60 @@ const toggleAccordion = (key) => {
   position: relative;
   transition: background .2s;
 }
-.accordion-btn:first-child {
-  margin-top: 0;
-}
-.chevron-col {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 24px;
-}
-.chevron-svg {
-  transition: transform 0.22s;
-  vertical-align: middle;
-  color: #dafe55;
-  width: 16px;
-  height: 16px;
-}
-.chevron-open {
-  transform: rotate(180deg);
-}
-.acc-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #dafe55;
-  margin-left: 10px;
-  line-height: 1;
-  display: inline-block;
-}
-/* раскрывающийся контент теперь также выравнивается по общим block-uni */
+.accordion-btn:first-child { margin-top: 0;}
+.chevron-col { display: flex; align-items: center; justify-content: center; min-width: 24px; height: 24px;}
+.chevron-svg { transition: transform 0.22s; vertical-align: middle; color: #dafe55; width: 16px; height: 16px;}
+.chevron-open { transform: rotate(180deg);}
+.acc-title { font-size: 13px; font-weight: 700; color: #dafe55; margin-left: 10px; line-height: 1; display: inline-block; }
+/* раскрывающийся контент теперь с дополнительным отступом */
 .accordion-content {
   background: rgba(255,255,255,0.02);
   border-left: 3px solid #c8ff5a;
   margin-left: 34px;
   margin-bottom: 10px;
   border-radius: 7px;
+  padding: 11px 22px 11px 20px;
   text-align: left;
 }
+.accordion-content ul,
+.accordion-content li {
+  padding-left: 0;
+  margin-left: 0;
+}
 
+/* --- Карточки Для Кого --- */
 .for-whom-cards {
   display: flex;
   gap: 24px;
-  margin: 0;
+  margin: 16px 0 0 0;
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  background: none;
-  border: none
 }
 .forwhom-card {
-  flex: 1;
-  min-width: 260px;
-  background: rgba(0,0,0,0.25);
-  border: 1.8px solid #c8ff5a;
-  border-radius: 11px;
-  padding: 18px 14px 18px 18px;
-  margin-bottom: 0;
-  box-shadow: 0 3px 15px rgba(0,0,0,0.09);
+  flex: 1; min-width: 260px; background: rgba(0,0,0,0.25);
+  border: 1.8px solid #c8ff5a; border-radius: 11px;
+  padding: 20px 22px 18px 22px;
+  margin-bottom: 12px; box-shadow: 0 3px 15px rgba(0,0,0,0.09);
   transition: box-shadow .22s, transform .22s;
 }
-.forwhom-card.positive {
-  border: 1.8px solid #55e74d;
-}
-.forwhom-card.negative {
-  border: 1.8px solid #f05555;
-}
-.forwhom-card h4 {
-  color: #fff;
-  margin-bottom: 1em;
-  font-size: 13px;
-  text-align: left;
-}
-.forwhom-card ul {
-  margin: 0;
-  padding-left: 15px;
-}
-.forwhom-card ul li {
-  color: #fff;
-  font-size: 13px;
-  margin-bottom: 7px;
-  line-height: 1.5;
-}
+.forwhom-card.positive { border: 1.8px solid #55e74d; }
+.forwhom-card.negative { border: 1.8px solid #f05555; }
+.forwhom-card h4 { color: #fff; margin-bottom: 1em; font-size: 13px; text-align: left; }
+.forwhom-card ul { margin: 0; padding-left: 20px; }
+.forwhom-card ul li { color: #fff; font-size: 13px; margin-bottom: 7px; line-height: 1.5; padding-left: 0; }
+
 @media (max-width: 720px) {
-  .for-whom-cards {
-    flex-direction: column;
-    gap: 13px;
-  }
-  .forwhom-card {
-    min-width: 0;
-    width: 100%;
-  }
+  .for-whom-cards { flex-direction: column; gap: 13px; }
+  .forwhom-card { min-width: 0; width: 100%; }
 }
-.gray-compare {
-  color: #a1a1a1;
-  font-weight: 500;
-  font-size: 13px;
-}
-.mini-prompt {
-  font-size: 13px;
-  line-height: 1.46;
-  margin-top: 24px;
-}
-.prompt-title {
-  margin-bottom: 1.5em;
-}
-.prompt-main {
-  margin-bottom: 1.5em;
-}
-.prompt-extra {
-  margin-bottom: 0;
-}
+
+/* --- Серый текст для сравнений --- */
+.gray-compare { color: #a1a1a1; font-weight: 500; font-size: 13px; }
+
+/* Мини-блоки-подсказки: одинаковый воздух */
+.mini-prompt { margin-top: 24px; font-size: 13px; line-height: 1.46; }
+.prompt-title { margin-bottom: 1.5em;}
+.prompt-main { margin-bottom: 1.5em;}
+.prompt-extra { margin-bottom: 0;}
 </style>
