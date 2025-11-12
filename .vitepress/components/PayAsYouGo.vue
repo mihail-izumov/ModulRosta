@@ -56,15 +56,14 @@ const toggleAccordion = (key) => {
         </p>
       </div>
     </div>
-
     <!-- Вкладка: Наше обязательство -->
     <div v-show="activeTab === 'commitment'" class="content-mr">
       <h3 class="tab-title">Как работает наше обязательство</h3>
       <!-- Аккордеон 1 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment1')">
-          <span :class="{ 'chevron-open': openAccordions.commitment1 }">
-            <svg class="chevron-svg" width="24" height="24" fill="none" stroke="currentColor"
+          <span class="chevron-col">
+            <svg :class="{ 'chevron-svg': true, 'chevron-open': openAccordions.commitment1 }" width="16" height="16" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                  viewBox="0 0 24 24">
               <path d="m6 9 6 6 6-6"/>
@@ -82,8 +81,8 @@ const toggleAccordion = (key) => {
       <!-- Аккордеон 2 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment2')">
-          <span :class="{ 'chevron-open': openAccordions.commitment2 }">
-            <svg class="chevron-svg" width="24" height="24" fill="none" stroke="currentColor"
+          <span class="chevron-col">
+            <svg :class="{ 'chevron-svg': true, 'chevron-open': openAccordions.commitment2 }" width="16" height="16" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                  viewBox="0 0 24 24">
               <path d="m6 9 6 6 6-6"/>
@@ -101,8 +100,8 @@ const toggleAccordion = (key) => {
       <!-- Аккордеон 3 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment3')">
-          <span :class="{ 'chevron-open': openAccordions.commitment3 }">
-            <svg class="chevron-svg" width="24" height="24" fill="none" stroke="currentColor"
+          <span class="chevron-col">
+            <svg :class="{ 'chevron-svg': true, 'chevron-open': openAccordions.commitment3 }" width="16" height="16" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                  viewBox="0 0 24 24">
               <path d="m6 9 6 6 6-6"/>
@@ -123,8 +122,7 @@ const toggleAccordion = (key) => {
         <strong>Ключевое условие:</strong> "по нашей вине" означает, что мы не переносим ответственность на клиента за <strong>наши</strong> методологические ошибки или <strong>нашу</strong> неспособность найти решения.
       </div>
     </div>
-
-    <!-- Вкладка: Как это работает -->
+    <!-- Остальные вкладки без изменений -->
     <div v-show="activeTab === 'guarantee-details'" class="content-mr">
       <h3 class="tab-title">Почему это работает лучше традиционных гарантий</h3>
       <ul>
@@ -151,7 +149,6 @@ const toggleAccordion = (key) => {
         </li>
       </ul>
     </div>
-    <!-- Вкладка: Что значит "по нашей вине" -->
     <div v-show="activeTab === 'cause'" class="content-mr">
       <h3 class="tab-title">Что значит «по нашей вине»</h3>
       <p>Мы несём <strong>полную ответственность</strong> за:</p>
@@ -175,7 +172,6 @@ const toggleAccordion = (key) => {
         <li><strong>Проверенная команда</strong> — каждый участник лично проверен на проектах</li>
       </ul>
     </div>
-    <!-- Вкладка: Сравнение с рынком -->
     <div v-show="activeTab === 'comparison'" class="content-mr">
       <h3 class="tab-title">Сравнение с рынком</h3>
       <table>
@@ -215,7 +211,6 @@ const toggleAccordion = (key) => {
         </tbody>
       </table>
     </div>
-    <!-- Вкладка: Для кого это -->
     <div v-show="activeTab === 'for-whom'" class="content-mr">
       <h3 class="tab-title">Для кого это обязательство</h3>
       <div class="for-whom-cards">
@@ -238,7 +233,6 @@ const toggleAccordion = (key) => {
         </div>
       </div>
     </div>
-    <!-- Вкладка: Как начать -->
     <div v-show="activeTab === 'how-to-start'" class="content-mr">
       <h3 class="tab-title">Начать работу с обязательством</h3>
       <ol>
@@ -338,9 +332,11 @@ const toggleAccordion = (key) => {
   font-size: 13px;
 }
 
-/* ----- АККОРДЕОН ----- */
+/* АККОРДЕОН */
 .accordion-btn {
   width: 100%;
+  display: flex;
+  align-items: center;
   background: none;
   border: none;
   padding: 8px 0 8px 0;
@@ -353,31 +349,45 @@ const toggleAccordion = (key) => {
   cursor: pointer;
   position: relative;
   transition: background .2s;
-  display: flex;
-  align-items: center;
 }
 .accordion-btn:first-child {
   margin-top: 0;
 }
-.chevron-svg {
-  display: inline-block;
-  transition: transform 0.22s;
+.chevron-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px; /* чтобы текст не подплывал */
+  height: 24px;
 }
-.chevron-open .chevron-svg {
+.chevron-svg {
+  transition: transform 0.22s;
+  vertical-align: middle;
+  color: #dafe55;
+  width: 16px;
+  height: 16px;
+}
+.chevron-open {
   transform: rotate(180deg);
 }
 .acc-title {
   font-size: 13px;
   font-weight: 700;
   color: #dafe55;
+  margin-left: 10px;
+  line-height: 1;
+  display: inline-block;
 }
+
+/* раскрывающийся контент идёт ровно по левой стороне стрелки */
 .accordion-content {
   background: rgba(255,255,255,0.02);
   border-left: 3px solid #c8ff5a;
-  margin-left: 24px;
-  margin-bottom: 10px;   /* уменьшили! */
+  margin-left: 34px; /* стрелка + отступ */
+  margin-bottom: 10px; /* очень небольшой промежуток! */
   border-radius: 7px;
-  padding: 11px 0 11px 22px;
+  padding: 11px 0 11px 12px;
+  text-align: left;
 }
 
 /* --- Карточки Для Кого --- */
@@ -461,5 +471,4 @@ tr:last-child td {
   font-weight: 500;
   font-size: 13px;
 }
-
 </style>
