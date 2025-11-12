@@ -1,321 +1,378 @@
 <script setup>
 import { ref } from 'vue'
-const activeTab = ref('checkup')
+
+const activeTab = ref('why-not-promise')
+const openAccordions = ref({
+  commitment1: false,
+  commitment2: false,
+  commitment3: false
+})
+const toggleAccordion = (key) => {
+  openAccordions.value[key] = !openAccordions.value[key]
+}
 </script>
 
 <template>
-  <div class="mr-tabs">
-    <button :class="{'mr-active': activeTab === 'checkup'}" @click="activeTab = 'checkup'">Чекап в 2 этапа</button>
-    <button :class="{'mr-active': activeTab === 'system'}" @click="activeTab = 'system'">10 разделов бизнеса</button>
-    <button :class="{'mr-active': activeTab === 'dmaic'}" @click="activeTab = 'dmaic'">Методология DMAIC</button>
-    <button :class="{'mr-active': activeTab === 'results'}" @click="activeTab = 'results'">Результаты чекапа</button>
-    <button :class="{'mr-active': activeTab === 'owner'}" @click="activeTab = 'owner'">Что получает собственник</button>
-    <button :class="{'mr-active': activeTab === 'precision'}" @click="activeTab = 'precision'">Точность и контроль</button>
+  <div class="tabs-mr">
+    <button :class="{ active: activeTab === 'why-not-promise' }" @click="activeTab = 'why-not-promise'">
+      Почему не обещаем X2 рост
+    </button>
+    <button :class="{ active: activeTab === 'commitment' }" @click="activeTab = 'commitment'">
+      Наше обязательство
+    </button>
+    <button :class="{ active: activeTab === 'guarantee-details' }" @click="activeTab = 'guarantee-details'">
+      Как это работает
+    </button>
+    <button :class="{ active: activeTab === 'cause' }" @click="activeTab = 'cause'">
+      Что значит «по нашей вине»
+    </button>
+    <button :class="{ active: activeTab === 'comparison' }" @click="activeTab = 'comparison'">
+      Сравнение с рынком
+    </button>
+    <button :class="{ active: activeTab === 'for-whom' }" @click="activeTab = 'for-whom'">
+      Для кого это
+    </button>
+    <button :class="{ active: activeTab === 'how-to-start' }" @click="activeTab = 'how-to-start'">
+      Как начать
+    </button>
   </div>
-
-  <div class="mr-panel">
-    <!-- Чекап в 2 этапа -->
-    <div v-show="activeTab === 'checkup'" class="mr-content">
-      <h3>Чекап в 2 этапа</h3>
-      <p>80% компаний не готовы к глубокому анализу — у них нет данных, дисциплины или полномочий. Наша система <strong>двухэтапного чекапа</strong> быстро показывает, готовы ли вы к трансформации или сначала нужен подготовительный этап.</p>
-      <div class="mr-linkbox">
-        <a href="/checkup/roadmap" class="mr-lime-link">
-          <span>Перейти к <strong>Карте Чекапа</strong></span>
-          <span class="mr-arrow">
-            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </span>
-        </a>
+  <div class="panel-mr">
+    <!-- Вкладка: Почему не обещаем X2 рост -->
+    <div v-show="activeTab === 'why-not-promise'" class="content-mr">
+      <h3 class="main-title">Почему мы не обещаем X2 рост и не возвращаем деньги</h3>
+      <p>
+        Рынок бизнес-аналитики наводнен <strong>пустыми обещаниями</strong>: "+30% прибыли", "ROI 300%", "гарантия возврата денег". Эти формулировки ничего не гарантируют, потому что:
+      </p>
+      <ul>
+        <li><strong>Проценты легко манипулировать</strong> — 30% от чего и за какой период?</li>
+        <li><strong>Возврат денег</strong> означает, что аналитик <strong>не несет ответственности</strong> за внедрение</li>
+        <li><strong>Красивые цифры</strong> отвлекают от главного — <strong>реальных изменений</strong> в бизнесе</li>
+      </ul>
+      <div class="custom-dark-block">
+        <p>
+          <strong>Мы выбрали другой путь</strong><br>
+          Вместо маркетинговых обещаний мы взяли на себя <strong>конкретное обязательство</strong> — <strong>работать до получения результата</strong>.<br>
+          Это означает, что ваши деньги оплачивают <strong>движение вперед</strong>, а не отчеты.
+        </p>
       </div>
     </div>
-
-    <!-- 10 разделов бизнеса -->
-    <div v-show="activeTab === 'system'" class="mr-content">
-      <h3>10 разделов бизнеса</h3>
-      <ul class="mr-ul">
-        <li><strong>Системный подход:</strong> анализ ~180 связанных метрик и изучение влияния изменений в одной сфере на остальные.</li>
-        <li><strong>Конкретика:</strong> только точные цифры потенциала и сроки результата — никаких абстрактных советов.</li>
-        <li><strong>Фокус на тотальной эффективности:</strong> выявление скрытых потерь, неэффективных процессов, лишних затрат и потерь времени/ресурсов.</li>
-      </ul>
-      <div class="mr-linkbox">
-        <a href="/checkup/deep" class="mr-lime-link">
-          <span>Подробнее о Глубоком Чекапе</span>
-          <span class="mr-arrow">
-            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </span>
-        </a>
+    <!-- Вкладка: Наше обязательство -->
+    <div v-show="activeTab === 'commitment'" class="content-mr">
+      <h3 class="main-title">Как работает наше обязательство</h3>
+      <div>
+        <button class="accordion-btn" @click="toggleAccordion('commitment1')">
+          <span :class="{'arrow-open': openAccordions.commitment1}">▸</span>
+          <span class="acc-title">Карту системных узких мест</span>
+        </button>
+        <ul v-show="openAccordions.commitment1" class="accordion-content">
+          <li>Конкретные данные о потерях эффективности</li>
+          <li>Измеримые показатели каждой проблемы</li>
+          <li>Приоритизация по влиянию на результат</li>
+          <li>Валидация командой — не теоретические выводы, а подтверждённые факты</li>
+        </ul>
+      </div>
+      <div>
+        <button class="accordion-btn" @click="toggleAccordion('commitment2')">
+          <span :class="{'arrow-open': openAccordions.commitment2}">▸</span>
+          <span class="acc-title">Три готовых к внедрению решения</span>
+        </button>
+        <ul v-show="openAccordions.commitment2" class="accordion-content">
+          <li>Согласованные с командой планы действий</li>
+          <li>Назначенные ответственные за каждое направление</li>
+          <li>Чёткие критерии успеха по каждому решению</li>
+          <li>Ресурсы и инструменты для реализации</li>
+        </ul>
+      </div>
+      <div>
+        <button class="accordion-btn" @click="toggleAccordion('commitment3')">
+          <span :class="{'arrow-open': openAccordions.commitment3}">▸</span>
+          <span class="acc-title">Запущенные пилотные проекты</span>
+        </button>
+        <ul v-show="openAccordions.commitment3" class="accordion-content">
+          <li>Работающие процессы по каждому из решений</li>
+          <li>Первые измеримые результаты пилотов</li>
+          <li>Обратная связь от команды по каждому нововведению</li>
+          <li>План масштабирования успешных пилотов</li>
+        </ul>
+      </div>
+      <div class="mini-prompt">
+        <p><strong>Что происходит, если мы не выполняем обязательство</strong></p>
+        <p>
+          Если по истечении 30 дней <strong>хотя бы один</strong> из трёх пунктов не выполнен <strong>по нашей вине</strong>, мы продолжаем работать до его выполнения <strong>без дополнительной оплаты</strong>.
+        </p>
+        <p>
+          <strong>Ключевое условие:</strong> "по нашей вине" означает, что мы не переносим ответственность на клиента за <strong>наши</strong> методологические ошибки или <strong>нашу</strong> неспособность найти решения.
+        </p>
       </div>
     </div>
-
-    <!-- Методология DMAIC -->
-    <div v-show="activeTab === 'dmaic'" class="mr-content">
-      <h3>Методология DMAIC + кросс-анализ</h3>
-      <ul class="mr-ul">
-        <li><strong>Определяем</strong> проблемы по принципу "есть/нет" и сразу приоритезируем их.</li>
-        <li><strong>Измеряем</strong> текущее состояние и строим базовую линию.</li>
-        <li><strong>Анализируем</strong> причины проблем — ищем взаимосвязи между процессами.</li>
-        <li><strong>Улучшаем</strong> точечно, прогнозируя влияние на все соседние области.</li>
-        <li><strong>Контролируем</strong> результаты через систему раннего предупреждения и регулярных чекапов.</li>
+    <!-- Вкладка: Как это работает -->
+    <div v-show="activeTab === 'guarantee-details'" class="content-mr">
+      <h3>Почему это работает лучше традиционных гарантий</h3>
+      <ul>
+        <li>
+          <strong>Конкретность вместо абстракций</strong><br>
+          <span class="gray-compare">Традиционный подход: "Увеличим эффективность на 30%"</span><br>
+          Наш подход: "Запустим 3 пилота с назначенными ответственными"
+        </li>
+        <li>
+          <strong>Фокус на внедрении, а не на анализе</strong><br>
+          <span class="gray-compare">Традиционный подход: Дают рекомендации и уходят</span><br>
+          Наш подход: Запускаем изменения и сопровождаем процесс<br>
+          80% провалов аналитических проектов происходит на этапе внедрения. Мы берём ответственность за этот этап.
+        </li>
+        <li>
+          <strong>Совместная ответственность</strong><br>
+          <span class="gray-compare">Традиционный подход: "Если не сработает — вернём деньги"</span><br>
+          Наш подход: "Если не работает — работаем дальше"
+        </li>
+        <li>
+          <strong>Измеримость с первых дней</strong><br>
+          <span class="gray-compare">Традиционный подход: Результат через 6–12 месяцев</span><br>
+          Наш подход: Движение видно через 30 дней
+        </li>
       </ul>
-      <div class="mr-linkbox">
-        <a href="/technology/analytics-360" class="mr-lime-link" target="_blank" rel="noopener">
-          <span>Аналитика 360°</span>
-          <span class="mr-arrow">
-            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </span>
-        </a>
+    </div>
+    <!-- Вкладка: Что значит "по нашей вине" -->
+    <div v-show="activeTab === 'cause'" class="content-mr">
+      <h3>Что значит «по нашей вине»</h3>
+      <p>Мы несём <strong>полную ответственность</strong> за:</p>
+      <ul>
+        <li>Качество аналитики и точность выводов</li>
+        <li>Готовность решений к внедрению в вашей среде</li>
+        <li>Вовлечение команды и преодоление сопротивления</li>
+        <li>Методологическую поддержку запуска пилотов</li>
+      </ul>
+      <p>Мы <strong>НЕ</strong> отвечаем за:</p>
+      <ul>
+        <li>Форс-мажорные обстоятельства (кризисы, изменения законодательства)</li>
+        <li>Кардинальные изменения в команде или стратегии во время проекта</li>
+        <li>Отказ руководства выполнять согласованные ранее решения</li>
+      </ul>
+      <h4>Как мы можем это гарантировать</h4>
+      <ul>
+        <li><strong>Опыт 15+ лет системной аналитики</strong></li>
+        <li><strong>Фокус на быстрых победах</strong> — решения с быстрой реализацией для первого месяца</li>
+        <li><strong>Работа только с готовыми компаниями</strong> — жесткая система отбора</li>
+        <li><strong>Проверенная команда</strong> — каждый участник лично проверен на проектах</li>
+      </ul>
+    </div>
+    <!-- Вкладка: Сравнение с рынком -->
+    <div v-show="activeTab === 'comparison'" class="content-mr">
+      <h3>Сравнение с рынком</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Критерий</th>
+            <th>Традиционные консультанты</th>
+            <th>Модуль Роста</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Что обещают</td>
+            <td>Абстрактные проценты роста</td>
+            <td>Конкретные запущенные изменения</td>
+          </tr>
+          <tr>
+            <td>Когда результат</td>
+            <td>Через 6-12 месяцев</td>
+            <td>Через 30 дней</td>
+          </tr>
+          <tr>
+            <td>Что делают при неудаче</td>
+            <td>Возвращают деньги</td>
+            <td>Работаем до результата</td>
+          </tr>
+          <tr>
+            <td>Ответственность</td>
+            <td>За качество отчета</td>
+            <td>За внедрение решений</td>
+          </tr>
+          <tr>
+            <td>Фокус</td>
+            <td>На анализе</td>
+            <td>На действии</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Вкладка: Для кого это -->
+    <div v-show="activeTab === 'for-whom'" class="content-mr">
+      <h3>Для кого это обязательство</h3>
+      <div class="for-whom-cards">
+        <div class="forwhom-card positive">
+          <h4>✅ Подходит, если вы:</h4>
+          <ul>
+            <li>Устали от красивых отчётов без реальных изменений</li>
+            <li>Готовы вкладываться в системные улучшения</li>
+            <li>Хотите видеть прогресс с первого месяца</li>
+            <li>Готовы работать с нашей командой как партнёры</li>
+          </ul>
+        </div>
+        <div class="forwhom-card negative">
+          <h4>❌ Не подходит, если вы:</h4>
+          <ul>
+            <li>Ищете советы, которые подкрепляют вашу картину бизнеса</li>
+            <li>Не готовы вовлекать команду в изменения</li>
+            <li>Хотите только анализ без внедрения</li>
+          </ul>
+        </div>
       </div>
     </div>
-
-    <!-- Результаты чекапа -->
-    <div v-show="activeTab === 'results'" class="mr-content">
-      <h3>Результаты</h3>
-      <ul class="mr-checked">
-        <li>
-          <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-          </span>
-          <strong>Точные метрики —</strong>
-          например, "оптимизация графика закупок высвободит X млн ₽" или "изменение мотивации увеличит выручку на Y%"
-        </li>
-        <li>
-          <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-          </span>
-          <strong>Приоритизированный план действий —</strong>
-          что делать сейчас, а что отложить, с оценкой эффекта и сроков
-        </li>
-        <li>
-          <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-          </span>
-          <strong>Пошаговые решения проблем —</strong>
-          с учётом взаимосвязей между процессами
-        </li>
-        <li>
-          <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-          </span>
-          <strong>Детальный отчёт —</strong>
-          анализ ~180 ключевых метрик и пошаговый план внедрения с временными рамками
-        </li>
-        <li>
-          <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-          </span>
-          <strong>Система контроля —</strong>
-          трекинг результатов и регулярные чекапы
-        </li>
-      </ul>
-    </div>
-
-    <!-- Что получает собственник -->
-    <div v-show="activeTab === 'owner'" class="mr-content">
-      <h3>Что получает собственник</h3>
-      <ul class="mr-checked">
-        <li>
-          <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-          </span>
-          <strong>Новый уровень стратегического мышления —</strong>
-          применение фрейм-менеджмента к своему бизнесу
-        </li>
-        <li>
-          <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-          </span>
-          <strong>Готовые инструменты —</strong>
-          конкретный план изменений для решения задач
-        </li>
-        <li>
-          <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-          </span>
-          <strong>Структуризация и систематизация —</strong>
-          аудита существующего опыта
-        </li>
-        <li>
-          <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-          </span>
-          <strong>Профессиональная поддержка —</strong>
-          сопровождение экспертов на этапе внедрения
-        </li>
-      </ul>
-    </div>
-
-    <!-- Точность и контроль -->
-    <div v-show="activeTab === 'precision'" class="mr-content">
-      <h3>Что делает наш подход точным</h3>
-      <ul class="mr-ul">
-        <li><strong>Системный взгляд:</strong> анализируем бизнес как единый организм, 10 разделов от финансов до HR</li>
-        <li><strong>RAG-анализ:</strong> быстрые и надёжные цифры для решений, никакой "воды"</li>
-        <li><strong>Постоянные чекапы:</strong> ваша система непрерывных улучшений</li>
-        <li><strong>DMAIC-подход:</strong> точная синхронизация с командой, результат ежедневного исполнения</li>
-      </ul>
+    <!-- Вкладка: Как начать -->
+    <div v-show="activeTab === 'how-to-start'" class="content-mr">
+      <h3>Начать работу с обязательством</h3>
+      <ol>
+        <li>Подайте <strong>заявку на чекап</strong></li>
+        <li><strong>Пройдите подготовительный чекап</strong>, чтобы оценить готовность к изменениям</li>
+        <li><strong>Подпишите договор</strong> с зафиксированным обязательством</li>
+        <li><strong>Получите результат</strong> в течение 30 дней или продолжение работы бесплатно</li>
+      </ol>
+      <div class="result-block result-block-equal">
+        <p><strong>Готовы работать на результат?</strong></p>
+        <p>
+          Платите только за движение вперед. Обязательство включено в каждый проект.<br>
+          Если вы готовы к системным изменениям, наше обязательство превратит ваш потенциал в <strong>измеримые результаты</strong> уже через месяц.
+        </p>
+        <a href="/apply" class="calc-button">Подать заявку на бизнес-чекап →</a>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* tabs */
-.mr-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 14px;
+.panel-mr {
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 10px 16px 15px 16px; /* 1) отступ сверху меньше */
 }
-.mr-tabs button {
-  appearance: none;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.92);
-  padding: 9px 18px;
-  border-radius: 10px;
+.main-title {
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+.custom-dark-block {
+  background-color: rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 6px 14px 8px 14px; /* 2) сверху и снизу уменьшены вдвое */
+  border-radius: 8px;
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+.mini-prompt {
+  margin-top: 24px;
+  font-size: 13px;
+}
+.mini-prompt p {
+  margin-bottom: 18px; /* 4) явный межабзацный интервал */
+}
+.mini-prompt p:last-child {
+  margin-bottom: 0;
+}
+.accordion-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 9px 0 9px 0;
+  text-align: left;
+  color: #c8ff5a;
   font-weight: 700;
-  font-size: 14px;
-  line-height: 1;
-  cursor: pointer;
-  transition: all .2s ease;
-  outline: none;
-  box-shadow:none;
-}
-.mr-tabs button:hover, .mr-tabs .mr-active:not(:hover) {
-  background: rgba(255,255,255,0.08);
-  border-color: #c8ff5a;
-}
-.mr-tabs .mr-active {
-  color: #0a0a0a;
-  background: #c8ff5a;
-  border-color: #c8ff5a;
-  box-shadow: 0 0 0 2px rgba(200,255,90,0.22) inset;
-}
-
-/* panel */
-.mr-panel {
-  border: 1.5px solid rgba(255,255,255,0.14);
-  border-radius: 19px;
-  background: rgba(24,24,28,1);
-  padding: 30px 32px 26px 32px;
   margin-top: 18px;
-  color: #fff;
-  box-sizing: border-box;
-}
-
-/* content */
-.mr-content {
-  color: rgba(255,255,255,0.95);
-  font-size: 14px !important;
-  line-height: 1.54;
-  padding: 0;
-}
-.mr-content p:not(:last-child) { margin-bottom: 13px; }
-.mr-content p, .mr-content li, .mr-content span, .mr-content strong {
-  font-size: 14px !important;
-  line-height: 1.58;
-}
-.mr-content h3 {
-  margin: 0 0 17px;
-  font-size: 22px;
-  font-weight: 700;
-  color: #FFF;
-  line-height: 1.15;
-}
-.mr-content strong { font-weight: 800; color: #fff; }
-
-/* обычный ul */
-.mr-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 18px 0;
-}
-.mr-ul li {
-  position: relative;
-  padding-left: 0;
   margin-bottom: 12px;
-  color: #fff;
-  font-size: 14px !important;
-  line-height: 1.6;
-  letter-spacing: 0.01em;
-}
-.mr-ul li::before {
-  content: '–';
-  position: absolute;
-  left: -15px;
-  color: rgba(255,255,255,0.52);
-  font-size: 22px;
-  font-weight: 400;
-  top: -1px;
-}
-
-/* extra spacing для чек-листа */
-.mr-checked {
-  list-style: none;
-  margin: 0 0 4px 0;
-  padding: 0;
-}
-.mr-checked li {
-  display: flex;
-  align-items: flex-start;
-  gap: 15px;
-  margin-bottom: 14px;
-  padding-left: 0;
-  font-size: 14px !important;
-  line-height: 1.58;
-  letter-spacing: 0.01em;
-}
-.mr-checked li::before { display: none; }
-.mr-lime-check {
-  flex-shrink: 0;
-  margin-top: 3px;
-  margin-right: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-/* link lime, защищен от тем */
-.mr-linkbox {
-  margin-top: 19px;
-  font-size: 14px;
-}
-.mr-lime-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  color: #c8ff5a !important;
-  font-weight: 900;
-  font-size: 17px;
-  text-decoration: none !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  font-size: 18px;
   cursor: pointer;
-  outline: none;
-  letter-spacing: 0.01em;
-  transition: color .2s;
-  z-index: 0;
-  --mr-arrow-move: 0px;
-}
-.mr-lime-link:visited,
-.mr-lime-link:active { color: #c8ff5a !important; }
-.mr-lime-link:hover { color: #d3ff43 !important; }
-.mr-lime-link .mr-arrow {
-  transition: transform 0.23s cubic-bezier(.7,.2,.3,1) 0s;
-  margin-left: 6px;
-  margin-top: 1px;
+  position: relative;
   display: flex;
   align-items: center;
-  will-change: transform;
-  /* for smooth motion */
+  transition: background .2s;
 }
-.mr-lime-link:hover .mr-arrow {
-  transform: translateX(14px);
+.accordion-btn:first-child {
+  margin-top: 0;
+}
+.accordion-btn .arrow-open {
+  display: inline-block;
+  transform: rotate(90deg);
+  transition: transform 0.18s;
+  font-size: 28px;
+  margin-right: 14px;
+  font-weight: bold;
+  color: #c8ff5a;
+}
+.acc-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #dafe55;
+  margin-left: 8px;
+}
+.accordion-content {
+  background: rgba(255,255,255,0.02);
+  border-left: 3px solid #c8ff5a;
+  margin-left: 24px;
+  margin-bottom: 24px;
+  border-radius: 7px;
+  padding: 12px 0 12px 22px;
+}
+.accordion-content ul {
+  margin: 0 0 7px 0.3em;
+  padding: 0 0 0 15px;
 }
 
-/* BG dark for panel, white strong borders for full isolation */
-.mr-panel, .mr-content, .mr-tabs, .mr-checked, .mr-ul {
-  background: none !important;
-  box-shadow: none !important;
+.for-whom-cards {
+  display: flex;
+  gap: 24px;
+  margin: 16px 0 0 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.forwhom-card {
+  flex: 1;
+  min-width: 260px;
+  background: rgba(0,0,0,0.25);
+  border: 1.8px solid #c8ff5a;
+  border-radius: 11px;
+  padding: 20px 14px 18px 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.09);
+  transition: box-shadow .22s, transform .22s;
+}
+.forwhom-card.positive {
+  border: 1.8px solid #55e74d;
+}
+.forwhom-card.negative {
+  border: 1.8px solid #f05555;
+}
+.forwhom-card h4 {
+  color: #fff;
+  margin-bottom: 1em;
+  font-size: 14px;
+  text-align: left;
+}
+.forwhom-card ul {
+  margin: 0;
+  padding-left: 15px;
+}
+.forwhom-card ul li {
+  color: #fff;
+  font-size: 13px;
+  margin-bottom: 7px;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .for-whom-cards {
+    flex-direction: column;
+    gap: 13px;
+  }
+  .forwhom-card {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+.gray-compare {
+  color: #a1a1a1;
+  font-weight: 500;
+  font-size: 13px;
 }
 </style>
