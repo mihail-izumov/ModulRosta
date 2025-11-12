@@ -155,20 +155,23 @@ const goToApply = () => {
     <!-- 4. Что значит "по нашей вине" -->
     <div v-show="activeTab === 'cause'" class="mr-content">
       <h3 class="mr-lime-title">Что значит «по нашей вине»</h3>
-      <p>Мы несём <strong>полную ответственность</strong> за:</p>
+
+      <p class="mr-lime-subtitle">Мы несём полную ответственность за:</p>
       <ul class="mr-ul">
         <li>Качество аналитики и точность выводов</li>
         <li>Готовность решений к внедрению в вашей среде</li>
         <li>Вовлечение команды и преодоление сопротивления</li>
         <li>Методологическую поддержку запуска пилотов</li>
       </ul>
-      <p>Мы <strong>НЕ</strong> отвечаем за:</p>
+
+      <p class="mr-lime-subtitle">Мы НЕ отвечаем за:</p>
       <ul class="mr-ul">
         <li>Форс-мажорные обстоятельства (кризисы, изменения законодательства)</li>
         <li>Кардинальные изменения в команде или стратегии во время проекта</li>
         <li>Отказ руководства выполнять согласованные ранее решения</li>
       </ul>
-      <h4 class="mr-lime-subtitle">Как мы можем это гарантировать</h4>
+
+      <p class="mr-lime-subtitle">Как мы можем это гарантировать</p>
       <ul class="mr-ul">
         <li><strong>Опыт 15+ лет системной аналитики</strong></li>
         <li><strong>Фокус на быстрых победах</strong> — решения с быстрой реализацией для первого месяца</li>
@@ -245,12 +248,13 @@ const goToApply = () => {
     <!-- 7. Как начать -->
     <div v-show="activeTab === 'how-to-start'" class="mr-content">
       <h3>Начать работу с обязательством</h3>
-      <ol class="mr-ol">
-        <li>Подайте <strong>заявку на чекап</strong></li>
-        <li>Пройдите <strong>подготовительный чекап</strong>, чтобы оценить готовность к изменениям</li>
-        <li>Подпишите <strong>договор</strong> с зафиксированным обязательством</li>
-        <li>Получите <strong>результат</strong> в течение 30 дней или продолжение работы бесплатно</li>
-      </ol>
+      <div class="mr-ol-custom">
+        <div class="mr-ol-item">1. Подайте <strong>заявку на чекап</strong></div>
+        <div class="mr-ol-item">2. Пройдите <strong>подготовительный чекап</strong>, чтобы оценить готовность к изменениям</div>
+        <div class="mr-ol-item">3. Подпишите <strong>договор</strong> с зафиксированным обязательством</div>
+        <div class="mr-ol-item">4. Получите <strong>результат</strong> в течение 30 дней или продолжение работы бесплатно</div>
+      </div>
+
       <div class="mr-highlight">
         <h4>Готовы работать на результат?</h4>
         <p>Платите только за движение вперед. Обязательство включено в каждый проект.<br>Если вы готовы к системным изменениям, наше обязательство превратит ваш потенциал в <strong>измеримые результаты</strong> уже через месяц.</p>
@@ -268,13 +272,13 @@ const goToApply = () => {
 </template>
 
 <style scoped>
-/* === ТАБЫ === */
+/* === ТАБЫ — ПО ЛЕВОЙ СТОРОНЕ === */
 .mr-tabs {
   display: flex !important;
   flex-wrap: wrap !important;
   gap: 8px !important;
   margin-bottom: 16px !important;
-  justify-content: center !important;
+  justify-content: flex-start !important; /* ← ВОТ ГЛАВНОЕ */
 }
 .mr-tabs button {
   appearance: none !important;
@@ -366,21 +370,23 @@ const goToApply = () => {
   line-height: 1 !important;
 }
 
-.mr-ol {
-  counter-reset: ol-counter !important;
-  padding-left: 0 !important;
+/* === НУМЕРОВАННЫЙ СПИСОК — БЕЗ VITEPRESS === */
+.mr-ol-custom {
+  counter-reset: custom-ol !important;
+  padding: 0 !important;
   margin: 0 0 20px 0 !important;
 }
-.mr-ol li {
-  counter-increment: ol-counter !important;
+.mr-ol-item {
+  counter-increment: custom-ol !important;
   position: relative !important;
   padding-left: 32px !important;
   margin-bottom: 12px !important;
   font-size: 14px !important;
   line-height: 1.45 !important;
+  color: #fff !important;
 }
-.mr-ol li::before {
-  content: counter(ol-counter) "." !important;
+.mr-ol-item::before {
+  content: counter(custom-ol) "." !important;
   position: absolute !important;
   left: 0 !important;
   color: #c8ff5a !important;
@@ -466,6 +472,21 @@ const goToApply = () => {
   top: 0 !important;
 }
 
+/* === ЛАЙМОВЫЕ ПОДЗАГОЛОВКИ === */
+.mr-lime-title {
+  color: #c8ff5a !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  margin: 0 0 18px !important;
+}
+.mr-lime-subtitle {
+  color: #c8ff5a !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  margin: 16px 0 8px 0 !important;
+  line-height: 1.45 !important;
+}
+
 /* === СЕРЫЙ И ЛАЙМОВЫЙ ТЕКСТ === */
 .mr-gray {
   color: #a1a1a1 !important;
@@ -486,20 +507,6 @@ const goToApply = () => {
   display: block !important;
   margin-top: 6px !important;
   font-style: italic !important;
-}
-
-/* === ЛАЙМОВЫЕ ЗАГОЛОВКИ === */
-.mr-lime-title {
-  color: #c8ff5a !important;
-  font-size: 22px !important;
-  font-weight: 700 !important;
-  margin: 0 0 18px !important;
-}
-.mr-lime-subtitle {
-  color: #c8ff5a !important;
-  font-size: 16px !important;
-  font-weight: 700 !important;
-  margin: 16px 0 8px !important;
 }
 
 /* === ТАБЛИЦА === */
@@ -619,11 +626,11 @@ const goToApply = () => {
   .mr-lime-subtitle {
     font-size: 15px !important;
   }
-  .mr-ol li {
+  .mr-ol-item {
     padding-left: 28px !important;
     margin-bottom: 10px !important;
   }
-  .mr-ol li::before {
+  .mr-ol-item::before {
     font-size: 15px !important;
   }
   .mr-accordion-btn {
