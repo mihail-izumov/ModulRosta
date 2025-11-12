@@ -346,6 +346,7 @@ function sidebarCheckup(): DefaultTheme.SidebarItem[] {
         { text: 'Обзор', link: '/checkup/overview' },
         { text: 'Карта чекапа', link: '/checkup/roadmap' },
         { text: 'Глубокий чекап', link: '/checkup/deep' },
+        { text: 'Чекап инвестпроекта', link: '/checkup/invest' },
         { text: 'Подготовка к чекапу', link: '/checkup/prep/overview' },
         { text: '→ Пройти Чекап', link: '/apply' }
       ]
