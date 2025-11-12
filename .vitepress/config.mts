@@ -330,7 +330,8 @@ function sidebarRadarRussia(): DefaultTheme.SidebarItem[] {
         { text: 'Обзор рынка', link: '/radar/overview' },
         { text: 'Скрытый потенциал', link: '/radar/scale_index' },
         { text: 'Фильтр потенциала', link: '/radar/filter' },
-        { text: 'Кто Анна', link: '/radar/who-is-anna' }
+        { text: 'Кто Анна', link: '/radar/who-is-anna' },
+        { text: 'Программа рекомендаций', link: '/radar/invite' }
       ]
     }
   ]
@@ -346,10 +347,7 @@ function sidebarCheckup(): DefaultTheme.SidebarItem[] {
         { text: '→ Пройти Чекап', link: '/apply' },
         { text: 'Подготовка к чекапу', link: '/checkup/prep/overview' },
         { text: 'Детали чекапа', link: '/checkup/specs' },
-        { text: 'Глубокий чекап', link: '/checkup/deep' },
-        { text: 'Платите за движение', link: '/checkup/pay-as-you-go' },
-        { text: 'Чек-лист готовности', link: '/checkup/checklist' },
-        { text: 'Программа рекомендаций', link: '/radar/invite' }
+        { text: 'Глубокий чекап', link: '/checkup/deep' }
       ]
     }
   ]
