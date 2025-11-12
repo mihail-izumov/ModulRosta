@@ -12,7 +12,6 @@ const toggleAccordion = (key) => {
 }
 </script>
 
-
 <template>
   <div class="tabs-mr">
     <button :class="{ active: activeTab === 'why-not-promise' }" @click="activeTab = 'why-not-promise'">
@@ -49,11 +48,9 @@ const toggleAccordion = (key) => {
         <li><strong>Возврат денег</strong> означает, что аналитик <strong>не несет ответственности</strong> за внедрение</li>
         <li><strong>Красивые цифры</strong> отвлекают от главного — <strong>реальных изменений</strong> в бизнесе</li>
       </ul>
-      <div class="custom-dark-block tight-block">
+      <div class="custom-dark-block">
         <p>
-          <strong>Мы выбрали другой путь</strong>
-        </p>
-        <p>
+          <strong>Мы выбрали другой путь</strong><br>
           Вместо маркетинговых обещаний мы взяли на себя <strong>конкретное обязательство</strong> — <strong>работать до получения результата</strong>.<br>
           Это означает, что ваши деньги оплачивают <strong>движение вперед</strong>, а не отчеты.
         </p>
@@ -62,7 +59,6 @@ const toggleAccordion = (key) => {
     <!-- Вкладка: Наше обязательство -->
     <div v-show="activeTab === 'commitment'" class="content-mr">
       <h3 class="main-title">Как работает наше обязательство</h3>
-      <!-- Аккордеон 1 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment1')">
           <span :class="{'arrow-open': openAccordions.commitment1}">▸</span>
@@ -75,7 +71,6 @@ const toggleAccordion = (key) => {
           <li>Валидация командой — не теоретические выводы, а подтверждённые факты</li>
         </ul>
       </div>
-      <!-- Аккордеон 2 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment2')">
           <span :class="{'arrow-open': openAccordions.commitment2}">▸</span>
@@ -88,7 +83,6 @@ const toggleAccordion = (key) => {
           <li>Ресурсы и инструменты для реализации</li>
         </ul>
       </div>
-      <!-- Аккордеон 3 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment3')">
           <span :class="{'arrow-open': openAccordions.commitment3}">▸</span>
@@ -111,11 +105,102 @@ const toggleAccordion = (key) => {
         </p>
       </div>
     </div>
-    <!-- Остальные вкладки без изменений -->
+    <!-- Вкладка: Как это работает -->
+    <div v-show="activeTab === 'guarantee-details'" class="content-mr">
+      <h3>Почему это работает лучше традиционных гарантий</h3>
+      <ul>
+        <li>
+          <strong>Конкретность вместо абстракций</strong><br>
+          <span class="gray-compare">Традиционный подход: "Увеличим эффективность на 30%"</span><br>
+          Наш подход: "Запустим 3 пилота с назначенными ответственными"
+        </li>
+        <li>
+          <strong>Фокус на внедрении, а не на анализе</strong><br>
+          <span class="gray-compare">Традиционный подход: Дают рекомендации и уходят</span><br>
+          Наш подход: Запускаем изменения и сопровождаем процесс<br>
+          80% провалов аналитических проектов происходит на этапе внедрения. Мы берём ответственность за этот этап.
+        </li>
+        <li>
+          <strong>Совместная ответственность</strong><br>
+          <span class="gray-compare">Традиционный подход: "Если не сработает — вернём деньги"</span><br>
+          Наш подход: "Если не работает — работаем дальше"
+        </li>
+        <li>
+          <strong>Измеримость с первых дней</strong><br>
+          <span class="gray-compare">Традиционный подход: Результат через 6–12 месяцев</span><br>
+          Наш подход: Движение видно через 30 дней
+        </li>
+      </ul>
+    </div>
+    <!-- Вкладка: Что значит "по нашей вине" -->
+    <div v-show="activeTab === 'cause'" class="content-mr">
+      <h3>Что значит «по нашей вине»</h3>
+      <p>Мы несём <strong>полную ответственность</strong> за:</p>
+      <ul>
+        <li>Качество аналитики и точность выводов</li>
+        <li>Готовность решений к внедрению в вашей среде</li>
+        <li>Вовлечение команды и преодоление сопротивления</li>
+        <li>Методологическую поддержку запуска пилотов</li>
+      </ul>
+      <p>Мы <strong>НЕ</strong> отвечаем за:</p>
+      <ul>
+        <li>Форс-мажорные обстоятельства (кризисы, изменения законодательства)</li>
+        <li>Кардинальные изменения в команде или стратегии во время проекта</li>
+        <li>Отказ руководства выполнять согласованные ранее решения</li>
+      </ul>
+      <h4>Как мы можем это гарантировать</h4>
+      <ul>
+        <li><strong>Опыт 15+ лет системной аналитики</strong></li>
+        <li><strong>Фокус на быстрых победах</strong> — решения с быстрой реализацией для первого месяца</li>
+        <li><strong>Работа только с готовыми компаниями</strong> — жесткая система отбора</li>
+        <li><strong>Проверенная команда</strong> — каждый участник лично проверен на проектах</li>
+      </ul>
+    </div>
+    <!-- Вкладка: Сравнение с рынком -->
+    <div v-show="activeTab === 'comparison'" class="content-mr">
+      <h3>Сравнение с рынком</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Критерий</th>
+            <th>Традиционные консультанты</th>
+            <th>Модуль Роста</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Что обещают</td>
+            <td>Абстрактные проценты роста</td>
+            <td>Конкретные запущенные изменения</td>
+          </tr>
+          <tr>
+            <td>Когда результат</td>
+            <td>Через 6-12 месяцев</td>
+            <td>Через 30 дней</td>
+          </tr>
+          <tr>
+            <td>Что делают при неудаче</td>
+            <td>Возвращают деньги</td>
+            <td>Работаем до результата</td>
+          </tr>
+          <tr>
+            <td>Ответственность</td>
+            <td>За качество отчета</td>
+            <td>За внедрение решений</td>
+          </tr>
+          <tr>
+            <td>Фокус</td>
+            <td>На анализе</td>
+            <td>На действии</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Вкладка: Для кого это -->
     <div v-show="activeTab === 'for-whom'" class="content-mr">
       <h3>Для кого это обязательство</h3>
       <div class="for-whom-cards">
-        <div class="forwhom-card positive effect-card">
+        <div class="forwhom-card positive">
           <h4>✅ Подходит, если вы:</h4>
           <ul>
             <li>Устали от красивых отчётов без реальных изменений</li>
@@ -124,7 +209,7 @@ const toggleAccordion = (key) => {
             <li>Готовы работать с нашей командой как партнёры</li>
           </ul>
         </div>
-        <div class="forwhom-card negative effect-card">
+        <div class="forwhom-card negative">
           <h4>❌ Не подходит, если вы:</h4>
           <ul>
             <li>Ищете советы, которые подкрепляют вашу картину бизнеса</li>
@@ -160,123 +245,134 @@ const toggleAccordion = (key) => {
   border: 1px solid rgba(255,255,255,0.08);
   background: rgba(255,255,255,0.03);
   border-radius: 12px;
-  padding: 8px 16px 15px 16px;
+  padding: 10px 16px 15px 16px; /* 1) отступ сверху меньше */
 }
-.main-title { margin-top: 7px; }
-.custom-dark-block.tight-block { padding: 7px 14px 8px 19px; }
-
-.result-block,
-.custom-dark-block,
-.mini-prompt {
+.main-title {
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+.custom-dark-block {
   background-color: rgba(0,0,0,0.15);
   border: 1px solid rgba(255,255,255,0.1);
+  padding: 6px 14px 8px 14px; /* 2) сверху и снизу уменьшены вдвое */
   border-radius: 8px;
-  margin-top: 20px;
+  margin-top: 12px;
+  margin-bottom: 0;
 }
-.mini-prompt p { margin-bottom: 14px; line-height: 1.42; }
-.mini-prompt p:last-child { margin-bottom: 0; }
-.mini-prompt { padding: 14px 17px 13px 17px; font-size: 14px;}
-.result-block-equal p { font-size: 13px;}
-
+.mini-prompt {
+  margin-top: 24px;
+  font-size: 13px;
+}
+.mini-prompt p {
+  margin-bottom: 18px; /* 4) явный межабзацный интервал */
+}
+.mini-prompt p:last-child {
+  margin-bottom: 0;
+}
 .accordion-btn {
   width: 100%;
   background: none;
   border: none;
-  padding: 11px 0 11px 0;
+  padding: 9px 0 9px 0;
   text-align: left;
   color: #c8ff5a;
   font-weight: 700;
-  margin-top: 11px;
-  margin-bottom: 9px;
+  margin-top: 18px;
+  margin-bottom: 12px;
   font-size: 18px;
   cursor: pointer;
+  position: relative;
   display: flex;
   align-items: center;
+  transition: background .2s;
+}
+.accordion-btn:first-child {
+  margin-top: 0;
 }
 .accordion-btn .arrow-open {
   display: inline-block;
   transform: rotate(90deg);
   transition: transform 0.18s;
-  font-size: 26px;
-  margin-right: 12px;
+  font-size: 28px;
+  margin-right: 14px;
   font-weight: bold;
   color: #c8ff5a;
 }
 .acc-title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: #dafe55;
-  margin-left: 1px;
+  margin-left: 8px;
 }
 .accordion-content {
   background: rgba(255,255,255,0.02);
   border-left: 3px solid #c8ff5a;
   margin-left: 24px;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
   border-radius: 7px;
-  padding: 12px 0 12px 17px;
-  font-size: 15px;
-  line-height: 1.47;
+  padding: 12px 0 12px 22px;
 }
-.accordion-content li { margin-bottom: 7px; }
+.accordion-content ul {
+  margin: 0 0 7px 0.3em;
+  padding: 0 0 0 15px;
+}
 
 .for-whom-cards {
   display: flex;
-  gap: 28px;
+  gap: 24px;
   margin: 16px 0 0 0;
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
 }
-.effect-card {
-  padding: 20px 18px 18px 26px;
-}
 .forwhom-card {
   flex: 1;
   min-width: 260px;
   background: rgba(0,0,0,0.25);
-  border: 2px solid #c8ff5a;
-  border-radius: 14px;
-  margin-bottom: 10px;
+  border: 1.8px solid #c8ff5a;
+  border-radius: 11px;
+  padding: 20px 14px 18px 14px;
+  margin-bottom: 12px;
   box-shadow: 0 3px 15px rgba(0,0,0,0.09);
   transition: box-shadow .22s, transform .22s;
 }
-.forwhom-card.positive { border: 2.2px solid #55e74d; }
-.forwhom-card.negative { border: 2.2px solid #f05555; }
+.forwhom-card.positive {
+  border: 1.8px solid #55e74d;
+}
+.forwhom-card.negative {
+  border: 1.8px solid #f05555;
+}
 .forwhom-card h4 {
   color: #fff;
-  margin-bottom: 18px;
-  font-size: 15px;
+  margin-bottom: 1em;
+  font-size: 14px;
   text-align: left;
-  font-weight: 700;
 }
 .forwhom-card ul {
   margin: 0;
-  padding-left: 20px;
+  padding-left: 15px;
 }
 .forwhom-card ul li {
   color: #fff;
   font-size: 13px;
   margin-bottom: 7px;
-  line-height: 1.46;
-  padding-left: 0;
+  line-height: 1.5;
 }
 
-/* --- Остальные стили – без изменений --- */
-.content-mr { color: rgba(255,255,255,0.92); font-size: 13px; line-height: 1.46;}
-.content-mr strong { font-weight: 600; color: #fff;}
-.content-mr h3 { margin: 0 0 12px; font-size: 16px; font-weight: 700; letter-spacing: 0.01em; color: rgba(255,255,255,0.9);}
-.content-mr h4 { margin: 0 0 6px; font-size: 14px; color: rgba(255,255,255,0.9); font-weight: 600;}
-.custom-dark-block { margin-bottom: 0; margin-top: 18px;}
-.result-block { padding: 12px 14px;}
-.gray-compare { color: #a1a1a1; font-weight: 500; font-size: 13px;}
-.tabs-mr { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;}
-.tabs-mr button { appearance: none; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.92); padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 13px; line-height: 1; cursor: pointer; transition: all .2s ease;}
-.tabs-mr button:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18);}
-.tabs-mr button.active { color: #0a0a0a; background: #c8ff5a; border-color: #c8ff5a; box-shadow: 0 0 0 2px rgba(200,255,90,0.25) inset;}
 @media (max-width: 720px) {
-  .for-whom-cards { flex-direction: column; gap: 13px;}
-  .forwhom-card { min-width: 0; width: 100%; }
-  .effect-card { padding-left: 12px; }
+  .for-whom-cards {
+    flex-direction: column;
+    gap: 13px;
+  }
+  .forwhom-card {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+.gray-compare {
+  color: #a1a1a1;
+  font-weight: 500;
+  font-size: 13px;
 }
 </style>
