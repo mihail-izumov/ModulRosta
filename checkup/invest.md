@@ -2,6 +2,11 @@
 
 **Делаем глубокий анализ бизнеса, разрабатываем стратегию роста за 30 дней и помогаем её оживить.**
 
+<div class="checkup-cta-section">
+  <div class="checkup-price">От ₽365,000</div>
+  <a href="/apply" class="btn-cta">Пройти Чекап</a>
+</div>
+
 Помогаем бизнесу синхронизировать текущие вызовы бизнеса с амбициозными целями в стратегии, а инвесторам – снизить риски:
 
 1. Объективно оцениваем реальность и снижаем риски инвестпроектов
@@ -41,7 +46,7 @@
 
 ### Оживляет стратегии и меняет подход к инвестициям.
 
-Мастерплан – это инструмент, который помогает бизнесу и инвесторам принимать уверенные решения на основе данных, снижать риски и достигать устойчивого роста.  
+Мастерплан – это инструмент, который помогает бизнесу и инвесторам принимать уверенные решения на основе данных, снижать риски и достигать устойчивого роста. 
 
 **Мастерплан** от Модуля Роста – это не просто стратегия, а комплексный подход, который объединяет лучшие практики управления проектами, проверенные фреймворки и возможности цифровой трансформации. Он создает ценность для каждого участника процесса, помогая воплощать стратегии, которые работают.  
 
@@ -58,10 +63,10 @@
 Делаем регулярный анализ проектов, оценку их динамики и точные рекомендации для достижения целей.  
 
 **Ежемесячные обзоры включают:**
-1. Аналитику OKR, SCORE, SWOT, DMAIC.  
-2. Оценку динамики роста по ключевым параметрам.  
-3. Рекомендации на основе данных.  
-4. Резюме для инвесторов, адаптированное под их запросы.  
+1. [Аналитику OKR, SCORE, SWOT, DMAIC](/technology/analytics-360)
+2. Оценку динамики роста по ключевым параметрам
+3. Рекомендации на основе данных
+4. Резюме для инвесторов, адаптированное под их запросы
 
 Контролируем ключевые метрики (финансы, продажи, маркетинг, франчайзинг) и предоставляем дополнительные инструменты, такие как BugFix, Changelog и Roadmap, чтобы проект оставался на пути к успеху. 
 
@@ -82,10 +87,11 @@
 #### Через 15 дней
 
 - Оценка потенциала роста бизнеса на основе [аналитики Радара](/radar/overview)
-- Результаты чекапа текущей стратегии инвестпроекта по 10 разделам бизнеса
+- Результаты чекапа текущей стратегии инвестпроекта по [10 разделам бизнеса](/checkup/deep)
 - Детальная оценка насколько план роста реалистичен для достижения целей, которые вы определили
 
 Если реалистичность стратегии низкая, то разрабатываем новую стратегию с реалистичностью 85% на основе глубокого анализа инвестпроекта.
+
 #### Через 30 дней:
 - Детализация стратегии – 100%.  
 - Наполнение стратегии – 100%.  
@@ -155,3 +161,99 @@
   margin: 0;
 }
 </style>
+
+<style>
+.checkup-cta-section {
+  background-color: #2a2a2a;
+  padding: 10px 12px 10px 20px;   /* десктоп */
+  border-radius: 999px;
+  margin: 24px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  width: fit-content;
+}
+
+/* --- Цена/ссылка --- */
+.checkup-price {
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1;
+  text-decoration: none;   /* нет подчеркивания по умолчанию */
+  border-bottom: none;
+  transition: color 0.2s, border-bottom 0.2s;
+  outline: none;
+}
+.checkup-price:hover,
+.checkup-price:focus-visible {
+  text-decoration: underline;   /* или border-bottom: 1.5px solid #C5F946; */
+  /* border-bottom: 1.5px solid #C5F946; */
+}
+.checkup-price:focus,
+.checkup-price:active {
+  outline: none;
+  text-decoration: none;   /* сбрасываем underline при active/focus */
+  border-bottom: none;
+}
+
+/* --- Кнопка --- */
+.btn-cta {
+  background-color: #C5F946;
+  color: #000 !important;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-weight: 400;
+  font-size: 18px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  display: inline-block;
+  line-height: 1;
+  box-sizing: border-box;
+}
+.btn-cta:hover {
+  background-color: #b3e63d;
+  transform: translateY(-1px);
+  text-decoration: none !important;
+  box-shadow: 0 4px 12px rgba(197, 249, 70, 0.25);
+}
+
+/* --- Мобильная адаптация --- */
+@media (max-width: 767px) {
+  .checkup-cta-section {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 12px;
+    border-radius: 20px;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 16px 18px !important; /* ключ к отступам! */
+  }
+  .checkup-price {
+    font-size: 18px;
+    text-align: center;
+    width: 100%;
+  }
+  .btn-cta {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px 24px;
+    display: block;
+    text-align: center;
+    box-sizing: border-box;
+    font-size: 18px;
+    line-height: 1.2;
+    white-space: normal;
+    margin: 0;
+  }
+}
+</style>
+
