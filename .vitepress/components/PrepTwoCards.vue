@@ -2,12 +2,12 @@
   <div class="user-coffee-cards-container">
     <div class="user-coffee-card">
       <div class="user-card-content">
-        <h3 class="user-card-title">Карта подготовки</h3>
+        <h3 class="user-card-title">Метод</h3>
         <p class="user-card-description">
-          <strong>Не просто серия статей, а комплексная методология диагностики бизнеса.</strong>
+          <strong>Комплексная методология диагностики бизнеса.</strong>
         </p>
         <p class="user-card-highlight">
-          Изучите их, чтобы понять, как мы работаем, и приходите на чекап готовыми к быстрым изменениям.
+          Изучите, чтобы понять, как мы работаем, и приходите на чекап готовыми к быстрым изменениям.
         </p>
       </div>
       <a href="/checkup/prep/overview.html" class="user-card-button">
@@ -17,12 +17,12 @@
     
     <div class="user-coffee-card">
       <div class="user-card-content">
-        <h3 class="user-card-title">Чек-лист подготовки</h3>
+        <h3 class="user-card-title">Чек-лист</h3>
         <p class="user-card-description">
           <strong>Простой 5-дневный план.</strong>
         </p>
         <p class="user-card-highlight">
-          Дает ключевое ощущение нашего подхода и создаст почву для серьёзных изменений.
+          Наш подход в действии, создаст почву для серьёзных изменений.
         </p>
       </div>
       <a href="/checkup/prep/checklist" class="user-card-button">
