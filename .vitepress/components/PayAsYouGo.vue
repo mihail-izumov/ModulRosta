@@ -39,7 +39,7 @@ const toggleAccordion = (key) => {
   <div class="panel-mr">
     <!-- Вкладка: Почему не обещаем X2 рост -->
     <div v-show="activeTab === 'why-not-promise'" class="content-mr">
-      <h3>Почему мы не обещаем X2 рост и не возвращаем деньги</h3>
+      <h3 class="tab-title">Почему мы не обещаем X2 рост и не возвращаем деньги</h3>
       <p>
         Рынок бизнес-аналитики наводнен <strong>пустыми обещаниями</strong>: "+30% прибыли", "ROI 300%", "гарантия возврата денег". Эти формулировки ничего не гарантируют, потому что:
       </p>
@@ -56,13 +56,20 @@ const toggleAccordion = (key) => {
         </p>
       </div>
     </div>
+
     <!-- Вкладка: Наше обязательство -->
     <div v-show="activeTab === 'commitment'" class="content-mr">
-      <h3>Как работает наше обязательство</h3>
+      <h3 class="tab-title">Как работает наше обязательство</h3>
       <!-- Аккордеон 1 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment1')">
-          <span :class="{'arrow-open': openAccordions.commitment1}">▸</span>
+          <span :class="{ 'chevron-open': openAccordions.commitment1 }">
+            <svg class="chevron-svg" width="24" height="24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 viewBox="0 0 24 24">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </span>
           <span class="acc-title">Карту системных узких мест</span>
         </button>
         <ul v-show="openAccordions.commitment1" class="accordion-content">
@@ -75,7 +82,13 @@ const toggleAccordion = (key) => {
       <!-- Аккордеон 2 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment2')">
-          <span :class="{'arrow-open': openAccordions.commitment2}">▸</span>
+          <span :class="{ 'chevron-open': openAccordions.commitment2 }">
+            <svg class="chevron-svg" width="24" height="24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 viewBox="0 0 24 24">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </span>
           <span class="acc-title">Три готовых к внедрению решения</span>
         </button>
         <ul v-show="openAccordions.commitment2" class="accordion-content">
@@ -88,7 +101,13 @@ const toggleAccordion = (key) => {
       <!-- Аккордеон 3 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment3')">
-          <span :class="{'arrow-open': openAccordions.commitment3}">▸</span>
+          <span :class="{ 'chevron-open': openAccordions.commitment3 }">
+            <svg class="chevron-svg" width="24" height="24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 viewBox="0 0 24 24">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </span>
           <span class="acc-title">Запущенные пилотные проекты</span>
         </button>
         <ul v-show="openAccordions.commitment3" class="accordion-content">
@@ -104,9 +123,10 @@ const toggleAccordion = (key) => {
         <strong>Ключевое условие:</strong> "по нашей вине" означает, что мы не переносим ответственность на клиента за <strong>наши</strong> методологические ошибки или <strong>нашу</strong> неспособность найти решения.
       </div>
     </div>
+
     <!-- Вкладка: Как это работает -->
     <div v-show="activeTab === 'guarantee-details'" class="content-mr">
-      <h3>Почему это работает лучше традиционных гарантий</h3>
+      <h3 class="tab-title">Почему это работает лучше традиционных гарантий</h3>
       <ul>
         <li>
           <strong>Конкретность вместо абстракций</strong><br>
@@ -133,7 +153,7 @@ const toggleAccordion = (key) => {
     </div>
     <!-- Вкладка: Что значит "по нашей вине" -->
     <div v-show="activeTab === 'cause'" class="content-mr">
-      <h3>Что значит «по нашей вине»</h3>
+      <h3 class="tab-title">Что значит «по нашей вине»</h3>
       <p>Мы несём <strong>полную ответственность</strong> за:</p>
       <ul>
         <li>Качество аналитики и точность выводов</li>
@@ -157,7 +177,7 @@ const toggleAccordion = (key) => {
     </div>
     <!-- Вкладка: Сравнение с рынком -->
     <div v-show="activeTab === 'comparison'" class="content-mr">
-      <h3>Сравнение с рынком</h3>
+      <h3 class="tab-title">Сравнение с рынком</h3>
       <table>
         <thead>
           <tr>
@@ -197,7 +217,7 @@ const toggleAccordion = (key) => {
     </div>
     <!-- Вкладка: Для кого это -->
     <div v-show="activeTab === 'for-whom'" class="content-mr">
-      <h3>Для кого это обязательство</h3>
+      <h3 class="tab-title">Для кого это обязательство</h3>
       <div class="for-whom-cards">
         <div class="forwhom-card positive">
           <h4>✅ Подходит, если вы:</h4>
@@ -220,7 +240,7 @@ const toggleAccordion = (key) => {
     </div>
     <!-- Вкладка: Как начать -->
     <div v-show="activeTab === 'how-to-start'" class="content-mr">
-      <h3>Начать работу с обязательством</h3>
+      <h3 class="tab-title">Начать работу с обязательством</h3>
       <ol>
         <li>Подайте <strong>заявку на чекап</strong></li>
         <li><strong>Пройдите подготовительный чекап</strong>, чтобы оценить готовность к изменениям</li>
@@ -280,37 +300,19 @@ const toggleAccordion = (key) => {
   font-size: 13px;
   line-height: 1.46;
 }
-.content-mr p,
-.content-mr ul,
-.content-mr li,
-.content-mr ol {
-  font-size: 13px;
-}
-.content-mr p {
-  margin: 0;
-  color: rgba(255,255,255,0.88);
-  line-height: 1.46;
-}
-.content-mr p:not(.intro-p):not(:last-child) {
-  margin-bottom: 12px;
-}
-.content-mr .intro-p {
-  font-size: 16px;
-  line-height: 1.5;
-  margin-bottom: 14px;
-}
-.content-mr h3 {
-  margin: 0 0 12px;
-  font-size: 16px;
+.tab-title {
+  font-size: 13px !important;
   font-weight: 700;
   letter-spacing: 0.01em;
+  margin-bottom: 12px;
   color: rgba(255,255,255,0.9);
 }
+.content-mr h3,
 .content-mr h4 {
-  margin: 0 0 6px;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 8px;
   color: rgba(255,255,255,0.9);
-  font-weight: 600;
 }
 .content-mr strong {
   font-weight: 600;
@@ -341,13 +343,13 @@ const toggleAccordion = (key) => {
   width: 100%;
   background: none;
   border: none;
-  padding: 9px 0 9px 0;
+  padding: 8px 0 8px 0;
   text-align: left;
   color: #c8ff5a;
   font-weight: 700;
-  margin-top: 18px;
-  margin-bottom: 12px;
-  font-size: 18px;
+  margin-top: 10px;
+  margin-bottom: 0px; /* уменьшенное расстояние между */
+  font-size: 13px;
   cursor: pointer;
   position: relative;
   transition: background .2s;
@@ -357,27 +359,25 @@ const toggleAccordion = (key) => {
 .accordion-btn:first-child {
   margin-top: 0;
 }
-.accordion-btn .arrow-open {
+.chevron-svg {
   display: inline-block;
-  transform: rotate(90deg);
-  transition: transform 0.18s;
-  font-size: 28px;
-  margin-right: 14px;
-  font-weight: bold;
-  color: #c8ff5a;
+  transition: transform 0.22s;
+}
+.chevron-open .chevron-svg {
+  transform: rotate(180deg);
+}
+.acc-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #dafe55;
 }
 .accordion-content {
   background: rgba(255,255,255,0.02);
   border-left: 3px solid #c8ff5a;
   margin-left: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 10px;   /* уменьшили! */
   border-radius: 7px;
-  padding: 12px 0 12px 22px;
-}
-.acc-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #dafe55;
+  padding: 11px 0 11px 22px;
 }
 
 /* --- Карточки Для Кого --- */
@@ -409,7 +409,7 @@ const toggleAccordion = (key) => {
 .forwhom-card h4 {
   color: #fff;
   margin-bottom: 1em;
-  font-size: 14px;
+  font-size: 13px;
   text-align: left;
 }
 .forwhom-card ul {
@@ -461,4 +461,5 @@ tr:last-child td {
   font-weight: 500;
   font-size: 13px;
 }
+
 </style>
