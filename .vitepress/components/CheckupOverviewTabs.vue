@@ -1,62 +1,66 @@
 <script setup>
 import { ref } from 'vue'
-// Устанавливаем первую вкладку активной по умолчанию
 const activeTab = ref('checkup')
 </script>
 
 <template>
-  <div class="tabs-mr">
-    <button :class="{ active: activeTab === 'checkup' }" @click="activeTab = 'checkup'">
+  <div class="mr-tabs">
+    <button :class="{ 'mr-active': activeTab === 'checkup' }" @click="activeTab = 'checkup'">
       Чекап в 2 этапа
     </button>
-    <button :class="{ active: activeTab === 'system' }" @click="activeTab = 'system'">
+    <button :class="{ 'mr-active': activeTab === 'system' }" @click="activeTab = 'system'">
       10 разделов бизнеса
     </button>
-    <button :class="{ active: activeTab === 'dmaic' }" @click="activeTab = 'dmaic'">
+    <button :class="{ 'mr-active': activeTab === 'dmaic' }" @click="activeTab = 'dmaic'">
       Методология DMAIC
     </button>
-    <button :class="{ active: activeTab === 'results' }" @click="activeTab = 'results'">
+    <button :class="{ 'mr-active': activeTab === 'results' }" @click="activeTab = 'results'">
       Результаты чекапа
     </button>
-    <button :class="{ active: activeTab === 'owner' }" @click="activeTab = 'owner'">
+    <button :class="{ 'mr-active': activeTab === 'owner' }" @click="activeTab = 'owner'">
       Что получает собственник
     </button>
-    <button :class="{ active: activeTab === 'precision' }" @click="activeTab = 'precision'">
+    <button :class="{ 'mr-active': activeTab === 'precision' }" @click="activeTab = 'precision'">
       Точность и контроль
     </button>
   </div>
-  
-  <div class="panel-mr">
-    <!-- Вкладка: Чекап в 2 этапа -->
-    <div v-show="activeTab === 'checkup'" class="content-mr">
+
+  <div class="mr-panel">
+    <!-- Чекап в 2 этапа -->
+    <div v-show="activeTab === 'checkup'" class="mr-content">
       <h3>Чекап в 2 этапа</h3>
       <p>80% компаний не готовы к глубокому анализу — у них нет данных, дисциплины или полномочий. Наша система <strong>двухэтапного чекапа</strong> быстро показывает, готовы ли вы к трансформации или сначала нужен подготовительный этап.</p>
-      <div class="link-mr">
-        <a href="/checkup/roadmap" class="arrow-link">
+      <div class="mr-link-block">
+        <a href="/checkup/roadmap" class="mr-arrow-link" target="_self">
           <span>Перейти к <strong>Карте Чекапа</strong></span>
-          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#c8ff5a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="mr-arrow-icon">
+            <!-- новая стрелка -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </span>
         </a>
       </div>
     </div>
 
-    <!-- Вкладка: 10 разделов бизнеса -->
-    <div v-show="activeTab === 'system'" class="content-mr">
+    <!-- 10 разделов бизнеса -->
+    <div v-show="activeTab === 'system'" class="mr-content">
       <h3>10 разделов бизнеса</h3>
       <ul>
         <li><strong>Системный подход:</strong> анализ ~180 связанных метрик и изучение влияния изменений в одной сфере на остальные.</li>
         <li><strong>Конкретика:</strong> только точные цифры потенциала и сроки результата — никаких абстрактных советов.</li>
         <li><strong>Фокус на тотальной эффективности:</strong> выявление скрытых потерь, неэффективных процессов, лишних затрат и потерь времени/ресурсов.</li>
       </ul>
-      <div class="link-mr">
-        <a href="/checkup/deep" class="arrow-link">
+      <div class="mr-link-block">
+        <a href="/checkup/deep" class="mr-arrow-link" target="_self">
           <span>Подробнее о <strong>Глубоком Чекапе</strong></span>
-          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#c8ff5a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="mr-arrow-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </span>
         </a>
       </div>
     </div>
 
-    <!-- Вкладка: Методология DMAIC -->
-    <div v-show="activeTab === 'dmaic'" class="content-mr">
+    <!-- DMAIC -->
+    <div v-show="activeTab === 'dmaic'" class="mr-content">
       <h3>Методология DMAIC + кросс-анализ</h3>
       <ul>
         <li><strong>Определяем</strong> проблемы по принципу "есть/нет" и сразу приоритезируем их.</li>
@@ -65,78 +69,87 @@ const activeTab = ref('checkup')
         <li><strong>Улучшаем</strong> точечно, прогнозируя влияние на все соседние области.</li>
         <li><strong>Контролируем</strong> результаты через систему раннего предупреждения и регулярных чекапов.</li>
       </ul>
+      <div class="mr-link-block">
+        <a href="/technology/analytics-360" class="mr-arrow-link" target="_blank" rel="noopener">
+          <span>Открыть <strong>Аналитику 360°</strong></span>
+          <span class="mr-arrow-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </span>
+        </a>
+      </div>
     </div>
 
-    <!-- Вкладка: Результаты чекапа -->
-    <div v-show="activeTab === 'results'" class="content-mr">
+    <!-- Результаты чекапа -->
+    <div v-show="activeTab === 'results'" class="mr-content">
       <h3>Результаты</h3>
-      <ul class="checked-list">
+      <ul class="mr-checked-list">
         <li>
-          <span class="lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          <span class="mr-lime-check">
+            <!-- чекмарка новая, 30% меньше -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="15.4" height="15.4" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
-          Точные метрики — например, "оптимизация графика закупок высвободит X млн ₽" или "изменение мотивации увеличит выручку на Y%"
+          <strong>Точные метрики</strong> — например, "оптимизация графика закупок высвободит X млн ₽" или "изменение мотивации увеличит выручку на Y%"
         </li>
         <li>
-          <span class="lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15.4" height="15.4" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
-          Приоритизированный план действий с оценкой эффекта и сроков — что делать сейчас, а что отложить
+          <strong>Приоритизированный план действий</strong> с оценкой эффекта и сроков — что делать сейчас, а что отложить
         </li>
         <li>
-          <span class="lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15.4" height="15.4" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
-          Пошаговые решения проблем с учётом взаимосвязей
+          <strong>Пошаговые решения проблем</strong> с учётом взаимосвязей
         </li>
         <li>
-          <span class="lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15.4" height="15.4" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
-          Детальный отчёт (~180 ключевых метрик) и пошаговый план внедрения с временными рамками
+          <strong>Детальный отчёт</strong> (~180 ключевых метрик) и пошаговый план внедрения с временными рамками
         </li>
         <li>
-          <span class="lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15.4" height="15.4" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
-          Система контроля и трекинг результатов
+          <strong>Система контроля</strong> и трекинг результатов
         </li>
       </ul>
     </div>
 
-    <!-- Вкладка: Для собственника -->
-    <div v-show="activeTab === 'owner'" class="content-mr">
+    <!-- Для собственника -->
+    <div v-show="activeTab === 'owner'" class="mr-content">
       <h3>Что получает собственник</h3>
-      <ul class="checked-list">
+      <ul class="mr-checked-list">
         <li>
-          <span class="lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15.4" height="15.4" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
-          Новый уровень стратегического мышления и применение фрейм-менеджмента к своему бизнесу
+          <strong>Новый уровень стратегического мышления</strong> и применение фрейм-менеджмента к своему бизнесу
         </li>
         <li>
-          <span class="lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15.4" height="15.4" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
-          Готовые инструменты для решения задач: конкретный план изменений
+          <strong>Готовые инструменты</strong> для решения задач: конкретный план изменений
         </li>
         <li>
-          <span class="lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15.4" height="15.4" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
-          Структуризация и систематизация текущего опыта
+          <strong>Структуризация и систематизация опыта</strong>
         </li>
         <li>
-          <span class="lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15.4" height="15.4" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
-          Профессиональная поддержка экспертов на этапе внедрения
+          <strong>Профессиональная поддержка экспертов</strong> на этапе внедрения
         </li>
       </ul>
     </div>
 
-    <!-- Вкладка: Точность и контроль -->
-    <div v-show="activeTab === 'precision'" class="content-mr">
+    <!-- Точность и контроль -->
+    <div v-show="activeTab === 'precision'" class="mr-content">
       <h3>Что делает наш подход точным</h3>
       <ul>
         <li><strong>Системный взгляд:</strong> анализируем бизнес как единый организм, 10 разделов от финансов до HR</li>
@@ -149,153 +162,147 @@ const activeTab = ref('checkup')
 </template>
 
 <style scoped>
-.tabs-mr {
+.mr-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-bottom: 16px;
+}
+.mr-tabs button {
+  appearance: none;
+  border: 1px solid rgba(255,255,255,0.13);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.93);
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13.7px;
+  line-height: 1.1;
+  cursor: pointer;
+  transition: all .22s cubic-bezier(.45,.8,.55,1);
+}
+.mr-tabs button:hover {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.22);
+}
+.mr-tabs .mr-active {
+  color: #101a0f;
+  background: #c8ff5a;
+  border-color: #c8ff5a;
+  box-shadow: 0 0 0 2px rgba(200,255,90,0.32) inset;
+}
+
+.mr-panel {
+  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.037);
+  border-radius: 13px;
+  padding: 17px 18px;
+}
+
+.mr-content {
+  color: rgba(255,255,255,0.93);
+  font-size: 14px;
+  line-height: 1.53;
+}
+
+.mr-content p:not(:last-child) {
   margin-bottom: 14px;
 }
 
-.tabs-mr button {
-  appearance: none;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.92);
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-  transition: all .2s ease;
+.mr-content p, .mr-content ul, .mr-content li {
+  font-size: 14px;
+  color: rgba(255,255,255,0.91);
+  line-height: 1.53;
 }
 
-.tabs-mr button:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.18);
-}
-
-.tabs-mr button.active {
-  color: #0a0a0a;
-  background: #c8ff5a;
-  border-color: #c8ff5a;
-  box-shadow: 0 0 0 2px rgba(200,255,90,0.25) inset;
-}
-
-.panel-mr {
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.03);
-  border-radius: 12px;
-  padding: 15px 16px;
-}
-
-.content-mr {
-  color: rgba(255,255,255,0.92);
-  font-size: 13px;
-  line-height: 1.46;
-}
-
-.content-mr p:not(:last-child) {
-  margin-bottom: 12px;
-}
-
-.content-mr p {
-  margin: 0;
-  font-size: 13px;
-  color: rgba(255,255,255,0.88);
-  line-height: 1.46;
-}
-
-.content-mr em {
-  color: rgba(255,255,255,0.7);
-  font-style: italic;
-}
-.content-mr h3 {
-  margin: 0 0 12px;
+.mr-content h3 {
+  margin: 0 0 14px;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255,255,255,0.94);
 }
 
-.content-mr h4 {
-  margin: 16px 0 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #c8ff5a;
-  letter-spacing: 0.01em;
-}
-
-.content-mr h4:first-of-type {
-  margin-top: 12px;
-}
-
-.content-mr strong {
+.mr-content strong {
   font-weight: 600;
   color: #fff;
 }
 
-.content-mr ul {
+.mr-content ul {
   list-style: none;
   padding: 0;
-  margin: 0 0 12px 0;
+  margin: 0 0 14px 0;
 }
 
-.content-mr ul:not(:last-child) {
-  margin-bottom: 15px;
+.mr-content ul:not(:last-child) {
+  margin-bottom: 18px;
 }
-
-.content-mr li {
+.mr-content li {
   position: relative;
-  padding-left: 16px;
-  margin-bottom: 6px;
+  padding-left: 18px;
+  margin-bottom: 8px;
 }
-
-.content-mr li::before {
+.mr-content li::before {
   content: '–';
   position: absolute;
   left: 0;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.52);
 }
 
-/* чекмарки lime */
-.checked-list {
+/* Чекмарки */
+.mr-checked-list {
   list-style: none;
   padding: 0;
-  margin: 0 0 12px 0;
+  margin: 0 0 14px 0;
 }
-.checked-list li {
+.mr-checked-list li {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 13px;
   padding-left: 0;
   position: relative;
 }
-.checked-list li::before { display: none; }
-.lime-check {
+.mr-checked-list li::before { display: none; }
+.mr-lime-check {
   flex-shrink: 0;
   margin-top: 2px;
   margin-right: 2px;
+  display: flex;
+  align-items: center;
 }
 
-.link-mr {
-  margin-top: 14px;
+/* Линк-блок и стили ссылок, максимально независимые! */
+.mr-link-block {
+  margin-top: 18px;
 }
-.arrow-link {
+.mr-arrow-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: #c8ff5a;
+  gap: 10px;
+  color: #c8ff5a !important;
   font-weight: 600;
-  font-size: 13px;
-  text-decoration: none;
-  transition: color .18s;
+  font-size: 14px;
+  text-decoration: none !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  transition: color .21s, gap .26s;
+  position: relative;
+  padding: 0;
+  outline: none;
+  cursor: pointer;
 }
-.arrow-link:hover {
-  color: #eeff99;
+.mr-arrow-link:hover {
+  color: #eeff99 !important;
+  gap: 26px;
 }
-.arrow-link svg {
-  margin-top: 1px;
+.mr-arrow-icon {
+  transition: transform .33s cubic-bezier(.51,.62,.42,1);
 }
+.mr-arrow-link:hover .mr-arrow-icon {
+  transform: translateX(8px);
+}
+.mr-arrow-link strong { color: #c8ff5a; font-weight: 700; }
+
 </style>
