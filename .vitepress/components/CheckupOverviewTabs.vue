@@ -20,7 +20,7 @@ const activeTab = ref('checkup')
       <p>80% компаний не готовы к глубокому анализу — у них нет данных, дисциплины или полномочий. Наша система <strong>двухэтапного чекапа</strong> быстро показывает, готовы ли вы к трансформации или сначала нужен подготовительный этап.</p>
       <div class="mr-linkbox">
         <a href="/checkup/roadmap" class="mr-lime-link">
-          <span>Перейти к <strong>Карте Чекапа</strong></span>
+          Перейти к Карте Чекапа
           <span class="mr-arrow">
             <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </span>
@@ -38,7 +38,7 @@ const activeTab = ref('checkup')
       </ul>
       <div class="mr-linkbox">
         <a href="/checkup/deep" class="mr-lime-link">
-          <span>Подробнее о Глубоком Чекапе</span>
+          Подробнее о Глубоком Чекапе
           <span class="mr-arrow">
             <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </span>
@@ -58,7 +58,7 @@ const activeTab = ref('checkup')
       </ul>
       <div class="mr-linkbox">
         <a href="/technology/analytics-360" class="mr-lime-link" target="_blank" rel="noopener">
-          <span>Аналитика 360°</span>
+          Аналитика 360°
           <span class="mr-arrow">
             <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </span>
@@ -198,17 +198,17 @@ const activeTab = ref('checkup')
   outline: none;
 }
 
-.mr-tabs button:hover {
-  background: rgba(200, 255, 90, 0.12);
-  border-color: #c8ff5a;
-  color: #fff;
+.mr-tabs button:hover:not(.mr-active) {
+  background: rgba(200, 255, 90, 0.12) !important;
+  border-color: #c8ff5a !important;
+  color: #fff !important;
 }
 
 .mr-tabs .mr-active {
-  background: #c8ff5a;
-  border-color: #c8ff5a;
-  color: #0a0a0a;
-  box-shadow: 0 0 0 2px rgba(200, 255, 90, 0.3) inset;
+  background: #c8ff5a !important;
+  border-color: #c8ff5a !important;
+  color: #0a0a0a !important;
+  box-shadow: 0 0 0 2px rgba(200, 255, 90, 0.3) inset !important;
 }
 
 /* === ПАНЕЛЬ === */
@@ -225,11 +225,11 @@ const activeTab = ref('checkup')
 .mr-content {
   color: rgba(255, 255, 255, 0.95);
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.45; /* Уменьшено */
 }
 
 .mr-content h3 {
-  margin: 0 0 20px;
+  margin: 0 0 18px;
   font-size: 22px;
   font-weight: 700;
   color: #fff;
@@ -241,19 +241,24 @@ const activeTab = ref('checkup')
   color: #fff;
 }
 
+.mr-content p {
+  margin: 0 0 16px 0;
+  line-height: 1.45;
+}
+
 /* === СПИСОК С ДЭШЕМ === */
 .mr-ul {
   list-style: none;
   padding: 0;
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
 }
 
 .mr-ul li {
   position: relative;
   padding-left: 22px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.45;
   color: #fff;
 }
 
@@ -279,9 +284,9 @@ const activeTab = ref('checkup')
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   font-size: 14px;
-  line-height: 1.58;
+  line-height: 1.45;
 }
 
 .mr-checked li > div {
@@ -294,20 +299,25 @@ const activeTab = ref('checkup')
   color: #c8ff5a;
 }
 
-/* === ССЫЛКА === */
+/* === ССЫЛКА — ПОЛНОСТЬЮ ЛАЙМОВАЯ, БЕЗ ПОДЧЁРКИВАНИЯ === */
 .mr-linkbox {
-  margin-top: 24px;
+  margin-top: 20px;
 }
 
 .mr-lime-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
   color: #c8ff5a !important;
-  font-weight: 900;
-  font-size: 17px;
-  text-decoration: none;
-  transition: color 0.2s ease;
+  font-weight: 400 !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  text-decoration: none !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  transition: color 0.2s ease !important;
 }
 
 .mr-lime-link:hover {
@@ -315,11 +325,21 @@ const activeTab = ref('checkup')
 }
 
 .mr-lime-link .mr-arrow {
-  transition: transform 0.25s cubic-bezier(0.7, 0.2, 0.3, 1);
-  color: currentColor;
+  transition: transform 0.25s cubic-bezier(0.7, 0.2, 0.3, 1) !important;
+  color: currentColor !important;
 }
 
 .mr-lime-link:hover .mr-arrow {
-  transform: translateX(12px);
+  transform: translateX(10px) !important;
+}
+
+/* Защита от VitePress */
+.mr-lime-link,
+.mr-lime-link span,
+.mr-lime-link svg {
+  color: inherit !important;
+  text-decoration: none !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
 }
 </style>
