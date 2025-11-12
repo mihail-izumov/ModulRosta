@@ -299,7 +299,7 @@ const activeTab = ref('checkup')
   color: #c8ff5a;
 }
 
-/* === ССЫЛКА — ЛАЙМОВАЯ, СРЕДНЯЯ ЖИРНОСТЬ, ПЛАВНЫЙ ХОВЕР === */
+/* === ССЫЛКА — 100% ЛАЙМОВАЯ, СРЕДНЯЯ ЖИРНОСТЬ, ПЕРЕБИВАЕТ VITEPRESS === */
 .mr-linkbox {
   margin-top: 20px;
 }
@@ -317,30 +317,44 @@ const activeTab = ref('checkup')
   border: none !important;
   padding: 0 !important;
   cursor: pointer !important;
-  transition: color 0.3s ease !important;
+  transition: color 0.35s ease, transform 0.35s ease !important;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 .mr-lime-link:hover {
-  color: #e8ff8a !important; /* Плавный светлый лайм */
+  color: #e8ff8a !important;
+  transform: translateX(2px) !important;
 }
 
 .mr-lime-link .mr-arrow {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  color: currentColor !important;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: #c8ff5a !important;
+  stroke: #c8ff5a !important;
+  fill: none !important;
 }
 
 .mr-lime-link:hover .mr-arrow {
-  transform: translateX(10px) !important;
+  transform: translateX(12px) !important;
+  color: #e8ff8a !important;
 }
 
-/* Защита от VitePress */
-.mr-lime-link,
-.mr-lime-link span,
-.mr-lime-link svg {
+/* ЖЁСТКОЕ ПЕРЕБИВАНИЕ VITEPRESS */
+a.mr-lime-link,
+a.mr-lime-link *,
+a.mr-lime-link span,
+a.mr-lime-link svg,
+a.mr-lime-link:hover,
+a.mr-lime-link:hover *,
+a.mr-lime-link:hover span,
+a.mr-lime-link:hover svg {
   color: inherit !important;
   text-decoration: none !important;
+  font-weight: inherit !important;
   font-size: inherit !important;
   line-height: inherit !important;
-  font-weight: inherit !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 </style>
