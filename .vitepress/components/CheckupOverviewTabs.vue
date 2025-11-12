@@ -34,7 +34,7 @@ const activeTab = ref('checkup')
         <a href="/checkup/roadmap" class="mr-lime-link">
           <span>Перейти к <strong>Карте Чекапа</strong></span>
           <span class="mr-arrow">
-            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </span>
         </a>
       </div>
@@ -43,7 +43,7 @@ const activeTab = ref('checkup')
     <!-- Вкладка: 10 разделов бизнеса -->
     <div v-show="activeTab === 'system'" class="mr-content">
       <h3>10 разделов бизнеса</h3>
-      <ul>
+      <ul class="mr-list">
         <li><strong>Системный подход:</strong> анализ ~180 связанных метрик и изучение влияния изменений в одной сфере на остальные.</li>
         <li><strong>Конкретика:</strong> только точные цифры потенциала и сроки результата — никаких абстрактных советов.</li>
         <li><strong>Фокус на тотальной эффективности:</strong> выявление скрытых потерь, неэффективных процессов, лишних затрат и потерь времени/ресурсов.</li>
@@ -52,7 +52,7 @@ const activeTab = ref('checkup')
         <a href="/checkup/deep" class="mr-lime-link">
           <span>Подробнее о <strong>Глубоком Чекапе</strong></span>
           <span class="mr-arrow">
-            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </span>
         </a>
       </div>
@@ -61,18 +61,18 @@ const activeTab = ref('checkup')
     <!-- Вкладка: Методология DMAIC -->
     <div v-show="activeTab === 'dmaic'" class="mr-content">
       <h3>Методология DMAIC + кросс-анализ</h3>
-      <ul>
-        <li><strong>Определяем</strong> проблемы по принципу "есть/нет" и сразу приоритезируем их.</li>
-        <li><strong>Измеряем</strong> текущее состояние и строим базовую линию.</li>
-        <li><strong>Анализируем</strong> причины проблем — ищем взаимосвязи между процессами.</li>
-        <li><strong>Улучшаем</strong> точечно, прогнозируя влияние на все соседние области.</li>
-        <li><strong>Контролируем</strong> результаты через систему раннего предупреждения и регулярных чекапов.</li>
+      <ul class="mr-list">
+        <li><strong>Определяем:</strong> проблемы по принципу "есть/нет" и сразу приоритезируем их.</li>
+        <li><strong>Измеряем:</strong> текущее состояние и строим базовую линию.</li>
+        <li><strong>Анализируем:</strong> причины проблем — ищем взаимосвязи между процессами.</li>
+        <li><strong>Улучшаем:</strong> точечно, прогнозируя влияние на все соседние области.</li>
+        <li><strong>Контролируем:</strong> результаты через систему раннего предупреждения и регулярных чекапов.</li>
       </ul>
       <div class="mr-linkbox">
         <a href="/technology/analytics-360" class="mr-lime-link" target="_blank" rel="noopener">
           <span>Аналитика 360°</span>
           <span class="mr-arrow">
-            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </span>
         </a>
       </div>
@@ -84,31 +84,31 @@ const activeTab = ref('checkup')
       <ul class="mr-checked">
         <li>
           <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
           <strong>Точные метрики —</strong> например, "оптимизация графика закупок высвободит X млн ₽" или "изменение мотивации увеличит выручку на Y%"
         </li>
         <li>
           <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
           <strong>Приоритизированный план действий —</strong> что делать сейчас, а что отложить, с оценкой эффекта и сроков
         </li>
         <li>
           <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
           <strong>Пошаговые решения проблем —</strong> с учётом взаимосвязей между процессами
         </li>
         <li>
           <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
           <strong>Детальный отчёт —</strong> анализ ~180 ключевых метрик и пошаговый план внедрения с временными рамками
         </li>
         <li>
           <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
           <strong>Система контроля —</strong> трекинг результатов и регулярные чекапы
         </li>
@@ -121,25 +121,25 @@ const activeTab = ref('checkup')
       <ul class="mr-checked">
         <li>
           <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
           <strong>Новый уровень стратегического мышления —</strong> применение фрейм-менеджмента к своему бизнесу
         </li>
         <li>
           <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
           <strong>Готовые инструменты —</strong> конкретный план изменений для решения задач
         </li>
         <li>
           <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
           <strong>Структуризация и систематизация —</strong> аудита существующего опыта
         </li>
         <li>
           <span class="mr-lime-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
           </span>
           <strong>Профессиональная поддержка —</strong> сопровождение экспертов на этапе внедрения
         </li>
@@ -149,7 +149,7 @@ const activeTab = ref('checkup')
     <!-- Вкладка: Точность и контроль -->
     <div v-show="activeTab === 'precision'" class="mr-content">
       <h3>Что делает наш подход точным</h3>
-      <ul>
+      <ul class="mr-list">
         <li><strong>Системный взгляд:</strong> анализируем бизнес как единый организм, 10 разделов от финансов до HR</li>
         <li><strong>RAG-анализ:</strong> быстрые и надёжные цифры для решений, никакой "воды"</li>
         <li><strong>Постоянные чекапы:</strong> ваша система непрерывных улучшений</li>
@@ -160,7 +160,6 @@ const activeTab = ref('checkup')
 </template>
 
 <style scoped>
-/* Основная структура: уникальные префиксы mr- */
 .mr-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -190,8 +189,6 @@ const activeTab = ref('checkup')
   border-color: #c8ff5a;
   box-shadow: 0 0 0 2px rgba(200,255,90,0.25) inset;
 }
-
-/* Панель контента */
 .mr-panel {
   border: 1px solid rgba(255,255,255,0.08);
   background: rgba(255,255,255,0.03);
@@ -203,18 +200,16 @@ const activeTab = ref('checkup')
   font-size: 14px;
   line-height: 1.46;
 }
+.mr-content p,
+.mr-content li,
+.mr-content span,
+.mr-content a {
+  font-size: 14px !important;
+  line-height: 1.46 !important;
+  white-space: normal !important;
+}
 .mr-content p:not(:last-child) {
   margin-bottom: 12px;
-}
-.mr-content p {
-  margin: 0;
-  font-size: 14px;
-  color: rgba(255,255,255,0.88);
-  line-height: 1.46;
-}
-.mr-content em {
-  color: rgba(255,255,255,0.7);
-  font-style: italic;
 }
 .mr-content h3 {
   margin: 0 0 12px;
@@ -223,66 +218,70 @@ const activeTab = ref('checkup')
   letter-spacing: 0.01em;
   color: rgba(255,255,255,0.9);
 }
-.mr-content h4 {
-  margin: 16px 0 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #c8ff5a;
-  letter-spacing: 0.01em;
-}
-.mr-content h4:first-of-type {
-  margin-top: 12px;
-}
 .mr-content strong {
   font-weight: 700;
   color: #fff;
 }
-.mr-content ul {
+.mr-list {
   list-style: none;
   padding: 0;
   margin: 0 0 12px 0;
 }
-.mr-content ul:not(:last-child) {
-  margin-bottom: 15px;
-}
-.mr-content li {
+.mr-list li {
   position: relative;
-  padding-left: 16px;
-  margin-bottom: 6px;
-  font-size: 14px;
-}
-.mr-content li::before {
-  content: '–';
-  position: absolute;
-  left: 0;
-  color: rgba(255,255,255,0.5);
-}
-.mr-checked { list-style: none; padding: 0; margin: 0 0 12px 0; }
-.mr-checked li {
+  margin-bottom: 10px;
+  padding-left: 0;
+  color: rgba(255,255,255,0.93);
   display: flex;
   align-items: flex-start;
-  gap: 9px;
+}
+.mr-list li::before {
+  content: '–';
+  position: relative;
+  left: 0;
+  color: rgba(255,255,255,0.5);
+  margin-right: 7px;
+  font-size: 15px;
+  min-width: 18px;
+}
+.mr-checked {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+}
+.mr-checked li {
+  display: flex;
+  align-items: center;
+  gap: 13px;
   margin-bottom: 13px !important;
   padding-left: 0;
   position: relative;
   font-size: 14px;
+  color: rgba(255,255,255,0.95);
 }
 .mr-checked li::before { display: none; }
 .mr-lime-check {
   flex-shrink: 0;
-  margin-top: 1px;
-  margin-right: 2px;
-  line-height: 0;
+  margin-top: 0px;
+  margin-right: 0px;
+  width: 11px !important;
+  height: 11px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mr-lime-check svg {
+  display: block;
+  width: 11px !important; height: 11px !important;
+  min-width: 11px; min-height: 11px;
+  vertical-align: middle;
 }
 
-/* Ссылки - полный лайм, стили изолированы */
-.mr-linkbox {
-  margin-top: 14px;
-}
+.mr-linkbox { margin-top: 14px; }
 .mr-lime-link {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   color: #c8ff5a !important;
   font-weight: 700;
   font-size: 14px;
@@ -295,17 +294,21 @@ const activeTab = ref('checkup')
   transition: color .18s, background .18s;
   z-index: 0;
 }
+.mr-lime-link:visited,
+.mr-lime-link:active {
+  color: #c8ff5a !important;
+}
 .mr-lime-link:hover {
   color: #e4ff95 !important;
 }
-.mr-lime-link .mr-arrow {
-  transition: transform 0.18s cubic-bezier(.7,.2,.3,1) 0s;
+.mr-arrow {
+  transition: transform 0.2s cubic-bezier(.7,.2,.3,1) 0s;
   margin-left: 0;
-  margin-top: 1px;
+  margin-top: 1.5px;
   display: flex;
   align-items: center;
 }
 .mr-lime-link:hover .mr-arrow {
-  transform: translateX(7px);
+  transform: translateX(10px);
 }
 </style>
