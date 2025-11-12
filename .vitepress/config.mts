@@ -344,10 +344,10 @@ function sidebarCheckup(): DefaultTheme.SidebarItem[] {
       collapsed: false, 
       items: [
         { text: 'Обзор', link: '/checkup/overview' },
-        { text: '→ Пройти Чекап', link: '/apply' },
-        { text: 'Подготовка к чекапу', link: '/checkup/prep/overview' },
-        { text: 'Детали чекапа', link: '/checkup/specs' },
+        { text: 'Карта чекапа', link: '/checkup/roadmap' },
         { text: 'Глубокий чекап', link: '/checkup/deep' }
+        { text: 'Подготовка к чекапу', link: '/checkup/prep/overview' },
+        { text: '→ Пройти Чекап', link: '/apply' }
       ]
     }
   ]
