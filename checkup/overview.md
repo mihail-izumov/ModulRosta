@@ -117,7 +117,6 @@ description: Глубокий аудит эффективности для ко�
 <PrepTwoCards />
 
 
-
 <style>
 /* Mobile break */
 .mobile-break {
