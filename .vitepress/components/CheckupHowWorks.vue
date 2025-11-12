@@ -42,7 +42,7 @@ const cards = [
     title: 'Показываем, где именно нужно действовать',
     // description заменить ниже!
     description: '', 
-    imgSrc: '/checkup-ban-1.jpg',
+    imgSrc: '/checkup-ban-3.jpg',
     imgAlt: 'Показываем, где именно нужно действовать'
   },
   {
@@ -54,7 +54,7 @@ const cards = [
   {
     title: 'Платите за движение, а не за презентации',
     description: 'Если за 30 дней не запустили 3 реальных улучшения — продолжаем бесплатно.',
-    imgSrc: '/checkup-ban-3.jpg',
+    imgSrc: '/checkup-ban-1.jpg',
     imgAlt: 'Платите за движение, а не за презентации'
   }
 ];
