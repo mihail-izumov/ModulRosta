@@ -41,6 +41,7 @@ import CheckupProblemsAccordion from '../components/CheckupProblemsAccordion.vue
 import PrepTwoCards from '../components/PrepTwoCards.vue'
 import PayAsYouGo from '../components/PayAsYouGo.vue'
 import CheckupHowWorks from '../components/CheckupHowWorks.vue'
+import CheckupOverviewTabs from '../components/CheckupOverviewTabs.vue'
 
 export default {
   extends: DefaultTheme,
@@ -87,6 +88,7 @@ export default {
     app.component('PrepTwoCards', PrepTwoCards)
     app.component('PayAsYouGo', PayAsYouGo)
     app.component('CheckupHowWorks', CheckupHowWorks)
+    app.component('CheckupOverviewTabs', CheckupOverviewTabs)
     
   }
 }
