@@ -7,10 +7,10 @@ const activeTab = ref('checkup')
 <template>
   <div class="tabs-mr">
     <button :class="{ active: activeTab === 'checkup' }" @click="activeTab = 'checkup'">
-      Чекап: 2 этапа
+      Чекап в 2 этапа
     </button>
     <button :class="{ active: activeTab === 'system' }" @click="activeTab = 'system'">
-      Системный подход
+      10 разделов бизнеса
     </button>
     <button :class="{ active: activeTab === 'dmaic' }" @click="activeTab = 'dmaic'">
       Методология DMAIC
@@ -27,20 +27,32 @@ const activeTab = ref('checkup')
   </div>
   
   <div class="panel-mr">
-    <!-- Вкладка: 2 этапа чекапа -->
+    <!-- Вкладка: Чекап в 2 этапа -->
     <div v-show="activeTab === 'checkup'" class="content-mr">
-      <h3>Проверка готовности компании к системной трансформации: 2 этапа</h3>
-      <p>80% компаний не готовы к глубокому анализу — у них нет данных, дисциплины или полномочий. Наша система <strong>двухэтапного чекапа</strong> быстро показывает, готовы ли вы к трансформации или сначала нужно подготовительный этап.</p>
+      <h3>Чекап в 2 этапа</h3>
+      <p>80% компаний не готовы к глубокому анализу — у них нет данных, дисциплины или полномочий. Наша система <strong>двухэтапного чекапа</strong> быстро показывает, готовы ли вы к трансформации или сначала нужен подготовительный этап.</p>
+      <div class="link-mr">
+        <a href="/checkup/roadmap" class="arrow-link">
+          <span>Перейти к <strong>Карте Чекапа</strong></span>
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#c8ff5a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
     </div>
 
-    <!-- Вкладка: Системный подход -->
+    <!-- Вкладка: 10 разделов бизнеса -->
     <div v-show="activeTab === 'system'" class="content-mr">
-      <h3>Системный взгляд, а не точечные решения</h3>
+      <h3>10 разделов бизнеса</h3>
       <ul>
         <li><strong>Системный подход:</strong> анализ ~180 связанных метрик и изучение влияния изменений в одной сфере на остальные.</li>
         <li><strong>Конкретика:</strong> только точные цифры потенциала и сроки результата — никаких абстрактных советов.</li>
         <li><strong>Фокус на тотальной эффективности:</strong> выявление скрытых потерь, неэффективных процессов, лишних затрат и потерь времени/ресурсов.</li>
       </ul>
+      <div class="link-mr">
+        <a href="/checkup/deep" class="arrow-link">
+          <span>Подробнее о <strong>Глубоком Чекапе</strong></span>
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#c8ff5a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
     </div>
 
     <!-- Вкладка: Методология DMAIC -->
@@ -58,23 +70,68 @@ const activeTab = ref('checkup')
     <!-- Вкладка: Результаты чекапа -->
     <div v-show="activeTab === 'results'" class="content-mr">
       <h3>Результаты</h3>
-      <ul>
-        <li>Точные метрики — например, "оптимизация графика закупок высвободит X млн ₽" или "изменение мотивации увеличит выручку на Y%"</li>
-        <li>Приоритизированный план действий с оценкой эффекта и сроков — что делать сейчас, а что отложить</li>
-        <li>Пошаговые решения проблем с учётом взаимосвязей</li>
-        <li>Детальный отчёт (~180 ключевых метрик) и пошаговый план внедрения с временными рамками</li>
-        <li>Система контроля и трекинг результатов</li>
+      <ul class="checked-list">
+        <li>
+          <span class="lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          </span>
+          Точные метрики — например, "оптимизация графика закупок высвободит X млн ₽" или "изменение мотивации увеличит выручку на Y%"
+        </li>
+        <li>
+          <span class="lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          </span>
+          Приоритизированный план действий с оценкой эффекта и сроков — что делать сейчас, а что отложить
+        </li>
+        <li>
+          <span class="lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          </span>
+          Пошаговые решения проблем с учётом взаимосвязей
+        </li>
+        <li>
+          <span class="lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          </span>
+          Детальный отчёт (~180 ключевых метрик) и пошаговый план внедрения с временными рамками
+        </li>
+        <li>
+          <span class="lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          </span>
+          Система контроля и трекинг результатов
+        </li>
       </ul>
     </div>
 
     <!-- Вкладка: Для собственника -->
     <div v-show="activeTab === 'owner'" class="content-mr">
       <h3>Что получает собственник</h3>
-      <ul>
-        <li>Новый уровень стратегического мышления и применение фрейм-менеджмента к своему бизнесу</li>
-        <li>Готовые инструменты для решения задач: конкретный план изменений</li>
-        <li>Структуризация и систематизация текущего опыта</li>
-        <li>Профессиональная поддержка экспертов на этапе внедрения</li>
+      <ul class="checked-list">
+        <li>
+          <span class="lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          </span>
+          Новый уровень стратегического мышления и применение фрейм-менеджмента к своему бизнесу
+        </li>
+        <li>
+          <span class="lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          </span>
+          Готовые инструменты для решения задач: конкретный план изменений
+        </li>
+        <li>
+          <span class="lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          </span>
+          Структуризация и систематизация текущего опыта
+        </li>
+        <li>
+          <span class="lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8ff5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L9 15"/><path d="M21 19L3 19"/><path d="M9 15L4 10"/></svg>
+          </span>
+          Профессиональная поддержка экспертов на этапе внедрения
+        </li>
       </ul>
     </div>
 
@@ -82,17 +139,16 @@ const activeTab = ref('checkup')
     <div v-show="activeTab === 'precision'" class="content-mr">
       <h3>Что делает наш подход точным</h3>
       <ul>
-        <li>Системный взгляд: анализируем бизнес как единый организм, 10 разделов от финансов до HR</li>
-        <li>RAG-анализ: быстрые и надёжные цифры для принятия решений без "воды"</li>
-        <li>Постоянные чекапы: ваша система непрерывных улучшений</li>
-        <li>DMAIC-подход: точная синхронизация с командой, результат ежедневного исполнения</li>
+        <li><strong>Системный взгляд:</strong> анализируем бизнес как единый организм, 10 разделов от финансов до HR</li>
+        <li><strong>RAG-анализ:</strong> быстрые и надёжные цифры для решений, никакой "воды"</li>
+        <li><strong>Постоянные чекапы:</strong> ваша система непрерывных улучшений</li>
+        <li><strong>DMAIC-подход:</strong> точная синхронизация с командой, результат ежедневного исполнения</li>
       </ul>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* Оставьте ваш оригинальный CSS без изменений — он подходит */
 .tabs-mr {
   display: flex;
   flex-wrap: wrap;
@@ -154,19 +210,6 @@ const activeTab = ref('checkup')
   color: rgba(255,255,255,0.7);
   font-style: italic;
 }
-
-.content-mr .index-item {
-  line-height: 1.5;
-  background: rgba(255,255,255,0.03);
-  padding: 8px 12px;
-  border-radius: 8px;
-  border-left: 3px solid #c8ff5a;
-}
-
-.content-mr .index-item span {
-  color: rgba(255,255,255,0.6);
-}
-
 .content-mr h3 {
   margin: 0 0 12px;
   font-size: 16px;
@@ -213,5 +256,46 @@ const activeTab = ref('checkup')
   position: absolute;
   left: 0;
   color: rgba(255,255,255,0.5);
+}
+
+/* чекмарки lime */
+.checked-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+}
+.checked-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-left: 0;
+  position: relative;
+}
+.checked-list li::before { display: none; }
+.lime-check {
+  flex-shrink: 0;
+  margin-top: 2px;
+  margin-right: 2px;
+}
+
+.link-mr {
+  margin-top: 14px;
+}
+.arrow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #c8ff5a;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color .18s;
+}
+.arrow-link:hover {
+  color: #eeff99;
+}
+.arrow-link svg {
+  margin-top: 1px;
 }
 </style>
