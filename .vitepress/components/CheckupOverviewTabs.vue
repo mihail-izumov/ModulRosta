@@ -19,7 +19,7 @@ const openLink = (url) => {
   </div>
 
   <div class="mr-panel">
-    <!-- Чекап в 2 этапа -->
+    <!-- 1. Чекап в 2 этапа -->
     <div v-show="activeTab === 'checkup'" class="mr-content">
       <h3>Чекап в 2 этапа</h3>
       <p>80% компаний не готовы к глубокому анализу — у них нет данных, дисциплины или полномочий. Наша система <strong>двухэтапного чекапа</strong> быстро показывает, готовы ли вы к трансформации или сначала нужен подготовительный этап.</p>
@@ -35,7 +35,7 @@ const openLink = (url) => {
       </div>
     </div>
 
-    <!-- 10 разделов бизнеса -->
+    <!-- 2. 10 разделов бизнеса -->
     <div v-show="activeTab === 'system'" class="mr-content">
       <h3>10 разделов бизнеса</h3>
       <ul class="mr-ul">
@@ -55,7 +55,7 @@ const openLink = (url) => {
       </div>
     </div>
 
-    <!-- Методология DMAIC -->
+    <!-- 3. Методология DMAIC -->
     <div v-show="activeTab === 'dmaic'" class="mr-content">
       <h3>Методология DMAIC + кросс-анализ</h3>
       <ul class="mr-ul">
@@ -77,9 +77,111 @@ const openLink = (url) => {
       </div>
     </div>
 
-    <!-- Остальные табы без изменений -->
-    <!-- Результаты чекапа, Что получает собственник, Точность и контроль — оставлены как есть -->
-    <!-- (вставь их из предыдущего кода, если нужно) -->
+    <!-- 4. Результаты чекапа -->
+    <div v-show="activeTab === 'results'" class="mr-content">
+      <h3>Результаты</h3>
+      <ul class="mr-checked">
+        <li>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+          </span>
+          <div>
+            <strong>Точные метрики —</strong><br>
+            например, "оптимизация графика закупок высвободит X млн ₽" или "изменение мотивации увеличит выручку на Y%"
+          </div>
+        </li>
+        <li>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+          </span>
+          <div>
+            <strong>Приоритизированный план действий —</strong><br>
+            что делать сейчас, а что отложить, с оценкой эффекта и сроков
+          </div>
+        </li>
+        <li>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+          </span>
+          <div>
+            <strong>Пошаговые решения проблем —</strong><br>
+            с учётом взаимосвязей между процессами
+          </div>
+        </li>
+        <li>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+          </span>
+          <div>
+            <strong>Детальный отчёт —</strong><br>
+            анализ ~180 ключевых метрик и пошаговый план внедрения с временными рамками
+          </div>
+        </li>
+        <li>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+          </span>
+          <div>
+            <strong>Система контроля —</strong><br>
+            трекинг результатов и регулярные чекапы
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 5. Что получает собственник -->
+    <div v-show="activeTab === 'owner'" class="mr-content">
+      <h3>Что получает собственник</h3>
+      <ul class="mr-checked">
+        <li>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+          </span>
+          <div>
+            <strong>Новый уровень стратегического мышления —</strong><br>
+            применение фрейм-менеджмента к своему бизнесу
+          </div>
+        </li>
+        <li>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+          </span>
+          <div>
+            <strong>Готовые инструменты —</strong><br>
+            конкретный план изменений для решения задач
+          </div>
+        </li>
+        <li>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+          </span>
+          <div>
+            <strong>Структуризация и систематизация —</strong><br>
+            аудита существующего опыта
+          </div>
+        </li>
+        <li>
+          <span class="mr-lime-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+          </span>
+          <div>
+            <strong>Профессиональная поддержка —</strong><br>
+            сопровождение экспертов на этапе внедрения
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 6. Точность и контроль -->
+    <div v-show="activeTab === 'precision'" class="mr-content">
+      <h3>Что делает наш подход точным</h3>
+      <ul class="mr-ul">
+        <li><strong>Системный взгляд:</strong> анализируем бизнес как единый организм, 10 разделов от финансов до HR</li>
+        <li><strong>RAG-анализ:</strong> быстрые и надёжные цифры для решений, никакой "воды"</li>
+        <li><strong>Постоянные чекапы:</strong> ваша система непрерывных улучшений</li>
+        <li><strong>DMAIC-подход:</strong> точная синхронизация с командой, результат ежедневного исполнения</li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -155,7 +257,7 @@ const openLink = (url) => {
   line-height: 1.45 !important;
 }
 
-/* === СПИСКИ === */
+/* === СПИСОК С ДЭШЕМ === */
 .mr-ul {
   list-style: none !important;
   padding: 0 !important;
@@ -208,7 +310,7 @@ const openLink = (url) => {
   color: #c8ff5a !important;
 }
 
-/* === ССЫЛКА — ТОЧНО КАК В РАБОЧЕМ ПРИМЕРЕ === */
+/* === ССЫЛКА — ЛАЙМОВАЯ, ЖИРНАЯ, С АНИМАЦИЕЙ === */
 .mr-linkbox {
   margin-top: 20px !important;
 }
