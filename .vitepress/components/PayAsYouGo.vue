@@ -249,10 +249,10 @@ const goToApply = () => {
     <div v-show="activeTab === 'how-to-start'" class="mr-content">
       <h3>Начать работу с обязательством</h3>
       <div class="mr-ol-custom">
-        <div class="mr-ol-item">1. Подайте <strong>заявку на чекап</strong></div>
-        <div class="mr-ol-item">2. Пройдите <strong>подготовительный чекап</strong>, чтобы оценить готовность к изменениям</div>
-        <div class="mr-ol-item">3. Подпишите <strong>договор</strong> с зафиксированным обязательством</div>
-        <div class="mr-ol-item">4. Получите <strong>результат</strong> в течение 30 дней или продолжение работы бесплатно</div>
+        <div class="mr-ol-item">Подайте <strong>заявку на чекап</strong></div>
+        <div class="mr-ol-item">Пройдите <strong>подготовительный чекап</strong>, чтобы оценить готовность к изменениям</div>
+        <div class="mr-ol-item">Подпишите <strong>договор</strong> с зафиксированным обязательством</div>
+        <div class="mr-ol-item">Получите <strong>результат</strong> в течение 30 дней или продолжение работы бесплатно</div>
       </div>
 
       <div class="mr-highlight">
