@@ -4,7 +4,7 @@
 
 <div class="checkup-cta-section">
   <div class="checkup-price">От ₽365,000</div>
-  <a href="/apply" class="btn-cta">Пройти Чекап</a>
+  <a href="/apply" class="btn-cta">Отправить проект на Чекап</a>
 </div>
 
 Помогаем бизнесу синхронизировать текущие вызовы бизнеса с амбициозными целями в стратегии, а инвесторам – снизить риски:
