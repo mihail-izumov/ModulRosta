@@ -54,9 +54,9 @@ const openLink = (url) => {
         <li><strong>Возврат денег</strong> означает, что аналитик <strong>не несет ответственности</strong> за внедрение</li>
         <li><strong>Красивые цифры</strong> отвлекают от главного — <strong>реальных изменений</strong> в бизнесе</li>
       </ul>
-      <div class="mr-dark-block">
+      <div class="mr-highlight">
+        <h4>Мы выбрали другой путь</h4>
         <p>
-          <strong>Мы выбрали другой путь</strong><br>
           Вместо маркетинговых обещаний мы взяли на себя <strong>конкретное обязательство</strong> — <strong>работать до получения результата</strong>.<br>
           Это означает, что ваши деньги оплачивают <strong>движение вперед</strong>, а не отчеты.
         </p>
@@ -102,8 +102,8 @@ const openLink = (url) => {
           <li>План масштабирования успешных пилотов</li>
         </ul>
       </div>
-      <div class="mr-mini-prompt">
-        <p><strong>Что происходит, если мы не выполняем обязательство</strong></p>
+      <div class="mr-highlight">
+        <h4>Что происходит, если мы не выполняем обязательство</h4>
         <p>
           Если по истечении 30 дней <strong>хотя бы один</strong> из трёх пунктов не выполнен <strong>по нашей вине</strong>, мы продолжаем работать до его выполнения <strong>без дополнительной оплаты</strong>.
         </p>
@@ -240,8 +240,8 @@ const openLink = (url) => {
         <li><strong>Подпишите договор</strong> с зафиксированным обязательством</li>
         <li><strong>Получите результат</strong> в течение 30 дней или продолжение работы бесплатно</li>
       </ol>
-      <div class="mr-result-block">
-        <p><strong>Готовы работать на результат?</strong></p>
+      <div class="mr-highlight">
+        <h4>Готовы работать на результат?</h4>
         <p>
           Платите только за движение вперед. Обязательство включено в каждый проект.<br>
           Если вы готовы к системным изменениям, наше обязательство превратит ваш потенциал в <strong>измеримые результаты</strong> уже через месяц.
@@ -260,12 +260,22 @@ const openLink = (url) => {
 </template>
 
 <style scoped>
+/* === ПЕРЕМЕННЫЕ ОТСТУПОВ === */
+:root {
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 20px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+}
+
 /* === ТАБЫ === */
 .mr-tabs {
   display: flex !important;
   flex-wrap: wrap !important;
-  gap: 8px !important;
-  margin-bottom: 16px !important;
+  gap: var(--space-xs) !important;
+  margin-bottom: var(--space-lg) !important;
 }
 
 .mr-tabs button {
@@ -301,7 +311,7 @@ const openLink = (url) => {
   border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
   border-radius: 20px !important;
   background: rgba(24, 24, 28, 1) !important;
-  padding: 32px !important;
+  padding: var(--space-2xl) !important;
   color: #fff !important;
   box-sizing: border-box !important;
 }
@@ -314,7 +324,7 @@ const openLink = (url) => {
 }
 
 .mr-content h3 {
-  margin: 0 0 18px !important;
+  margin: 0 0 var(--space-lg) !important;
   font-size: 22px !important;
   font-weight: 700 !important;
   color: #fff !important;
@@ -322,7 +332,7 @@ const openLink = (url) => {
 }
 
 .mr-content h4 {
-  margin: 16px 0 8px !important;
+  margin: var(--space-md) 0 var(--space-sm) !important;
   font-size: 16px !important;
   font-weight: 700 !important;
   color: #fff !important;
@@ -334,7 +344,7 @@ const openLink = (url) => {
 }
 
 .mr-content p {
-  margin: 0 0 16px 0 !important;
+  margin: 0 0 var(--space-md) 0 !important;
   line-height: 1.45 !important;
 }
 
@@ -342,13 +352,13 @@ const openLink = (url) => {
 .mr-ul {
   list-style: none !important;
   padding: 0 !important;
-  margin: 0 0 16px 0 !important;
+  margin: 0 0 var(--space-md) 0 !important;
 }
 
 .mr-ul li {
   position: relative !important;
   padding-left: 22px !important;
-  margin-bottom: 10px !important;
+  margin-bottom: var(--space-sm) !important;
   font-size: 14px !important;
   line-height: 1.45 !important;
   color: #fff !important;
@@ -366,12 +376,46 @@ const openLink = (url) => {
 }
 
 .mr-ol {
-  padding-left: 20px !important;
-  margin: 0 0 16px 0 !important;
+  counter-reset: ol-counter !important;
+  padding-left: 0 !important;
+  margin: 0 0 var(--space-lg) 0 !important;
 }
 
 .mr-ol li {
-  margin-bottom: 8px !important;
+  counter-increment: ol-counter !important;
+  position: relative !important;
+  padding-left: 32px !important;
+  margin-bottom: var(--space-sm) !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+}
+
+.mr-ol li::before {
+  content: counter(ol-counter) "." !important;
+  position: absolute !important;
+  left: 0 !important;
+  color: #c8ff5a !important;
+  font-weight: 700 !important;
+}
+
+/* === ВЫДЕЛЕННЫЕ БЛОКИ === */
+.mr-highlight {
+  background: rgba(200, 255, 90, 0.08) !important;
+  border: 1.5px solid #c8ff5a !important;
+  border-radius: 16px !important;
+  padding: var(--space-xl) !important;
+  margin-top: var(--space-xl) !important;
+  text-align: center !important;
+}
+
+.mr-highlight h4 {
+  margin: 0 0 var(--space-sm) !important;
+  font-size: 18px !important;
+  color: #fff !important;
+}
+
+.mr-highlight p {
+  margin: 0 0 var(--space-md) !important;
   font-size: 14px !important;
   line-height: 1.45 !important;
 }
@@ -381,7 +425,7 @@ const openLink = (url) => {
   width: 100% !important;
   background: none !important;
   border: none !important;
-  padding: 12px 0 !important;
+  padding: var(--space-sm) 0 !important;
   text-align: left !important;
   color: #c8ff5a !important;
   font-weight: 700 !important;
@@ -389,7 +433,12 @@ const openLink = (url) => {
   cursor: pointer !important;
   display: flex !important;
   align-items: center !important;
-  transition: background 0.2s !important;
+  transition: background 0.22s ease !important;
+  border-radius: 8px !important;
+}
+
+.mr-accordion-btn:hover {
+  background: rgba(200, 255, 90, 0.08) !important;
 }
 
 .mr-accordion-btn:first-child {
@@ -398,11 +447,11 @@ const openLink = (url) => {
 
 .mr-arrow-icon {
   display: inline-block !important;
-  font-size: 28px !important;
-  margin-right: 14px !important;
+  font-size: 32px !important;
+  margin-right: var(--space-md) !important;
   font-weight: bold !important;
   color: #c8ff5a !important;
-  transition: transform 0.18s ease !important;
+  transition: transform 0.25s ease !important;
 }
 
 .mr-arrow-open {
@@ -418,22 +467,21 @@ const openLink = (url) => {
 .mr-accordion-content {
   background: rgba(255, 255, 255, 0.02) !important;
   border-left: 3px solid #c8ff5a !important;
-  margin-left: 42px !important;
-  margin-bottom: 24px !important;
+  margin: var(--space-sm) 0 var(--space-xl) var(--space-2xl) !important;
   border-radius: 7px !important;
-  padding: 12px 0 12px 22px !important;
+  padding: var(--space-sm) 0 var(--space-sm) var(--space-lg) !important;
 }
 
 .mr-accordion-content ul {
   margin: 0 !important;
-  padding: 0 0 0 15px !important;
+  padding: 0 0 0 var(--space-sm) !important;
   list-style: none !important;
 }
 
 .mr-accordion-content li {
   position: relative !important;
   padding-left: 18px !important;
-  margin-bottom: 8px !important;
+  margin-bottom: var(--space-xs) !important;
   font-size: 14px !important;
   line-height: 1.45 !important;
 }
@@ -443,33 +491,10 @@ const openLink = (url) => {
   position: absolute !important;
   left: 0 !important;
   color: #c8ff5a !important;
+  font-weight: 700 !important;
 }
 
-/* === БЛОКИ === */
-.mr-dark-block {
-  background: rgba(0, 0, 0, 0.15) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  padding: 12px 16px !important;
-  border-radius: 12px !important;
-  Margare: 16px 0 0 !important;
-  font-size: 14px !important;
-  line-height: 1.45 !important;
-}
-
-.mr-mini-prompt {
-  margin-top: 24px !important;
-  font-size: 13px !important;
-  line-height: 1.45 !important;
-}
-
-.mr-mini-prompt p {
-  margin-bottom: 14px !important;
-}
-
-.mr-mini-prompt p:last-child {
-  margin-bottom: 0 !important;
-}
-
+/* === СЕРЫЙ ТЕКСТ === */
 .mr-gray {
   color: #a1a1a1 !important;
   font-weight: 500 !important;
@@ -481,8 +506,8 @@ const openLink = (url) => {
 /* === КАРТОЧКИ "ДЛЯ КОГО" === */
 .mr-for-whom-cards {
   display: flex !important;
-  gap: 24px !important;
-  margin: 16px 0 0 0 !important;
+  gap: var(--space-xl) !important;
+  margin: var(--space-lg) 0 0 0 !important;
   flex-wrap: wrap !important;
 }
 
@@ -492,7 +517,7 @@ const openLink = (url) => {
   background: rgba(0, 0, 0, 0.25) !important;
   border: 1.8px solid #c8ff5a !important;
   border-radius: 11px !important;
-  padding: 20px 14px 18px 14px !important;
+  padding: var(--space-lg) var(--space-md) var(--space-lg) var(--space-md) !important;
   transition: all 0.22s ease !important;
 }
 
@@ -506,7 +531,7 @@ const openLink = (url) => {
 
 .mr-forwhom-card h4 {
   color: #fff !important;
-  margin: 0 0 12px !important;
+  margin: 0 0 var(--space-sm) !important;
   font-size: 14px !important;
   font-weight: 700 !important;
 }
@@ -514,7 +539,7 @@ const openLink = (url) => {
 @media (max-width: 720px) {
   .mr-for-whom-cards {
     flex-direction: column !important;
-    gap: 16px !important;
+    gap: var(--space-md) !important;
   }
   .mr-forwhom-card {
     min-width: 0 !important;
@@ -525,14 +550,14 @@ const openLink = (url) => {
 .mr-table {
   width: 100% !important;
   border-collapse: collapse !important;
-  margin: 16px 0 !important;
+  margin: var(--space-lg) 0 !important;
   font-size: 14px !important;
 }
 
 .mr-table th,
 .mr-table td {
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  padding: 12px !important;
+  padding: var(--space-md) !important;
   text-align: left !important;
 }
 
@@ -546,31 +571,15 @@ const openLink = (url) => {
   background: rgba(255, 255, 255, 0.02) !important;
 }
 
-/* === РЕЗУЛЬТАТНЫЙ БЛОК === */
-.mr-result-block {
-  background: rgba(200, 255, 90, 0.08) !important;
-  border: 1.5px solid #c8ff5a !important;
-  border-radius: 16px !important;
-  padding: 20px !important;
-  margin-top: 24px !important;
-  text-align: center !important;
-}
-
-.mr-result-block p {
-  margin: 0 0 16px !important;
-  font-size: 14px !important;
-  line-height: 1.45 !important;
-}
-
-.mr-result-block p:last-child {
-  margin-bottom: 0 !important;
+.mr-table tbody tr:nth-child(odd) td {
+  background: rgba(255, 255, 255, 0.03) !important;
 }
 
 /* === ССЫЛКА === */
 .mr-lime-link {
   display: inline-block !important;
-  text-align: left !important;
-  margin-top: 0 !important;
+  text-align: center !important;
+  margin-top: var(--space-sm) !important;
   font-size: 14px !important;
   font-weight: 700 !important;
   line-height: 1.15 !important;
