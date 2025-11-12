@@ -25,7 +25,7 @@
           Дает ключевое ощущение нашего подхода и создаст почву для серьёзных изменений.
         </p>
       </div>
-      <a href="/checkup/checklist" class="user-card-button">
+      <a href="/checkup/prep/checklist" class="user-card-button">
         <strong>К чек-листу</strong>
       </a>
     </div>
