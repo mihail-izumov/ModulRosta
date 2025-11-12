@@ -1,3 +1,12 @@
+---
+outline: true
+prev: false
+next: false
+pageClass: centered-page
+title: Чекапы Модуля Роста®
+description: Глубокий аудит эффективности для компаний, готовых к радикальной оптимизации.
+---
+
 <span class="signal-badge">
   ⚡️ Работает 
   <a href="/technology/overview" class="signal-link">на технологии</a>
