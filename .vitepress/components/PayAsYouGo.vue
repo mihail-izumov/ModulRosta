@@ -259,7 +259,7 @@ const goToApply = () => {
         <h4>Готовы работать на результат?</h4>
         <p>Платите только за движение вперед. Обязательство включено в каждый проект.<br>Если вы готовы к системным изменениям, наше обязательство превратит ваш потенциал в <strong>измеримые результаты</strong> уже через месяц.</p>
         <button @click="goToApply" class="mr-lime-link">
-          Подать заявку на бизнес-чекап
+          Заявка на Чекап
           <span class="mr-arrow">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h14M12 5l7 7-7 7"/>
