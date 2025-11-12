@@ -225,7 +225,7 @@ const activeTab = ref('checkup')
 .mr-content {
   color: rgba(255, 255, 255, 0.95);
   font-size: 14px;
-  line-height: 1.45; /* Уменьшено */
+  line-height: 1.45;
 }
 
 .mr-content h3 {
@@ -299,7 +299,7 @@ const activeTab = ref('checkup')
   color: #c8ff5a;
 }
 
-/* === ССЫЛКА — ПОЛНОСТЬЮ ЛАЙМОВАЯ, БЕЗ ПОДЧЁРКИВАНИЯ === */
+/* === ССЫЛКА — ЛАЙМОВАЯ, СРЕДНЯЯ ЖИРНОСТЬ, ПЛАВНЫЙ ХОВЕР === */
 .mr-linkbox {
   margin-top: 20px;
 }
@@ -309,7 +309,7 @@ const activeTab = ref('checkup')
   align-items: center !important;
   gap: 8px !important;
   color: #c8ff5a !important;
-  font-weight: 400 !important;
+  font-weight: 500 !important;
   font-size: 14px !important;
   line-height: 1.45 !important;
   text-decoration: none !important;
@@ -317,15 +317,15 @@ const activeTab = ref('checkup')
   border: none !important;
   padding: 0 !important;
   cursor: pointer !important;
-  transition: color 0.2s ease !important;
+  transition: color 0.3s ease !important;
 }
 
 .mr-lime-link:hover {
-  color: #d3ff43 !important;
+  color: #e8ff8a !important; /* Плавный светлый лайм */
 }
 
 .mr-lime-link .mr-arrow {
-  transition: transform 0.25s cubic-bezier(0.7, 0.2, 0.3, 1) !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   color: currentColor !important;
 }
 
@@ -341,5 +341,6 @@ const activeTab = ref('checkup')
   text-decoration: none !important;
   font-size: inherit !important;
   line-height: inherit !important;
+  font-weight: inherit !important;
 }
 </style>
