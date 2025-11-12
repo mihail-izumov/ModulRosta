@@ -7,8 +7,11 @@ const openAccordions = ref({
   commitment2: false,
   commitment3: false
 })
+
 const toggleAccordion = (key) => {
-  openAccordions.value[key] = !openAccordions.value[key]
+  Object.keys(openAccordions.value).forEach(name => {
+    openAccordions.value[name] = (name === key) ? !openAccordions.value[name] : false
+  })
 }
 </script>
 
@@ -56,10 +59,10 @@ const toggleAccordion = (key) => {
         </p>
       </div>
     </div>
+
     <!-- Вкладка: Наше обязательство -->
     <div v-show="activeTab === 'commitment'" class="content-mr">
       <h3 class="tab-title">Как работает наше обязательство</h3>
-      <!-- Аккордеон 1 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment1')">
           <span class="chevron-col">
@@ -78,7 +81,6 @@ const toggleAccordion = (key) => {
           <li>Валидация командой — не теоретические выводы, а подтверждённые факты</li>
         </ul>
       </div>
-      <!-- Аккордеон 2 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment2')">
           <span class="chevron-col">
@@ -97,7 +99,6 @@ const toggleAccordion = (key) => {
           <li>Ресурсы и инструменты для реализации</li>
         </ul>
       </div>
-      <!-- Аккордеон 3 -->
       <div>
         <button class="accordion-btn" @click="toggleAccordion('commitment3')">
           <span class="chevron-col">
@@ -117,12 +118,17 @@ const toggleAccordion = (key) => {
         </ul>
       </div>
       <div class="mini-prompt">
-        <strong>Что происходит, если мы не выполняем обязательство</strong><br>
-        Если по истечении 30 дней <strong>хотя бы один</strong> из трёх пунктов не выполнен <strong>по нашей вине</strong>, мы продолжаем работать до его выполнения <strong>без дополнительной оплаты</strong>.<br>
-        <strong>Ключевое условие:</strong> "по нашей вине" означает, что мы не переносим ответственность на клиента за <strong>наши</strong> методологические ошибки или <strong>нашу</strong> неспособность найти решения.
+        <div class="prompt-title"><strong>Что происходит, если мы не выполняем обязательство</strong></div>
+        <div class="prompt-main">
+          Если по истечении 30 дней <strong>хотя бы один</strong> из трёх пунктов не выполнен <strong>по нашей вине</strong>, мы продолжаем работать до его выполнения <strong>без дополнительной оплаты</strong>.
+        </div>
+        <div class="prompt-extra">
+          <strong>Ключевое условие:</strong> "по нашей вине" означает, что мы не переносим ответственность на клиента за <strong>наши</strong> методологические ошибки или <strong>нашу</strong> неспособность найти решения.
+        </div>
       </div>
     </div>
-    <!-- Остальные вкладки без изменений -->
+
+    <!-- Вкладка: Как это работает -->
     <div v-show="activeTab === 'guarantee-details'" class="content-mr">
       <h3 class="tab-title">Почему это работает лучше традиционных гарантий</h3>
       <ul>
@@ -242,9 +248,9 @@ const toggleAccordion = (key) => {
         <li><strong>Получите результат</strong> в течение 30 дней или продолжение работы бесплатно</li>
       </ol>
       <div class="result-block result-block-equal">
-        <p><strong>Готовы работать на результат?</strong></p>
+        <p class="result-title"><strong>Готовы работать на результат?</strong></p>
+        <p>Платите только за движение вперед. Обязательство включено в каждый проект.</p>
         <p>
-          Платите только за движение вперед. Обязательство включено в каждый проект.<br>
           Если вы готовы к системным изменениям, наше обязательство превратит ваш потенциал в <strong>измеримые результаты</strong> уже через месяц.
         </p>
         <a href="/apply" class="calc-button">Подать заявку на бизнес-чекап →</a>
@@ -316,19 +322,24 @@ const toggleAccordion = (key) => {
 .custom-dark-block, .result-block, .mini-prompt {
   background-color: rgba(0,0,0,0.15);
   border: 1px solid rgba(255,255,255,0.1);
-  padding: 12px 14px;
   border-radius: 8px;
-  margin-top: 20px;
 }
 .custom-dark-block {
   margin-bottom: 0;
   margin-top: 18px;
+  padding: 12px 14px;
 }
-.mini-prompt {
-  margin-top: 24px;
-  font-size: 13px;
+.result-block {
+  margin-top: 20px;
+  padding: 14px 16px 10px 16px; /* компактнее */
 }
 .result-block-equal p {
+  font-size: 13px;
+  margin-bottom: 8px;
+  line-height: 1.46;
+}
+.result-title {
+  margin-bottom: 10px;
   font-size: 13px;
 }
 
@@ -344,7 +355,7 @@ const toggleAccordion = (key) => {
   color: #c8ff5a;
   font-weight: 700;
   margin-top: 10px;
-  margin-bottom: 0px; /* уменьшенное расстояние между */
+  margin-bottom: 0px;
   font-size: 13px;
   cursor: pointer;
   position: relative;
@@ -357,7 +368,7 @@ const toggleAccordion = (key) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px; /* чтобы текст не подплывал */
+  min-width: 24px;
   height: 24px;
 }
 .chevron-svg {
@@ -378,16 +389,22 @@ const toggleAccordion = (key) => {
   line-height: 1;
   display: inline-block;
 }
-
-/* раскрывающийся контент идёт ровно по левой стороне стрелки */
+/* раскрывающийся контент теперь с дополнительным отступом */
 .accordion-content {
   background: rgba(255,255,255,0.02);
   border-left: 3px solid #c8ff5a;
-  margin-left: 34px; /* стрелка + отступ */
-  margin-bottom: 10px; /* очень небольшой промежуток! */
+  margin-left: 34px;
+  margin-bottom: 10px;
   border-radius: 7px;
-  padding: 11px 0 11px 12px;
+  padding: 11px 0 11px 22px;
   text-align: left;
+}
+
+/* Буллеты не прилипают к краю! */
+.accordion-content ul,
+.accordion-content li {
+  padding-left: 0;
+  margin-left: 0;
 }
 
 /* --- Карточки Для Кого --- */
@@ -444,31 +461,26 @@ const toggleAccordion = (key) => {
   }
 }
 
-/* --- Таблица сравнения --- */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 16px;
-}
-th, td {
-  padding: 7px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.11);
-  font-size: 13px;
-}
-th {
-  background: rgba(255,255,255,0.05);
-  color: #c8ff5a;
-  font-weight: 600;
-  text-align: left;
-}
-tr:last-child td {
-  border-bottom: none;
-}
-
 /* --- Серый текст для сравнений --- */
 .gray-compare {
   color: #a1a1a1;
   font-weight: 500;
   font-size: 13px;
+}
+
+/* Мини-блоки-подсказки: больше пространства между фразами */
+.mini-prompt {
+  margin-top: 24px;
+  font-size: 13px;
+  line-height: 1.46;
+}
+.prompt-title {
+  margin-bottom: 13px;
+}
+.prompt-main {
+  margin-bottom: 13px;
+}
+.prompt-extra {
+  margin-bottom: 2px;
 }
 </style>
