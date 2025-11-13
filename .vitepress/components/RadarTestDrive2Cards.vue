@@ -30,7 +30,7 @@
     <!-- КАРТОЧКА 2: ИНДЕКС РОСТА -->
     <div class="pricing-card pricing-card--featured">
       <h3 class="card-title card-title--insider">ИНДЕКС РОСТА</h3>
-      <p class="card-subtitle">Сколько забрать у конкурентов через дорогу</p>
+      <p class="card-subtitle">Находим то, что не видят другие</p>
       <div class="card-image-wrapper">
         <!-- Я оставил старое изображение, но возможно, вы захотите его поменять на что-то связанное с калькулятором -->
         <img
