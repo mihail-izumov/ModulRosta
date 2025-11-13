@@ -40,8 +40,8 @@
         />
       </div>
       <div class="card-price">
-        <strong>ТОП-50 кофеен Самары</strong>
-        <div class="payment-type">Отзывы → Потенциал → Выручка</div>
+        <strong>ТОП-50 кофеен</strong>
+        <div class="payment-type">Самара → Сигнал</div>
       </div>
       <p class="includes-all"><strong>Потенциал роста:</strong></p>
       <ul class="feature-list">
