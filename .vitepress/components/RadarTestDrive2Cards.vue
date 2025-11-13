@@ -3,7 +3,7 @@
     <!-- КАРТОЧКА 1: СИМУЛЯТОР -->
     <div class="pricing-card">
       <h3 class="card-title card-title--simulator">СИМУЛЯТОР</h3>
-      <p class="card-subtitle">Где конкуренты зарабатывают ваши деньги</p>
+      <p class="card-subtitle">Протестировать стратегию роста в симуляторе</p>
       <div class="card-image-wrapper">
         <!-- Убедитесь, что путь к изображению верный -->
         <img
@@ -13,8 +13,8 @@
         />
       </div>
       <div class="card-price">
-        <strong>Кофейни Самары</strong>
-        <div class="payment-type">Аналитика и разборы</div>
+        <strong>Диалоги с данными</strong>
+        <div class="payment-type">Кофейни → Самара</div>
       </div>
       <ul class="feature-list">
         <li class="feature-item"><CheckIcon /><span>29,600+ уникальных отзывов</span></li>
