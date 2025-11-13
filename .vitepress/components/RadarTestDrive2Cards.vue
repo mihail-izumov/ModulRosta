@@ -22,14 +22,14 @@
         <li class="feature-item"><CheckIcon /><span>Мгновенный доступ к инсайтам</span></li>
         <li class="feature-item"><CheckIcon /><span>ИИ-ассистент Анна</span></li>
       </ul>
-      <a href="/invest/sim" class="card-button card-button--secondary">
-        Получить Ответ
+      <a href="https://cffx.ru/invest/sim" class="card-button card-button--secondary" target="_blank">
+        Тест-драйв
       </a>
     </div>
 
-    <!-- КАРТОЧКА 2: КАЛЬКУЛЯТОР -->
+    <!-- КАРТОЧКА 2: ИНДЕКС РОСТА -->
     <div class="pricing-card pricing-card--featured">
-      <h3 class="card-title card-title--insider">КАЛЬКУЛЯТОР</h3>
+      <h3 class="card-title card-title--insider">ИНДЕКС РОСТА</h3>
       <p class="card-subtitle">Сколько забрать у конкурентов через дорогу</p>
       <div class="card-image-wrapper">
         <!-- Я оставил старое изображение, но возможно, вы захотите его поменять на что-то связанное с калькулятором -->
@@ -40,7 +40,7 @@
         />
       </div>
       <div class="card-price">
-        <strong>Ваша Кофейня</strong>
+        <strong>ТОП-50 кофеен Самары</strong>
         <div class="payment-type">Отзывы → Потенциал → Выручка</div>
       </div>
       <p class="includes-all"><strong>Потенциал роста:</strong></p>
@@ -49,8 +49,7 @@
         <li class="feature-item"><CheckIcon /><span>Время на захват X/мес.</span></li>
         <li class="feature-item"><CheckIcon /><span>Целевые конкуренты</span></li>
       </ul>
-      <!-- Я обновил ссылку, чтобы она соответствовала новому названию -->
-      <a href="/invest/calc" class="card-button">Рассчитать</a>
+      <a href="https://cffx.ru/invest/smr.html" class="card-button" target="_blank">Смотреть Индекс</a>
     </div>
   </div>
 </template>
