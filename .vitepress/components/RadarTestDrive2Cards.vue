@@ -121,8 +121,8 @@ const CheckIcon = () =>
   text-transform: uppercase;
 }
 
-.card-title--insider { font-size: 1.625rem; } /* Оставил этот класс для заголовка "КАЛЬКУЛЯТОР", чтобы сохранить размер шрифта */
-.card-title--simulator { font-size: 1.625rem; }
+.card-title--insider { font-size: 1.38rem; } 
+.card-title--simulator { font-size: 1.38rem; }
 
 /* ПОДЗАГОЛОВОК ------------------------------------------------------------ */
 .card-subtitle {
