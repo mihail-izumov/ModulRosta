@@ -17,7 +17,7 @@
         <div class="payment-type">Кофейни → Самара</div>
       </div>
       <ul class="feature-list">
-        <li class="feature-item"><CheckIcon /><span>29,600+ уникальных отзывов</span></li>
+        <li class="feature-item"><CheckIcon /><span>29,600+ отзывов Яндекс/2ГИС</span></li>
         <li class="feature-item"><CheckIcon /><span>20 готовых диалогов</span></li>
         <li class="feature-item"><CheckIcon /><span>Мгновенный доступ к инсайтам</span></li>
         <li class="feature-item"><CheckIcon /><span>ИИ-ассистент Анна</span></li>
