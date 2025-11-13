@@ -20,7 +20,7 @@
         <li class="feature-item"><CheckIcon /><span>29,600+ отзывов Яндекс/2ГИС</span></li>
         <li class="feature-item"><CheckIcon /><span>20 готовых диалогов</span></li>
         <li class="feature-item"><CheckIcon /><span>Мгновенный доступ к инсайтам</span></li>
-        <li class="feature-item"><CheckIcon /><span>ИИ-ассистент Анна</span></li>
+        <li class="feature-item"><CheckIcon /><span>ИИ-аналитик Анна</span></li>
       </ul>
       <a href="https://cffx.ru/invest/sim" class="card-button card-button--secondary" target="_blank">
         Тест-драйв
