@@ -30,7 +30,7 @@
     <!-- КАРТОЧКА 2: ИНДЕКС РОСТА -->
     <div class="pricing-card pricing-card--featured">
       <h3 class="card-title card-title--insider">ИНДЕКС РОСТА</h3>
-      <p class="card-subtitle">Находим то, что не видят другие</p>
+      <p class="card-subtitle">Найти в шуме то, что не видят другие</p>
       <div class="card-image-wrapper">
         <!-- Я оставил старое изображение, но возможно, вы захотите его поменять на что-то связанное с калькулятором -->
         <img
@@ -43,11 +43,11 @@
         <strong>ТОП-50 кофеен</strong>
         <div class="payment-type">Самара → Сигнал</div>
       </div>
-      <p class="includes-all"><strong>Потенциал роста:</strong></p>
+      <p class="includes-all"><strong>Рейтинг Сигнала:</strong></p>
       <ul class="feature-list">
-        <li class="feature-item"><CheckIcon /><span>↑ Выручка ₽/год</span></li>
-        <li class="feature-item"><CheckIcon /><span>Время на захват X/мес.</span></li>
-        <li class="feature-item"><CheckIcon /><span>Целевые конкуренты</span></li>
+        <li class="feature-item"><CheckIcon /><span>Потенциал роста ↑ ₽/год</span></li>
+        <li class="feature-item"><CheckIcon /><span>Живая карта конкурентов</span></li>
+        <li class="feature-item"><CheckIcon /><span>Прогноз выручки ↑ ₽/год</span></li>
       </ul>
       <a href="https://cffx.ru/invest/smr.html" class="card-button" target="_blank">Смотреть Индекс</a>
     </div>
