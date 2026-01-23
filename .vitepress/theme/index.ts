@@ -43,6 +43,7 @@ import PayAsYouGo from '../components/PayAsYouGo.vue'
 import CheckupHowWorks from '../components/CheckupHowWorks.vue'
 import CheckupOverviewTabs from '../components/CheckupOverviewTabs.vue'
 import RadarTestDrive2Cards from '../components/RadarTestDrive2Cards.vue'
+import BumbastikABC from '../components/BumbastikABC.vue'
 
 export default {
   extends: DefaultTheme,
@@ -91,6 +92,8 @@ export default {
     app.component('CheckupHowWorks', CheckupHowWorks)
     app.component('CheckupOverviewTabs', CheckupOverviewTabs)
     app.component('RadarTestDrive2Cards', RadarTestDrive2Cards)
+    app.component('BumbastikABC', BumbastikABC)
+    
     
   }
 }
