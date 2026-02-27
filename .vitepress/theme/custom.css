@@ -93,3 +93,31 @@
 .korzh-badge:hover {
   color: #c5a8f0;
 }
+
+/* --- ПОЛНОШИРИННАЯ СТРАНИЦА для калькулятора --- */
+.fullwidth-page .VPDoc {
+  padding: 0 !important;
+}
+
+.fullwidth-page .VPDoc .aside,
+.fullwidth-page .VPDoc .outline {
+  display: none !important;
+}
+
+.fullwidth-page .VPDoc .container {
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+.fullwidth-page .VPDoc .content {
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+.fullwidth-page .VPDoc .content-container {
+  max-width: 100% !important;
+}
+
+.fullwidth-page .vp-doc {
+  padding: 0 !important;
+}
