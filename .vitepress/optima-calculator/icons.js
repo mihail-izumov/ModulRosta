@@ -1,5 +1,4 @@
 // icons.js
-// Inline SVG icons - no external dependencies
 import { h } from 'vue'
 
 const createIcon = (paths, viewBox = '0 0 24 24') => ({
@@ -22,9 +21,10 @@ const createIcon = (paths, viewBox = '0 0 24 24') => ({
   }
 })
 
-export const PhoneOff = createIcon([
-  'M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91',
-  'M22 2 2 22'
+export const Wallet = createIcon([
+  'M21 12V7H5a2 2 0 0 1 0-4h14v4',
+  'M3 5v14a2 2 0 0 0 2 2h16v-5',
+  'M18 12a2 2 0 0 0 0 4h4v-4Z'
 ])
 
 export const Vault = createIcon([
@@ -105,12 +105,6 @@ export const ChevronRight = createIcon([
   'M9 18l6-6-6-6'
 ])
 
-export const Wallet = createIcon([
-  'M21 12V7H5a2 2 0 0 1 0-4h14v4',
-  'M3 5v14a2 2 0 0 0 2 2h16v-5',
-  'M18 12a2 2 0 0 0 0 4h4v-4Z'
-])
-
 export const ScrollText = createIcon([
   'M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4',
   'M19 17V5a2 2 0 0 0-2-2H4',
@@ -145,4 +139,25 @@ export const SquareArrowRight = createIcon([
   { tag: 'rect', attrs: { width: 18, height: 18, x: 3, y: 3, rx: 2 } },
   'M8 12h8',
   'M12 8l4 4-4 4'
+])
+
+export const Clock = createIcon([
+  { tag: 'circle', attrs: { cx: 12, cy: 12, r: 10 } },
+  'M12 6v6l4 2'
+])
+
+export const TrendingUp = createIcon([
+  'M22 7l-8.5 8.5-5-5L2 17',
+  'M16 7h6v6'
+])
+
+export const PieChart = createIcon([
+  'M21.21 15.89A10 10 0 1 1 8 2.83',
+  'M22 12A10 10 0 0 0 12 2v10z'
+])
+
+export const Target = createIcon([
+  { tag: 'circle', attrs: { cx: 12, cy: 12, r: 10 } },
+  { tag: 'circle', attrs: { cx: 12, cy: 12, r: 6 } },
+  { tag: 'circle', attrs: { cx: 12, cy: 12, r: 2 } }
 ])
