@@ -1,93 +1,83 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { formatNumberWithSpaces, parseFormattedNumber } from './utils.js'
 
 const props = defineProps({
-  modelValue: { type: Number, default: 0 },
-  max: { type: Number, default: 100000000 }
+  modelValue: { type: Number, required: true },
+  max: { type: Number, default: Infinity }
 })
 
 const emit = defineEmits(['update:modelValue'])
 
-const formatWithSpaces = (num) => {
-  return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-}
+const displayValue = ref(formatNumberWithSpaces(Math.round(props.modelValue)))
+const isFocused = ref(false)
 
-const parseNumber = (str) => {
-  return parseInt(str.replace(/\s/g, ''), 10) || 0
-}
-
-const displayValue = ref(formatWithSpaces(props.modelValue))
-
-watch(() => props.modelValue, (newVal) => {
-  displayValue.value = formatWithSpaces(newVal)
-})
-
-const handleInput = (event) => {
-  const raw = event.target.value.replace(/\s/g, '')
-  const num = parseInt(raw, 10)
-  
-  if (!isNaN(num)) {
-    const clamped = Math.min(num, props.max)
-    displayValue.value = formatWithSpaces(clamped)
-    emit('update:modelValue', clamped)
-  } else {
-    displayValue.value = event.target.value
-  }
+const handleInput = (e) => {
+  const raw = e.target.value.replace(/[^\d\s]/g, '')
+  displayValue.value = raw
 }
 
 const handleBlur = () => {
-  const num = parseNumber(displayValue.value)
-  const clamped = Math.min(Math.max(0, num), props.max)
-  displayValue.value = formatWithSpaces(clamped)
+  isFocused.value = false
+  const num = parseFormattedNumber(displayValue.value) || 0
+  const clamped = Math.min(num, props.max)
   emit('update:modelValue', clamped)
+  displayValue.value = formatNumberWithSpaces(clamped)
 }
+
+const handleFocus = () => {
+  isFocused.value = true
+}
+
+watch(() => props.modelValue, (newVal) => {
+  if (!isFocused.value) {
+    displayValue.value = formatNumberWithSpaces(Math.round(newVal))
+  }
+})
 </script>
 
 <template>
-  <div class="osc-currency-input-wrapper">
-    <input 
+  <div class="osc-currency-input-wrap">
+    <input
       type="text"
       :value="displayValue"
       @input="handleInput"
       @blur="handleBlur"
+      @focus="handleFocus"
       class="osc-currency-input"
-      inputmode="numeric"
     />
     <span class="osc-currency-symbol">₽</span>
   </div>
 </template>
 
 <style scoped>
-.osc-currency-input-wrapper {
-  position: relative;
+.osc-currency-input-wrap {
   display: flex;
   align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
 }
 
 .osc-currency-input {
   width: 100%;
-  padding: 12px 36px 12px 14px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 8px;
+  background: none;
+  border: none;
+  font-size: 14px;
   color: #fff;
-  font-size: 15px;
-  font-weight: 500;
-  text-align: right;
   outline: none;
-  transition: all 0.2s;
-}
-
-.osc-currency-input:focus {
-  border-color: #00D9C0;
-  background: rgba(0,217,192,0.05);
+  text-align: right;
 }
 
 .osc-currency-symbol {
-  position: absolute;
-  right: 14px;
+  font-size: 12px;
   color: #888;
-  font-size: 15px;
-  pointer-events: none;
+}
+
+.osc-currency-input-wrap:focus-within {
+  border-color: #00D9C0;
+  background: rgba(0,217,192,0.05);
 }
 </style>

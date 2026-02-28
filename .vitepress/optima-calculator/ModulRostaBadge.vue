@@ -2,46 +2,91 @@
 </script>
 
 <template>
-  <div class="osc-partner-badge">
-    <span class="osc-badge-label">Технологический партнёр</span>
-    <a href="https://runscale.ru" target="_blank" class="osc-badge-link">
-      Модуль Роста®
+  <div class="osc-badge-wrapper">
+    <a href="https://runscale.ru" target="_blank" rel="noopener noreferrer" class="osc-partner-badge">
+      <div class="osc-radar-scan"></div>
+      <div class="osc-radar-dot"></div>
+      <span class="osc-badge-text">Технологический партнёр | Модуль Роста®</span>
     </a>
   </div>
 </template>
 
 <style scoped>
-.osc-partner-badge {
+.osc-badge-wrapper {
   display: flex;
-  align-items: center;
   justify-content: center;
+  margin-top: 48px;
+  margin-bottom: 24px;
+}
+
+.osc-partner-badge {
+  display: inline-flex;
+  align-items: center;
   gap: 12px;
-  padding: 16px;
-  margin-top: 24px;
-}
-
-.osc-badge-label {
-  font-size: 12px;
-  color: #777;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.osc-badge-link {
-  padding: 8px 20px;
-  background: transparent;
-  border: 2px solid rgba(255,255,255,0.2);
+  padding: 12px 24px;
+  border: 1px solid #00D9C0;
   border-radius: 8px;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
   text-decoration: none;
-  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  animation: osc-radar-glow 3s ease-in-out infinite;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
-.osc-badge-link:hover {
-  border-color: #00D9C0;
+.osc-partner-badge:hover {
+  transform: translateY(-2px);
+}
+
+@keyframes osc-radar-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(0, 217, 192, 0.3), 0 0 20px rgba(0, 217, 192, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 217, 192, 0.6), 0 0 40px rgba(0, 217, 192, 0.3);
+  }
+}
+
+.osc-radar-scan {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 217, 192, 0.2), transparent);
+  animation: osc-radar-scan 4s linear infinite;
+}
+
+@keyframes osc-radar-scan {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.osc-radar-dot {
+  width: 8px;
+  height: 8px;
+  background: #00D9C0;
+  border-radius: 50%;
+  animation: osc-radar-dot-pulse 3s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes osc-radar-dot-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 12px #00D9C0;
+  }
+  50% {
+    opacity: 0.4;
+    box-shadow: 0 0 4px #00D9C0;
+  }
+}
+
+.osc-badge-text {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 11px;
   color: #00D9C0;
-  background: rgba(0,217,192,0.1);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 </style>

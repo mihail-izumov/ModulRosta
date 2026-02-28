@@ -1,42 +1,38 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
   text: { type: String, required: true },
-  html: { type: Boolean, default: false }
+  position: { type: String, default: 'top' },
+  html: { type: Boolean, default: false },
+  maxWidth: { type: Number, default: 280 }
 })
 
 const isVisible = ref(false)
-const tooltipRef = ref(null)
-const position = ref({ x: 0, y: 0 })
 
-const showTooltip = (event) => {
-  isVisible.value = true
-}
+const show = () => { isVisible.value = true }
+const hide = () => { isVisible.value = false }
 
-const hideTooltip = () => {
-  isVisible.value = false
-}
+const tooltipStyle = computed(() => ({
+  maxWidth: `${props.maxWidth}px`
+}))
 </script>
 
 <template>
-  <span 
-    class="osc-tooltip-wrapper"
-    @mouseenter="showTooltip"
-    @mouseleave="hideTooltip"
-  >
+  <div class="osc-tooltip-wrapper" @mouseenter="show" @mouseleave="hide">
     <slot />
-    <Transition name="osc-tooltip-fade">
+    <Transition name="osc-tip">
       <div 
         v-if="isVisible" 
-        ref="tooltipRef"
         class="osc-tooltip-box"
+        :class="position"
+        :style="tooltipStyle"
       >
-        <div v-if="html" v-html="text" class="osc-tooltip-content"></div>
-        <div v-else class="osc-tooltip-content">{{ text }}</div>
+        <div v-if="html" v-html="text"></div>
+        <template v-else>{{ text }}</template>
       </div>
     </Transition>
-  </span>
+  </div>
 </template>
 
 <style scoped>
@@ -48,51 +44,45 @@ const hideTooltip = () => {
 
 .osc-tooltip-box {
   position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
+  z-index: 1000;
   padding: 12px 16px;
   background: #1a1a1a;
-  border: 1px solid rgba(0,217,192,0.3);
+  border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px;
   font-size: 12px;
-  color: #ccc;
-  line-height: 1.6;
+  line-height: 1.5;
+  color: #ddd;
   white-space: pre-wrap;
-  max-width: 320px;
-  min-width: 200px;
-  z-index: 1000;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
 }
 
-.osc-tooltip-box::after {
-  content: '';
-  position: absolute;
+.osc-tooltip-box.top {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+}
+
+.osc-tooltip-box.bottom {
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: #1a1a1a;
-}
-
-.osc-tooltip-content :deep(strong) {
-  color: #fff;
-  font-weight: 600;
-}
-
-.osc-tooltip-content :deep(span) {
-  display: block;
   margin-top: 8px;
 }
 
-.osc-tooltip-fade-enter-active,
-.osc-tooltip-fade-leave-active {
+.osc-tip-enter-active,
+.osc-tip-leave-active {
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.osc-tooltip-fade-enter-from,
-.osc-tooltip-fade-leave-to {
+.osc-tip-enter-from,
+.osc-tip-leave-to {
   opacity: 0;
-  transform: translateX(-50%) translateY(4px);
+}
+
+:deep(strong) {
+  color: #fff;
+  font-weight: 600;
 }
 </style>

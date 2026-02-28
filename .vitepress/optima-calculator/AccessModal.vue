@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 
 const props = defineProps({
   show: { type: Boolean, default: false },
@@ -8,18 +8,50 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'submit'])
 
-const fullName = ref('')
+const firstName = ref('')
+const lastName = ref('')
 const phone = ref('')
 const errors = ref({})
 
+// Генерация номера заявки
+const applicationNumber = computed(() => {
+  const now = new Date()
+  const part1 = String(now.getDate()).padStart(2, '0')
+  const part2 = String(Math.floor(Math.random() * 100)).padStart(2, '0')
+  return `${part1}-${part2}`
+})
+
+const applicationDate = computed(() => {
+  return new Date().toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+})
+
+// Форматирование телефона в формат +7(123)456-78-90
 const formatPhone = (value) => {
-  const digits = value.replace(/\D/g, '')
+  let digits = value.replace(/\D/g, '')
+  
+  // Убираем 8 в начале, заменяем на 7
+  if (digits.startsWith('8') && digits.length > 1) {
+    digits = '7' + digits.slice(1)
+  }
+  
+  // Если нет 7 в начале, добавляем
+  if (digits.length > 0 && !digits.startsWith('7')) {
+    digits = '7' + digits
+  }
+  
+  // Ограничиваем 11 цифрами
+  digits = digits.slice(0, 11)
+  
   if (digits.length === 0) return ''
-  if (digits.length <= 1) return `+${digits}`
-  if (digits.length <= 4) return `+${digits.slice(0,1)} (${digits.slice(1)}`
-  if (digits.length <= 7) return `+${digits.slice(0,1)} (${digits.slice(1,4)}) ${digits.slice(4)}`
-  if (digits.length <= 9) return `+${digits.slice(0,1)} (${digits.slice(1,4)}) ${digits.slice(4,7)}-${digits.slice(7)}`
-  return `+${digits.slice(0,1)} (${digits.slice(1,4)}) ${digits.slice(4,7)}-${digits.slice(7,9)}-${digits.slice(9,11)}`
+  if (digits.length === 1) return `+${digits}`
+  if (digits.length <= 4) return `+${digits[0]}(${digits.slice(1)}`
+  if (digits.length <= 7) return `+${digits[0]}(${digits.slice(1, 4)})${digits.slice(4)}`
+  if (digits.length <= 9) return `+${digits[0]}(${digits.slice(1, 4)})${digits.slice(4, 7)}-${digits.slice(7)}`
+  return `+${digits[0]}(${digits.slice(1, 4)})${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9)}`
 }
 
 const handlePhoneInput = (e) => {
@@ -29,10 +61,12 @@ const handlePhoneInput = (e) => {
 const validate = () => {
   errors.value = {}
   
-  if (!fullName.value.trim()) {
-    errors.value.fullName = 'Введите имя и фамилию'
-  } else if (fullName.value.trim().split(' ').length < 2) {
-    errors.value.fullName = 'Введите имя и фамилию'
+  if (!firstName.value.trim()) {
+    errors.value.firstName = 'Введите имя'
+  }
+  
+  if (!lastName.value.trim()) {
+    errors.value.lastName = 'Введите фамилию'
   }
   
   const phoneDigits = phone.value.replace(/\D/g, '')
@@ -47,10 +81,23 @@ const validate = () => {
 
 const handleSubmit = () => {
   if (validate()) {
-    emit('submit', {
-      fullName: fullName.value.trim(),
-      phone: phone.value
-    })
+    const userData = {
+      firstName: firstName.value.trim(),
+      lastName: lastName.value.trim(),
+      fullName: `${firstName.value.trim()} ${lastName.value.trim()}`,
+      phone: phone.value,
+      applicationNumber: applicationNumber.value,
+      applicationDate: applicationDate.value
+    }
+    
+    // Сохраняем в сессию
+    try {
+      sessionStorage.setItem('osc_user_data', JSON.stringify(userData))
+    } catch (e) {
+      console.warn('Session storage not available')
+    }
+    
+    emit('submit', userData)
   }
 }
 
@@ -58,11 +105,27 @@ const handleClose = () => {
   emit('close')
 }
 
+// Проверяем сессию при открытии
 watch(() => props.show, (newVal) => {
   if (newVal) {
-    fullName.value = ''
+    // Сбрасываем форму
+    firstName.value = ''
+    lastName.value = ''
     phone.value = ''
     errors.value = {}
+    
+    // Пытаемся восстановить из сессии
+    try {
+      const saved = sessionStorage.getItem('osc_user_data')
+      if (saved) {
+        const data = JSON.parse(saved)
+        firstName.value = data.firstName || ''
+        lastName.value = data.lastName || ''
+        phone.value = data.phone || ''
+      }
+    } catch (e) {
+      // Игнорируем ошибки
+    }
   }
 })
 </script>
@@ -72,23 +135,51 @@ watch(() => props.show, (newVal) => {
     <Transition name="osc-modal">
       <div v-if="show" class="osc-modal-overlay" @click.self="handleClose">
         <div class="osc-modal-content">
-          <button class="osc-modal-close" @click="handleClose">×</button>
+          <button class="osc-modal-close" @click="handleClose" aria-label="Закрыть">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="m15 9-6 6"/>
+              <path d="m9 9 6 6"/>
+            </svg>
+          </button>
           
           <h2 class="osc-modal-title">{{ title }}</h2>
           <p class="osc-modal-subtitle">Введите контактные данные для продолжения</p>
           
+          <!-- Номер заявки -->
+          <div class="osc-application-info">
+            <span class="osc-app-label">Заявка №</span>
+            <span class="osc-app-number">{{ applicationNumber }}</span>
+            <span class="osc-app-date">от {{ applicationDate }}</span>
+          </div>
+          
           <div class="osc-modal-form">
-            <div class="osc-form-group">
-              <label class="osc-form-label">Имя и Фамилия</label>
-              <input 
-                type="text"
-                v-model="fullName"
-                class="osc-form-input"
-                :class="{ 'osc-input-error': errors.fullName }"
-                placeholder="Иван Иванов"
-                @keyup.enter="handleSubmit"
-              />
-              <span v-if="errors.fullName" class="osc-error-text">{{ errors.fullName }}</span>
+            <div class="osc-form-row">
+              <div class="osc-form-group">
+                <label class="osc-form-label">Имя</label>
+                <input 
+                  type="text"
+                  v-model="firstName"
+                  class="osc-form-input"
+                  :class="{ 'osc-input-error': errors.firstName }"
+                  placeholder="Иван"
+                  @keyup.enter="handleSubmit"
+                />
+                <span v-if="errors.firstName" class="osc-error-text">{{ errors.firstName }}</span>
+              </div>
+              
+              <div class="osc-form-group">
+                <label class="osc-form-label">Фамилия</label>
+                <input 
+                  type="text"
+                  v-model="lastName"
+                  class="osc-form-input"
+                  :class="{ 'osc-input-error': errors.lastName }"
+                  placeholder="Иванов"
+                  @keyup.enter="handleSubmit"
+                />
+                <span v-if="errors.lastName" class="osc-error-text">{{ errors.lastName }}</span>
+              </div>
             </div>
             
             <div class="osc-form-group">
@@ -99,7 +190,7 @@ watch(() => props.show, (newVal) => {
                 @input="handlePhoneInput"
                 class="osc-form-input"
                 :class="{ 'osc-input-error': errors.phone }"
-                placeholder="+7 (999) 123-45-67"
+                placeholder="+7(999)123-45-67"
                 @keyup.enter="handleSubmit"
               />
               <span v-if="errors.phone" class="osc-error-text">{{ errors.phone }}</span>
@@ -110,10 +201,7 @@ watch(() => props.show, (newVal) => {
             </button>
           </div>
           
-          <p class="osc-modal-privacy">
-            Нажимая кнопку, вы соглашаетесь с 
-            <a href="/terms/policy" target="_blank">политикой конфиденциальности</a>
-          </p>
+          <p class="osc-modal-privacy">Нажимая кнопку, вы соглашаетесь с <a href="/terms/policy" target="_blank">политикой конфиденциальности</a></p>
         </div>
       </div>
     </Transition>
@@ -141,7 +229,7 @@ watch(() => props.show, (newVal) => {
   border: 1px solid rgba(0,217,192,0.3);
   border-radius: 16px;
   padding: 32px;
-  max-width: 400px;
+  max-width: 420px;
   width: 100%;
   position: relative;
 }
@@ -155,8 +243,7 @@ watch(() => props.show, (newVal) => {
   background: rgba(255,255,255,0.1);
   border: none;
   border-radius: 50%;
-  color: #fff;
-  font-size: 20px;
+  color: #888;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -165,7 +252,8 @@ watch(() => props.show, (newVal) => {
 }
 
 .osc-modal-close:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(232,25,44,0.2);
+  color: #E8192C;
 }
 
 .osc-modal-title {
@@ -179,24 +267,59 @@ watch(() => props.show, (newVal) => {
 .osc-modal-subtitle {
   font-size: 14px;
   color: #888;
-  margin: 0 0 24px;
+  margin: 0 0 16px;
   text-align: center;
+}
+
+.osc-application-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  background: rgba(0,217,192,0.1);
+  border: 1px solid rgba(0,217,192,0.2);
+  border-radius: 8px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.osc-app-label {
+  font-size: 12px;
+  color: #888;
+}
+
+.osc-app-number {
+  font-size: 14px;
+  font-weight: 600;
+  color: #00D9C0;
+}
+
+.osc-app-date {
+  font-size: 12px;
+  color: #666;
 }
 
 .osc-modal-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+}
+
+.osc-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .osc-form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .osc-form-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: #aaa;
   text-transform: uppercase;
@@ -204,12 +327,12 @@ watch(() => props.show, (newVal) => {
 }
 
 .osc-form-input {
-  padding: 14px 16px;
+  padding: 12px 14px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 10px;
   color: #fff;
-  font-size: 16px;
+  font-size: 15px;
   outline: none;
   transition: all 0.2s;
 }
@@ -228,18 +351,18 @@ watch(() => props.show, (newVal) => {
 }
 
 .osc-error-text {
-  font-size: 12px;
+  font-size: 11px;
   color: #E8192C;
 }
 
 .osc-modal-submit {
-  margin-top: 8px;
-  padding: 16px;
+  margin-top: 6px;
+  padding: 14px;
   background: linear-gradient(135deg, #00D9C0 0%, #00a67d 100%);
   border: none;
   border-radius: 10px;
   color: #000;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
@@ -251,10 +374,11 @@ watch(() => props.show, (newVal) => {
 }
 
 .osc-modal-privacy {
-  margin-top: 16px;
-  font-size: 11px;
-  color: #666;
+  margin-top: 12px;
+  font-size: 10px;
+  color: #555;
   text-align: center;
+  line-height: 1.4;
 }
 
 .osc-modal-privacy a {
@@ -286,5 +410,11 @@ watch(() => props.show, (newVal) => {
 .osc-modal-leave-to .osc-modal-content {
   transform: scale(0.95) translateY(-20px);
   opacity: 0;
+}
+
+@media (max-width: 480px) {
+  .osc-form-row {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

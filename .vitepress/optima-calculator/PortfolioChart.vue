@@ -19,6 +19,21 @@ const segments = computed(() => {
   const total = props.data.reduce((sum, item) => sum + item.value, 0)
   if (total === 0) return []
   
+  // Если только один сегмент на 100%, делаем полный круг
+  if (props.data.length === 1 && props.data[0].value === 100) {
+    const item = props.data[0]
+    return [{
+      path: `M ${cx} ${cy - outerRadius} A ${outerRadius} ${outerRadius} 0 1 1 ${cx - 0.001} ${cy - outerRadius} L ${cx - 0.001} ${cy - innerRadius} A ${innerRadius} ${innerRadius} 0 1 0 ${cx} ${cy - innerRadius} Z`,
+      color: item.color,
+      name: item.name,
+      value: item.value,
+      amount: item.amount,
+      centerX: cx,
+      centerY: cy - (outerRadius + innerRadius) / 2,
+      isFull: true
+    }]
+  }
+  
   let currentAngle = -90
   return props.data.map((item, index) => {
     const percentage = item.value / total
@@ -46,7 +61,7 @@ const segments = computed(() => {
     const centerX = cx + ((outerRadius + innerRadius) / 2) * Math.cos(midAngle)
     const centerY = cy + ((outerRadius + innerRadius) / 2) * Math.sin(midAngle)
     
-    return { path, color: item.color, name: item.name, value: item.value, amount: item.amount, centerX, centerY }
+    return { path, color: item.color, name: item.name, value: item.value, amount: item.amount, centerX, centerY, isFull: false }
   })
 })
 
@@ -67,7 +82,7 @@ const updateTooltipPosition = (event) => {
 }
 
 const getSegmentTransform = (segment, index) => {
-  if (hoveredIndex.value !== index) return ''
+  if (hoveredIndex.value !== index || segment.isFull) return ''
   const offsetX = (segment.centerX - cx) * 0.08
   const offsetY = (segment.centerY - cy) * 0.08
   return `translate(${offsetX}, ${offsetY})`
@@ -85,9 +100,15 @@ const getSegmentTransform = (segment, index) => {
 
     <svg v-else :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`" class="osc-pie-chart">
       <g v-for="(segment, index) in segments" :key="index" class="osc-segment-group" :style="{ transform: getSegmentTransform(segment, index), transformOrigin: `${cx}px ${cy}px` }" @mouseenter="handleMouseEnter(index, $event)" @mouseleave="handleMouseLeave">
-        <path :d="segment.path" :fill="segment.color" class="osc-segment" :class="{ hovered: hoveredIndex === index, dimmed: hoveredIndex !== null && hoveredIndex !== index }" />
+        <path :d="segment.path" :fill="segment.color" class="osc-segment" :class="{ hovered: hoveredIndex === index, dimmed: hoveredIndex !== null && hoveredIndex !== index, full: segment.isFull }" />
       </g>
       <circle :cx="cx" :cy="cy" :r="innerRadius - 1" fill="var(--vp-c-bg, #1a1a1a)" />
+      
+      <!-- Центральный текст для 100% -->
+      <g v-if="segments.length === 1 && segments[0].isFull">
+        <text :x="cx" :y="cy - 5" text-anchor="middle" class="osc-center-percent" :fill="segments[0].color">100%</text>
+        <text :x="cx" :y="cy + 15" text-anchor="middle" class="osc-center-label" fill="#888">{{ segments[0].name }}</text>
+      </g>
     </svg>
 
     <Transition name="osc-tooltip">
@@ -117,6 +138,17 @@ const getSegmentTransform = (segment, index) => {
 .osc-segment { transition: opacity 0.2s ease, filter 0.2s ease; cursor: pointer; }
 .osc-segment.hovered { filter: brightness(1.2); }
 .osc-segment.dimmed { opacity: 0.4; }
+.osc-segment.full { filter: drop-shadow(0 0 8px currentColor); }
+
+.osc-center-percent {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.osc-center-label {
+  font-size: 10px;
+  text-transform: uppercase;
+}
 
 .osc-chart-tooltip {
   position: absolute;

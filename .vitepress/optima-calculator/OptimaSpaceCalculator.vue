@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { 
   PhoneOff, Vault, Scale, Building2, FileText, Rocket 
 } from './icons.js'
-import { COLORS, TOOLTIPS, OPTIMA_SPACE, ASSET_CLASSES, STRATEGIES } from './constants.js'
+import { COLORS, TOOLTIPS, OPTIMA_SPACE, ASSET_CLASSES, STRATEGIES, COMPARISON_COMMENTS } from './constants.js'
 import { formatCurrency, formatPercent, toNumber, formatNumberWithSpaces, parseFormattedNumber } from './utils.js'
 import { usePortfolio } from './usePortfolio.js'
 import { usePDFGenerator } from './usePDFGenerator.js'
@@ -29,6 +29,10 @@ const {
   isOptimaValid,
   chartData,
   goalStatus,
+  advisorComment,
+  collateralCoverage,
+  optimaIncome,
+  totalIncome,
   updateAllocation,
   loadStrategy,
   autoDistribute,
@@ -41,10 +45,26 @@ const { generatePDF } = usePDFGenerator()
 const isMobile = ref(false)
 const isGeneratingPDF = ref(false)
 const showAccessModal = ref(false)
-const pendingAction = ref(null) // 'invest' | 'pdf'
-const userData = ref({ fullName: '', phone: '' })
+const pendingAction = ref(null)
+const userData = ref({ fullName: '', phone: '', applicationNumber: '', applicationDate: '' })
 const capitalInputValue = ref(formatNumberWithSpaces(totalCapital.value))
 const isEditingCapital = ref(false)
+const hasSubmittedData = ref(false)
+
+// Таймер до запуска
+const countdown = computed(() => {
+  const launchDate = new Date('2026-06-01')
+  const now = new Date()
+  const diff = launchDate - now
+  
+  if (diff <= 0) return { months: 0, days: 0, expired: true }
+  
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const months = Math.floor(days / 30)
+  const remainingDays = days % 30
+  
+  return { months, days: remainingDays, totalDays: days, expired: false }
+})
 
 // How It Works steps
 const howItWorksSteps = [
@@ -54,23 +74,107 @@ const howItWorksSteps = [
   { icon: FileText, title: 'Скачайте отчёт', sub: 'Персональная стратегия в PDF' },
 ]
 
+// Таблица сравнения
+const comparisonData = computed(() => [
+  { 
+    name: 'Optima Space (I раунд)', 
+    yield: '38%', 
+    protection: 'Обратный выкуп', 
+    risk: 4, 
+    mult: 1.71, 
+    highlight: true,
+    comment: COMPARISON_COMMENTS.optima
+  },
+  { 
+    name: 'Складская логистика', 
+    yield: '11–13%', 
+    protection: 'Нет', 
+    risk: 3, 
+    mult: 0.55,
+    comment: COMPARISON_COMMENTS.warehouse
+  },
+  { 
+    name: 'Street-retail', 
+    yield: '9–16%', 
+    protection: 'Нет', 
+    risk: 3, 
+    mult: 0.56,
+    comment: COMPARISON_COMMENTS.streetretail
+  },
+  { 
+    name: 'Облигации', 
+    yield: '10–13%', 
+    protection: 'Нет', 
+    risk: 2, 
+    mult: 0.52,
+    comment: COMPARISON_COMMENTS.bonds
+  },
+  { 
+    name: 'Дивидендные акции', 
+    yield: '12–15%', 
+    protection: 'Нет', 
+    risk: 5, 
+    mult: 0.61,
+    comment: COMPARISON_COMMENTS.dividends
+  },
+  { 
+    name: 'Депозиты', 
+    yield: '18–20%', 
+    protection: 'АСВ 1.4М', 
+    risk: 1, 
+    mult: 0.86,
+    comment: COMPARISON_COMMENTS.deposits
+  },
+])
+
+// Проверка сессии при загрузке
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+  
+  // Проверяем сессию
+  try {
+    const saved = sessionStorage.getItem('osc_user_data')
+    if (saved) {
+      const data = JSON.parse(saved)
+      userData.value = data
+      hasSubmittedData.value = true
+    }
+  } catch (e) {
+    // Игнорируем
+  }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
+
 // Methods
 const checkMobile = () => {
   isMobile.value = window.innerWidth < 1024
 }
 
 const handleInvestClick = () => {
-  pendingAction.value = 'invest'
-  showAccessModal.value = true
+  if (hasSubmittedData.value) {
+    doInvest()
+  } else {
+    pendingAction.value = 'invest'
+    showAccessModal.value = true
+  }
 }
 
 const handlePDFClick = () => {
-  pendingAction.value = 'pdf'
-  showAccessModal.value = true
+  if (hasSubmittedData.value) {
+    doDownloadPDF()
+  } else {
+    pendingAction.value = 'pdf'
+    showAccessModal.value = true
+  }
 }
 
 const handleModalSubmit = (data) => {
   userData.value = data
+  hasSubmittedData.value = true
   showAccessModal.value = false
   
   if (pendingAction.value === 'invest') {
@@ -86,16 +190,24 @@ const doInvest = () => {
   window.open(`https://t.me/paimukov?text=${text}`, '_blank')
 }
 
-const doDownloadPDF = () => {
+const doDownloadPDF = async () => {
   isGeneratingPDF.value = true
-  generatePDF({
-    totalCapital: totalCapital.value,
-    allocations: allocations.value,
-    portfolioMetrics: portfolioMetrics.value,
-    optimaInvestment: optimaInvestment.value,
-    chartData: chartData.value,
-    userName: userData.value.fullName
-  })
+  
+  try {
+    await generatePDF({
+      totalCapital: totalCapital.value,
+      allocations: allocations.value,
+      portfolioMetrics: portfolioMetrics.value,
+      optimaInvestment: optimaInvestment.value,
+      chartData: chartData.value,
+      userName: userData.value.fullName,
+      applicationNumber: userData.value.applicationNumber,
+      applicationDate: userData.value.applicationDate
+    })
+  } catch (e) {
+    console.error('PDF generation error:', e)
+  }
+  
   setTimeout(() => {
     isGeneratingPDF.value = false
   }, 2000)
@@ -104,6 +216,11 @@ const doDownloadPDF = () => {
 const getSliderProgress = (assetId, max) => {
   const value = toNumber(allocations.value[assetId])
   return (value / max) * 100
+}
+
+// Максимум для слайдера Optima (без ограничения)
+const getSliderMax = (assetId) => {
+  return assetId === 'optima' ? 100 : 50
 }
 
 const handleCapitalInput = (e) => {
@@ -143,15 +260,19 @@ watch(totalCapital, (val) => {
   }
 })
 
-// Lifecycle
-onMounted(() => {
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
-})
+// Быстрые кнопки капитала
+const capitalButtons = [
+  { amount: 3000000, label: '> 3 млн' },
+  { amount: 5000000, label: '> 5 млн' },
+  { amount: 10000000, label: '> 10 млн' },
+  { amount: 20000000, label: '> 20 млн' },
+  { amount: 50000000, label: '> 50 млн' },
+  { amount: 100000000, label: '> 100 млн' },
+]
 
-onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile)
-})
+const isCapitalButtonActive = (amount) => {
+  return totalCapital.value >= amount
+}
 </script>
 
 <template>
@@ -177,22 +298,33 @@ onUnmounted(() => {
     <div v-else class="osc-container">
       <!-- Header -->
       <header class="osc-header">
-        <div class="osc-subtitle">Стратегический инструмент для инвесторов</div>
-        <h1 class="osc-title">
-          Консультант по долевым инвестициям<br>в офисную недвижимость
-        </h1>
+        <div class="osc-subtitle">Инвестиции в офисную недвижимость</div>
+        <h1 class="osc-title">Расчёт инвестиций в Optima Space</h1>
+        
+        <!-- Countdown Timer -->
+        <div class="osc-countdown" v-if="!countdown.expired">
+          <div class="osc-countdown-label">До запуска Optima Space</div>
+          <div class="osc-countdown-timer">
+            <span class="osc-countdown-value">{{ countdown.months }}</span>
+            <span class="osc-countdown-unit">мес</span>
+            <span class="osc-countdown-value">{{ countdown.days }}</span>
+            <span class="osc-countdown-unit">дн</span>
+          </div>
+          <div class="osc-countdown-date">01.06.2026 • <span class="osc-status-ok">Стройка идёт по плану</span></div>
+        </div>
       </header>
 
       <!-- How It Works -->
       <section class="osc-how-section">
         <div class="osc-badge-center">
-          <InfoTooltip :text="TOOLTIPS.smartInvesting" html>
-            <span class="osc-top-badge">Умные инвестиции в Optima Space</span>
-          </InfoTooltip>
+          <span class="osc-top-badge">Умные инвестиции в Optima Space</span>
         </div>
         <p class="osc-how-description">
-          Рассчитайте структуру портфеля для достижения цели 20%+ годовой доходности.
+          <InfoTooltip :text="TOOLTIPS.targetYield" html>
+            <span class="osc-how-link">Рассчитайте структуру портфеля для достижения цели 20%+ годовой доходности.</span>
+          </InfoTooltip>
         </p>
+        <p class="osc-how-note">{{ TOOLTIPS.smartInvesting }}</p>
         <div class="osc-steps-grid">
           <template v-for="(step, index) in howItWorksSteps" :key="index">
             <div class="osc-step-item">
@@ -242,12 +374,12 @@ onUnmounted(() => {
         
         <div class="osc-quick-buttons">
           <button 
-            v-for="amount in [3000000, 5000000, 10000000, 20000000, 50000000]"
-            :key="amount"
-            :class="['osc-quick-btn', { active: totalCapital === amount }]"
-            @click="totalCapital = amount"
+            v-for="btn in capitalButtons"
+            :key="btn.amount"
+            :class="['osc-quick-btn', { active: isCapitalButtonActive(btn.amount) }]"
+            @click="totalCapital = btn.amount"
           >
-            {{ formatCurrency(amount) }}
+            {{ btn.label }}
           </button>
         </div>
       </section>
@@ -264,10 +396,10 @@ onUnmounted(() => {
           <button 
             v-for="(strategy, key) in STRATEGIES"
             :key="key"
-            :class="['osc-strategy-card', { active: activeStrategy === key }]"
+            :class="['osc-strategy-card', { active: activeStrategy === key, optimaOnly: key === 'optimaOnly' }]"
             @click="loadStrategy(key)"
           >
-            <InfoTooltip :text="strategy.tooltip">
+            <InfoTooltip :text="strategy.tooltip" :maxWidth="320">
               <div class="osc-strat-name">{{ strategy.name }}</div>
             </InfoTooltip>
             <div class="osc-strat-desc">{{ strategy.description }}</div>
@@ -299,7 +431,7 @@ onUnmounted(() => {
               <div class="osc-asset-top">
                 <div class="osc-asset-left">
                   <span class="osc-asset-dot" :style="{ background: asset.color }"></span>
-                  <InfoTooltip :text="asset.tooltip" html>
+                  <InfoTooltip :text="asset.tooltip" html :maxWidth="360">
                     <span class="osc-asset-name">{{ asset.name }}</span>
                   </InfoTooltip>
                   <span 
@@ -336,9 +468,9 @@ onUnmounted(() => {
                   type="range"
                   :value="allocations[asset.id]"
                   :min="0"
-                  :max="asset.id === 'optima' ? 35 : 50"
+                  :max="getSliderMax(asset.id)"
                   :style="{
-                    background: `linear-gradient(to right, ${asset.color} 0%, ${asset.color} ${getSliderProgress(asset.id, asset.id === 'optima' ? 35 : 50)}%, rgba(255,255,255,0.1) ${getSliderProgress(asset.id, asset.id === 'optima' ? 35 : 50)}%, rgba(255,255,255,0.1) 100%)`
+                    background: `linear-gradient(to right, ${asset.color} 0%, ${asset.color} ${getSliderProgress(asset.id, getSliderMax(asset.id))}%, rgba(255,255,255,0.1) ${getSliderProgress(asset.id, getSliderMax(asset.id))}%, rgba(255,255,255,0.1) 100%)`
                   }"
                   @input="updateAllocation(asset.id, $event.target.value)"
                 />
@@ -370,6 +502,14 @@ onUnmounted(() => {
               <span class="osc-total-percent">{{ portfolioMetrics.totalAllocation }}%</span>
             </div>
 
+            <!-- Advisor Comment -->
+            <div 
+              class="osc-advisor-comment"
+              :class="advisorComment.type"
+            >
+              {{ advisorComment.text }}
+            </div>
+
             <!-- Auto Distribute -->
             <div v-if="portfolioMetrics.totalAllocation !== 100" class="osc-auto-block">
               <div class="osc-auto-hint" :class="{ error: portfolioMetrics.totalAllocation > 100 }">
@@ -378,11 +518,11 @@ onUnmounted(() => {
                   : `Не распределено: ${formatCurrency(totalCapital * (100 - portfolioMetrics.totalAllocation) / 100)}` 
                 }}
               </div>
-              <button class="osc-auto-btn" @click="autoDistribute">
+              <button class="osc-auto-btn-3d" @click="autoDistribute">
                 <InfoTooltip :text="TOOLTIPS.autoDistribute">
                   {{ portfolioMetrics.totalAllocation > 100 
-                    ? 'Выровнять до 100%' 
-                    : `Авто-распределение (${100 - portfolioMetrics.totalAllocation}%)` 
+                    ? '⚖️ Выровнять до 100%' 
+                    : `🎯 Авто-распределение (${100 - portfolioMetrics.totalAllocation}%)` 
                   }}
                 </InfoTooltip>
               </button>
@@ -402,8 +542,11 @@ onUnmounted(() => {
               </div>
               <div class="osc-metric-box">
                 <div class="osc-m-label">Риск</div>
-                <div class="osc-m-value" :class="{ warning: portfolioMetrics.risk > 4 }">
+                <div class="osc-m-value" :class="{ warning: portfolioMetrics.risk > 5 }">
                   {{ portfolioMetrics.totalAllocation > 0 ? `${portfolioMetrics.risk.toFixed(1)}/10` : '—' }}
+                </div>
+                <div v-if="portfolioMetrics.concentrationRisk > 0" class="osc-m-note">
+                  +{{ portfolioMetrics.concentrationRisk }} концентрация
                 </div>
               </div>
             </div>
@@ -441,7 +584,7 @@ onUnmounted(() => {
           </div>
           <div class="osc-o-metric">
             <div class="osc-o-label">Доход за 4,5 года</div>
-            <div class="osc-o-value primary">{{ formatCurrency(optimaInvestment * (OPTIMA_SPACE.rounds[0].roi / 100) * 4.5) }}</div>
+            <div class="osc-o-value primary">{{ formatCurrency(optimaIncome) }}</div>
             <div class="osc-o-sub">ROI {{ ((OPTIMA_SPACE.rounds[0].roi / 100) * 4.5 * 100).toFixed(0) }}%</div>
           </div>
         </div>
@@ -480,45 +623,32 @@ onUnmounted(() => {
             <thead>
               <tr>
                 <th>Инструмент</th>
-                <th>ROI</th>
-                <th>Защита</th>
-                <th>Риск</th>
-                <th>Доход 4,5г</th>
+                <th class="osc-th-center">ROI</th>
+                <th class="osc-th-center">Защита</th>
+                <th class="osc-th-center">Риск</th>
+                <th class="osc-th-center">Доход 4,5г</th>
+                <th>Комментарий</th>
               </tr>
             </thead>
             <tbody>
-              <tr class="osc-highlight-row">
-                <td><span class="osc-dot-primary"></span>Optima Space (I раунд)</td>
-                <td class="osc-primary">38%</td>
-                <td class="osc-primary">Обратный выкуп</td>
-                <td>4/10</td>
-                <td>{{ formatCurrency(2000000 * 1.71) }}</td>
-              </tr>
-              <tr>
-                <td>ЗПИФ офисы</td>
-                <td>12–15%</td>
-                <td class="osc-dim">Нет</td>
-                <td class="osc-primary">3/10</td>
-                <td>{{ formatCurrency(2000000 * 0.60) }}</td>
-              </tr>
-              <tr>
-                <td>ЗПИФ склады</td>
-                <td>11–13%</td>
-                <td class="osc-dim">Нет</td>
-                <td class="osc-primary">3/10</td>
-                <td>{{ formatCurrency(2000000 * 0.55) }}</td>
-              </tr>
-              <tr>
-                <td>Депозиты</td>
-                <td>18–20%*</td>
-                <td class="osc-primary">АСВ 1.4М</td>
-                <td class="osc-primary">1/10</td>
-                <td>{{ formatCurrency(2000000 * 0.72) }}</td>
+              <tr 
+                v-for="row in comparisonData" 
+                :key="row.name"
+                :class="{ 'osc-highlight-row': row.highlight }"
+              >
+                <td>
+                  <span v-if="row.highlight" class="osc-dot-primary"></span>
+                  {{ row.name }}
+                </td>
+                <td class="osc-td-center" :class="{ 'osc-primary': row.highlight }">{{ row.yield }}</td>
+                <td class="osc-td-center" :class="{ 'osc-primary': row.protection !== 'Нет', 'osc-dim': row.protection === 'Нет' }">{{ row.protection }}</td>
+                <td class="osc-td-center" :class="{ 'osc-primary': row.risk <= 2 }">{{ row.risk }}/10</td>
+                <td class="osc-td-center">{{ formatCurrency(2000000 * row.mult) }}</td>
+                <td class="osc-td-comment">{{ row.comment }}</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div class="osc-table-note">* Ставки депозитов снизятся в 2026-2027</div>
       </section>
 
       <!-- STEP 5: Q&A -->
@@ -560,9 +690,12 @@ onUnmounted(() => {
             <div class="osc-income-label">Ожидаемый доход за 4,5 года</div>
             <div class="osc-income-value">
               {{ portfolioMetrics.totalAllocation > 0 
-                ? formatCurrency(totalCapital * (portfolioMetrics.yield / 100) * 4.5) 
+                ? formatCurrency(totalIncome) 
                 : '—' 
               }}
+            </div>
+            <div v-if="portfolioMetrics.totalAllocation > 0 && optimaIncome > 0" class="osc-income-optima">
+              Из них Optima Space: <strong>{{ formatCurrency(optimaIncome) }}</strong>
             </div>
             <div v-if="portfolioMetrics.totalAllocation > 0" class="osc-income-note">
               при доходности <span class="osc-bold">{{ formatPercent(portfolioMetrics.yield) }}</span>
@@ -601,154 +734,201 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
-
 <style scoped>
-/* === BASE STYLES === */
+/* === BASE === */
 .osc-wrapper {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  background: transparent;
-  min-height: 100vh;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #fff;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
 .osc-container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 40px 24px;
 }
 
 /* === MOBILE WARNING === */
 .osc-mobile-warning {
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  padding: 40px 24px;
-  text-align: center;
+  padding: 24px;
 }
 
 .osc-mobile-card {
-  padding: 32px;
-  background: rgba(0,217,192,0.15);
-  border: 1px solid rgba(0,217,192,0.4);
+  text-align: center;
+  padding: 48px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px;
-  max-width: 320px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-.osc-mobile-card h2 { 
-  font-size: 18px; 
-  font-weight: 600; 
-  margin: 16px 0 12px; 
-  border: none !important; 
+.osc-mobile-card h2 {
+  font-size: 20px;
+  margin: 24px 0 12px;
+  font-weight: 600;
 }
 
-.osc-mobile-card p { 
-  font-size: 14px; 
-  color: #aaa; 
-  line-height: 1.6; 
-  margin: 0; 
+.osc-mobile-card p {
+  color: #888;
+  font-size: 14px;
 }
 
 /* === HEADER === */
 .osc-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 40px;
 }
 
 .osc-subtitle {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.15em;
   color: #00D9C0;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .osc-title {
-  font-size: clamp(26px, 4vw, 42px);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  margin: 0 0 16px !important;
-  line-height: 1.15;
-  border: none !important;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 24px !important;
   padding: 0 !important;
+  border: none !important;
+  line-height: 1.2;
+}
+
+/* Countdown Timer */
+.osc-countdown {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 32px;
+  background: rgba(0,217,192,0.1);
+  border: 1px solid rgba(0,217,192,0.3);
+  border-radius: 12px;
+  margin-top: 8px;
+}
+
+.osc-countdown-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.osc-countdown-timer {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.osc-countdown-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #00D9C0;
+}
+
+.osc-countdown-unit {
+  font-size: 12px;
+  color: #888;
+  margin-right: 12px;
+}
+
+.osc-countdown-date {
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+}
+
+.osc-status-ok {
+  color: #00D9C0;
 }
 
 /* === HOW IT WORKS === */
 .osc-how-section {
-  background: linear-gradient(135deg, rgba(0,217,192,0.12) 0%, rgba(0,0,0,0) 100%);
-  border: 1px solid rgba(0,217,192,0.3);
-  border-radius: 16px;
-  padding: 24px 32px;
   margin-bottom: 32px;
+  padding: 32px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
 }
 
 .osc-badge-center {
-  display: flex;
-  justify-content: center;
+  text-align: center;
   margin-bottom: 12px;
 }
 
 .osc-top-badge {
-  background: linear-gradient(135deg, #00D9C0 0%, #00a67d 100%);
-  color: #000;
-  font-size: 11px;
-  font-weight: 700;
+  display: inline-block;
   padding: 8px 20px;
+  background: rgba(0,217,192,0.15);
+  border: 1px solid rgba(0,217,192,0.4);
   border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  cursor: help;
+  font-size: 13px;
+  font-weight: 600;
+  color: #00D9C0;
 }
 
 .osc-how-description {
   text-align: center;
-  font-size: 14px;
-  color: #bbb;
-  margin: 0 0 20px;
+  font-size: 16px;
+  color: #aaa;
+  margin: 0 0 8px;
+}
+
+.osc-how-link {
+  color: #00D9C0;
+  cursor: help;
+  border-bottom: 1px dashed rgba(0,217,192,0.5);
+}
+
+.osc-how-note {
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 24px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .osc-steps-grid {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
-  align-items: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 16px;
 }
 
-.osc-step-item { 
-  text-align: center;
+.osc-step-item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
+  padding: 16px;
 }
 
-.osc-step-title { 
-  font-size: 12px; 
-  font-weight: 600; 
-  color: #fff; 
-  margin: 8px 0 4px; 
+.osc-step-title {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
 }
 
-.osc-step-sub { 
-  font-size: 11px; 
-  color: #888; 
+.osc-step-sub {
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
 }
 
-.osc-step-arrow { 
-  font-size: 24px; 
-  color: #00D9C0; 
-  padding-top: 8px;
+.osc-step-arrow {
+  font-size: 24px;
+  color: #00D9C0;
   font-weight: 300;
 }
 
@@ -765,21 +945,20 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .osc-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   background: #00D9C0;
   color: #000;
   font-size: 12px;
   font-weight: 700;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .osc-section-title {
@@ -787,7 +966,6 @@ onUnmounted(() => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  line-height: 28px;
 }
 
 /* === CAPITAL INPUT === */
@@ -798,184 +976,190 @@ onUnmounted(() => {
   margin-bottom: 16px;
 }
 
-.osc-capital-label { 
-  font-size: 14px; 
-  color: #aaa; 
+.osc-capital-label {
+  font-size: 14px;
+  color: #aaa;
 }
 
 .osc-capital-input-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
 }
 
 .osc-capital-input {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-size: 28px;
+  width: 160px;
+  background: none;
+  border: none;
+  font-size: 20px;
   font-weight: 600;
   color: #fff;
   text-align: right;
-  width: 280px;
   outline: none;
-  transition: all 0.2s;
-}
-
-.osc-capital-input:focus {
-  border-color: #00D9C0;
-  background: rgba(0,217,192,0.05);
 }
 
 .osc-capital-currency {
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 16px;
   color: #888;
 }
 
 .osc-slider-labels {
   display: flex;
   justify-content: space-between;
-  margin-top: 8px;
-  font-size: 12px;
-  color: #777;
+  font-size: 11px;
+  color: #666;
+  margin-top: 4px;
+  margin-bottom: 16px;
 }
 
 .osc-quick-buttons {
   display: flex;
   gap: 8px;
-  margin-top: 20px;
   flex-wrap: wrap;
 }
 
 .osc-quick-btn {
-  padding: 10px 20px;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
   color: #aaa;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .osc-quick-btn:hover {
-  border-color: rgba(255,255,255,0.4);
-  color: #fff;
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
 }
 
 .osc-quick-btn.active {
-  background: #00D9C0;
-  border-color: #00D9C0;
-  color: #000;
-  font-weight: 600;
+  background: rgba(0,217,192,0.15);
+  border-color: rgba(0,217,192,0.4);
+  color: #00D9C0;
 }
 
 /* === STRATEGIES === */
 .osc-strategies-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
   margin-bottom: 24px;
 }
 
 .osc-strategy-card {
-  padding: 20px;
+  padding: 16px;
   background: rgba(255,255,255,0.03);
   border: 2px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  text-align: left;
+  border-radius: 10px;
+  text-align: center;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.osc-strategy-card:hover { 
-  border-color: #00D9C0; 
+.osc-strategy-card:hover {
+  border-color: rgba(0,217,192,0.4);
 }
 
-.osc-strategy-card.active { 
-  background: rgba(0,217,192,0.15); 
-  border-color: #00D9C0; 
+.osc-strategy-card.active {
+  background: rgba(0,217,192,0.1);
+  border-color: #00D9C0;
 }
 
-.osc-strat-name { 
-  font-size: 16px; 
-  font-weight: 600; 
-  color: #fff; 
-  margin-bottom: 6px; 
+.osc-strategy-card.optimaOnly {
+  background: linear-gradient(135deg, rgba(0,217,192,0.1) 0%, rgba(0,217,192,0.05) 100%);
 }
 
-.osc-strategy-card.active .osc-strat-name { 
-  color: #00D9C0; 
+.osc-strategy-card.optimaOnly.active {
+  background: linear-gradient(135deg, rgba(0,217,192,0.2) 0%, rgba(0,217,192,0.1) 100%);
 }
 
-.osc-strat-desc { 
-  font-size: 12px; 
-  color: #888; 
-  margin-bottom: 12px; 
+.osc-strat-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
 }
 
-.osc-strat-target { 
-  font-size: 24px; 
-  font-weight: 600; 
-  color: #00D9C0; 
+.osc-strat-desc {
+  font-size: 11px;
+  color: #888;
+}
+
+.osc-strat-target {
+  margin-top: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #00D9C0;
 }
 
 /* === MODE TOGGLE === */
 .osc-mode-toggle {
   display: flex;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .osc-mode-btn {
-  padding: 10px 20px;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
   color: #888;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .osc-mode-btn.active {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-  border-color: rgba(255,255,255,0.3);
+  background: rgba(0,217,192,0.15);
+  border-color: rgba(0,217,192,0.4);
+  color: #00D9C0;
 }
 
 /* === ALLOCATION GRID === */
 .osc-allocation-grid {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1.2fr 0.8fr;
   gap: 32px;
 }
 
+.osc-assets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .osc-list-header {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
+  color: #bbb;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #888;
-  margin-bottom: 20px;
 }
 
-.osc-manual-tag { 
-  color: #F5C542; 
-  margin-left: 8px; 
+.osc-manual-tag {
+  color: #F5C542;
+  font-weight: 400;
 }
 
-.osc-asset-item { 
-  margin-bottom: 20px; 
+/* === ASSET ITEM === */
+.osc-asset-item {
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
 }
 
 .osc-asset-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .osc-asset-left {
@@ -990,143 +1174,190 @@ onUnmounted(() => {
   border-radius: 4px;
 }
 
-.osc-asset-name { 
-  font-size: 14px; 
-  font-weight: 600; 
+.osc-asset-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  cursor: help;
 }
 
 .osc-asset-tag {
-  font-size: 9px;
-  padding: 3px 8px;
+  padding: 2px 8px;
   border-radius: 4px;
-  font-weight: 600;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   border: 1px solid;
 }
 
 .osc-asset-right {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  align-items: baseline;
+  gap: 12px;
 }
 
-.osc-asset-amount { 
-  font-size: 13px; 
-  color: #aaa; 
+.osc-asset-amount {
+  font-size: 14px;
+  color: #aaa;
 }
 
-.osc-asset-percent { 
-  font-size: 18px; 
-  font-weight: 600; 
-  min-width: 45px; 
-  text-align: right; 
+.osc-asset-percent {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  min-width: 40px;
+  text-align: right;
 }
 
-.osc-asset-desc { 
-  font-size: 11px; 
-  color: #888; 
-  margin-bottom: 10px; 
-  margin-left: 22px; 
+.osc-asset-desc {
+  font-size: 11px;
+  color: #777;
+  margin-bottom: 10px;
 }
 
-.osc-asset-desc.osc-error-text { 
-  color: #E8192C; 
+.osc-error-text {
+  color: #E8192C !important;
 }
 
 .osc-slider-wrapper input[type="range"] {
   width: 100%;
-  height: 4px;
-  -webkit-appearance: none;
-  border-radius: 2px;
-  outline: none;
+  height: 6px;
+  border-radius: 3px;
+  appearance: none;
   cursor: pointer;
+  margin-bottom: 8px;
 }
 
 .osc-slider-wrapper input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  background: #fff;
+  appearance: none;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
+  background: #fff;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 .osc-asset-meta {
   display: flex;
   justify-content: space-between;
   font-size: 11px;
-  color: #777;
-  margin-top: 6px;
+  color: #666;
 }
 
 /* === TOTAL ROW === */
 .osc-total-row {
-  padding: 16px;
-  border-radius: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.osc-total-row.success { 
-  background: rgba(0,217,192,0.15); 
-  border: 1px solid rgba(0,217,192,0.4); 
+.osc-total-row.success {
+  background: rgba(0,217,192,0.15);
+  border: 1px solid rgba(0,217,192,0.4);
 }
 
-.osc-total-row.warning { 
-  background: rgba(245,197,66,0.15); 
-  border: 1px solid rgba(245,197,66,0.4); 
+.osc-total-row.error {
+  background: rgba(232,25,44,0.15);
+  border: 1px solid rgba(232,25,44,0.4);
 }
 
-.osc-total-row.error { 
-  background: rgba(232,25,44,0.15); 
-  border: 1px solid rgba(232,25,44,0.4); 
+.osc-total-row.warning {
+  background: rgba(245,197,66,0.15);
+  border: 1px solid rgba(245,197,66,0.4);
 }
 
-.osc-total-row span:first-child { 
-  font-size: 14px; 
-  color: #aaa; 
-}
-
-.osc-total-percent { 
-  font-size: 28px; 
-  font-weight: 600; 
+.osc-total-percent {
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .osc-total-row.success .osc-total-percent { color: #00D9C0; }
-.osc-total-row.warning .osc-total-percent { color: #F5C542; }
 .osc-total-row.error .osc-total-percent { color: #E8192C; }
+.osc-total-row.warning .osc-total-percent { color: #F5C542; }
+
+/* === ADVISOR COMMENT === */
+.osc-advisor-comment {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.osc-advisor-comment.success {
+  background: rgba(0,217,192,0.1);
+  color: #00D9C0;
+  border-left: 3px solid #00D9C0;
+}
+
+.osc-advisor-comment.info {
+  background: rgba(59,130,246,0.1);
+  color: #3B82F6;
+  border-left: 3px solid #3B82F6;
+}
+
+.osc-advisor-comment.warning {
+  background: rgba(245,197,66,0.1);
+  color: #F5C542;
+  border-left: 3px solid #F5C542;
+}
+
+.osc-advisor-comment.error {
+  background: rgba(232,25,44,0.1);
+  color: #E8192C;
+  border-left: 3px solid #E8192C;
+}
+
+.osc-advisor-comment.neutral {
+  background: rgba(255,255,255,0.05);
+  color: #888;
+  border-left: 3px solid #555;
+}
 
 /* === AUTO DISTRIBUTE === */
-.osc-auto-block { 
-  margin-top: 12px; 
+.osc-auto-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
 }
 
-.osc-auto-hint { 
-  font-size: 12px; 
-  color: #F5C542; 
-  margin-bottom: 10px; 
+.osc-auto-hint {
+  font-size: 12px;
+  color: #F5C542;
 }
 
-.osc-auto-hint.error { 
-  color: #E8192C; 
+.osc-auto-hint.error {
+  color: #E8192C;
 }
 
-.osc-auto-btn {
-  width: 100%;
-  padding: 14px;
-  background: rgba(0,217,192,0.15);
-  border: 1px solid rgba(0,217,192,0.4);
-  border-radius: 10px;
-  color: #00D9C0;
-  font-size: 14px;
+.osc-auto-btn-3d {
+  padding: 10px 20px;
+  background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
-.osc-auto-btn:hover { 
-  background: rgba(0,217,192,0.25); 
+.osc-auto-btn-3d:hover {
+  background: linear-gradient(180deg, #00D9C0 0%, #00a67d 100%);
+  color: #000;
+  border-color: #00D9C0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,217,192,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
 /* === CHART COLUMN === */
@@ -1141,42 +1372,47 @@ onUnmounted(() => {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .osc-metric-box {
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
   padding: 16px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
   text-align: center;
 }
 
-.osc-m-label { 
-  font-size: 11px; 
-  color: #888; 
-  text-transform: uppercase; 
-  margin-bottom: 6px; 
+.osc-m-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 }
 
-.osc-m-value { 
-  font-size: 24px; 
-  font-weight: 600; 
+.osc-m-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
 }
 
 .osc-m-value.highlight { color: #00D9C0; }
 .osc-m-value.warning { color: #F5C542; }
 
+.osc-m-note {
+  font-size: 10px;
+  color: #666;
+  margin-top: 4px;
+}
+
 .osc-goal-status {
-  margin-top: 16px;
-  padding: 12px;
-  background: rgba(245,197,66,0.15);
-  border: 1px solid rgba(245,197,66,0.4);
-  border-radius: 10px;
-  text-align: center;
+  margin-top: 12px;
+  padding: 10px 20px;
+  border-radius: 8px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
+  background: rgba(245,197,66,0.15);
   color: #F5C542;
-  width: 100%;
+  text-align: center;
 }
 
 .osc-goal-status.success {
@@ -1254,6 +1490,7 @@ onUnmounted(() => {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  margin: 0 auto;
 }
 
 .osc-comparison-table th {
@@ -1266,10 +1503,20 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
+.osc-th-center { text-align: center !important; }
+
 .osc-comparison-table td {
   padding: 16px 14px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
   vertical-align: middle;
+}
+
+.osc-td-center { text-align: center; }
+
+.osc-td-comment {
+  font-size: 11px;
+  color: #888;
+  max-width: 250px;
 }
 
 .osc-highlight-row { 
@@ -1292,12 +1539,6 @@ onUnmounted(() => {
 
 .osc-primary { color: #00D9C0; }
 .osc-dim { color: #666; }
-
-.osc-table-note { 
-  margin-top: 12px; 
-  font-size: 11px; 
-  color: #777; 
-}
 
 /* === CTA SECTION === */
 .osc-cta-section {
@@ -1404,10 +1645,20 @@ onUnmounted(() => {
   color: #00D9C0; 
 }
 
+.osc-income-optima {
+  font-size: 14px;
+  color: #888;
+  margin-top: 12px;
+}
+
+.osc-income-optima strong {
+  color: #00D9C0;
+}
+
 .osc-income-note { 
   font-size: 13px; 
   color: #888; 
-  margin-top: 12px; 
+  margin-top: 8px; 
 }
 
 .osc-bold { font-weight: 600; }
@@ -1489,7 +1740,7 @@ onUnmounted(() => {
   .osc-allocation-grid { grid-template-columns: 1fr; }
   .osc-chart-column { order: -1; margin-bottom: 24px; }
   .osc-optima-metrics { grid-template-columns: repeat(2, 1fr); }
-  .osc-strategies-grid { grid-template-columns: 1fr; }
+  .osc-strategies-grid { grid-template-columns: repeat(2, 1fr); }
   .osc-cta-grid { grid-template-columns: 1fr; }
   .osc-cta-buttons { grid-template-columns: 1fr; }
 }

@@ -1,6 +1,6 @@
 // usePortfolio.js
 import { ref, computed } from 'vue'
-import { ASSET_CLASSES, STRATEGIES, OPTIMA_SPACE } from './constants.js'
+import { ASSET_CLASSES, STRATEGIES, OPTIMA_SPACE, ADVISOR_COMMENTS, COVERAGE_COMMENTS } from './constants.js'
 import { toNumber } from './utils.js'
 
 export function usePortfolio() {
@@ -22,18 +22,44 @@ export function usePortfolio() {
     let totalYield = 0
     let totalRisk = 0
     let totalAllocation = 0
+    let assetCount = 0
     
     ASSET_CLASSES.forEach(asset => {
       const alloc = toNumber(allocations.value[asset.id])
       totalAllocation += alloc
-      totalYield += ((asset.minYield + asset.maxYield) / 2) * (alloc / 100)
-      totalRisk += asset.risk * (alloc / 100)
+      if (alloc > 0) {
+        assetCount++
+        totalYield += ((asset.minYield + asset.maxYield) / 2) * (alloc / 100)
+        totalRisk += asset.risk * (alloc / 100)
+      }
     })
+    
+    // Дополнительный риск концентрации (если всё в одном активе)
+    let concentrationRisk = 0
+    const optimaAlloc = toNumber(allocations.value.optima)
+    
+    // Если весь портфель в одном активе - добавляем риск концентрации
+    if (assetCount === 1 && totalAllocation > 0) {
+      // Для Optima Space риск концентрации ниже из-за залога и гарантий
+      if (optimaAlloc === 100) {
+        concentrationRisk = 2 // Добавляем 2 балла риска за концентрацию (итого 6/10)
+      } else {
+        concentrationRisk = 3 // Для других активов выше
+      }
+    } else if (assetCount === 2 && totalAllocation > 0) {
+      concentrationRisk = 1 // Небольшой риск при 2 активах
+    }
+    
+    // Максимальный риск 10
+    const finalRisk = Math.min(10, totalRisk + concentrationRisk)
     
     return { 
       yield: totalYield, 
-      risk: totalRisk, 
-      totalAllocation: Math.round(totalAllocation)
+      risk: finalRisk, 
+      baseRisk: totalRisk, // Базовый риск без концентрации
+      concentrationRisk,
+      totalAllocation: Math.round(totalAllocation),
+      assetCount
     }
   })
 
@@ -69,6 +95,73 @@ export function usePortfolio() {
       return { text: '✓ Цель 20%+ достигнута', color: '#00D9C0', isSuccess: true }
     }
     return { text: '↑ Добавьте доходные активы', color: '#F5C542', isSuccess: false }
+  })
+
+  // Комментарий консультанта
+  const advisorComment = computed(() => {
+    const metrics = portfolioMetrics.value
+    const alloc = allocations.value
+    
+    // Проверяем все сценарии по порядку приоритета
+    const scenarios = [
+      'error_over_distributed',
+      'error_empty',
+      'optima_only_full',
+      'optima_only_high',
+      'error_not_distributed',
+      'excellent_balanced',
+      'excellent_with_optima',
+      'good_diversified',
+      'good_conservative',
+      'warning_high_risk',
+      'warning_no_reserve',
+      'warning_low_optima',
+      'warning_below_goal',
+      'too_much_deposits',
+      'only_deposits',
+      'good_with_bonds',
+      'default'
+    ]
+    
+    for (const scenarioKey of scenarios) {
+      const scenario = ADVISOR_COMMENTS[scenarioKey]
+      if (scenario && scenario.condition(metrics, alloc)) {
+        return {
+          text: scenario.text,
+          type: scenario.type
+        }
+      }
+    }
+    
+    return ADVISOR_COMMENTS.default
+  })
+
+  // Оценка покрытия залогом
+  const collateralCoverage = computed(() => {
+    if (optimaInvestment.value === 0) return { ratio: 0, text: '', type: 'neutral' }
+    
+    const ratio = OPTIMA_SPACE.collateralValue / optimaInvestment.value
+    
+    if (ratio >= COVERAGE_COMMENTS.excellent.min) {
+      return { ratio, text: COVERAGE_COMMENTS.excellent.text, type: 'excellent' }
+    } else if (ratio >= COVERAGE_COMMENTS.good.min) {
+      return { ratio, text: COVERAGE_COMMENTS.good.text, type: 'good' }
+    } else if (ratio >= COVERAGE_COMMENTS.normal.min) {
+      return { ratio, text: COVERAGE_COMMENTS.normal.text, type: 'normal' }
+    } else {
+      return { ratio, text: COVERAGE_COMMENTS.minimum.text, type: 'minimum' }
+    }
+  })
+
+  // Расчёт дохода от Optima Space
+  const optimaIncome = computed(() => {
+    return optimaInvestment.value * (OPTIMA_SPACE.rounds[0].roi / 100) * 4.5
+  })
+
+  // Общий доход за 4.5 года
+  const totalIncome = computed(() => {
+    if (portfolioMetrics.value.totalAllocation === 0) return 0
+    return totalCapital.value * (portfolioMetrics.value.yield / 100) * 4.5
   })
 
   // Methods
@@ -134,6 +227,10 @@ export function usePortfolio() {
     isOptimaValid,
     chartData,
     goalStatus,
+    advisorComment,
+    collateralCoverage,
+    optimaIncome,
+    totalIncome,
     // Methods
     updateAllocation,
     loadStrategy,

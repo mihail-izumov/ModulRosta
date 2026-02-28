@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed, markRaw } from 'vue'
-import { Wallet, ScrollText, Cog, TriangleAlert, DoorOpen, ChevronRight } from './icons.js'
-import { OPTIMA_SPACE } from './constants.js'
+import { ref, computed } from 'vue'
+import { HelpCircle, ChevronDown, ChevronRight, Wallet, ScrollText, Cog, TriangleAlert, SquareArrowRight } from './icons.js'
+import { OPTIMA_SPACE, QA_CATEGORIES, COLORS } from './constants.js'
 import { formatCurrency } from './utils.js'
 
 const props = defineProps({
@@ -12,203 +12,258 @@ const props = defineProps({
 })
 
 const activeCategory = ref('financial')
-const openQuestion = ref(null)
+const expandedQuestions = ref(new Set())
 
-const shares = computed(() => Math.floor(props.optimaInvestment / 500))
-const monthlyDiv = computed(() => props.optimaInvestment * (OPTIMA_SPACE.rounds[0].roi / 100) / 12)
-
-const categories = [
-  { id: 'financial', name: 'Финансы', icon: markRaw(Wallet) },
-  { id: 'legal', name: 'Юридическое', icon: markRaw(ScrollText) },
-  { id: 'operational', name: 'Операционное', icon: markRaw(Cog) },
-  { id: 'risks', name: 'Риски', icon: markRaw(TriangleAlert) },
-  { id: 'exit', name: 'Выход', icon: markRaw(DoorOpen) },
-]
+const categoryIcons = {
+  financial: Wallet,
+  legal: ScrollText,
+  operational: Cog,
+  risks: TriangleAlert,
+  exit: SquareArrowRight
+}
 
 const questions = computed(() => ({
   financial: [
-    { q: `Откуда доходность 38%?`, a: `Бизнес-модель: аренда ${OPTIMA_SPACE.area} кв.м по ${OPTIMA_SPACE.rentPerSqm}₽/кв.м, сдача по ~6000₽/кв.м. При загрузке 90% прибыль ${formatCurrency(OPTIMA_SPACE.monthlyProfit)}/мес.` },
-    { q: `Мой доход с ${formatCurrency(props.optimaInvestment)}?`, a: props.optimaInvestment >= 600000 ? `${shares.value.toLocaleString()} акций. Дивиденд: ~${formatCurrency(monthlyDiv.value)}/мес. Окупаемость 29 мес. За 4,5 года: ~${formatCurrency(props.optimaInvestment * 0.38 * 4.5)}.` : `Минимальная инвестиция — 600 000₽.` },
-    { q: 'Распределение прибыли?', a: `100% на дивиденды до окупаемости (29 мес), затем 44% на привилегированные акции.` },
-    ...(props.portfolioMetrics.yield < 20 ? [{ q: `Как достичь 20%+?`, a: `Сейчас ${props.portfolioMetrics.yield.toFixed(1)}%. Добавьте Optima до 20-25%.` }] : [])
+    { 
+      q: 'Откуда доходность 38%?', 
+      a: `Бизнес-модель «офис как сервис»: аренда помещения по ${formatCurrency(OPTIMA_SPACE.rentPerSqm * 12)}/кв.м/год, сдача рабочих мест по ~${formatCurrency(OPTIMA_SPACE.pricePerWorkplace * 12)}/место/год. При загрузке 90% чистая прибыль ${formatCurrency(OPTIMA_SPACE.monthlyProfit)}/месяц. Это распределяется среди акционеров.` 
+    },
+    { 
+      q: 'Как распределяется прибыль?', 
+      a: `100% чистой прибыли распределяется на дивиденды до полной окупаемости (${OPTIMA_SPACE.paybackMonths} месяцев). После окупаемости — 44% на привилегированные акции. Выплаты ежеквартально.` 
+    },
+    { 
+      q: 'Какая минимальная инвестиция?', 
+      a: `Минимальная сумма — ${formatCurrency(OPTIMA_SPACE.minInvestment)}. Это ${OPTIMA_SPACE.minInvestment / OPTIMA_SPACE.shareNominal} акций по ${OPTIMA_SPACE.shareNominal}₽ каждая.` 
+    }
   ],
   legal: [
-    { q: 'Какие документы?', a: `Договор купли-продажи, выписка ВТБ Регистратор, опционный договор, акционерное соглашение.` },
-    { q: 'Права миноритария?', a: `Голос по ключевым вопросам, обязательный выкуп при <100% за 4 года, преимущественное право.` },
-    { q: 'Юрисдикция?', a: `АО "Оптима" РФ (Самара). ФЗ "Об АО". Арбитражный суд Самарской области.` },
+    { 
+      q: 'Какие документы оформляются?', 
+      a: 'Договор купли-продажи акций, выписка из ВТБ Регистратора (подтверждение владения), опционный договор на обратный выкуп, акционерное соглашение. Все документы имеют юридическую силу.' 
+    },
+    { 
+      q: 'Как защищены инвестиции?', 
+      a: `Залог ${OPTIMA_SPACE.collateral} кв.м недвижимости (~${formatCurrency(OPTIMA_SPACE.collateralValue)}). Опционный договор обязывает основателя выкупить акции через ${OPTIMA_SPACE.buybackMonths} месяцев по формуле: 1000₽ − дивиденды (минимум ${OPTIMA_SPACE.buybackMinPrice}₽).` 
+    },
+    { 
+      q: 'Кто регистрирует акции?', 
+      a: 'ВТБ Регистратор — один из крупнейших регистраторов России. Вы получаете официальную выписку о владении акциями АО "Оптима".' 
+    }
   ],
   operational: [
-    { q: 'Кто управляет?', a: `УК 15+ лет опыта. ${OPTIMA_SPACE.team.map(t => t.name).join(', ')}.` },
-    { q: 'Отчётность?', a: `Ежемесячно: план-факт. Ежеквартально: бухгалтерская. Telegram, онлайн-встречи.` },
-    { q: 'Арендаторы?', a: `Pipeline 700+ мест. Корпоративные клиенты, долгосрочные договоры.` },
+    { 
+      q: 'Когда запуск проекта?', 
+      a: `Сдача здания — январь 2026. Ремонт и оснащение — 5 месяцев. Открытие Optima Space — ${new Date(OPTIMA_SPACE.launchDate).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}. Первые дивиденды — Q3 2026.` 
+    },
+    { 
+      q: 'Кто управляет проектом?', 
+      a: `Команда основателей: ${OPTIMA_SPACE.team.map(t => `${t.name} (${t.role}, ${t.exp})`).join('; ')}.` 
+    },
+    { 
+      q: 'Сколько рабочих мест?', 
+      a: `От ${OPTIMA_SPACE.workplaces.min} до ${OPTIMA_SPACE.workplaces.max} мест на площади ${OPTIMA_SPACE.area} кв.м. Ставка ${formatCurrency(OPTIMA_SPACE.pricePerWorkplace)}/месяц при 100% загрузке.` 
+    }
   ],
   risks: [
-    { q: 'Загрузка ниже 90%?', a: `При 70% — ~22%. При 50% — ~12%. Есть сдача без сервиса (8-10%).` },
-    { q: 'Проект не запустится?', a: `Опцион: 1000₽ − дивиденды (мин 500₽). Залог ${OPTIMA_SPACE.collateral} кв.м.` },
-    ...(props.allocations.optima > 20 ? [{ q: `${props.allocations.optima}% много?`, a: `Рекомендация 15-20%. Обратный выкуп компенсирует концентрацию.` }] : [])
+    { 
+      q: 'Что если загрузка ниже плана?', 
+      a: `При 70% загрузки — ROI ~22% годовых. При 50% — ~12%. В худшем случае вы получите ${OPTIMA_SPACE.buybackMinPrice}₽/акция через опцион (гарантированный минимум).` 
+    },
+    { 
+      q: 'Риск превышения сметы?', 
+      a: 'Смета зафиксирована, работа через аукционы с проверенными поставщиками. Резерв на непредвиденные расходы заложен в бюджет.' 
+    },
+    { 
+      q: 'Риск роста арендной ставки?', 
+      a: 'Договор аренды фиксирует ставку на 5 лет. Рост возможен только по индексу инфляции (ограничен договором).' 
+    }
   ],
   exit: [
-    { q: 'Выйти раньше?', a: `Продажа инвесторам, раунды по высокой цене, дивиденды (окупаемость 29 мес).` },
-    { q: 'Ограничения продажи?', a: `В любое время. Преимущественное право 30 дней.` },
-    { q: 'Частичная продажа?', a: `Да, любое количество. Минимума нет.` },
-  ],
+    { 
+      q: 'Как выйти раньше срока?', 
+      a: `Варианты: 1) Продажа другим инвесторам (есть спрос на раунды 2-3); 2) Получение дивидендов (окупаемость за ${OPTIMA_SPACE.paybackMonths} мес); 3) Дождаться опциона через ${OPTIMA_SPACE.buybackMonths} мес.` 
+    },
+    { 
+      q: 'Как работает обратный выкуп?', 
+      a: `Через ${OPTIMA_SPACE.buybackMonths} месяцев основатель обязан выкупить акции: ${OPTIMA_SPACE.buybackPrice}₽ − полученные дивиденды (минимум ${OPTIMA_SPACE.buybackMinPrice}₽). Гарантия — залог ${OPTIMA_SPACE.collateral} кв.м.` 
+    },
+    { 
+      q: 'Можно ли продать акции на бирже?', 
+      a: 'Акции АО "Оптима" не торгуются на бирже. Продажа возможна напрямую другим инвесторам или через участие в следующих раундах.' 
+    }
+  ]
 }))
 
-const handleQuestionClick = (categoryId, index) => {
-  const key = `${categoryId}-${index}`
-  openQuestion.value = openQuestion.value === key ? null : key
+const toggleQuestion = (index) => {
+  const key = `${activeCategory.value}-${index}`
+  if (expandedQuestions.value.has(key)) {
+    expandedQuestions.value.delete(key)
+  } else {
+    expandedQuestions.value.add(key)
+  }
 }
 
-const handleCategoryChange = (catId) => {
-  activeCategory.value = catId
-  openQuestion.value = null
+const isExpanded = (index) => {
+  return expandedQuestions.value.has(`${activeCategory.value}-${index}`)
 }
 </script>
 
 <template>
-  <section class="osc-qa-module">
-    <div class="osc-qa-header">
-      <span class="osc-qa-num">5</span>
-      <span class="osc-qa-title">Вопросы инвестора</span>
+  <section class="osc-card-section osc-qa-section">
+    <div class="osc-section-header">
+      <span class="osc-step-num">5</span>
+      <span class="osc-section-title">Вопросы и ответы</span>
     </div>
-    
-    <div class="osc-qa-layout">
-      <div class="osc-qa-categories">
-        <button 
-          v-for="cat in categories" 
-          :key="cat.id"
-          class="osc-qa-cat-btn"
-          :class="{ active: activeCategory === cat.id }"
-          @click="handleCategoryChange(cat.id)"
-        >
-          <component :is="cat.icon" :size="16" class="osc-cat-icon" />
-          <span class="osc-cat-name">{{ cat.name }}</span>
-          <span class="osc-cat-count">{{ questions[cat.id]?.length || 0 }}</span>
-        </button>
-      </div>
-      
-      <div class="osc-qa-questions">
-        <div v-for="(item, i) in questions[activeCategory]" :key="i" class="osc-qa-item">
-          <div class="osc-qa-question" @click="handleQuestionClick(activeCategory, i)">
-            <ChevronRight :size="18" class="osc-qa-arrow" :class="{ open: openQuestion === `${activeCategory}-${i}` }" />
-            {{ item.q }}
-          </div>
-          <Transition name="osc-answer">
-            <p v-if="openQuestion === `${activeCategory}-${i}`" class="osc-qa-answer">{{ item.a }}</p>
-          </Transition>
+
+    <!-- Categories -->
+    <div class="osc-qa-categories">
+      <button
+        v-for="cat in QA_CATEGORIES"
+        :key="cat.id"
+        :class="['osc-qa-cat', { active: activeCategory === cat.id }]"
+        @click="activeCategory = cat.id"
+      >
+        <component :is="categoryIcons[cat.id]" :size="18" :color="activeCategory === cat.id ? COLORS.primary : '#888'" />
+        <span>{{ cat.name }}</span>
+      </button>
+    </div>
+
+    <!-- Questions -->
+    <div class="osc-qa-list">
+      <div 
+        v-for="(item, index) in questions[activeCategory]"
+        :key="index"
+        class="osc-qa-item"
+        :class="{ expanded: isExpanded(index) }"
+      >
+        <div class="osc-qa-question" @click="toggleQuestion(index)">
+          <HelpCircle :size="18" :color="COLORS.primary" />
+          <span>{{ item.q }}</span>
+          <component 
+            :is="isExpanded(index) ? ChevronDown : ChevronRight" 
+            :size="18" 
+            color="#888" 
+            class="osc-qa-chevron"
+          />
         </div>
+        <Transition name="osc-expand">
+          <div v-if="isExpanded(index)" class="osc-qa-answer">
+            {{ item.a }}
+          </div>
+        </Transition>
       </div>
     </div>
   </section>
 </template>
 
 <style scoped>
-.osc-qa-module {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
-  padding: 32px;
+.osc-qa-section {
   margin-bottom: 24px;
-}
-
-.osc-qa-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.osc-qa-num {
-  background: #00D9C0;
-  color: #000;
-  font-size: 12px;
-  font-weight: 700;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.osc-qa-title {
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #fff;
-  line-height: 28px;
-}
-
-.osc-qa-layout {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 24px;
 }
 
 .osc-qa-categories {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.osc-qa-cat-btn {
+.osc-qa-cat {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: transparent;
-  border: none;
-  border-left: 3px solid transparent;
-  border-radius: 0 8px 8px 0;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #888;
+  font-size: 13px;
   cursor: pointer;
-  text-align: left;
   transition: all 0.2s;
-  color: #aaa;
 }
 
-.osc-qa-cat-btn:hover { background: rgba(255,255,255,0.03); }
-.osc-qa-cat-btn.active { background: rgba(0,217,192,0.15); border-left-color: #00D9C0; }
+.osc-qa-cat:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+}
 
-.osc-cat-icon { flex-shrink: 0; opacity: 0.7; }
-.osc-qa-cat-btn.active .osc-cat-icon { color: #00D9C0; opacity: 1; }
+.osc-qa-cat.active {
+  background: rgba(0,217,192,0.15);
+  border-color: rgba(0,217,192,0.4);
+  color: #00D9C0;
+}
 
-.osc-cat-name { flex: 1; font-size: 13px; transition: color 0.2s; }
-.osc-qa-cat-btn.active .osc-cat-name { color: #00D9C0; font-weight: 600; }
-.osc-cat-count { font-size: 11px; color: #777; }
+.osc-qa-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-.osc-qa-questions { max-height: 400px; overflow-y: auto; padding-right: 8px; }
-.osc-qa-questions::-webkit-scrollbar { width: 4px; }
-.osc-qa-questions::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 2px; }
-.osc-qa-questions::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+.osc-qa-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
 
-.osc-qa-item { margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; }
+.osc-qa-item:hover {
+  border-color: rgba(255,255,255,0.15);
+}
+
+.osc-qa-item.expanded {
+  background: rgba(0,217,192,0.08);
+  border-color: rgba(0,217,192,0.3);
+}
 
 .osc-qa-question {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 16px;
+  cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   color: #fff;
-  padding: 10px 0;
-  cursor: pointer;
-  transition: color 0.2s;
 }
-.osc-qa-question:hover { color: #00D9C0; }
 
-.osc-qa-arrow { color: #00D9C0; flex-shrink: 0; transition: transform 0.2s; }
-.osc-qa-arrow.open { transform: rotate(90deg); }
-.osc-qa-answer { font-size: 13px; color: #aaa; line-height: 1.7; margin: 8px 0 0; padding-left: 28px; }
+.osc-qa-question span {
+  flex: 1;
+}
 
-.osc-answer-enter-active, .osc-answer-leave-active { transition: all 0.2s ease; }
-.osc-answer-enter-from, .osc-answer-leave-to { opacity: 0; transform: translateY(-8px); }
+.osc-qa-chevron {
+  transition: transform 0.2s;
+}
 
-@media (max-width: 768px) {
-  .osc-qa-layout { grid-template-columns: 1fr; }
-  .osc-qa-categories { flex-direction: row; flex-wrap: wrap; gap: 8px; }
-  .osc-qa-cat-btn { border-left: none; border-bottom: 2px solid transparent; border-radius: 8px; padding: 10px 14px; }
-  .osc-qa-cat-btn.active { border-bottom-color: #00D9C0; }
+.osc-qa-item.expanded .osc-qa-chevron {
+  transform: rotate(180deg);
+}
+
+.osc-qa-answer {
+  padding: 0 16px 16px 46px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #aaa;
+}
+
+.osc-expand-enter-active,
+.osc-expand-leave-active {
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.osc-expand-enter-from,
+.osc-expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.osc-expand-enter-to,
+.osc-expand-leave-from {
+  opacity: 1;
+  max-height: 200px;
 }
 </style>

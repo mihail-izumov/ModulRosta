@@ -15,67 +15,60 @@ const progress = computed(() => {
   return ((props.modelValue - props.min) / (props.max - props.min)) * 100
 })
 
-const handleInput = (event) => {
-  emit('update:modelValue', Number(event.target.value))
+const sliderStyle = computed(() => ({
+  background: `linear-gradient(to right, ${props.color} 0%, ${props.color} ${progress.value}%, rgba(255,255,255,0.1) ${progress.value}%, rgba(255,255,255,0.1) 100%)`
+}))
+
+const handleInput = (e) => {
+  emit('update:modelValue', Number(e.target.value))
 }
 </script>
 
 <template>
-  <div class="osc-slider-container">
-    <input 
-      type="range"
-      :value="modelValue"
-      :min="min"
-      :max="max"
-      :step="step"
-      class="osc-slider"
-      :style="{
-        background: `linear-gradient(to right, ${color} 0%, ${color} ${progress}%, rgba(255,255,255,0.15) ${progress}%, rgba(255,255,255,0.15) 100%)`
-      }"
-      @input="handleInput"
-    />
-  </div>
+  <input
+    type="range"
+    :value="modelValue"
+    :min="min"
+    :max="max"
+    :step="step"
+    :style="sliderStyle"
+    class="osc-custom-slider"
+    @input="handleInput"
+  />
 </template>
 
 <style scoped>
-.osc-slider-container {
+.osc-custom-slider {
   width: 100%;
-  padding: 8px 0;
-}
-
-.osc-slider {
-  width: 100%;
-  height: 6px;
-  -webkit-appearance: none;
+  height: 8px;
+  border-radius: 4px;
   appearance: none;
-  border-radius: 3px;
-  outline: none;
   cursor: pointer;
+  outline: none;
 }
 
-.osc-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
+.osc-custom-slider::-webkit-slider-thumb {
   appearance: none;
   width: 20px;
   height: 20px;
-  background: #fff;
   border-radius: 50%;
+  background: #fff;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   transition: transform 0.15s ease;
 }
 
-.osc-slider::-webkit-slider-thumb:hover {
+.osc-custom-slider::-webkit-slider-thumb:hover {
   transform: scale(1.1);
 }
 
-.osc-slider::-moz-range-thumb {
+.osc-custom-slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
-  background: #fff;
-  border: none;
   border-radius: 50%;
+  background: #fff;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  border: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 </style>

@@ -1,27 +1,31 @@
 // utils.js
-// Вспомогательные функции
 
 export const formatCurrency = (value) => {
-  if (value >= 1000000) {
-    const millions = value / 1000000
-    if (millions === Math.floor(millions)) {
-      return `${millions.toFixed(0)} млн ₽`
-    }
-    return `${millions.toFixed(1)} млн ₽`
+  const num = toNumber(value)
+  if (num >= 1000000) {
+    const millions = num / 1000000
+    return millions % 1 === 0 
+      ? `${millions.toFixed(0)} млн ₽` 
+      : `${millions.toFixed(1)} млн ₽`
   }
-  if (value >= 1000) {
-    return `${Math.round(value / 1000)} тыс ₽`
+  if (num >= 1000) {
+    return `${(num / 1000).toFixed(0)} тыс ₽`
   }
-  return `${value.toLocaleString('ru-RU')} ₽`
+  return `${num.toLocaleString('ru-RU')} ₽`
 }
 
 export const formatPercent = (value) => {
-  return `${value.toFixed(1)}%`
+  const num = toNumber(value)
+  return num % 1 === 0 ? `${num}%` : `${num.toFixed(1)}%`
 }
 
 export const toNumber = (value) => {
-  const num = Number(value)
-  return isNaN(num) ? 0 : num
+  if (typeof value === 'number') return value
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value.replace(/[^\d.-]/g, ''))
+    return isNaN(parsed) ? 0 : parsed
+  }
+  return 0
 }
 
 export const formatNumberWithSpaces = (num) => {
@@ -30,4 +34,8 @@ export const formatNumberWithSpaces = (num) => {
 
 export const parseFormattedNumber = (str) => {
   return parseInt(str.replace(/\s/g, ''), 10)
+}
+
+export const clamp = (value, min, max) => {
+  return Math.min(Math.max(value, min), max)
 }

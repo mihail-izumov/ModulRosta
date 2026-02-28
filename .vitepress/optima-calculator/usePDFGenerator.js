@@ -15,15 +15,19 @@ export function usePDFGenerator() {
       const script = document.createElement('script')
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
       script.onload = () => resolve(window.html2pdf)
-      script.onerror = reject
+      script.onerror = () => reject(new Error('Failed to load html2pdf'))
       document.head.appendChild(script)
     })
   }
   
-  const generatePDF = async ({ totalCapital, allocations, portfolioMetrics, optimaInvestment, chartData, userName = '' }) => {
+  const generatePDF = async ({ totalCapital, allocations, portfolioMetrics, optimaInvestment, chartData, userName = '', applicationNumber = '', applicationDate = '' }) => {
     const shares = Math.floor(optimaInvestment / 500)
     const totalIncome = optimaInvestment * (OPTIMA_SPACE.rounds[0].roi / 100) * 4.5
     const ma = OPTIMA_SPACE.marketAnalytics
+    
+    // Генерируем номер заявки если не передан
+    const appNum = applicationNumber || `${String(new Date().getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 100)).padStart(2, '0')}`
+    const appDate = applicationDate || new Date().toLocaleDateString('ru-RU')
     
     const allQuestions = [
       { q: 'Откуда доходность 38%?', a: `Бизнес-модель: аренда по ${OPTIMA_SPACE.rentPerSqm}₽/кв.м, сдача по ~6000₽/кв.м. При загрузке 90% прибыль ${formatCurrency(OPTIMA_SPACE.monthlyProfit)}/мес.` },
@@ -42,6 +46,7 @@ export function usePDFGenerator() {
 body{font-family:'Inter',sans-serif;background:#fff;color:#000;line-height:1.6;padding:40px;max-width:800px;margin:0 auto}
 .header{text-align:center;margin-bottom:40px;padding-bottom:20px;border-bottom:2px solid #000}
 .header h1{font-size:24px;font-weight:600;margin-bottom:8px}
+.app-info{display:inline-block;padding:8px 16px;border:1px solid #ddd;border-radius:4px;font-family:monospace;font-size:12px;margin-top:12px;background:#f9f9f9}
 .section{margin-bottom:32px}
 .section h2{font-size:16px;font-weight:600;color:#000;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #ccc}
 .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
@@ -67,7 +72,7 @@ th{background:#f0f0f0;font-weight:600;font-size:11px;text-transform:uppercase}
 <h1>Персональный инвестиционный отчёт</h1>
 <p>Консультант по долевым инвестициям в офисную недвижимость</p>
 ${userName ? `<p style="font-size:14px;margin-top:8px"><strong>${userName}</strong></p>` : ''}
-<p style="font-size:12px;color:#888;margin-top:8px">Сформирован: ${new Date().toLocaleDateString('ru-RU')}</p>
+<div class="app-info">Заявка № ${appNum} от ${appDate}</div>
 </div>
 
 <div class="section">
@@ -79,7 +84,10 @@ ${userName ? `<p style="font-size:14px;margin-top:8px"><strong>${userName}</stro
 <div class="metric"><div class="metric-label">Доход 4,5г</div><div class="metric-value">${formatCurrency(totalCapital * (portfolioMetrics.yield / 100) * 4.5)}</div></div>
 </div>
 <table><thead><tr><th>Актив</th><th>Доля</th><th>Сумма</th><th>Доходность</th><th>Риск</th></tr></thead><tbody>
-${chartData.map(item => `<tr class="${item.name === 'Optima Space' ? 'highlight-row' : ''}"><td>${item.name}</td><td>${item.value}%</td><td>${formatCurrency(item.amount)}</td><td>${ASSET_CLASSES.find(a => a.name === item.name)?.minYield || 0}-${ASSET_CLASSES.find(a => a.name === item.name)?.maxYield || 0}%</td><td>${ASSET_CLASSES.find(a => a.name === item.name)?.risk || 0}/10</td></tr>`).join('')}
+${chartData.map(item => {
+  const asset = ASSET_CLASSES.find(a => a.name === item.name)
+  return `<tr class="${item.name === 'Optima Space' ? 'highlight-row' : ''}"><td>${item.name}</td><td>${item.value}%</td><td>${formatCurrency(item.amount)}</td><td>${asset?.minYield || 0}-${asset?.maxYield || 0}%</td><td>${asset?.risk || 0}/10</td></tr>`
+}).join('')}
 </tbody></table>
 </div>
 
@@ -188,13 +196,23 @@ ${OPTIMA_SPACE.team.map(t => `<tr><td>${t.name}</td><td>${t.role}</td><td>${t.ex
       container.innerHTML = htmlContent
       container.style.position = 'absolute'
       container.style.left = '-9999px'
+      container.style.top = '0'
+      container.style.width = '800px'
       document.body.appendChild(container)
       
+      // Ждём загрузки шрифтов
+      await document.fonts.ready
+      
       const opt = {
-        margin: 10,
-        filename: `Инвестиционный_отчёт_${new Date().toISOString().split('T')[0]}.pdf`,
+        margin: [10, 10, 10, 10],
+        filename: `Инвестиционный_отчёт_${appNum}_${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true,
+          logging: false,
+          letterRendering: true
+        },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
       }
@@ -202,18 +220,23 @@ ${OPTIMA_SPACE.team.map(t => `<tr><td>${t.name}</td><td>${t.role}</td><td>${t.ex
       await html2pdf().set(opt).from(container).save()
       
       document.body.removeChild(container)
+      
+      return { success: true, applicationNumber: appNum }
     } catch (error) {
-      console.error('PDF generation failed, falling back to HTML:', error)
+      console.error('PDF generation failed:', error)
+      
       // Fallback to HTML download
-      const blob = new Blob([htmlContent], { type: 'text/html' })
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `Инвестиционный_отчёт_${new Date().toISOString().split('T')[0]}.html`
+      a.download = `Инвестиционный_отчёт_${appNum}_${new Date().toISOString().split('T')[0]}.html`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
+      
+      return { success: false, applicationNumber: appNum, error: error.message }
     }
   }
 

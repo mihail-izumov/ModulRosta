@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ShieldCheck, Settings2, Sigma, BrickWall } from './icons.js'
-import { OPTIMA_SPACE, COLORS, TIMELINE_TOOLTIPS } from './constants.js'
+import { OPTIMA_SPACE, COLORS, TIMELINE_TOOLTIPS, COVERAGE_COMMENTS } from './constants.js'
 import { formatCurrency } from './utils.js'
 import CustomSlider from './CustomSlider.vue'
 import InfoTooltip from './InfoTooltip.vue'
@@ -13,8 +13,8 @@ const props = defineProps({
 
 const emit = defineEmits(['scrollToStrategy'])
 
-// FIXED: Initial occupancy matches the slider position
-const occupancy = ref(75)
+// Начальное значение 90% (соответствует плану)
+const occupancy = ref(90)
 
 const scenarios = computed(() => {
   const calc = (occ) => {
@@ -30,14 +30,14 @@ const scenarios = computed(() => {
     }
   }
   return {
-    optimistic: { label: 'Оптимистичный', occupancy: 95, ...calc(95), color: COLORS.gold },
-    base: { label: 'Базовый', occupancy: 90, ...calc(90), color: COLORS.primary },
-    worst: { label: 'Худший', occupancy: 50, ...calc(50), color: COLORS.error }
+    optimistic: { label: 'Оптимистичный', occupancy: 95, ...calc(95), color: COLORS.blue, bgColor: 'rgba(59,130,246,0.15)', borderColor: 'rgba(59,130,246,0.4)' },
+    base: { label: 'Базовый', occupancy: 90, ...calc(90), color: COLORS.primary, bgColor: 'rgba(0,217,192,0.15)', borderColor: 'rgba(0,217,192,0.4)' },
+    worst: { label: 'Худший', occupancy: 50, ...calc(50), color: COLORS.error, bgColor: 'rgba(232,25,44,0.15)', borderColor: 'rgba(232,25,44,0.4)' }
   }
 })
 
 const currentScenario = computed(() => {
-  const occ = Number(occupancy.value) || 75
+  const occ = Number(occupancy.value) || 90
   const adjROI = (occ / 90) * OPTIMA_SPACE.rounds[0].roi
   const yearlyDiv = props.investment * (adjROI / 100)
   const totalDivs = yearlyDiv * 4.5
@@ -55,17 +55,28 @@ const currentScenario = computed(() => {
 })
 
 const collateralCoverage = computed(() => {
-  return props.investment > 0 
-    ? (OPTIMA_SPACE.collateralValue / props.investment).toFixed(0) 
-    : '∞'
+  if (props.investment === 0) return { ratio: '∞', text: '', type: 'neutral' }
+  
+  const ratio = OPTIMA_SPACE.collateralValue / props.investment
+  const ratioText = ratio.toFixed(0)
+  
+  if (ratio >= COVERAGE_COMMENTS.excellent.min) {
+    return { ratio: ratioText, text: COVERAGE_COMMENTS.excellent.text, type: 'excellent' }
+  } else if (ratio >= COVERAGE_COMMENTS.good.min) {
+    return { ratio: ratioText, text: COVERAGE_COMMENTS.good.text, type: 'good' }
+  } else if (ratio >= COVERAGE_COMMENTS.normal.min) {
+    return { ratio: ratioText, text: COVERAGE_COMMENTS.normal.text, type: 'normal' }
+  } else {
+    return { ratio: ratioText, text: COVERAGE_COMMENTS.minimum.text, type: 'minimum' }
+  }
 })
 
-// Timeline steps without checkmark on first step
+// Timeline steps
 const timelineSteps = [
-  { label: 'Покупка', sub: 'акций', done: false, current: true },
-  { label: 'Запуск', sub: '+6 мес', done: false, current: false },
-  { label: 'Окупаемость', sub: '+29 мес', done: false, current: false },
-  { label: 'Опцион', sub: '+55 мес', done: false, current: false }
+  { label: 'Покупка', sub: 'акций', current: true },
+  { label: 'Запуск', sub: '+6 мес', current: false },
+  { label: 'Окупаемость', sub: '+29 мес', current: false },
+  { label: 'Опцион', sub: '+55 мес', current: false }
 ]
 
 const handleInvestmentClick = () => {
@@ -84,20 +95,26 @@ const handleInvestmentClick = () => {
     <div class="osc-timeline-section">
       <div class="osc-timeline-title">Процесс выкупа</div>
       <div class="osc-timeline">
-        <div class="osc-tl-line"></div>
-        <div class="osc-tl-progress"></div>
-        <div 
-          v-for="(step, i) in timelineSteps" 
-          :key="i"
-          class="osc-tl-step"
-        >
-          <InfoTooltip :text="TIMELINE_TOOLTIPS[i]">
-            <div class="osc-tl-dot" :class="{ current: step.current }">
-              {{ i + 1 }}
-            </div>
-          </InfoTooltip>
-          <div class="osc-tl-label" :class="{ current: step.current }">{{ step.label }}</div>
-          <div class="osc-tl-sub">{{ step.sub }}</div>
+        <div class="osc-tl-track">
+          <div class="osc-tl-line"></div>
+          <div class="osc-tl-progress">
+            <div class="osc-tl-glow"></div>
+          </div>
+        </div>
+        <div class="osc-tl-steps">
+          <div 
+            v-for="(step, i) in timelineSteps" 
+            :key="i"
+            class="osc-tl-step"
+          >
+            <InfoTooltip :text="TIMELINE_TOOLTIPS[i]">
+              <div class="osc-tl-dot" :class="{ current: step.current }">
+                {{ i + 1 }}
+              </div>
+            </InfoTooltip>
+            <div class="osc-tl-label" :class="{ current: step.current }">{{ step.label }}</div>
+            <div class="osc-tl-sub">{{ step.sub }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -115,21 +132,29 @@ const handleInvestmentClick = () => {
           v-for="(scenario, key) in scenarios" 
           :key="key"
           class="osc-scenario-card"
-          :class="{ base: key === 'base', worst: key === 'worst' }"
+          :style="{ 
+            background: scenario.bgColor,
+            borderColor: scenario.borderColor 
+          }"
         >
-          <div class="osc-sc-dot" :style="{ background: scenario.color }"></div>
-          <div class="osc-sc-label">{{ scenario.label }}</div>
-          <div class="osc-sc-occ">Загрузка {{ scenario.occupancy }}%</div>
-          <div class="osc-sc-divs">Дивиденды: <span>{{ formatCurrency(scenario.dividends) }}</span></div>
-          <div v-if="scenario.buyback > 0" class="osc-sc-buyback">Выкуп: <span>{{ formatCurrency(scenario.buyback) }}</span></div>
-          <div class="osc-sc-total" :class="{ worst: key === 'worst' }">{{ formatCurrency(scenario.total) }}</div>
+          <div class="osc-sc-badge" :style="{ background: scenario.color }">
+            {{ scenario.label }}
+          </div>
+          <div class="osc-sc-occ" :style="{ color: scenario.color }">
+            Загрузка {{ scenario.occupancy }}%
+          </div>
+          <div class="osc-sc-details">
+            <div class="osc-sc-divs">Дивиденды: <span :style="{ color: scenario.color }">{{ formatCurrency(scenario.dividends) }}</span></div>
+            <div v-if="scenario.buyback > 0" class="osc-sc-buyback">Выкуп: <span :style="{ color: scenario.color }">{{ formatCurrency(scenario.buyback) }}</span></div>
+          </div>
+          <div class="osc-sc-total" :style="{ color: scenario.color }">{{ formatCurrency(scenario.total) }}</div>
           <div class="osc-sc-roi">ROI: {{ scenario.roi }}%</div>
         </div>
       </div>
       <div class="osc-scenarios-note">✓ Даже при загрузке 50% вы получаете доход</div>
     </div>
 
-    <!-- Interactive Slider - FIXED: starts at 75 -->
+    <!-- Interactive Slider -->
     <div class="osc-interactive-section">
       <div class="osc-int-header">
         <Settings2 :size="24" :color="COLORS.primary" />
@@ -209,8 +234,11 @@ const handleInvestmentClick = () => {
         </div>
         <div class="osc-c-item">
           <div class="osc-c-label">Покрытие</div>
-          <div class="osc-c-value osc-highlight">{{ collateralCoverage }}×</div>
+          <div class="osc-c-value osc-highlight">{{ collateralCoverage.ratio }}×</div>
         </div>
+      </div>
+      <div class="osc-c-comment" :class="collateralCoverage.type">
+        {{ collateralCoverage.text }}
       </div>
     </div>
   </div>
@@ -237,12 +265,12 @@ const handleInvestmentClick = () => {
   color: #fff; 
 }
 
-/* Timeline */
+/* Timeline - исправленный дизайн */
 .osc-timeline-section {
   margin-bottom: 24px;
-  padding: 16px;
+  padding: 20px;
   background: rgba(255,255,255,0.05);
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .osc-timeline-title {
@@ -250,83 +278,108 @@ const handleInvestmentClick = () => {
   font-weight: 600;
   text-transform: uppercase;
   color: #bbb;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 
 .osc-timeline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   position: relative;
 }
 
-.osc-tl-line {
+.osc-tl-track {
   position: absolute;
   top: 10px;
-  left: 20px;
-  right: 20px;
-  height: 2px;
-  background: rgba(255,255,255,0.2);
+  left: 30px;
+  right: 30px;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  overflow: hidden;
 }
 
 .osc-tl-progress {
   position: absolute;
-  top: 10px;
-  left: 20px;
+  top: 0;
+  left: 0;
   width: 0;
-  height: 2px;
-  background: #00D9C0;
-  animation: osc-timeline-progress 2s ease-out forwards;
+  height: 100%;
+  background: linear-gradient(90deg, #00D9C0, #00a67d);
+  border-radius: 2px;
+  animation: osc-progress-fill 2s ease-out forwards;
 }
 
-@keyframes osc-timeline-progress {
+.osc-tl-glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,217,192,0.8), transparent);
+  animation: osc-glow-move 1.5s ease-in-out infinite;
+}
+
+@keyframes osc-progress-fill {
   0% { width: 0; }
-  100% { width: calc(8% - 10px); }
+  100% { width: 8%; }
+}
+
+@keyframes osc-glow-move {
+  0%, 100% { opacity: 0; transform: translateX(-100%); }
+  50% { opacity: 1; transform: translateX(0); }
+}
+
+.osc-tl-steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
 }
 
 .osc-tl-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 1;
-  position: relative;
+  text-align: center;
 }
 
 .osc-tl-dot {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
+  background: #2a2a2a;
+  border: 2px solid rgba(255,255,255,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 600;
   color: #888;
   cursor: help;
   transition: all 0.2s;
 }
 
 .osc-tl-dot.current { 
-  border: 2px solid #00D9C0;
+  border-color: #00D9C0;
   color: #00D9C0;
-  background: rgba(0,217,192,0.1);
+  background: rgba(0,217,192,0.15);
+  box-shadow: 0 0 12px rgba(0,217,192,0.4);
 }
 
 .osc-tl-dot:hover {
-  background: rgba(0,217,192,0.2);
+  border-color: #00D9C0;
+  background: rgba(0,217,192,0.1);
 }
 
 .osc-tl-label {
-  margin-top: 8px;
-  font-size: 11px;
+  margin-top: 10px;
+  font-size: 12px;
   font-weight: 500;
   color: #aaa;
 }
 
 .osc-tl-label.current { color: #00D9C0; }
-.osc-tl-sub { font-size: 11px; color: #777; }
+.osc-tl-sub { font-size: 11px; color: #666; margin-top: 2px; }
 
-/* Scenarios */
+/* Scenarios - цветные карточки */
 .osc-scenarios-section { margin-bottom: 24px; }
 
 .osc-section-sub-title {
@@ -358,40 +411,57 @@ const handleInvestmentClick = () => {
 
 .osc-scenario-card {
   padding: 16px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
+  border: 2px solid;
+  border-radius: 12px;
   text-align: center;
   transition: all 0.2s;
 }
 
-.osc-scenario-card:hover { border-color: rgba(255,255,255,0.2); }
-.osc-scenario-card.base { background: rgba(0,217,192,0.15); border-color: rgba(0,217,192,0.4); }
-.osc-scenario-card.worst { border-color: rgba(232,25,44,0.4); }
-
-.osc-sc-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin: 0 auto 8px;
+.osc-scenario-card:hover { 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
-.osc-sc-label { font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 8px; }
-.osc-sc-occ { font-size: 11px; color: #888; margin-bottom: 12px; }
-.osc-sc-divs, .osc-sc-buyback { font-size: 11px; color: #aaa; }
-.osc-sc-divs span, .osc-sc-buyback span { color: #00D9C0; }
+.osc-sc-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #000;
+  margin-bottom: 10px;
+}
+
+.osc-sc-occ { 
+  font-size: 20px; 
+  font-weight: 700; 
+  margin-bottom: 12px; 
+}
+
+.osc-sc-details {
+  margin-bottom: 12px;
+}
+
+.osc-sc-divs, .osc-sc-buyback { 
+  font-size: 12px; 
+  color: #aaa;
+  margin-bottom: 4px;
+}
 
 .osc-sc-total {
-  margin-top: 8px;
-  padding-top: 8px;
+  padding-top: 10px;
   border-top: 1px solid rgba(255,255,255,0.1);
-  font-size: 14px;
-  font-weight: 600;
-  color: #00D9C0;
+  font-size: 18px;
+  font-weight: 700;
 }
 
-.osc-sc-total.worst { color: #fff; }
-.osc-sc-roi { font-size: 11px; color: #777; }
+.osc-sc-roi { 
+  font-size: 11px; 
+  color: #888; 
+  margin-top: 4px;
+}
 
 .osc-scenarios-note {
   margin-top: 12px;
@@ -471,7 +541,7 @@ const handleInvestmentClick = () => {
 }
 
 .osc-f-col {
-  font-family: monospace;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
   font-size: 12px;
   line-height: 2;
   color: #fff;
@@ -521,6 +591,30 @@ const handleInvestmentClick = () => {
 .osc-c-label { font-size: 11px; color: #bbb; }
 .osc-c-value { font-size: 18px; font-weight: 600; color: #fff; }
 .osc-c-value.osc-highlight { color: #00D9C0; }
+
+.osc-c-comment {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.osc-c-comment.excellent,
+.osc-c-comment.good {
+  background: rgba(0,217,192,0.1);
+  color: #00D9C0;
+}
+
+.osc-c-comment.normal {
+  background: rgba(59,130,246,0.1);
+  color: #3B82F6;
+}
+
+.osc-c-comment.minimum {
+  background: rgba(245,197,66,0.1);
+  color: #F5C542;
+}
 
 @media (max-width: 768px) {
   .osc-scenarios-grid { grid-template-columns: 1fr; }
