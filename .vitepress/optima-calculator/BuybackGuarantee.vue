@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { ShieldCheck, Settings2, Sigma, BrickWall } from 'lucide-vue-next'
 import { OPTIMA_SPACE, COLORS } from './constants.js'
 import { formatCurrency } from './utils.js'
 import CustomSlider from './CustomSlider.vue'
@@ -67,10 +68,11 @@ const timelineSteps = [
 <template>
   <div class="buyback-guarantee">
     <div class="g-header">
-      <span class="g-icon">🛡️</span>
+      <ShieldCheck :size="28" :color="COLORS.primary" />
       <span class="g-title">Гарантия обратного выкупа</span>
     </div>
 
+    <!-- Timeline -->
     <div class="timeline-section">
       <div class="timeline-title">Timeline проекта</div>
       <div class="timeline">
@@ -97,6 +99,7 @@ const timelineSteps = [
       </div>
     </div>
 
+    <!-- Scenarios -->
     <div class="scenarios-section">
       <div class="section-title">Сценарии выкупа (ваши {{ formatCurrency(investment) }})</div>
       <div class="scenarios-grid">
@@ -118,9 +121,10 @@ const timelineSteps = [
       <div class="scenarios-note">✓ Даже при загрузке 50% вы получаете доход</div>
     </div>
 
+    <!-- Interactive Slider -->
     <div class="interactive-section">
       <div class="int-header">
-        <span class="int-icon">⚙️</span>
+        <Settings2 :size="24" :color="COLORS.primary" />
         <span>Интерактивный расчёт: Что если загрузка = <strong>{{ occupancy }}%</strong>?</span>
       </div>
       <CustomSlider 
@@ -157,9 +161,10 @@ const timelineSteps = [
       </div>
     </div>
 
+    <!-- Formula -->
     <div class="formula-section">
       <div class="f-header">
-        <span class="f-icon">∑</span>
+        <Sigma :size="20" :color="COLORS.primary" />
         <span>Ваша персональная формула</span>
       </div>
       <div class="f-grid">
@@ -179,9 +184,10 @@ const timelineSteps = [
       </div>
     </div>
 
+    <!-- Collateral -->
     <div class="collateral-section">
       <div class="c-header">
-        <span class="c-icon">🏠</span>
+        <BrickWall :size="20" :color="COLORS.primary" />
         <span>Залоговое обеспечение</span>
       </div>
       <div class="c-grid">
@@ -217,7 +223,6 @@ const timelineSteps = [
   margin-bottom: 20px;
 }
 
-.g-icon { font-size: 28px; }
 .g-title { font-size: 16px; font-weight: 600; color: #fff; }
 
 .timeline-section {
@@ -391,7 +396,6 @@ const timelineSteps = [
   color: #fff;
 }
 
-.int-icon { font-size: 24px; }
 .int-header strong { color: #00D9C0; }
 
 .int-labels {
@@ -431,8 +435,6 @@ const timelineSteps = [
   font-weight: 600;
   color: #00D9C0;
 }
-
-.f-icon { font-size: 20px; }
 
 .f-grid {
   display: grid;
@@ -479,8 +481,6 @@ const timelineSteps = [
   font-weight: 600;
   color: #00D9C0;
 }
-
-.c-icon { font-size: 20px; }
 
 .c-grid {
   display: grid;

@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { QA_CATEGORIES, OPTIMA_SPACE, COLORS } from './constants.js'
+import { ref, computed, markRaw } from 'vue'
+import { Wallet, ScrollText, Cog, TriangleAlert, DoorOpen, ChevronRight } from 'lucide-vue-next'
+import { OPTIMA_SPACE, COLORS } from './constants.js'
 import { formatCurrency } from './utils.js'
 
 const props = defineProps({
@@ -15,6 +16,15 @@ const openQuestion = ref(null)
 
 const shares = computed(() => Math.floor(props.optimaInvestment / 500))
 const monthlyDiv = computed(() => props.optimaInvestment * (OPTIMA_SPACE.rounds[0].roi / 100) / 12)
+
+// Categories with Lucide icons
+const categories = [
+  { id: 'financial', name: 'Финансы', icon: markRaw(Wallet) },
+  { id: 'legal', name: 'Юридическое', icon: markRaw(ScrollText) },
+  { id: 'operational', name: 'Операционное', icon: markRaw(Cog) },
+  { id: 'risks', name: 'Риски', icon: markRaw(TriangleAlert) },
+  { id: 'exit', name: 'Выход', icon: markRaw(DoorOpen) },
+]
 
 const questions = computed(() => ({
   financial: [
@@ -62,14 +72,6 @@ const questions = computed(() => ({
   ],
 }))
 
-const categoryIcons = {
-  financial: '💰',
-  legal: '📜',
-  operational: '⚙️',
-  risks: '⚠️',
-  exit: '🚪'
-}
-
 const handleQuestionClick = (categoryId, index) => {
   const key = `${categoryId}-${index}`
   openQuestion.value = openQuestion.value === key ? null : key
@@ -91,13 +93,13 @@ const handleCategoryChange = (catId) => {
     <div class="qa-layout">
       <div class="qa-categories">
         <button 
-          v-for="cat in QA_CATEGORIES" 
+          v-for="cat in categories" 
           :key="cat.id"
           class="qa-cat-btn"
           :class="{ active: activeCategory === cat.id }"
           @click="handleCategoryChange(cat.id)"
         >
-          <span class="cat-icon">{{ categoryIcons[cat.id] }}</span>
+          <component :is="cat.icon" :size="16" class="cat-icon" />
           <span class="cat-name">{{ cat.name }}</span>
           <span class="cat-count">{{ questions[cat.id]?.length || 0 }}</span>
         </button>
@@ -113,12 +115,11 @@ const handleCategoryChange = (catId) => {
             class="qa-question"
             @click="handleQuestionClick(activeCategory, i)"
           >
-            <span 
+            <ChevronRight 
+              :size="18" 
               class="qa-arrow"
               :class="{ open: openQuestion === `${activeCategory}-${i}` }"
-            >
-              ›
-            </span>
+            />
             {{ item.q }}
           </div>
           <Transition name="answer">
@@ -208,7 +209,15 @@ const handleCategoryChange = (catId) => {
   border-left-color: #00D9C0;
 }
 
-.cat-icon { font-size: 16px; }
+.cat-icon { 
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.qa-cat-btn.active .cat-icon {
+  color: #00D9C0;
+  opacity: 1;
+}
 
 .cat-name {
   flex: 1;
@@ -270,11 +279,8 @@ const handleCategoryChange = (catId) => {
 
 .qa-arrow {
   color: #00D9C0;
-  font-size: 18px;
-  font-weight: 600;
+  flex-shrink: 0;
   transition: transform 0.2s;
-  width: 18px;
-  text-align: center;
 }
 
 .qa-arrow.open {

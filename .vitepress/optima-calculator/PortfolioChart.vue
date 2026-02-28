@@ -1,64 +1,206 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { formatCurrency } from './utils.js'
 
 const props = defineProps({
-  data: { type: Array, default: () => [] }
+  data: {
+    type: Array,
+    required: true
+  }
 })
 
 const hoveredIndex = ref(null)
+const tooltipPosition = ref({ x: 0, y: 0 })
 
-const gradientStyle = computed(() => {
-  if (props.data.length === 0) return { background: '#1a1a1a' }
+// SVG parameters
+const size = 200
+const cx = size / 2
+const cy = size / 2
+const outerRadius = 90
+const innerRadius = 55
+const hoverScale = 1.05
+
+// Calculate pie segments
+const segments = computed(() => {
+  const total = props.data.reduce((sum, item) => sum + item.value, 0)
+  if (total === 0) return []
   
-  let gradient = ''
-  let currentAngle = 0
+  let currentAngle = -90 // Start from top
   
-  props.data.forEach((item, index) => {
-    const angle = (item.value / 100) * 360
-    const color = hoveredIndex.value === index ? lightenColor(item.color, 20) : item.color
-    gradient += `${color} ${currentAngle}deg ${currentAngle + angle}deg`
-    if (index < props.data.length - 1) gradient += ', '
-    currentAngle += angle
+  return props.data.map((item, index) => {
+    const percentage = item.value / total
+    const angle = percentage * 360
+    const startAngle = currentAngle
+    const endAngle = currentAngle + angle
+    currentAngle = endAngle
+    
+    // Calculate path
+    const startRad = (startAngle * Math.PI) / 180
+    const endRad = (endAngle * Math.PI) / 180
+    
+    const x1Outer = cx + outerRadius * Math.cos(startRad)
+    const y1Outer = cy + outerRadius * Math.sin(startRad)
+    const x2Outer = cx + outerRadius * Math.cos(endRad)
+    const y2Outer = cy + outerRadius * Math.sin(endRad)
+    
+    const x1Inner = cx + innerRadius * Math.cos(endRad)
+    const y1Inner = cy + innerRadius * Math.sin(endRad)
+    const x2Inner = cx + innerRadius * Math.cos(startRad)
+    const y2Inner = cy + innerRadius * Math.sin(startRad)
+    
+    const largeArc = angle > 180 ? 1 : 0
+    
+    const path = [
+      `M ${x1Outer} ${y1Outer}`,
+      `A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${x2Outer} ${y2Outer}`,
+      `L ${x1Inner} ${y1Inner}`,
+      `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x2Inner} ${y2Inner}`,
+      'Z'
+    ].join(' ')
+    
+    // Calculate center point for hover transform
+    const midAngle = ((startAngle + endAngle) / 2 * Math.PI) / 180
+    const centerX = cx + ((outerRadius + innerRadius) / 2) * Math.cos(midAngle)
+    const centerY = cy + ((outerRadius + innerRadius) / 2) * Math.sin(midAngle)
+    
+    return {
+      path,
+      color: item.color,
+      name: item.name,
+      value: item.value,
+      amount: item.amount,
+      centerX,
+      centerY,
+      midAngle
+    }
   })
-  
-  return { background: `conic-gradient(${gradient})` }
 })
 
-// Осветление цвета для hover
-const lightenColor = (color, percent) => {
-  const num = parseInt(color.replace('#', ''), 16)
-  const amt = Math.round(2.55 * percent)
-  const R = Math.min(255, (num >> 16) + amt)
-  const G = Math.min(255, ((num >> 8) & 0x00FF) + amt)
-  const B = Math.min(255, (num & 0x0000FF) + amt)
-  return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`
+const handleMouseEnter = (index, event) => {
+  hoveredIndex.value = index
+  updateTooltipPosition(event)
+}
+
+const handleMouseMove = (event) => {
+  if (hoveredIndex.value !== null) {
+    updateTooltipPosition(event)
+  }
+}
+
+const handleMouseLeave = () => {
+  hoveredIndex.value = null
+}
+
+const updateTooltipPosition = (event) => {
+  const rect = event.currentTarget.closest('.chart-container').getBoundingClientRect()
+  tooltipPosition.value = {
+    x: event.clientX - rect.left,
+    y: event.clientY - rect.top - 10
+  }
+}
+
+const getSegmentTransform = (segment, index) => {
+  if (hoveredIndex.value !== index) return ''
+  
+  // Calculate offset direction (away from center)
+  const offsetX = (segment.centerX - cx) * 0.08
+  const offsetY = (segment.centerY - cy) * 0.08
+  
+  return `translate(${offsetX}, ${offsetY})`
 }
 </script>
 
 <template>
-  <div class="chart-container">
-    <div class="pie-chart" :style="gradientStyle">
-      <div class="pie-hole">
-        <div v-if="hoveredIndex !== null && data[hoveredIndex]" class="hover-info">
-          <div class="hover-value">{{ data[hoveredIndex].value }}%</div>
-          <div class="hover-name">{{ data[hoveredIndex].name }}</div>
-        </div>
-      </div>
+  <div class="chart-container" @mousemove="handleMouseMove">
+    <!-- Empty State -->
+    <div v-if="data.length === 0" class="empty-chart">
+      <svg :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`">
+        <circle 
+          :cx="cx" 
+          :cy="cy" 
+          :r="(outerRadius + innerRadius) / 2"
+          fill="none"
+          stroke="#1a1a1a"
+          :stroke-width="outerRadius - innerRadius"
+        />
+      </svg>
+      <div class="empty-text">Распределите<br>капитал</div>
     </div>
-    
-    <!-- Legend with hover interaction -->
+
+    <!-- Chart with data -->
+    <svg 
+      v-else
+      :width="size" 
+      :height="size" 
+      :viewBox="`0 0 ${size} ${size}`"
+      class="pie-chart"
+    >
+      <!-- Segments -->
+      <g 
+        v-for="(segment, index) in segments" 
+        :key="index"
+        class="segment-group"
+        :style="{ 
+          transform: getSegmentTransform(segment, index),
+          transformOrigin: `${cx}px ${cy}px`
+        }"
+        @mouseenter="handleMouseEnter(index, $event)"
+        @mouseleave="handleMouseLeave"
+      >
+        <path
+          :d="segment.path"
+          :fill="segment.color"
+          class="segment"
+          :class="{ 
+            hovered: hoveredIndex === index,
+            dimmed: hoveredIndex !== null && hoveredIndex !== index
+          }"
+        />
+      </g>
+      
+      <!-- Center circle for clean inner edge -->
+      <circle
+        :cx="cx"
+        :cy="cy"
+        :r="innerRadius - 1"
+        fill="#000"
+      />
+    </svg>
+
+    <!-- Tooltip -->
+    <Transition name="tooltip">
+      <div 
+        v-if="hoveredIndex !== null && segments[hoveredIndex]"
+        class="chart-tooltip"
+        :style="{
+          left: tooltipPosition.x + 'px',
+          top: tooltipPosition.y + 'px'
+        }"
+      >
+        <div class="tooltip-name">{{ segments[hoveredIndex].name }}</div>
+        <div class="tooltip-value" :style="{ color: segments[hoveredIndex].color }">
+          {{ segments[hoveredIndex].value }}%
+        </div>
+        <div class="tooltip-amount">{{ formatCurrency(segments[hoveredIndex].amount) }}</div>
+      </div>
+    </Transition>
+
+    <!-- Legend -->
     <div class="chart-legend">
       <div 
         v-for="(item, index) in data" 
         :key="item.name"
         class="legend-item"
-        :class="{ active: hoveredIndex === index }"
+        :class="{ 
+          hovered: hoveredIndex === index,
+          dimmed: hoveredIndex !== null && hoveredIndex !== index
+        }"
         @mouseenter="hoveredIndex = index"
         @mouseleave="hoveredIndex = null"
       >
         <span class="legend-dot" :style="{ background: item.color }"></span>
         <span class="legend-name">{{ item.name }}</span>
-        <span class="legend-value">{{ item.value }}%</span>
+        <span class="legend-percent">{{ item.value }}%</span>
       </div>
     </div>
   </div>
@@ -66,61 +208,92 @@ const lightenColor = (color, percent) => {
 
 <style scoped>
 .chart-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  min-height: 200px;
 }
 
-.pie-chart {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
+.empty-chart {
   position: relative;
-  transition: transform 0.3s ease;
-}
-
-.pie-hole {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  background: #0a0a0a;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.hover-info {
+.empty-text {
+  position: absolute;
   text-align: center;
-  animation: fadeIn 0.15s ease;
+  font-size: 12px;
+  color: #555;
+  line-height: 1.4;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+.pie-chart {
+  cursor: pointer;
 }
 
-.hover-value {
-  font-size: 24px;
-  font-weight: 600;
-  color: #00D9C0;
+.segment-group {
+  transition: transform 0.2s ease;
 }
 
-.hover-name {
-  font-size: 10px;
+.segment {
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  cursor: pointer;
+}
+
+.segment.hovered {
+  filter: brightness(1.2);
+}
+
+.segment.dimmed {
+  opacity: 0.4;
+}
+
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 12px;
+  transform: translate(-50%, -100%);
+  z-index: 100;
+  min-width: 120px;
+  text-align: center;
+}
+
+.tooltip-name {
+  font-size: 12px;
   color: #888;
-  max-width: 80px;
-  text-align: center;
+  margin-bottom: 4px;
+}
+
+.tooltip-value {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.tooltip-amount {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.tooltip-enter-active,
+.tooltip-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.tooltip-enter-from,
+.tooltip-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -90%);
 }
 
 .chart-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-top: 16px;
   width: 100%;
 }
 
@@ -128,15 +301,22 @@ const lightenColor = (color, percent) => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
+  padding: 6px 8px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
-.legend-item:hover,
-.legend-item.active {
-  background: rgba(255, 255, 255, 0.05);
+.legend-item:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.legend-item.hovered {
+  background: rgba(255,255,255,0.08);
+}
+
+.legend-item.dimmed {
+  opacity: 0.4;
 }
 
 .legend-dot {
@@ -148,17 +328,22 @@ const lightenColor = (color, percent) => {
 
 .legend-name {
   flex: 1;
-  font-size: 12px;
+  font-size: 11px;
   color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.legend-item.active .legend-name {
-  color: #fff;
-}
-
-.legend-value {
+.legend-percent {
   font-size: 12px;
   font-weight: 600;
+  color: #fff;
+  min-width: 32px;
+  text-align: right;
+}
+
+.legend-item.hovered .legend-name {
   color: #fff;
 }
 </style>

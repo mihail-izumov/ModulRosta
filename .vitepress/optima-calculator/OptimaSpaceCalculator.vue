@@ -1,5 +1,9 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { 
+  PhoneOff, Vault, Scale, Building2, FileText, 
+  Rocket, ChevronRight 
+} from 'lucide-vue-next'
 import { COLORS, TOOLTIPS, OPTIMA_SPACE, ASSET_CLASSES, STRATEGIES } from './constants.js'
 import { formatCurrency, formatPercent, toNumber } from './utils.js'
 import { usePortfolio } from './usePortfolio.js'
@@ -36,6 +40,14 @@ const { generatePDF } = usePDFGenerator()
 // Local state
 const isMobile = ref(false)
 const isGeneratingPDF = ref(false)
+
+// How It Works steps
+const howItWorksSteps = [
+  { icon: Vault, title: 'Ваш капитал', sub: 'Сколько готовы инвестировать' },
+  { icon: Scale, title: 'Распределите активы', sub: 'Офисы, склады, ритейл, резерв' },
+  { icon: Building2, title: 'Детали Optima Space', sub: 'Акции, дивиденды, гарантии' },
+  { icon: FileText, title: 'Скачайте отчёт', sub: 'Персональная стратегия в PDF' },
+]
 
 // Methods
 const checkMobile = () => {
@@ -82,7 +94,7 @@ onUnmounted(() => {
     <!-- Mobile Warning -->
     <div v-if="isMobile" class="mobile-warning">
       <div class="mobile-warning-card">
-        <div class="mobile-icon">📱</div>
+        <PhoneOff :size="48" :color="COLORS.primary" class="mobile-icon" />
         <h2>Откройте на компьютере</h2>
         <p>Консультант оптимизирован для экрана от 1024px.</p>
       </div>
@@ -122,29 +134,14 @@ onUnmounted(() => {
           <span class="top-badge">Умные инвестиции в Optima Space</span>
         </div>
         <div class="steps-grid">
-          <div class="step-item">
-            <div class="step-icon">💰</div>
-            <div class="step-title">Ваш капитал</div>
-            <div class="step-sub">Сколько готовы инвестировать</div>
-          </div>
-          <div class="step-arrow">→</div>
-          <div class="step-item">
-            <div class="step-icon">⚖️</div>
-            <div class="step-title">Распределите активы</div>
-            <div class="step-sub">Офисы, склады, ритейл, резерв</div>
-          </div>
-          <div class="step-arrow">→</div>
-          <div class="step-item">
-            <div class="step-icon">🏢</div>
-            <div class="step-title">Детали Optima Space</div>
-            <div class="step-sub">Акции, дивиденды, гарантии</div>
-          </div>
-          <div class="step-arrow">→</div>
-          <div class="step-item">
-            <div class="step-icon">📄</div>
-            <div class="step-title">Скачайте отчёт</div>
-            <div class="step-sub">Персональная стратегия в PDF</div>
-          </div>
+          <template v-for="(step, index) in howItWorksSteps" :key="index">
+            <div class="step-item">
+              <component :is="step.icon" :size="28" color="#fff" class="step-icon-svg" />
+              <div class="step-title">{{ step.title }}</div>
+              <div class="step-sub">{{ step.sub }}</div>
+            </div>
+            <div v-if="index < howItWorksSteps.length - 1" class="step-arrow">→</div>
+          </template>
         </div>
       </section>
 
@@ -313,7 +310,10 @@ onUnmounted(() => {
               </div>
               <button class="auto-btn" @click="autoDistribute">
                 <InfoTooltip :text="TOOLTIPS.autoDistribute">
-                  {{ portfolioMetrics.totalAllocation > 100 ? 'Выровнять до 100%' : '+ Добавить доходные активы' }}
+                  {{ portfolioMetrics.totalAllocation > 100 
+                    ? 'Выровнять до 100%' 
+                    : `Авто-распределение (${100 - portfolioMetrics.totalAllocation}%)` 
+                  }}
                 </InfoTooltip>
               </button>
             </div>
@@ -503,14 +503,16 @@ onUnmounted(() => {
             :disabled="!isOptimaValid || optimaInvestment < OPTIMA_SPACE.minInvestment"
             @click="handleInvest"
           >
-            🚀 Инвестировать в Optima Space
+            <Rocket :size="20" />
+            Инвестировать в Optima Space
           </button>
           <button 
             class="btn-secondary"
             :disabled="isGeneratingPDF"
             @click="handleDownloadPDF"
           >
-            📄 {{ isGeneratingPDF ? 'Генерация...' : 'Скачать PDF-отчёт' }}
+            <FileText :size="20" />
+            {{ isGeneratingPDF ? 'Генерация...' : 'Скачать PDF-отчёт' }}
           </button>
         </div>
       </section>
@@ -563,9 +565,12 @@ onUnmounted(() => {
   border: 1px solid rgba(0,217,192,0.3);
   border-radius: 16px;
   max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.mobile-icon { font-size: 48px; margin-bottom: 16px; }
+.mobile-icon { margin-bottom: 16px; }
 .mobile-warning-card h2 { font-size: 18px; font-weight: 600; margin-bottom: 12px; border: none !important; }
 .mobile-warning-card p { font-size: 14px; color: #888; line-height: 1.6; margin: 0; }
 
@@ -639,8 +644,13 @@ onUnmounted(() => {
   gap: 16px;
 }
 
-.step-item { text-align: center; }
-.step-icon { font-size: 28px; margin-bottom: 8px; }
+.step-item { 
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.step-icon-svg { margin-bottom: 8px; }
 .step-title { font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 4px; }
 .step-sub { font-size: 10px; color: #666; }
 .step-arrow { font-size: 20px; color: #333; padding-top: 8px; }
