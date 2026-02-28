@@ -51,7 +51,8 @@ const capitalInputValue = ref(formatNumberWithSpaces(totalCapital.value))
 const isEditingCapital = ref(false)
 const hasSubmittedData = ref(false)
 
-// Функция склонения числительных
+// Таймер до запуска
+// Функция склонения для русского языка
 const pluralize = (n, forms) => {
   const n10 = n % 10
   const n100 = n % 100
@@ -61,26 +62,21 @@ const pluralize = (n, forms) => {
   return forms[2]
 }
 
-// Таймер до запуска
 const countdown = computed(() => {
   const launchDate = new Date('2026-06-01')
   const now = new Date()
   const diff = launchDate - now
   
-  if (diff <= 0) return { months: 0, days: 0, expired: true }
+  if (diff <= 0) return { months: 0, days: 0, expired: true, monthsText: '', daysText: '' }
   
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
   const months = Math.floor(days / 30)
   const remainingDays = days % 30
   
-  return { 
-    months, 
-    days: remainingDays, 
-    totalDays: days, 
-    expired: false,
-    monthsText: pluralize(months, ['месяц', 'месяца', 'месяцев']),
-    daysText: pluralize(remainingDays, ['день', 'дня', 'дней'])
-  }
+  const monthsText = pluralize(months, ['месяц', 'месяца', 'месяцев'])
+  const daysText = pluralize(remainingDays, ['день', 'дня', 'дней'])
+  
+  return { months, days: remainingDays, totalDays: days, expired: false, monthsText, daysText }
 })
 
 // How It Works steps
@@ -318,7 +314,7 @@ const isCapitalButtonActive = (amount) => {
         <div class="osc-subtitle">Инвестиции в офисную недвижимость</div>
         <h1 class="osc-title">Расчёт инвестиций в Optima Space</h1>
         
-        <!-- Countdown Timer - над чертой -->
+        <!-- Countdown Timer -->
         <div class="osc-countdown" v-if="!countdown.expired">
           <div class="osc-countdown-label">До запуска Optima Space</div>
           <div class="osc-countdown-timer">
@@ -443,7 +439,7 @@ const isCapitalButtonActive = (amount) => {
               <span v-if="!activeStrategy" class="osc-manual-tag">• вручную</span>
             </div>
 
-            <!-- Asset Items - ИСПРАВЛЕНО: сначала бейдж, потом название -->
+            <!-- Asset Items -->
             <div v-for="asset in ASSET_CLASSES" :key="asset.id" class="osc-asset-item">
               <div class="osc-asset-top">
                 <div class="osc-asset-left">
@@ -681,7 +677,7 @@ const isCapitalButtonActive = (amount) => {
         <div class="osc-cta-label">Ваша персональная рекомендация</div>
         
         <div class="osc-cta-grid">
-          <!-- Expected Income - ИСПРАВЛЕНО: теперь первый блок -->
+          <!-- Expected Income -->
           <div class="osc-income-box">
             <div class="osc-income-label">Ожидаемый доход за 4,5 года</div>
             <div class="osc-income-value">
@@ -690,7 +686,6 @@ const isCapitalButtonActive = (amount) => {
                 : '—' 
               }}
             </div>
-            <!-- ИСПРАВЛЕНО: только строка Optima Space, без дубля -->
             <div v-if="portfolioMetrics.totalAllocation > 0 && optimaIncome > 0" class="osc-income-optima">
               Из них Optima Space: <strong>{{ formatCurrency(optimaIncome) }}</strong>
             </div>
@@ -745,7 +740,7 @@ const isCapitalButtonActive = (amount) => {
       <!-- Partner Badge -->
       <ModulRostaBadge />
 
-      <!-- Footer - ИСПРАВЛЕНО: без лишних ссылок -->
+      <!-- Footer -->
       <footer class="osc-footer">
         <p>Калькулятор предоставляет ориентировочные расчёты. Инвестиции связаны с рисками.</p>
       </footer>
@@ -1598,7 +1593,6 @@ const isCapitalButtonActive = (amount) => {
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-/* ИСПРАВЛЕНО: обводка у Optima Space строки */
 .osc-portfolio-item.osc-optima-row {
   background: rgba(0,217,192,0.1);
   border: 1px solid rgba(0,217,192,0.3);

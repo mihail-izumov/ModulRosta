@@ -16,7 +16,6 @@ const emit = defineEmits(['scrollToStrategy'])
 // Начальное значение 90% (соответствует плану)
 const occupancy = ref(90)
 
-// ИСПРАВЛЕНО: "Худший" теперь нейтрального цвета (#888) вместо красного
 const scenarios = computed(() => {
   const calc = (occ) => {
     const adjROI = (occ / 90) * OPTIMA_SPACE.rounds[0].roi
@@ -33,7 +32,6 @@ const scenarios = computed(() => {
   return {
     optimistic: { label: 'Оптимистичный', occupancy: 95, ...calc(95), color: COLORS.blue, bgColor: 'rgba(59,130,246,0.15)', borderColor: 'rgba(59,130,246,0.4)' },
     base: { label: 'Базовый', occupancy: 90, ...calc(90), color: COLORS.primary, bgColor: 'rgba(0,217,192,0.15)', borderColor: 'rgba(0,217,192,0.4)' },
-    // ИСПРАВЛЕНО: нейтральный серый цвет вместо красного
     worst: { label: 'Худший', occupancy: 50, ...calc(50), color: '#888', bgColor: 'rgba(136,136,136,0.15)', borderColor: 'rgba(136,136,136,0.4)' }
   }
 })
@@ -293,33 +291,40 @@ const handleInvestmentClick = () => {
   left: 30px;
   right: 30px;
   height: 4px;
-}
-
-.osc-tl-line {
-  position: absolute;
-  width: 100%;
-  height: 4px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.15);
   border-radius: 2px;
+  overflow: hidden;
 }
 
 .osc-tl-progress {
   position: absolute;
-  width: 5%;
-  height: 4px;
-  background: #00D9C0;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #00D9C0, #00a67d);
   border-radius: 2px;
+  animation: osc-progress-fill 2s ease-out forwards;
 }
 
 .osc-tl-glow {
   position: absolute;
-  right: -4px;
-  top: -2px;
-  width: 8px;
-  height: 8px;
-  background: #00D9C0;
-  border-radius: 50%;
-  box-shadow: 0 0 10px #00D9C0;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,217,192,0.8), transparent);
+  animation: osc-glow-move 1.5s ease-in-out infinite;
+}
+
+@keyframes osc-progress-fill {
+  0% { width: 0; }
+  100% { width: 8%; }
+}
+
+@keyframes osc-glow-move {
+  0%, 100% { opacity: 0; transform: translateX(-100%); }
+  50% { opacity: 1; transform: translateX(0); }
 }
 
 .osc-tl-steps {
