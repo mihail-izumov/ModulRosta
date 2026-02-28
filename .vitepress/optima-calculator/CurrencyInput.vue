@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { formatNumberWithSpaces, parseFormattedNumber } from './utils.js'
 
 const props = defineProps({
@@ -55,25 +55,24 @@ watch(() => props.modelValue, (newVal) => {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .osc-currency-input {
   width: 100%;
   background: none;
   border: none;
-  font-size: 15px;
+  font-size: 14px;
   color: #fff;
   outline: none;
   text-align: right;
-  font-family: 'SF Mono', Monaco, monospace;
 }
 
 .osc-currency-symbol {
-  font-size: 13px;
+  font-size: 12px;
   color: #888;
 }
 

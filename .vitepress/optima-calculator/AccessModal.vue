@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 
 const props = defineProps({
   show: { type: Boolean, default: false },
@@ -29,21 +29,21 @@ const applicationDate = computed(() => {
   })
 })
 
-// Строгое форматирование телефона +7(123)456-78-90
+// Форматирование телефона в формат +7(123)456-78-90
 const formatPhone = (value) => {
   let digits = value.replace(/\D/g, '')
   
-  // Заменяем 8 на 7
+  // Убираем 8 в начале, заменяем на 7
   if (digits.startsWith('8') && digits.length > 1) {
     digits = '7' + digits.slice(1)
   }
   
-  // Добавляем 7 если нет
+  // Если нет 7 в начале, добавляем
   if (digits.length > 0 && !digits.startsWith('7')) {
     digits = '7' + digits
   }
   
-  // СТРОГО 11 цифр максимум
+  // Ограничиваем 11 цифрами
   digits = digits.slice(0, 11)
   
   if (digits.length === 0) return ''
@@ -51,14 +51,11 @@ const formatPhone = (value) => {
   if (digits.length <= 4) return `+${digits[0]}(${digits.slice(1)}`
   if (digits.length <= 7) return `+${digits[0]}(${digits.slice(1, 4)})${digits.slice(4)}`
   if (digits.length <= 9) return `+${digits[0]}(${digits.slice(1, 4)})${digits.slice(4, 7)}-${digits.slice(7)}`
-  return `+${digits[0]}(${digits.slice(1, 4)})${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`
+  return `+${digits[0]}(${digits.slice(1, 4)})${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9)}`
 }
 
 const handlePhoneInput = (e) => {
-  const formatted = formatPhone(e.target.value)
-  phone.value = formatted
-  // Принудительно устанавливаем значение в поле
-  e.target.value = formatted
+  phone.value = formatPhone(e.target.value)
 }
 
 const validate = () => {
@@ -75,8 +72,8 @@ const validate = () => {
   const phoneDigits = phone.value.replace(/\D/g, '')
   if (!phone.value) {
     errors.value.phone = 'Введите телефон'
-  } else if (phoneDigits.length !== 11) {
-    errors.value.phone = 'Введите полный номер (+7 и 10 цифр)'
+  } else if (phoneDigits.length < 11) {
+    errors.value.phone = 'Введите полный номер'
   }
   
   return Object.keys(errors.value).length === 0
@@ -93,9 +90,12 @@ const handleSubmit = () => {
       applicationDate: applicationDate.value
     }
     
+    // Сохраняем в сессию
     try {
       sessionStorage.setItem('osc_user_data', JSON.stringify(userData))
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Session storage not available')
+    }
     
     emit('submit', userData)
   }
@@ -105,13 +105,16 @@ const handleClose = () => {
   emit('close')
 }
 
+// Проверяем сессию при открытии
 watch(() => props.show, (newVal) => {
   if (newVal) {
+    // Сбрасываем форму
     firstName.value = ''
     lastName.value = ''
     phone.value = ''
     errors.value = {}
     
+    // Пытаемся восстановить из сессии
     try {
       const saved = sessionStorage.getItem('osc_user_data')
       if (saved) {
@@ -120,7 +123,9 @@ watch(() => props.show, (newVal) => {
         lastName.value = data.lastName || ''
         phone.value = data.phone || ''
       }
-    } catch (e) {}
+    } catch (e) {
+      // Игнорируем ошибки
+    }
   }
 })
 </script>
@@ -139,7 +144,7 @@ watch(() => props.show, (newVal) => {
           </button>
           
           <h2 class="osc-modal-title">{{ title }}</h2>
-          <p class="osc-modal-subtitle">Укажите контакты, чтобы продолжить</p>
+          <p class="osc-modal-subtitle">Введите контактные данные для продолжения</p>
           
           <!-- Номер заявки -->
           <div class="osc-application-info">
@@ -186,7 +191,6 @@ watch(() => props.show, (newVal) => {
                 class="osc-form-input"
                 :class="{ 'osc-input-error': errors.phone }"
                 placeholder="+7(999)123-45-67"
-                maxlength="18"
                 @keyup.enter="handleSubmit"
               />
               <span v-if="errors.phone" class="osc-error-text">{{ errors.phone }}</span>
@@ -211,8 +215,8 @@ watch(() => props.show, (newVal) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -225,8 +229,8 @@ watch(() => props.show, (newVal) => {
   border: 1px solid rgba(0,217,192,0.3);
   border-radius: 16px;
   padding: 32px;
+  max-width: 420px;
   width: 100%;
-  max-width: 480px;
   position: relative;
 }
 
@@ -234,8 +238,8 @@ watch(() => props.show, (newVal) => {
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background: rgba(255,255,255,0.1);
   border: none;
   border-radius: 50%;
@@ -253,7 +257,7 @@ watch(() => props.show, (newVal) => {
 }
 
 .osc-modal-title {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 600;
   color: #fff;
   margin: 0 0 8px;
@@ -263,7 +267,7 @@ watch(() => props.show, (newVal) => {
 .osc-modal-subtitle {
   font-size: 14px;
   color: #888;
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   text-align: center;
 }
 
@@ -272,46 +276,46 @@ watch(() => props.show, (newVal) => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin: 0 0 24px;
-  padding: 12px 20px;
+  margin-bottom: 20px;
+  padding: 10px 16px;
   background: rgba(0,217,192,0.1);
-  border: 1px solid rgba(0,217,192,0.25);
+  border: 1px solid rgba(0,217,192,0.2);
   border-radius: 8px;
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 }
 
 .osc-app-label {
   font-size: 12px;
-  color: #aaa;
+  color: #888;
 }
 
 .osc-app-number {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #fff;
+  color: #00D9C0;
 }
 
 .osc-app-date {
   font-size: 12px;
-  color: #aaa;
+  color: #666;
 }
 
 .osc-modal-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .osc-form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
 }
 
 .osc-form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .osc-form-label {
@@ -323,15 +327,14 @@ watch(() => props.show, (newVal) => {
 }
 
 .osc-form-input {
-  padding: 14px 16px;
+  padding: 12px 14px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 10px;
   color: #fff;
-  font-size: 16px;
+  font-size: 15px;
   outline: none;
   transition: all 0.2s;
-  width: 100%;
 }
 
 .osc-form-input::placeholder {
@@ -353,13 +356,13 @@ watch(() => props.show, (newVal) => {
 }
 
 .osc-modal-submit {
-  margin-top: 8px;
-  padding: 16px;
+  margin-top: 6px;
+  padding: 14px;
   background: linear-gradient(135deg, #00D9C0 0%, #00a67d 100%);
   border: none;
   border-radius: 10px;
   color: #000;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
@@ -371,11 +374,11 @@ watch(() => props.show, (newVal) => {
 }
 
 .osc-modal-privacy {
-  margin-top: 16px;
-  font-size: 11px;
+  margin-top: 12px;
+  font-size: 10px;
   color: #555;
   text-align: center;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 
 .osc-modal-privacy a {
@@ -409,7 +412,7 @@ watch(() => props.show, (newVal) => {
   opacity: 0;
 }
 
-@media (max-width: 520px) {
+@media (max-width: 480px) {
   .osc-form-row {
     grid-template-columns: 1fr;
   }

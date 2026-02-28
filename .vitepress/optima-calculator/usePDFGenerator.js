@@ -1,16 +1,31 @@
 // usePDFGenerator.js
-// Генератор PDF отчёта через Print to PDF
+// Генератор PDF отчёта с использованием html2pdf.js
 
 import { OPTIMA_SPACE, ASSET_CLASSES } from './constants.js'
 import { formatCurrency } from './utils.js'
 
 export function usePDFGenerator() {
   
+  const loadHtml2Pdf = () => {
+    return new Promise((resolve, reject) => {
+      if (window.html2pdf) {
+        resolve(window.html2pdf)
+        return
+      }
+      const script = document.createElement('script')
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+      script.onload = () => resolve(window.html2pdf)
+      script.onerror = () => reject(new Error('Failed to load html2pdf'))
+      document.head.appendChild(script)
+    })
+  }
+  
   const generatePDF = async ({ totalCapital, allocations, portfolioMetrics, optimaInvestment, chartData, userName = '', applicationNumber = '', applicationDate = '' }) => {
     const shares = Math.floor(optimaInvestment / 500)
     const totalIncome = optimaInvestment * (OPTIMA_SPACE.rounds[0].roi / 100) * 4.5
     const ma = OPTIMA_SPACE.marketAnalytics
     
+    // Генерируем номер заявки если не передан
     const appNum = applicationNumber || `${String(new Date().getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 100)).padStart(2, '0')}`
     const appDate = applicationDate || new Date().toLocaleDateString('ru-RU')
     
@@ -24,16 +39,14 @@ export function usePDFGenerator() {
     ]
     
     const htmlContent = `<!DOCTYPE html>
-<html><head>
-<meta charset="UTF-8">
-<title>Инвестиционный отчёт № ${appNum}</title>
+<html><head><meta charset="UTF-8"><title>Инвестиционный отчёт</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000;line-height:1.6;padding:40px;max-width:800px;margin:0 auto}
+body{font-family:'Inter',sans-serif;background:#fff;color:#000;line-height:1.6;padding:40px;max-width:800px;margin:0 auto}
 .header{text-align:center;margin-bottom:40px;padding-bottom:20px;border-bottom:2px solid #000}
 .header h1{font-size:24px;font-weight:600;margin-bottom:8px}
-.app-info{display:inline-block;padding:8px 16px;border:1px solid #ddd;border-radius:4px;font-family:'SF Mono',Monaco,monospace;font-size:12px;margin-top:12px;background:#f9f9f9}
+.app-info{display:inline-block;padding:8px 16px;border:1px solid #ddd;border-radius:4px;font-family:monospace;font-size:12px;margin-top:12px;background:#f9f9f9}
 .section{margin-bottom:32px}
 .section h2{font-size:16px;font-weight:600;color:#000;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #ccc}
 .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
@@ -43,8 +56,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 table{width:100%;border-collapse:collapse;margin-bottom:24px}
 th,td{padding:12px;text-align:left;border:1px solid #ccc;font-size:13px}
 th{background:#f0f0f0;font-weight:600;font-size:11px;text-transform:uppercase}
-.highlight-row{background:#e8f5f3}
-.info-block{background:#f5f5f5;padding:20px;border-radius:8px;margin-bottom:24px;border-left:4px solid #00a67d}
+.highlight-row{background:#f5f5f5}
+.info-block{background:#f5f5f5;padding:20px;border-radius:8px;margin-bottom:24px;border-left:4px solid #000}
 .info-block h3{font-size:14px;font-weight:600;margin-bottom:8px}
 .info-block p{font-size:13px;color:#333}
 .faq-item{margin-bottom:16px}
@@ -52,14 +65,8 @@ th{background:#f0f0f0;font-weight:600;font-size:11px;text-transform:uppercase}
 .faq-a{font-size:12px;color:#444}
 .footer{margin-top:40px;padding-top:20px;border-top:1px solid #ccc;text-align:center;font-size:11px;color:#666}
 .page-break{page-break-after:always}
-.partner-badge{display:inline-block;padding:10px 20px;border:2px solid #00a67d;border-radius:6px;font-size:12px;font-weight:600;margin-top:16px;color:#00a67d}
-.print-btn{position:fixed;top:20px;right:20px;padding:12px 24px;background:#00a67d;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,166,125,0.3);z-index:1000}
-.print-btn:hover{background:#008c6a}
-@media print{.print-btn{display:none}body{padding:20px}.page-break{page-break-after:always}}
-</style>
-</head><body>
-
-<button class="print-btn" onclick="window.print()">💾 Сохранить как PDF</button>
+.partner-badge{display:inline-block;padding:10px 20px;border:2px solid #000;border-radius:6px;font-size:12px;font-weight:600;margin-top:16px}
+</style></head><body>
 
 <div class="header">
 <h1>Персональный инвестиционный отчёт</h1>
@@ -95,14 +102,14 @@ ${chartData.map(item => {
 <div class="info-block">
 <h3>Гарантия обратного выкупа</h3>
 <p>Через 4,5 года основатель обязан выкупить акции: <strong>1000₽ − дивиденды</strong> (минимум 500₽).</p>
-<p style="margin-top:8px">Залог: ${OPTIMA_SPACE.collateral} кв.м (~${formatCurrency(OPTIMA_SPACE.collateralValue)}). Покрытие: <strong>${optimaInvestment > 0 ? (OPTIMA_SPACE.collateralValue / optimaInvestment).toFixed(0) : '∞'}×</strong></p>
+<p style="margin-top:8px">Залог: ${OPTIMA_SPACE.collateral} кв.м (~${formatCurrency(OPTIMA_SPACE.collateralValue)}). Покрытие: <strong>${(OPTIMA_SPACE.collateralValue / optimaInvestment).toFixed(0)}×</strong></p>
 </div>
 <table><thead><tr><th>Год</th><th>Дивиденды</th><th>Накоплено</th><th>ROI</th></tr></thead><tbody>
 ${[1, 2, 3, 4, '4,5'].map((year, i) => {
   const period = i < 4 ? 1 : 0.5
   const yearlyIncome = optimaInvestment * (OPTIMA_SPACE.rounds[0].roi / 100) * period
   const cumulative = optimaInvestment * (OPTIMA_SPACE.rounds[0].roi / 100) * (i < 4 ? (i + 1) : 4.5)
-  return `<tr><td>Год ${year}</td><td>${formatCurrency(yearlyIncome)}</td><td>${formatCurrency(cumulative)}</td><td>${optimaInvestment > 0 ? ((cumulative / optimaInvestment) * 100).toFixed(0) : 0}%</td></tr>`
+  return `<tr><td>Год ${year}</td><td>${formatCurrency(yearlyIncome)}</td><td>${formatCurrency(cumulative)}</td><td>${((cumulative / optimaInvestment) * 100).toFixed(0)}%</td></tr>`
 }).join('')}
 </tbody></table>
 </div>
@@ -122,23 +129,29 @@ ${OPTIMA_SPACE.rounds.map(r => {
 
 <div class="section">
 <h2>Аналитика рынка офисной недвижимости г. Самара</h2>
-<div class="info-block">
+<div class="info-block" style="border-left-color:#333">
 <h3>Ключевые показатели рынка</h3>
 <p><strong>Общая площадь офисов класса А и В:</strong> ${(ma.totalOfficeArea / 1000).toFixed(0)} тыс. кв.м</p>
 <p><strong>Класс А:</strong> ${(ma.classAArea / 1000).toFixed(0)} тыс. кв.м (12%) — вакантность ${ma.classAVacancy}%</p>
 <p><strong>Класс В:</strong> ${(ma.classBArea / 1000).toFixed(0)} тыс. кв.м (88%) — вакантность ${ma.classBVacancy}%</p>
 <p style="margin-top:12px"><strong>Доля Optima Space на рынке класса А:</strong> ${ma.projectShare}%</p>
 </div>
+
 <table><thead><tr><th>Показатель</th><th>Класс А</th><th>Класс В</th></tr></thead><tbody>
 <tr><td>Вакантность</td><td>${ma.classAVacancy}%</td><td>${ma.classBVacancy}%</td></tr>
 <tr><td>Медианная ставка/кв.м/год</td><td>24 000₽</td><td>10 200₽</td></tr>
 <tr><td>Медианная ставка/место/год</td><td>287 880₽</td><td>112 800₽</td></tr>
 </tbody></table>
+
+<p style="font-size:12px;color:#444;margin-bottom:16px"><strong>Вывод:</strong> Показатель вакантности 4% в классе А свидетельствует о фазе активного роста рынка. Спрос равен или превышает предложение.</p>
+
 <h3 style="font-size:14px;margin-bottom:12px">Конкуренты (сервисные офисы класса А)</h3>
 <table><thead><tr><th>Название</th><th>Город</th><th>Ставка/год</th><th>Вакантность</th></tr></thead><tbody>
 ${ma.competitors.map(c => `<tr><td>${c.name}</td><td>${c.city}</td><td>${formatCurrency(c.rent)}</td><td>${c.vacancy}%</td></tr>`).join('')}
 <tr class="highlight-row"><td><strong>Optima Space</strong></td><td>Самара</td><td><strong>300 000₽</strong></td><td>прогноз 10%</td></tr>
 </tbody></table>
+
+<p style="font-size:12px;color:#444;margin-top:12px"><strong>Важно:</strong> Локация является критически важным параметром. Аналогичный проект вне делового центра имеет вакантность 69%. Optima Space расположен в деловом центре Самары.</p>
 </div>
 
 <div class="section">
@@ -176,16 +189,55 @@ ${OPTIMA_SPACE.team.map(t => `<tr><td>${t.name}</td><td>${t.role}</td><td>${t.ex
 
 </body></html>`
 
-    const printWindow = window.open('', '_blank')
-    if (!printWindow) {
-      alert('Пожалуйста, разрешите всплывающие окна для скачивания PDF')
-      return { success: false, error: 'Popup blocked' }
+    try {
+      const html2pdf = await loadHtml2Pdf()
+      
+      const container = document.createElement('div')
+      container.innerHTML = htmlContent
+      container.style.position = 'absolute'
+      container.style.left = '-9999px'
+      container.style.top = '0'
+      container.style.width = '800px'
+      document.body.appendChild(container)
+      
+      // Ждём загрузки шрифтов
+      await document.fonts.ready
+      
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `Инвестиционный_отчёт_${appNum}_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true,
+          logging: false,
+          letterRendering: true
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      }
+      
+      await html2pdf().set(opt).from(container).save()
+      
+      document.body.removeChild(container)
+      
+      return { success: true, applicationNumber: appNum }
+    } catch (error) {
+      console.error('PDF generation failed:', error)
+      
+      // Fallback to HTML download
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `Инвестиционный_отчёт_${appNum}_${new Date().toISOString().split('T')[0]}.html`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      
+      return { success: false, applicationNumber: appNum, error: error.message }
     }
-    
-    printWindow.document.write(htmlContent)
-    printWindow.document.close()
-    
-    return { success: true, applicationNumber: appNum }
   }
 
   return { generatePDF }

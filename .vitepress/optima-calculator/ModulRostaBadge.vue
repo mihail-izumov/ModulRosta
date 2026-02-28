@@ -29,15 +29,22 @@
   text-decoration: none;
   position: relative;
   overflow: hidden;
+  animation: osc-radar-glow 3s ease-in-out infinite;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 0 10px rgba(0, 217, 192, 0.3), 0 0 20px rgba(0, 217, 192, 0.1);
+  transition: transform 0.2s;
 }
 
 .osc-partner-badge:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 20px rgba(0, 217, 192, 0.6), 0 0 40px rgba(0, 217, 192, 0.3);
-  border-color: #00D9C0;
+}
+
+@keyframes osc-radar-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(0, 217, 192, 0.3), 0 0 20px rgba(0, 217, 192, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 217, 192, 0.6), 0 0 40px rgba(0, 217, 192, 0.3);
+  }
 }
 
 .osc-radar-scan {
@@ -62,8 +69,6 @@
   border-radius: 50%;
   animation: osc-radar-dot-pulse 3s ease-in-out infinite;
   flex-shrink: 0;
-  position: relative;
-  z-index: 1;
 }
 
 @keyframes osc-radar-dot-pulse {
@@ -83,7 +88,5 @@
   color: #00D9C0;
   text-transform: uppercase;
   letter-spacing: 1px;
-  position: relative;
-  z-index: 1;
 }
 </style>

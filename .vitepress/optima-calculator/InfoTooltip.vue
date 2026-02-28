@@ -5,7 +5,7 @@ const props = defineProps({
   text: { type: String, required: true },
   position: { type: String, default: 'top' },
   html: { type: Boolean, default: false },
-  maxWidth: { type: Number, default: 420 }
+  maxWidth: { type: Number, default: 280 }
 })
 
 const isVisible = ref(false)
@@ -45,15 +45,15 @@ const tooltipStyle = computed(() => ({
 .osc-tooltip-box {
   position: absolute;
   z-index: 1000;
-  padding: 14px 18px;
+  padding: 12px 16px;
   background: #1a1a1a;
   border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 10px;
-  font-size: 13px;
-  line-height: 1.6;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
   color: #ddd;
   white-space: pre-wrap;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   pointer-events: none;
 }
 
@@ -61,14 +61,14 @@ const tooltipStyle = computed(() => ({
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .osc-tooltip-box.bottom {
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .osc-tip-enter-active,
@@ -83,10 +83,6 @@ const tooltipStyle = computed(() => ({
 
 :deep(strong) {
   color: #fff;
-  font-weight: 600;
-}
-
-:deep(span[style*="color"]) {
   font-weight: 600;
 }
 </style>

@@ -33,7 +33,7 @@ export const formatNumberWithSpaces = (num) => {
 }
 
 export const parseFormattedNumber = (str) => {
-  return parseInt(str.replace(/\s/g, ''), 10) || 0
+  return parseInt(str.replace(/\s/g, ''), 10)
 }
 
 export const clamp = (value, min, max) => {
