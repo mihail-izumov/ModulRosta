@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { ShieldCheck, Settings2, Sigma, BrickWall } from './icons.js'
 import { OPTIMA_SPACE, COLORS, TIMELINE_TOOLTIPS, COVERAGE_COMMENTS } from './constants.js'
 import { formatCurrency } from './utils.js'
@@ -29,11 +29,12 @@ const scenarios = computed(() => {
       roi: props.investment > 0 ? Math.round((divs / props.investment) * 100) : 0 
     }
   }
-  return {
-    optimistic: { label: 'Оптимистичный', occupancy: 95, ...calc(95), color: COLORS.blue, bgColor: 'rgba(59,130,246,0.15)', borderColor: 'rgba(59,130,246,0.4)' },
-    base: { label: 'Базовый', occupancy: 90, ...calc(90), color: COLORS.primary, bgColor: 'rgba(0,217,192,0.15)', borderColor: 'rgba(0,217,192,0.4)' },
-    worst: { label: 'Худший', occupancy: 50, ...calc(50), color: '#888', bgColor: 'rgba(136,136,136,0.15)', borderColor: 'rgba(136,136,136,0.4)' }
-  }
+  // Порядок: Худший, Базовый, Оптимистичный
+  return [
+    { key: 'worst', label: 'Худший', occupancy: 50, ...calc(50), color: '#888888', bgColor: 'rgba(136,136,136,0.12)', borderColor: 'rgba(136,136,136,0.5)' },
+    { key: 'base', label: 'Базовый', occupancy: 90, ...calc(90), color: '#00FFCC', bgColor: 'rgba(0,255,204,0.12)', borderColor: 'rgba(0,255,204,0.5)' },
+    { key: 'optimistic', label: 'Оптимистичный', occupancy: 95, ...calc(95), color: '#00D9C0', bgColor: 'rgba(0,217,192,0.08)', borderColor: 'rgba(0,217,192,0.4)' }
+  ]
 })
 
 const currentScenario = computed(() => {
@@ -93,27 +94,23 @@ const handleInvestmentClick = () => {
 
     <!-- Timeline / Process -->
     <div class="osc-timeline-section">
-      <div class="osc-timeline-title">Процесс выкупа</div>
+      <div class="osc-timeline-title">ПРОЦЕСС ВЫКУПА</div>
       <div class="osc-timeline">
-        <div class="osc-tl-track">
-          <div class="osc-tl-line"></div>
-          <div class="osc-tl-progress">
-            <div class="osc-tl-glow"></div>
-          </div>
-        </div>
+        <div class="osc-tl-track"></div>
+        <div class="osc-tl-progress"></div>
         <div class="osc-tl-steps">
           <div 
             v-for="(step, i) in timelineSteps" 
             :key="i"
             class="osc-tl-step"
           >
-            <InfoTooltip :text="TIMELINE_TOOLTIPS[i]">
+            <InfoTooltip :text="TIMELINE_TOOLTIPS[i]" :maxWidth="300">
               <div class="osc-tl-dot" :class="{ current: step.current }">
                 {{ i + 1 }}
               </div>
             </InfoTooltip>
             <div class="osc-tl-label" :class="{ current: step.current }">{{ step.label }}</div>
-            <div class="osc-tl-sub">{{ step.sub }}</div>
+            <div class="osc-tl-sub" :class="{ current: step.current }">{{ step.sub }}</div>
           </div>
         </div>
       </div>
@@ -129,8 +126,8 @@ const handleInvestmentClick = () => {
       </div>
       <div class="osc-scenarios-grid">
         <div 
-          v-for="(scenario, key) in scenarios" 
-          :key="key"
+          v-for="scenario in scenarios" 
+          :key="scenario.key"
           class="osc-scenario-card"
           :style="{ 
             background: scenario.bgColor,
@@ -265,7 +262,7 @@ const handleInvestmentClick = () => {
   color: #fff; 
 }
 
-/* Timeline - исправленный дизайн */
+/* Timeline */
 .osc-timeline-section {
   margin-bottom: 24px;
   padding: 20px;
@@ -278,60 +275,46 @@ const handleInvestmentClick = () => {
   font-weight: 600;
   text-transform: uppercase;
   color: #bbb;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  letter-spacing: 0.05em;
 }
 
 .osc-timeline {
   position: relative;
+  padding-top: 12px;
 }
 
 .osc-tl-track {
   position: absolute;
-  top: 10px;
-  left: 30px;
-  right: 30px;
-  height: 4px;
+  top: 24px;
+  left: 40px;
+  right: 40px;
+  height: 3px;
   background: rgba(255,255,255,0.15);
   border-radius: 2px;
-  overflow: hidden;
 }
 
 .osc-tl-progress {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 24px;
+  left: 40px;
   width: 0;
-  height: 100%;
-  background: linear-gradient(90deg, #00D9C0, #00a67d);
+  height: 3px;
+  background: linear-gradient(90deg, #00D9C0, #00FFCC);
   border-radius: 2px;
   animation: osc-progress-fill 2s ease-out forwards;
 }
 
-.osc-tl-glow {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 20px;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0,217,192,0.8), transparent);
-  animation: osc-glow-move 1.5s ease-in-out infinite;
-}
-
 @keyframes osc-progress-fill {
   0% { width: 0; }
-  100% { width: 8%; }
-}
-
-@keyframes osc-glow-move {
-  0%, 100% { opacity: 0; transform: translateX(-100%); }
-  50% { opacity: 1; transform: translateX(0); }
+  100% { width: 60px; }
 }
 
 .osc-tl-steps {
   display: flex;
   justify-content: space-between;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .osc-tl-step {
@@ -342,15 +325,15 @@ const handleInvestmentClick = () => {
 }
 
 .osc-tl-dot {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #2a2a2a;
-  border: 2px solid rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: #888;
   cursor: help;
@@ -359,27 +342,28 @@ const handleInvestmentClick = () => {
 
 .osc-tl-dot.current { 
   border-color: #00D9C0;
-  color: #00D9C0;
-  background: rgba(0,217,192,0.15);
-  box-shadow: 0 0 12px rgba(0,217,192,0.4);
+  color: #000;
+  background: #00D9C0;
+  box-shadow: 0 0 16px rgba(0,217,192,0.5);
 }
 
 .osc-tl-dot:hover {
   border-color: #00D9C0;
-  background: rgba(0,217,192,0.1);
+  color: #00D9C0;
 }
 
 .osc-tl-label {
   margin-top: 10px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: #aaa;
 }
 
 .osc-tl-label.current { color: #00D9C0; }
 .osc-tl-sub { font-size: 11px; color: #666; margin-top: 2px; }
+.osc-tl-sub.current { color: #00D9C0; }
 
-/* Scenarios - цветные карточки */
+/* Scenarios */
 .osc-scenarios-section { margin-bottom: 24px; }
 
 .osc-section-sub-title {
