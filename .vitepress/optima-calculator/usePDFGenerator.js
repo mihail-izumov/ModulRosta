@@ -1,30 +1,46 @@
 // usePDFGenerator.js
+// Генератор PDF отчёта с использованием html2pdf.js
+
 import { OPTIMA_SPACE, ASSET_CLASSES } from './constants.js'
 import { formatCurrency } from './utils.js'
 
 export function usePDFGenerator() {
-  const generatePDF = (data) => {
-    const { totalCapital, allocations, portfolioMetrics, optimaInvestment, chartData } = data
+  
+  const loadHtml2Pdf = () => {
+    return new Promise((resolve, reject) => {
+      if (window.html2pdf) {
+        resolve(window.html2pdf)
+        return
+      }
+      const script = document.createElement('script')
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+      script.onload = () => resolve(window.html2pdf)
+      script.onerror = reject
+      document.head.appendChild(script)
+    })
+  }
+  
+  const generatePDF = async ({ totalCapital, allocations, portfolioMetrics, optimaInvestment, chartData, userName = '' }) => {
     const shares = Math.floor(optimaInvestment / 500)
     const totalIncome = optimaInvestment * (OPTIMA_SPACE.rounds[0].roi / 100) * 4.5
     const ma = OPTIMA_SPACE.marketAnalytics
     
     const allQuestions = [
-      { q: 'Откуда доходность 38%?', a: `Бизнес-модель: аренда по 1000₽/кв.м, сдача по ~6000₽/кв.м. При загрузке 90% прибыль 6 млн/мес.` },
+      { q: 'Откуда доходность 38%?', a: `Бизнес-модель: аренда по ${OPTIMA_SPACE.rentPerSqm}₽/кв.м, сдача по ~6000₽/кв.м. При загрузке 90% прибыль ${formatCurrency(OPTIMA_SPACE.monthlyProfit)}/мес.` },
       { q: 'Как защищены инвестиции?', a: `Опционный договор, выкуп через 4,5 года. Залог: ${OPTIMA_SPACE.collateral} кв.м (~${formatCurrency(OPTIMA_SPACE.collateralValue)}).` },
-      { q: 'Какие документы?', a: `Договор купли-продажи, выписка ВТБ, опционный договор, акционерное соглашение.` },
-      { q: 'Как выйти раньше?', a: `Продажа инвесторам, участие в раундах, дивиденды (окупаемость 29 мес).` },
-      { q: 'Распределение прибыли?', a: `100% до окупаемости (29 мес), затем 44% на привилегированные акции.` },
-      { q: 'Загрузка ниже плана?', a: `При 70% — ~22%. При 50% — ~12%. Худший: 500₽/акция через опцион.` },
+      { q: 'Какие документы?', a: 'Договор купли-продажи, выписка ВТБ, опционный договор, акционерное соглашение.' },
+      { q: 'Как выйти раньше?', a: 'Продажа инвесторам, участие в раундах, дивиденды (окупаемость 29 мес).' },
+      { q: 'Распределение прибыли?', a: '100% до окупаемости (29 мес), затем 44% на привилегированные акции.' },
+      { q: 'Загрузка ниже плана?', a: 'При 70% — ~22%. При 50% — ~12%. Худший: 500₽/акция через опцион.' },
     ]
-
+    
     const htmlContent = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>Инвестиционный отчёт</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:#fff;color:#000;line-height:1.6;padding:40px;max-width:800px;margin:0 auto}
-.header{text-align:center;margin-bottom:40px;padding-bottom:20px;border-bottom:2px solid #00D9C0}
+.header{text-align:center;margin-bottom:40px;padding-bottom:20px;border-bottom:2px solid #000}
 .header h1{font-size:24px;font-weight:600;margin-bottom:8px}
 .section{margin-bottom:32px}
 .section h2{font-size:16px;font-weight:600;color:#000;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #ccc}
@@ -35,8 +51,8 @@ body{font-family:'Inter',sans-serif;background:#fff;color:#000;line-height:1.6;p
 table{width:100%;border-collapse:collapse;margin-bottom:24px}
 th,td{padding:12px;text-align:left;border:1px solid #ccc;font-size:13px}
 th{background:#f0f0f0;font-weight:600;font-size:11px;text-transform:uppercase}
-.highlight-row{background:rgba(0,217,192,0.1)}
-.info-block{background:#f5f5f5;padding:20px;border-radius:8px;margin-bottom:24px;border-left:4px solid #00D9C0}
+.highlight-row{background:#f5f5f5}
+.info-block{background:#f5f5f5;padding:20px;border-radius:8px;margin-bottom:24px;border-left:4px solid #000}
 .info-block h3{font-size:14px;font-weight:600;margin-bottom:8px}
 .info-block p{font-size:13px;color:#333}
 .faq-item{margin-bottom:16px}
@@ -44,13 +60,13 @@ th{background:#f0f0f0;font-weight:600;font-size:11px;text-transform:uppercase}
 .faq-a{font-size:12px;color:#444}
 .footer{margin-top:40px;padding-top:20px;border-top:1px solid #ccc;text-align:center;font-size:11px;color:#666}
 .page-break{page-break-after:always}
-.partner-badge{display:inline-block;padding:10px 20px;border:2px solid #00D9C0;border-radius:6px;font-size:12px;font-weight:600;margin-top:16px;color:#00D9C0}
-@media print{body{padding:20px}}
+.partner-badge{display:inline-block;padding:10px 20px;border:2px solid #000;border-radius:6px;font-size:12px;font-weight:600;margin-top:16px}
 </style></head><body>
 
 <div class="header">
 <h1>Персональный инвестиционный отчёт</h1>
 <p>Консультант по долевым инвестициям в офисную недвижимость</p>
+${userName ? `<p style="font-size:14px;margin-top:8px"><strong>${userName}</strong></p>` : ''}
 <p style="font-size:12px;color:#888;margin-top:8px">Сформирован: ${new Date().toLocaleDateString('ru-RU')}</p>
 </div>
 
@@ -58,25 +74,22 @@ th{background:#f0f0f0;font-weight:600;font-size:11px;text-transform:uppercase}
 <h2>Ваш инвестиционный портфель</h2>
 <div class="metric-grid">
 <div class="metric"><div class="metric-label">Общий капитал</div><div class="metric-value">${formatCurrency(totalCapital)}</div></div>
-<div class="metric"><div class="metric-label">Доходность</div><div class="metric-value" style="color:#00D9C0">${portfolioMetrics.yield.toFixed(1)}%</div></div>
+<div class="metric"><div class="metric-label">Доходность</div><div class="metric-value">${portfolioMetrics.yield.toFixed(1)}%</div></div>
 <div class="metric"><div class="metric-label">Риск</div><div class="metric-value">${portfolioMetrics.risk.toFixed(1)}/10</div></div>
-<div class="metric"><div class="metric-label">Доход 4,5г</div><div class="metric-value" style="color:#00D9C0">${formatCurrency(totalCapital * (portfolioMetrics.yield / 100) * 4.5)}</div></div>
+<div class="metric"><div class="metric-label">Доход 4,5г</div><div class="metric-value">${formatCurrency(totalCapital * (portfolioMetrics.yield / 100) * 4.5)}</div></div>
 </div>
 <table><thead><tr><th>Актив</th><th>Доля</th><th>Сумма</th><th>Доходность</th><th>Риск</th></tr></thead><tbody>
-${chartData.map(item => {
-  const asset = ASSET_CLASSES.find(a => a.name === item.name)
-  return `<tr class="${item.name === 'Optima Space' ? 'highlight-row' : ''}"><td>${item.name}</td><td>${item.value}%</td><td>${formatCurrency(item.amount)}</td><td>${asset?.minYield || 0}-${asset?.maxYield || 0}%</td><td>${asset?.risk || 0}/10</td></tr>`
-}).join('')}
+${chartData.map(item => `<tr class="${item.name === 'Optima Space' ? 'highlight-row' : ''}"><td>${item.name}</td><td>${item.value}%</td><td>${formatCurrency(item.amount)}</td><td>${ASSET_CLASSES.find(a => a.name === item.name)?.minYield || 0}-${ASSET_CLASSES.find(a => a.name === item.name)?.maxYield || 0}%</td><td>${ASSET_CLASSES.find(a => a.name === item.name)?.risk || 0}/10</td></tr>`).join('')}
 </tbody></table>
 </div>
 
 <div class="section">
 <h2>Инвестиция в Optima Space</h2>
 <div class="metric-grid">
-<div class="metric"><div class="metric-label">Сумма</div><div class="metric-value" style="color:#00D9C0">${formatCurrency(optimaInvestment)}</div></div>
+<div class="metric"><div class="metric-label">Сумма</div><div class="metric-value">${formatCurrency(optimaInvestment)}</div></div>
 <div class="metric"><div class="metric-label">Акции</div><div class="metric-value">${shares.toLocaleString()}</div></div>
-<div class="metric"><div class="metric-label">ROI</div><div class="metric-value" style="color:#00D9C0">${OPTIMA_SPACE.rounds[0].roi}%</div></div>
-<div class="metric"><div class="metric-label">Доход 4,5г</div><div class="metric-value" style="color:#00D9C0">${formatCurrency(totalIncome)}</div></div>
+<div class="metric"><div class="metric-label">ROI</div><div class="metric-value">${OPTIMA_SPACE.rounds[0].roi}%</div></div>
+<div class="metric"><div class="metric-label">Доход 4,5г</div><div class="metric-value">${formatCurrency(totalIncome)}</div></div>
 </div>
 <div class="info-block">
 <h3>Гарантия обратного выкупа</h3>
@@ -168,15 +181,40 @@ ${OPTIMA_SPACE.team.map(t => `<tr><td>${t.name}</td><td>${t.role}</td><td>${t.ex
 
 </body></html>`
 
-    const blob = new Blob([htmlContent], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `Инвестиционный_отчёт_${new Date().toISOString().split('T')[0]}.html`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    try {
+      const html2pdf = await loadHtml2Pdf()
+      
+      const container = document.createElement('div')
+      container.innerHTML = htmlContent
+      container.style.position = 'absolute'
+      container.style.left = '-9999px'
+      document.body.appendChild(container)
+      
+      const opt = {
+        margin: 10,
+        filename: `Инвестиционный_отчёт_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      }
+      
+      await html2pdf().set(opt).from(container).save()
+      
+      document.body.removeChild(container)
+    } catch (error) {
+      console.error('PDF generation failed, falling back to HTML:', error)
+      // Fallback to HTML download
+      const blob = new Blob([htmlContent], { type: 'text/html' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `Инвестиционный_отчёт_${new Date().toISOString().split('T')[0]}.html`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    }
   }
 
   return { generatePDF }

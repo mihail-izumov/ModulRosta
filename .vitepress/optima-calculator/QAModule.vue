@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, markRaw } from 'vue'
 import { Wallet, ScrollText, Cog, TriangleAlert, DoorOpen, ChevronRight } from './icons.js'
-import { OPTIMA_SPACE, COLORS } from './constants.js'
+import { OPTIMA_SPACE } from './constants.js'
 import { formatCurrency } from './utils.js'
 
 const props = defineProps({
@@ -17,7 +17,6 @@ const openQuestion = ref(null)
 const shares = computed(() => Math.floor(props.optimaInvestment / 500))
 const monthlyDiv = computed(() => props.optimaInvestment * (OPTIMA_SPACE.rounds[0].roi / 100) / 12)
 
-// Categories with icons
 const categories = [
   { id: 'financial', name: 'Финансы', icon: markRaw(Wallet) },
   { id: 'legal', name: 'Юридическое', icon: markRaw(ScrollText) },
@@ -28,24 +27,10 @@ const categories = [
 
 const questions = computed(() => ({
   financial: [
-    { 
-      q: `Откуда доходность 38%?`, 
-      a: `Бизнес-модель: аренда ${OPTIMA_SPACE.area} кв.м по ${OPTIMA_SPACE.rentPerSqm}₽/кв.м, сдача по ~6000₽/кв.м. При загрузке 90% прибыль ${formatCurrency(OPTIMA_SPACE.monthlyProfit)}/мес.` 
-    },
-    { 
-      q: `Мой доход с ${formatCurrency(props.optimaInvestment)}?`, 
-      a: props.optimaInvestment >= 600000 
-        ? `${shares.value.toLocaleString()} акций. Дивиденд: ~${formatCurrency(monthlyDiv.value)}/мес. Окупаемость 29 мес. За 4,5 года: ~${formatCurrency(props.optimaInvestment * 0.38 * 4.5)}.` 
-        : `Минимальная инвестиция — 600 000₽.` 
-    },
-    { 
-      q: 'Распределение прибыли?', 
-      a: `100% на дивиденды до окупаемости (29 мес), затем 44% на привилегированные акции.` 
-    },
-    ...(props.portfolioMetrics.yield < 20 ? [{ 
-      q: `Как достичь 20%+?`, 
-      a: `Сейчас ${props.portfolioMetrics.yield.toFixed(1)}%. Добавьте Optima до 20-25%.` 
-    }] : [])
+    { q: `Откуда доходность 38%?`, a: `Бизнес-модель: аренда ${OPTIMA_SPACE.area} кв.м по ${OPTIMA_SPACE.rentPerSqm}₽/кв.м, сдача по ~6000₽/кв.м. При загрузке 90% прибыль ${formatCurrency(OPTIMA_SPACE.monthlyProfit)}/мес.` },
+    { q: `Мой доход с ${formatCurrency(props.optimaInvestment)}?`, a: props.optimaInvestment >= 600000 ? `${shares.value.toLocaleString()} акций. Дивиденд: ~${formatCurrency(monthlyDiv.value)}/мес. Окупаемость 29 мес. За 4,5 года: ~${formatCurrency(props.optimaInvestment * 0.38 * 4.5)}.` : `Минимальная инвестиция — 600 000₽.` },
+    { q: 'Распределение прибыли?', a: `100% на дивиденды до окупаемости (29 мес), затем 44% на привилегированные акции.` },
+    ...(props.portfolioMetrics.yield < 20 ? [{ q: `Как достичь 20%+?`, a: `Сейчас ${props.portfolioMetrics.yield.toFixed(1)}%. Добавьте Optima до 20-25%.` }] : [])
   ],
   legal: [
     { q: 'Какие документы?', a: `Договор купли-продажи, выписка ВТБ Регистратор, опционный договор, акционерное соглашение.` },
@@ -60,10 +45,7 @@ const questions = computed(() => ({
   risks: [
     { q: 'Загрузка ниже 90%?', a: `При 70% — ~22%. При 50% — ~12%. Есть сдача без сервиса (8-10%).` },
     { q: 'Проект не запустится?', a: `Опцион: 1000₽ − дивиденды (мин 500₽). Залог ${OPTIMA_SPACE.collateral} кв.м.` },
-    ...(props.allocations.optima > 20 ? [{ 
-      q: `${props.allocations.optima}% много?`, 
-      a: `Рекомендация 15-20%. Обратный выкуп компенсирует концентрацию.` 
-    }] : [])
+    ...(props.allocations.optima > 20 ? [{ q: `${props.allocations.optima}% много?`, a: `Рекомендация 15-20%. Обратный выкуп компенсирует концентрацию.` }] : [])
   ],
   exit: [
     { q: 'Выйти раньше?', a: `Продажа инвесторам, раунды по высокой цене, дивиденды (окупаемость 29 мес).` },
@@ -84,51 +66,35 @@ const handleCategoryChange = (catId) => {
 </script>
 
 <template>
-  <section class="qa-module">
-    <div class="qa-header">
-      <span class="qa-num">5</span>
-      <span class="qa-title">Вопросы инвестора</span>
+  <section class="osc-qa-module">
+    <div class="osc-qa-header">
+      <span class="osc-qa-num">5</span>
+      <span class="osc-qa-title">Вопросы инвестора</span>
     </div>
     
-    <div class="qa-layout">
-      <div class="qa-categories">
+    <div class="osc-qa-layout">
+      <div class="osc-qa-categories">
         <button 
           v-for="cat in categories" 
           :key="cat.id"
-          class="qa-cat-btn"
+          class="osc-qa-cat-btn"
           :class="{ active: activeCategory === cat.id }"
           @click="handleCategoryChange(cat.id)"
         >
-          <component :is="cat.icon" :size="16" class="cat-icon" />
-          <span class="cat-name">{{ cat.name }}</span>
-          <span class="cat-count">{{ questions[cat.id]?.length || 0 }}</span>
+          <component :is="cat.icon" :size="16" class="osc-cat-icon" />
+          <span class="osc-cat-name">{{ cat.name }}</span>
+          <span class="osc-cat-count">{{ questions[cat.id]?.length || 0 }}</span>
         </button>
       </div>
       
-      <div class="qa-questions">
-        <div 
-          v-for="(item, i) in questions[activeCategory]" 
-          :key="i"
-          class="qa-item"
-        >
-          <div 
-            class="qa-question"
-            @click="handleQuestionClick(activeCategory, i)"
-          >
-            <ChevronRight 
-              :size="18" 
-              class="qa-arrow"
-              :class="{ open: openQuestion === `${activeCategory}-${i}` }"
-            />
+      <div class="osc-qa-questions">
+        <div v-for="(item, i) in questions[activeCategory]" :key="i" class="osc-qa-item">
+          <div class="osc-qa-question" @click="handleQuestionClick(activeCategory, i)">
+            <ChevronRight :size="18" class="osc-qa-arrow" :class="{ open: openQuestion === `${activeCategory}-${i}` }" />
             {{ item.q }}
           </div>
-          <Transition name="answer">
-            <p 
-              v-if="openQuestion === `${activeCategory}-${i}`" 
-              class="qa-answer"
-            >
-              {{ item.a }}
-            </p>
+          <Transition name="osc-answer">
+            <p v-if="openQuestion === `${activeCategory}-${i}`" class="osc-qa-answer">{{ item.a }}</p>
           </Transition>
         </div>
       </div>
@@ -137,22 +103,22 @@ const handleCategoryChange = (catId) => {
 </template>
 
 <style scoped>
-.qa-module {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid #1a1a1a;
+.osc-qa-module {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px;
   padding: 32px;
   margin-bottom: 24px;
 }
 
-.qa-header {
+.osc-qa-header {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 24px;
 }
 
-.qa-num {
+.osc-qa-num {
   background: #00D9C0;
   color: #000;
   font-size: 12px;
@@ -163,29 +129,31 @@ const handleCategoryChange = (catId) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-.qa-title {
+.osc-qa-title {
   font-size: 14px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #fff;
+  line-height: 28px;
 }
 
-.qa-layout {
+.osc-qa-layout {
   display: grid;
   grid-template-columns: 200px 1fr;
   gap: 24px;
 }
 
-.qa-categories {
+.osc-qa-categories {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.qa-cat-btn {
+.osc-qa-cat-btn {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -197,71 +165,27 @@ const handleCategoryChange = (catId) => {
   cursor: pointer;
   text-align: left;
   transition: all 0.2s;
-  color: #888;
+  color: #aaa;
 }
 
-.qa-cat-btn:hover {
-  background: rgba(255,255,255,0.02);
-}
+.osc-qa-cat-btn:hover { background: rgba(255,255,255,0.03); }
+.osc-qa-cat-btn.active { background: rgba(0,217,192,0.15); border-left-color: #00D9C0; }
 
-.qa-cat-btn.active {
-  background: rgba(0,217,192,0.1);
-  border-left-color: #00D9C0;
-}
+.osc-cat-icon { flex-shrink: 0; opacity: 0.7; }
+.osc-qa-cat-btn.active .osc-cat-icon { color: #00D9C0; opacity: 1; }
 
-.cat-icon { 
-  flex-shrink: 0;
-  opacity: 0.7;
-}
+.osc-cat-name { flex: 1; font-size: 13px; transition: color 0.2s; }
+.osc-qa-cat-btn.active .osc-cat-name { color: #00D9C0; font-weight: 600; }
+.osc-cat-count { font-size: 11px; color: #777; }
 
-.qa-cat-btn.active .cat-icon {
-  color: #00D9C0;
-  opacity: 1;
-}
+.osc-qa-questions { max-height: 400px; overflow-y: auto; padding-right: 8px; }
+.osc-qa-questions::-webkit-scrollbar { width: 4px; }
+.osc-qa-questions::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 2px; }
+.osc-qa-questions::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
 
-.cat-name {
-  flex: 1;
-  font-size: 13px;
-  transition: color 0.2s;
-}
+.osc-qa-item { margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; }
 
-.qa-cat-btn.active .cat-name {
-  color: #00D9C0;
-  font-weight: 600;
-}
-
-.cat-count {
-  font-size: 10px;
-  color: #555;
-}
-
-.qa-questions {
-  max-height: 400px;
-  overflow-y: auto;
-  padding-right: 8px;
-}
-
-.qa-questions::-webkit-scrollbar {
-  width: 4px;
-}
-
-.qa-questions::-webkit-scrollbar-track {
-  background: #111;
-  border-radius: 2px;
-}
-
-.qa-questions::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 2px;
-}
-
-.qa-item {
-  margin-bottom: 12px;
-  border-bottom: 1px solid #111;
-  padding-bottom: 12px;
-}
-
-.qa-question {
+.osc-qa-question {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -272,60 +196,19 @@ const handleCategoryChange = (catId) => {
   cursor: pointer;
   transition: color 0.2s;
 }
+.osc-qa-question:hover { color: #00D9C0; }
 
-.qa-question:hover {
-  color: #00D9C0;
-}
+.osc-qa-arrow { color: #00D9C0; flex-shrink: 0; transition: transform 0.2s; }
+.osc-qa-arrow.open { transform: rotate(90deg); }
+.osc-qa-answer { font-size: 13px; color: #aaa; line-height: 1.7; margin: 8px 0 0; padding-left: 28px; }
 
-.qa-arrow {
-  color: #00D9C0;
-  flex-shrink: 0;
-  transition: transform 0.2s;
-}
-
-.qa-arrow.open {
-  transform: rotate(90deg);
-}
-
-.qa-answer {
-  font-size: 13px;
-  color: #888;
-  line-height: 1.7;
-  margin: 8px 0 0;
-  padding-left: 28px;
-}
-
-.answer-enter-active,
-.answer-leave-active {
-  transition: all 0.2s ease;
-}
-
-.answer-enter-from,
-.answer-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
+.osc-answer-enter-active, .osc-answer-leave-active { transition: all 0.2s ease; }
+.osc-answer-enter-from, .osc-answer-leave-to { opacity: 0; transform: translateY(-8px); }
 
 @media (max-width: 768px) {
-  .qa-layout {
-    grid-template-columns: 1fr;
-  }
-  
-  .qa-categories {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  .qa-cat-btn {
-    border-left: none;
-    border-bottom: 2px solid transparent;
-    border-radius: 8px;
-    padding: 10px 14px;
-  }
-  
-  .qa-cat-btn.active {
-    border-bottom-color: #00D9C0;
-  }
+  .osc-qa-layout { grid-template-columns: 1fr; }
+  .osc-qa-categories { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .osc-qa-cat-btn { border-left: none; border-bottom: 2px solid transparent; border-radius: 8px; padding: 10px 14px; }
+  .osc-qa-cat-btn.active { border-bottom-color: #00D9C0; }
 }
 </style>

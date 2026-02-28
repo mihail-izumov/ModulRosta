@@ -1,110 +1,98 @@
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps({
-  text: { type: String, required: true }
+  text: { type: String, required: true },
+  html: { type: Boolean, default: false }
 })
 
-const show = ref(false)
+const isVisible = ref(false)
 const tooltipRef = ref(null)
-const containerRef = ref(null)
-const position = ref({ left: '50%', transform: 'translateX(-50%)' })
+const position = ref({ x: 0, y: 0 })
 
-const updatePosition = () => {
-  if (show.value && tooltipRef.value && containerRef.value) {
-    const tooltipRect = tooltipRef.value.getBoundingClientRect()
-    
-    if (tooltipRect.left < 10) {
-      position.value = { left: '0', transform: 'translateX(0)' }
-    } else if (tooltipRect.right > window.innerWidth - 10) {
-      position.value = { left: 'auto', right: '0', transform: 'translateX(0)' }
-    } else {
-      position.value = { left: '50%', transform: 'translateX(-50%)' }
-    }
-  }
+const showTooltip = (event) => {
+  isVisible.value = true
 }
 
-watch(show, (newVal) => {
-  if (newVal) {
-    setTimeout(updatePosition, 0)
-  }
-})
+const hideTooltip = () => {
+  isVisible.value = false
+}
 </script>
 
 <template>
   <span 
-    ref="containerRef"
-    class="info-tooltip-container"
-    @mouseenter="show = true"
-    @mouseleave="show = false"
+    class="osc-tooltip-wrapper"
+    @mouseenter="showTooltip"
+    @mouseleave="hideTooltip"
   >
     <slot />
-    <span class="info-tooltip-icon">?</span>
-    <Transition name="tooltip">
+    <Transition name="osc-tooltip-fade">
       <div 
-        v-if="show" 
+        v-if="isVisible" 
         ref="tooltipRef"
-        class="info-tooltip-popup"
-        :style="position"
+        class="osc-tooltip-box"
       >
-        {{ text }}
+        <div v-if="html" v-html="text" class="osc-tooltip-content"></div>
+        <div v-else class="osc-tooltip-content">{{ text }}</div>
       </div>
     </Transition>
   </span>
 </template>
 
 <style scoped>
-.info-tooltip-container {
+.osc-tooltip-wrapper {
   position: relative;
   display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.info-tooltip-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #222;
-  color: #666;
-  font-size: 10px;
   cursor: help;
-  transition: all 0.2s;
 }
 
-.info-tooltip-icon:hover {
-  background: #333;
-  color: #888;
-}
-
-.info-tooltip-popup {
+.osc-tooltip-box {
   position: absolute;
-  bottom: 100%;
-  margin-bottom: 8px;
-  padding: 12px 14px;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 16px;
   background: #1a1a1a;
-  border: 1px solid #333;
+  border: 1px solid rgba(0,217,192,0.3);
   border-radius: 8px;
-  font-size: 11px;
-  color: #aaa;
+  font-size: 12px;
+  color: #ccc;
   line-height: 1.6;
-  width: 280px;
+  white-space: pre-wrap;
+  max-width: 320px;
+  min-width: 200px;
   z-index: 1000;
-  white-space: pre-line;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 
-.tooltip-enter-active,
-.tooltip-leave-active {
+.osc-tooltip-box::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1a1a1a;
+}
+
+.osc-tooltip-content :deep(strong) {
+  color: #fff;
+  font-weight: 600;
+}
+
+.osc-tooltip-content :deep(span) {
+  display: block;
+  margin-top: 8px;
+}
+
+.osc-tooltip-fade-enter-active,
+.osc-tooltip-fade-leave-active {
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.tooltip-enter-from,
-.tooltip-leave-to {
+.osc-tooltip-fade-enter-from,
+.osc-tooltip-fade-leave-to {
   opacity: 0;
-  transform: translateY(4px);
+  transform: translateX(-50%) translateY(4px);
 }
 </style>
