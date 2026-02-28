@@ -44,7 +44,7 @@ import CheckupHowWorks from '../components/CheckupHowWorks.vue'
 import CheckupOverviewTabs from '../components/CheckupOverviewTabs.vue'
 import RadarTestDrive2Cards from '../components/RadarTestDrive2Cards.vue'
 import BumbastikABC from '../components/BumbastikABC.vue'
-import OptimaSpaceCalculator from '../components/OptimaSpaceCalculator.vue'
+import OptimaSpaceCalculator from '../components/optima-calculator/OptimaSpaceCalculator.vue'
 
 export default {
   extends: DefaultTheme,
