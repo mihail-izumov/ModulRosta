@@ -843,7 +843,10 @@ onMounted(() => {
   gap: 10px;
   margin-bottom: 12px;
 }
-rder-radius: 4px;
+
+.osc-asset-tag {
+  padding: 2px 6px;
+  border-radius: 4px;
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
