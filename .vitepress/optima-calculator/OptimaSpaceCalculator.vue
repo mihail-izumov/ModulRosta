@@ -843,10 +843,7 @@ onMounted(() => {
   gap: 10px;
   margin-bottom: 12px;
 }
-
-.osc-asset-tag {
-  padding: 3px 8px;
-  border-radius: 4px;
+rder-radius: 4px;
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
@@ -1308,4 +1305,6 @@ onMounted(() => {
   .osc-countdown-value { font-size: 36px; }
   .osc-features { grid-template-columns: 1fr 1fr; }
   .osc-strategy-grid { grid-template-columns: 1fr; }
-  .osc-capita
+  .osc-capital-buttons { flex-wrap: wrap; }
+}
+</style>
