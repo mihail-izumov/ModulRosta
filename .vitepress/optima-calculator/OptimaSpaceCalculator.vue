@@ -41,7 +41,7 @@ const optimaShares = computed(() => Math.floor(optimaInvestment.value / OPTIMA_S
 const totalExpectedIncome = computed(() => totalCapital.value * (portfolioMetrics.value.yield / 100) * 4.5)
 const optimaIncome = computed(() => optimaInvestment.value * (OPTIMA_SPACE.rounds[0].roi / 100) * 4.5)
 
-// Countdown to launch
+// Countdown to launch - flip clock style
 // Функция склонения для русского языка
 const pluralize = (n, forms) => {
   const n10 = n % 10
@@ -57,16 +57,21 @@ const countdown = computed(() => {
   const now = new Date()
   const diff = launch - now
   
-  if (diff <= 0) return { months: 0, days: 0, launched: true, monthsText: '', daysText: '' }
+  if (diff <= 0) return { days: 0, hours: 0, minutes: 0, launched: true }
   
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  const months = Math.floor(days / 30)
-  const remainingDays = days % 30
+  const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
   
-  const monthsText = pluralize(months, ['месяц', 'месяца', 'месяцев'])
-  const daysText = pluralize(remainingDays, ['день', 'дня', 'дней'])
-  
-  return { months, days: remainingDays, totalDays: days, launched: false, monthsText, daysText }
+  return { 
+    days: totalDays, 
+    hours, 
+    minutes, 
+    launched: false,
+    daysText: pluralize(totalDays, ['ДЕНЬ', 'ДНЯ', 'ДНЕЙ']),
+    hoursText: pluralize(hours, ['ЧАС', 'ЧАСА', 'ЧАСОВ']),
+    minutesText: pluralize(minutes, ['МИНУТА', 'МИНУТЫ', 'МИНУТ'])
+  }
 })
 
 const capitalButtons = [
@@ -183,51 +188,95 @@ onMounted(() => {
       <h1 class="osc-header-title">Расчёт инвестиций в Optima Space</h1>
     </header>
 
-    <!-- Countdown Block - Glassmorphism -->
+    <!-- Countdown Block - Flip Clock Style -->
     <section class="osc-countdown-section">
+      <h2 class="osc-countdown-title">До запуска Optima Space в Самаре</h2>
+      <div class="osc-countdown-divider"></div>
       <div class="osc-countdown-content">
-        <h2 class="osc-countdown-title">До запуска Optima Space</h2>
         <div class="osc-countdown-timer">
-          <div class="osc-countdown-item">
-            <span class="osc-countdown-value">{{ countdown.months }}</span>
-            <span class="osc-countdown-label">{{ countdown.monthsText }}</span>
+          <div class="osc-flip-card">
+            <div class="osc-flip-value">{{ String(countdown.days).padStart(2, '0') }}</div>
+            <div class="osc-flip-label">{{ countdown.daysText }}</div>
           </div>
-          <div class="osc-countdown-separator">:</div>
-          <div class="osc-countdown-item">
-            <span class="osc-countdown-value">{{ countdown.days }}</span>
-            <span class="osc-countdown-label">{{ countdown.daysText }}</span>
+          <div class="osc-flip-card">
+            <div class="osc-flip-value">{{ String(countdown.hours).padStart(2, '0') }}</div>
+            <div class="osc-flip-label">{{ countdown.hoursText }}</div>
+          </div>
+          <div class="osc-flip-card">
+            <div class="osc-flip-value">{{ String(countdown.minutes).padStart(2, '0') }}</div>
+            <div class="osc-flip-label">{{ countdown.minutesText }}</div>
           </div>
         </div>
         <div class="osc-countdown-status">
-          <Clock :size="16" :color="COLORS.primary" />
+          <Clock :size="16" color="#00D9C0" />
           <span>Дата запуска: 1 июня 2026</span>
           <span class="osc-status-badge">Стройка идёт по плану</span>
         </div>
       </div>
     </section>
 
-    <!-- Intro Text -->
+    <!-- Intro Text with Tooltips -->
     <section class="osc-intro-section">
-      <p class="osc-intro-text">Этот калькулятор фокусируется на Optima Space — сервисных офисах класса А в Самаре с гарантией обратного выкупа. Мы помогаем инвесторам рассчитать оптимальную долю Optima Space в их портфеле для достижения целевой доходности 20%+ годовых.</p>
+      <p class="osc-intro-text">
+        Этот калькулятор фокусируется на 
+        <InfoTooltip text="Сервисные офисы — готовые к работе рабочие места с мебелью, интернетом и сервисами. Арендатор платит только за место, без забот об инфраструктуре." :maxWidth="480">
+          <span class="osc-highlight-text">Optima Space</span>
+        </InfoTooltip>
+         — сервисных офисах 
+        <InfoTooltip text="Класс А — высший стандарт офисной недвижимости: современное здание, престижная локация, профессиональное управление, высокое качество отделки." :maxWidth="480">
+          <span class="osc-highlight-text">класса А</span>
+        </InfoTooltip>
+         в Самаре с 
+        <InfoTooltip :text="TOOLTIPS.buybackGuarantee" :html="true" :maxWidth="520">
+          <span class="osc-highlight-text">гарантией обратного выкупа</span>
+        </InfoTooltip>. 
+        Мы помогаем инвесторам рассчитать оптимальную долю Optima Space в их портфеле для достижения 
+        <InfoTooltip text="20%+ годовых — целевая доходность портфеля, достижимая при включении Optima Space (38% годовых) в сочетании с более консервативными активами." :maxWidth="480">
+          <span class="osc-highlight-text">целевой доходности 20%+ годовых</span>
+        </InfoTooltip>.
+      </p>
     </section>
 
-    <!-- Features -->
+    <!-- How It Works - with arrows and subtitles -->
     <section class="osc-features">
       <div class="osc-feature">
-        <Scale :size="28" :color="COLORS.primary" />
-        <span>Баланс риска</span>
+        <InfoTooltip text="Укажите общую сумму, которую готовы инвестировать. Минимальный порог для Optima Space — 500 000 ₽ (1000 акций)." :maxWidth="420">
+          <div class="osc-feature-icon-wrap">
+            <Wallet :size="28" color="#00D9C0" />
+          </div>
+        </InfoTooltip>
+        <span class="osc-feature-title">Ваш капитал</span>
+        <span class="osc-feature-sub">Сколько готовы инвестировать</span>
       </div>
+      <div class="osc-feature-arrow">→</div>
       <div class="osc-feature">
-        <TrendingUp :size="28" :color="COLORS.primary" />
-        <span>Корректная доходность</span>
+        <InfoTooltip text="Распределите капитал между классами активов: офисы, склады, ритейл, облигации, акции. Калькулятор рассчитает доходность и риск." :maxWidth="420">
+          <div class="osc-feature-icon-wrap">
+            <Scale :size="28" color="#00D9C0" />
+          </div>
+        </InfoTooltip>
+        <span class="osc-feature-title">Распределите активы</span>
+        <span class="osc-feature-sub">Офисы, склады, ритейл, резерв</span>
       </div>
+      <div class="osc-feature-arrow">→</div>
       <div class="osc-feature">
-        <PieChart :size="28" :color="COLORS.primary" />
-        <span>Долгий Optima Space</span>
+        <InfoTooltip text="Узнайте детали инвестиции в Optima Space: количество акций, ожидаемые дивиденды, гарантии выкупа, покрытие залогом." :maxWidth="420">
+          <div class="osc-feature-icon-wrap">
+            <Building2 :size="28" color="#00D9C0" />
+          </div>
+        </InfoTooltip>
+        <span class="osc-feature-title">Детали Optima Space</span>
+        <span class="osc-feature-sub">Акции, дивиденды, гарантии</span>
       </div>
+      <div class="osc-feature-arrow">→</div>
       <div class="osc-feature">
-        <FileText :size="28" :color="COLORS.primary" />
-        <span>Скачать PDF</span>
+        <InfoTooltip text="Скачайте персональный PDF-отчёт с вашей инвестиционной стратегией, расчётами доходности и всеми деталями проекта." :maxWidth="420">
+          <div class="osc-feature-icon-wrap">
+            <FileText :size="28" color="#00D9C0" />
+          </div>
+        </InfoTooltip>
+        <span class="osc-feature-title">Скачайте отчёт</span>
+        <span class="osc-feature-sub">Персональная стратегия в PDF</span>
       </div>
     </section>
 
@@ -235,13 +284,28 @@ onMounted(() => {
     <section class="osc-card-section">
       <div class="osc-section-header">
         <span class="osc-step-num">1</span>
-        <Wallet :size="20" :color="COLORS.primary" />
-        <span class="osc-section-title">Ваш инвестиционный капитал</span>
+        <span class="osc-section-title">ВАШ ИНВЕСТИЦИОННЫЙ КАПИТАЛ</span>
       </div>
       
       <div class="osc-capital-row">
         <span class="osc-capital-label">Сумма для инвестирования</span>
-        <CurrencyInput v-model="totalCapital" :max="500000000" />
+        <CurrencyInput v-model="totalCapital" :max="500000000" class="osc-capital-input" />
+      </div>
+      
+      <div class="osc-capital-slider-wrap">
+        <input 
+          type="range" 
+          :value="totalCapital" 
+          @input="totalCapital = Number($event.target.value)"
+          min="1000000"
+          max="100000000"
+          step="100000"
+          class="osc-capital-slider"
+        />
+        <div class="osc-slider-labels">
+          <span>1 млн ₽</span>
+          <span>100 млн ₽</span>
+        </div>
       </div>
       
       <div class="osc-capital-buttons">
@@ -265,17 +329,22 @@ onMounted(() => {
       </div>
       
       <div class="osc-strategy-grid">
-        <div 
+        <InfoTooltip 
           v-for="(strategy, key) in STRATEGIES" 
           :key="key"
-          class="osc-strategy-card"
-          :class="{ active: selectedStrategy === key }"
-          @click="handleStrategyClick(key)"
+          :text="strategy.tooltip || strategy.description"
+          :maxWidth="450"
         >
-          <div class="osc-str-name">{{ strategy.name }}</div>
-          <div class="osc-str-target">{{ strategy.target }}</div>
-          <div class="osc-str-desc">{{ strategy.description }}</div>
-        </div>
+          <div 
+            class="osc-strategy-card"
+            :class="{ active: selectedStrategy === key }"
+            @click="handleStrategyClick(key)"
+          >
+            <div class="osc-str-name">{{ strategy.name }}</div>
+            <div class="osc-str-target">{{ strategy.target }}</div>
+            <div class="osc-str-desc">{{ strategy.description }}</div>
+          </div>
+        </InfoTooltip>
       </div>
 
       <!-- Mode Toggle -->
@@ -298,10 +367,10 @@ onMounted(() => {
           <div class="osc-alloc-list">
             <div v-for="asset in ASSET_CLASSES" :key="asset.id" class="osc-alloc-item">
               <div class="osc-alloc-header">
-                <InfoTooltip :text="asset.tooltip" :html="true" :maxWidth="450">
+                <span class="osc-asset-name">{{ asset.name }}</span>
+                <InfoTooltip :text="asset.tooltip" :html="true" :maxWidth="480">
                   <span class="osc-asset-tag" :style="{ background: asset.tagColor }">{{ asset.tag }}</span>
                 </InfoTooltip>
-                <span class="osc-asset-name">{{ asset.name }}</span>
                 <span class="osc-asset-value">
                   <template v-if="inputMode === 'percent'">{{ allocations[asset.id] }}%</template>
                   <template v-else>{{ formatCurrency(getAssetAmount(asset.id)) }}</template>
@@ -381,7 +450,6 @@ onMounted(() => {
     <section v-if="allocations.optima > 0" class="osc-card-section">
       <div class="osc-section-header">
         <span class="osc-step-num">3</span>
-        <Building2 :size="20" :color="COLORS.primary" />
         <span class="osc-section-title">Детали инвестиции в Optima Space</span>
       </div>
 
@@ -415,7 +483,6 @@ onMounted(() => {
     <section class="osc-card-section">
       <div class="osc-section-header">
         <span class="osc-step-num">4</span>
-        <Scale :size="20" :color="COLORS.primary" />
         <span class="osc-section-title">Сравнение инструментов</span>
       </div>
 
@@ -460,26 +527,36 @@ onMounted(() => {
       :portfolioMetrics="portfolioMetrics"
     />
 
-    <!-- Final Summary -->
+    <!-- Final Summary - Two columns: Portfolio | Income -->
     <section class="osc-summary-section">
-      <h3 class="osc-summary-title">Ожидаемый доход за 4,5 года</h3>
-      
-      <div class="osc-summary-content">
-        <div class="osc-summary-list">
-          <div v-for="item in chartData" :key="item.name" class="osc-summary-item">
-            <span class="osc-sum-dot" :style="{ background: item.color }"></span>
-            <span class="osc-sum-name">{{ item.name }}</span>
-            <span class="osc-sum-amount">{{ formatCurrency(item.amount) }}</span>
+      <div class="osc-summary-grid">
+        <!-- Left: Portfolio -->
+        <div class="osc-portfolio-block">
+          <h3 class="osc-block-title">Портфель {{ formatCurrency(totalCapital) }}</h3>
+          <div class="osc-portfolio-list">
+            <div 
+              v-for="item in chartData" 
+              :key="item.name" 
+              class="osc-portfolio-row"
+              :class="{ 'osc-optima-highlight': item.name === 'Optima Space' }"
+            >
+              <span class="osc-row-dot" :style="{ background: item.color }"></span>
+              <span class="osc-row-name">{{ item.name }}</span>
+              <span class="osc-row-amount">{{ formatCurrency(item.amount) }}</span>
+            </div>
           </div>
         </div>
         
-        <div class="osc-summary-total">
-          <div class="osc-total-income">{{ formatCurrency(totalExpectedIncome) }}</div>
-          
-          <!-- Optima Space Badge with Animation -->
-          <div v-if="allocations.optima > 0" class="osc-optima-badge">
-            <span class="osc-badge-glow"></span>
-            <span class="osc-badge-text">Из них Optima Space: {{ formatCurrency(optimaIncome) }}</span>
+        <!-- Right: Income -->
+        <div class="osc-income-block">
+          <h3 class="osc-block-title">Ожидаемый доход за 4,5 года</h3>
+          <div class="osc-income-value">{{ formatCurrency(totalExpectedIncome) }}</div>
+          <div v-if="allocations.optima > 0" class="osc-optima-income">
+            <span class="osc-optima-glow"></span>
+            <span>Из них Optima Space: <strong>{{ formatCurrency(optimaIncome) }}</strong></span>
+          </div>
+          <div class="osc-income-yield">
+            при доходности <strong>{{ portfolioMetrics.yield.toFixed(1) }}%</strong>
           </div>
         </div>
       </div>
@@ -543,7 +620,7 @@ onMounted(() => {
   margin: 0;
 }
 
-/* Countdown - Glassmorphism */
+/* Countdown - Flip Clock Style */
 .osc-countdown-section {
   position: relative;
   margin-bottom: 32px;
@@ -557,50 +634,77 @@ onMounted(() => {
 }
 
 .osc-countdown-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: #fff;
   text-align: center;
+  margin-bottom: 16px;
+}
+
+.osc-countdown-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   margin-bottom: 24px;
+}
+
+.osc-countdown-content {
+  text-align: center;
 }
 
 .osc-countdown-timer {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 16px;
 }
 
-.osc-countdown-item {
-  text-align: center;
+.osc-flip-card {
+  background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 50%, #222 50%, #1a1a1a 100%);
+  border-radius: 12px;
+  padding: 20px 24px;
+  min-width: 100px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
 }
 
-.osc-countdown-value {
-  display: block;
-  font-family: 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', monospace;
-  font-size: 48px;
+.osc-flip-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(0,0,0,0.3);
+}
+
+.osc-flip-value {
+  font-family: 'SF Mono', Monaco, 'Inconsolata', monospace;
+  font-size: 52px;
   font-weight: 700;
-  color: #00D9C0;
+  color: #fff;
   line-height: 1;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.osc-countdown-label {
-  font-size: 12px;
-  color: #888;
+.osc-flip-label {
+  font-size: 11px;
+  color: #d4a000;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.osc-countdown-separator {
-  font-size: 36px;
-  color: #555;
-  font-weight: 300;
+  letter-spacing: 0.1em;
+  margin-top: 12px;
+  font-weight: 600;
 }
 
 .osc-countdown-status {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+  font-size: 13px;
+  color: #aaa;
+}
   gap: 10px;
   margin-top: 20px;
   font-size: 13px;
@@ -631,26 +735,79 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-/* Features */
-.osc-features {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+/* Intro Section */
+.osc-intro-section {
+  text-align: center;
   margin-bottom: 32px;
+  padding: 0 20px;
+}
+
+.osc-intro-text {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #bbb;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.osc-highlight-text {
+  color: #00D9C0;
+  font-weight: 500;
+  border-bottom: 1px dashed rgba(0,217,192,0.4);
+  cursor: help;
+}
+
+/* Features with Arrows */
+.osc-features {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
 }
 
 .osc-feature {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 20px;
+  gap: 10px;
+  padding: 20px 16px;
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
-  font-size: 12px;
-  color: #aaa;
   text-align: center;
+  flex: 0 0 180px;
+  min-height: 130px;
+}
+
+.osc-feature-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: rgba(0,217,192,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.osc-feature-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.osc-feature-sub {
+  font-size: 11px;
+  color: #888;
+  line-height: 1.4;
+}
+
+.osc-feature-arrow {
+  font-size: 24px;
+  color: #00D9C0;
+  font-weight: 300;
+  padding-top: 40px;
 }
 
 /* Card Sections */
@@ -728,6 +885,62 @@ onMounted(() => {
 .osc-cap-btn.active {
   background: rgba(0,217,192,0.15);
   border-color: #00D9C0;
+  color: #00D9C0;
+}
+
+/* Capital Slider */
+.osc-capital-slider-wrap {
+  margin-bottom: 20px;
+}
+
+.osc-capital-slider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, #00D9C0 0%, #00D9C0 var(--progress, 10%), #444 var(--progress, 10%), #444 100%);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.osc-capital-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #00D9C0;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.osc-capital-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #00D9C0;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.osc-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.osc-capital-input {
+  font-size: 24px !important;
+  font-weight: 600;
+  text-align: right;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
   color: #00D9C0;
 }
 
@@ -1105,7 +1318,7 @@ onMounted(() => {
   max-width: 200px;
 }
 
-/* Summary Section */
+/* Summary Section - Two Columns */
 .osc-summary-section {
   background: linear-gradient(135deg, rgba(0,217,192,0.15) 0%, rgba(0,217,192,0.05) 100%);
   border: 1px solid rgba(0,217,192,0.3);
@@ -1114,97 +1327,136 @@ onMounted(() => {
   margin-bottom: 24px;
 }
 
-.osc-summary-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #fff;
-  margin: 0 0 24px;
-  text-align: center;
-}
-
-.osc-summary-content {
+.osc-summary-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 32px;
   margin-bottom: 24px;
 }
 
-.osc-summary-list {
+.osc-portfolio-block,
+.osc-income-block {
+  background: rgba(0,0,0,0.2);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.osc-block-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 20px;
+}
+
+.osc-portfolio-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-.osc-summary-item {
+.osc-portfolio-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 13px;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
 }
 
-.osc-sum-dot {
+.osc-portfolio-row:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.osc-portfolio-row.osc-optima-highlight {
+  background: rgba(0,217,192,0.15);
+  border: 1px solid rgba(0,217,192,0.3);
+}
+
+.osc-row-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.osc-sum-name {
+.osc-row-name {
   flex: 1;
-  color: #aaa;
+  font-size: 14px;
+  color: #ccc;
 }
 
-.osc-sum-amount {
+.osc-optima-highlight .osc-row-name {
+  color: #00D9C0;
+  font-weight: 500;
+}
+
+.osc-row-amount {
+  font-size: 14px;
   font-weight: 600;
   color: #fff;
 }
 
-.osc-summary-total {
+.osc-income-block {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.osc-total-income {
-  font-size: 42px;
+.osc-income-value {
+  font-size: 48px;
   font-weight: 700;
   color: #00D9C0;
   line-height: 1;
+  margin: 16px 0;
 }
 
-.osc-total-sub {
-  font-size: 13px;
-  color: #888;
-  margin-top: 8px;
-}
-
-/* Optima Badge with Animation */
-.osc-optima-badge {
+.osc-optima-income {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  margin-top: 16px;
-  padding: 10px 20px;
+  padding: 12px 24px;
   background: rgba(0,217,192,0.2);
   border: 1px solid #00D9C0;
   border-radius: 25px;
+  margin: 16px auto;
+  font-size: 14px;
+  color: #fff;
   position: relative;
   overflow: hidden;
-  animation: osc-badge-pulse 2s ease-in-out infinite;
+  animation: osc-income-pulse 2s ease-in-out infinite;
 }
 
-@keyframes osc-badge-pulse {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(0,217,192,0.3);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(0,217,192,0.6);
-  }
+@keyframes osc-income-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(0,217,192,0.3); }
+  50% { box-shadow: 0 0 25px rgba(0,217,192,0.6); }
 }
 
-.osc-badge-glow {
+.osc-optima-glow {
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: osc-glow-sweep 3s ease-in-out infinite;
+}
+
+@keyframes osc-glow-sweep {
+  0% { left: -100%; }
+  50%, 100% { left: 100%; }
+}
+
+.osc-income-yield {
+  font-size: 13px;
+  color: #888;
+  margin-top: 12px;
+}
+
+.osc-income-yield strong {
+  color: #fff;
+}
   background: linear-gradient(90deg, transparent, rgba(0,217,192,0.3), transparent);
   animation: osc-badge-shine 3s linear infinite;
 }
@@ -1294,20 +1546,24 @@ onMounted(() => {
 
 /* Responsive */
 @media (max-width: 900px) {
-  .osc-features { grid-template-columns: repeat(2, 1fr); }
+  .osc-features { flex-wrap: wrap; }
+  .osc-feature-arrow { display: none; }
   .osc-strategy-grid { grid-template-columns: repeat(2, 1fr); }
   .osc-allocation-grid { grid-template-columns: 1fr; }
   .osc-optima-metrics { grid-template-columns: repeat(2, 1fr); }
-  .osc-summary-content { grid-template-columns: 1fr; }
+  .osc-summary-grid { grid-template-columns: 1fr; }
   .osc-action-buttons { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 600px) {
   .osc-calculator { padding: 20px 16px; }
   .osc-header-title { font-size: 24px; }
-  .osc-countdown-value { font-size: 36px; }
-  .osc-features { grid-template-columns: 1fr 1fr; }
+  .osc-flip-value { font-size: 36px; }
+  .osc-flip-card { min-width: 80px; padding: 16px; }
+  .osc-features { gap: 8px; }
+  .osc-feature { flex: 0 0 calc(50% - 8px); min-height: auto; padding: 16px 12px; }
   .osc-strategy-grid { grid-template-columns: 1fr; }
   .osc-capital-buttons { flex-wrap: wrap; }
+  .osc-income-value { font-size: 36px; }
 }
 </style>

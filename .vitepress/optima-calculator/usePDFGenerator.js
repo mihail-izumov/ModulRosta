@@ -11,8 +11,8 @@ export function usePDFGenerator() {
     const totalIncome = optimaInvestment * (OPTIMA_SPACE.rounds[0].roi / 100) * 4.5
     const ma = OPTIMA_SPACE.marketAnalytics
     
-    const appNum = applicationNumber || `${String(new Date().getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 100)).padStart(2, '0')}`
-    const appDate = applicationDate || new Date().toLocaleDateString('ru-RU')
+    const reportNum = applicationNumber || `${String(new Date().getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 100)).padStart(2, '0')}`
+    const reportDate = applicationDate || new Date().toLocaleDateString('ru-RU')
     
     const allQuestions = [
       { q: 'Откуда доходность 38%?', a: `Бизнес-модель: аренда по ${OPTIMA_SPACE.rentPerSqm}₽/кв.м, сдача по ~6000₽/кв.м. При загрузке 90% прибыль ${formatCurrency(OPTIMA_SPACE.monthlyProfit)}/мес.` },
@@ -26,46 +26,46 @@ export function usePDFGenerator() {
     const htmlContent = `<!DOCTYPE html>
 <html><head>
 <meta charset="UTF-8">
-<title>Инвестиционный отчёт № ${appNum}</title>
+<title>Инвестиционный отчёт № ${reportNum}</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000;line-height:1.6;padding:40px;max-width:800px;margin:0 auto}
 .header{text-align:center;margin-bottom:40px;padding-bottom:20px;border-bottom:2px solid #000}
 .header h1{font-size:24px;font-weight:600;margin-bottom:8px}
-.app-info{display:inline-block;padding:8px 16px;border:1px solid #ddd;border-radius:4px;font-family:'SF Mono',Monaco,monospace;font-size:12px;margin-top:12px;background:#f9f9f9}
+.report-info{display:inline-block;padding:8px 16px;border:2px solid #000;border-radius:4px;font-family:'SF Mono',Monaco,monospace;font-size:12px;margin-top:12px;background:#f9f9f9}
 .section{margin-bottom:32px}
-.section h2{font-size:16px;font-weight:600;color:#000;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #ccc}
+.section h2{font-size:16px;font-weight:600;color:#000;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #000}
 .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.metric{background:#f5f5f5;padding:16px;border-radius:8px;text-align:center;border:1px solid #ddd}
-.metric-label{font-size:10px;color:#666;text-transform:uppercase;margin-bottom:4px}
-.metric-value{font-size:20px;font-weight:600}
+.metric{background:#f5f5f5;padding:16px;border-radius:8px;text-align:center;border:2px solid #000}
+.metric-label{font-size:10px;color:#333;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+.metric-value{font-size:20px;font-weight:700}
 table{width:100%;border-collapse:collapse;margin-bottom:24px}
-th,td{padding:12px;text-align:left;border:1px solid #ccc;font-size:13px}
-th{background:#f0f0f0;font-weight:600;font-size:11px;text-transform:uppercase}
-.highlight-row{background:#e8f5f3}
-.info-block{background:#f5f5f5;padding:20px;border-radius:8px;margin-bottom:24px;border-left:4px solid #00a67d}
-.info-block h3{font-size:14px;font-weight:600;margin-bottom:8px}
-.info-block p{font-size:13px;color:#333}
+th,td{padding:12px;text-align:left;border:1px solid #000;font-size:13px}
+th{background:#e0e0e0;font-weight:700;font-size:11px;text-transform:uppercase}
+.highlight-row{background:#d0d0d0;font-weight:600}
+.info-block{background:#f0f0f0;padding:20px;border-radius:8px;margin-bottom:24px;border-left:4px solid #000}
+.info-block h3{font-size:14px;font-weight:700;margin-bottom:8px}
+.info-block p{font-size:13px;color:#222}
 .faq-item{margin-bottom:16px}
-.faq-q{font-size:13px;font-weight:600;margin-bottom:4px}
-.faq-a{font-size:12px;color:#444}
-.footer{margin-top:40px;padding-top:20px;border-top:1px solid #ccc;text-align:center;font-size:11px;color:#666}
+.faq-q{font-size:13px;font-weight:700;margin-bottom:4px}
+.faq-a{font-size:12px;color:#333}
+.footer{margin-top:40px;padding-top:20px;border-top:2px solid #000;text-align:center;font-size:11px;color:#333}
 .page-break{page-break-after:always}
-.partner-badge{display:inline-block;padding:10px 20px;border:2px solid #00a67d;border-radius:6px;font-size:12px;font-weight:600;margin-top:16px;color:#00a67d}
-.print-btn{position:fixed;top:20px;right:20px;padding:12px 24px;background:#00a67d;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,166,125,0.3);z-index:1000}
-.print-btn:hover{background:#008c6a}
+.partner-badge{display:inline-block;padding:10px 20px;border:2px solid #000;border-radius:6px;font-size:12px;font-weight:700;margin-top:16px;color:#000}
+.print-btn{position:fixed;top:20px;right:20px;padding:12px 24px;background:#000;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:1000}
+.print-btn:hover{background:#333}
 @media print{.print-btn{display:none}body{padding:20px}.page-break{page-break-after:always}}
 </style>
 </head><body>
 
-<button class="print-btn" onclick="window.print()">💾 Сохранить как PDF</button>
+<button class="print-btn" onclick="window.print()">Сохранить как PDF</button>
 
 <div class="header">
 <h1>Персональный инвестиционный отчёт</h1>
-<p>Консультант по долевым инвестициям в офисную недвижимость</p>
+<p>Optima Space — сервисные офисы класса А в Самаре</p>
 ${userName ? `<p style="font-size:14px;margin-top:8px"><strong>${userName}</strong></p>` : ''}
-<div class="app-info">Заявка № ${appNum} от ${appDate}</div>
+<div class="report-info">Отчёт № ${reportNum} от ${reportDate}</div>
 </div>
 
 <div class="section">
@@ -134,7 +134,7 @@ ${OPTIMA_SPACE.rounds.map(r => {
 <tr><td>Медианная ставка/кв.м/год</td><td>24 000₽</td><td>10 200₽</td></tr>
 <tr><td>Медианная ставка/место/год</td><td>287 880₽</td><td>112 800₽</td></tr>
 </tbody></table>
-<h3 style="font-size:14px;margin-bottom:12px">Конкуренты (сервисные офисы класса А)</h3>
+<h3 style="font-size:14px;margin-bottom:12px;font-weight:700">Конкуренты (сервисные офисы класса А)</h3>
 <table><thead><tr><th>Название</th><th>Город</th><th>Ставка/год</th><th>Вакантность</th></tr></thead><tbody>
 ${ma.competitors.map(c => `<tr><td>${c.name}</td><td>${c.city}</td><td>${formatCurrency(c.rent)}</td><td>${c.vacancy}%</td></tr>`).join('')}
 <tr class="highlight-row"><td><strong>Optima Space</strong></td><td>Самара</td><td><strong>300 000₽</strong></td><td>прогноз 10%</td></tr>
@@ -170,7 +170,7 @@ ${OPTIMA_SPACE.team.map(t => `<tr><td>${t.name}</td><td>${t.role}</td><td>${t.ex
 
 <div class="footer">
 <p><strong>Важно:</strong> Данный отчёт не является публичной офертой. Инвестиции связаны с рисками.</p>
-<p style="margin-top:12px">© 2026 Optima Space • Консультант по долевым инвестициям</p>
+<p style="margin-top:12px">© 2026 Optima Space • Персональный инвестиционный отчёт</p>
 <div class="partner-badge">Технологический партнёр | Модуль Роста®</div>
 </div>
 
@@ -185,7 +185,7 @@ ${OPTIMA_SPACE.team.map(t => `<tr><td>${t.name}</td><td>${t.role}</td><td>${t.ex
     printWindow.document.write(htmlContent)
     printWindow.document.close()
     
-    return { success: true, applicationNumber: appNum }
+    return { success: true, reportNumber: reportNum }
   }
 
   return { generatePDF }

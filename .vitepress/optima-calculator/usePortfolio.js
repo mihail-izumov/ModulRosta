@@ -121,8 +121,32 @@ export function usePortfolio(totalCapital) {
   }
 
   const autoDistribute = () => {
-    const remaining = 100 - totalAllocation.value
-    if (remaining <= 0) return
+    const currentTotal = totalAllocation.value
+    
+    // Если уже 100% - ничего не делаем
+    if (currentTotal === 100) return
+    
+    // Если больше 100% - пропорционально уменьшаем
+    if (currentTotal > 100) {
+      const ratio = 100 / currentTotal
+      Object.keys(allocations.value).forEach(key => {
+        allocations.value[key] = Math.round(allocations.value[key] * ratio)
+      })
+      
+      // Корректировка округления
+      let total = Object.values(allocations.value).reduce((a, b) => a + b, 0)
+      if (total !== 100) {
+        const diff = 100 - total
+        const maxKey = Object.keys(allocations.value).reduce((a, b) => 
+          allocations.value[a] > allocations.value[b] ? a : b
+        )
+        allocations.value[maxKey] += diff
+      }
+      return
+    }
+    
+    // Если меньше 100% - добавляем
+    const remaining = 100 - currentTotal
 
     // Если есть выбранная стратегия, используем её пропорции
     if (selectedStrategy.value && STRATEGIES[selectedStrategy.value]) {
