@@ -143,7 +143,7 @@ watch(() => props.show, (newVal) => {
           
           <!-- Номер заявки -->
           <div class="osc-application-info">
-            <span class="osc-app-label">Заявка №</span>
+            <span class="osc-app-label">Отчёт №</span>
             <span class="osc-app-number">{{ applicationNumber }}</span>
             <span class="osc-app-date">от {{ applicationDate }}</span>
           </div>

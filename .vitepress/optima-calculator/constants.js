@@ -33,7 +33,7 @@ export const TOOLTIPS = {
 
 export const OPTIMA_SPACE = {
   name: 'Optima Space',
-  location: 'г. Самара, Самара-Сити',
+  location: 'Самара, Самара-Сити',
   buildingClass: 'А',
   minInvestment: 500000,
   totalShares: 288000,

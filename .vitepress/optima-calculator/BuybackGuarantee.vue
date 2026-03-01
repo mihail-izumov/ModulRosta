@@ -358,6 +358,8 @@ const handleInvestmentClick = () => {
   color: #888;
   cursor: help;
   transition: all 0.2s;
+  position: relative;
+  z-index: 1;
 }
 
 .osc-tl-dot.current { 

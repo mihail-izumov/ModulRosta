@@ -199,7 +199,6 @@ onMounted(() => {
     <!-- Countdown Block - Flip Clock Style -->
     <section class="osc-countdown-section">
       <div class="osc-countdown-heading">До запуска Optima Space в Самаре</div>
-      <div class="osc-countdown-divider"></div>
       <div class="osc-countdown-content">
         <div class="osc-countdown-timer">
           <div class="osc-flip-card">
@@ -223,8 +222,8 @@ onMounted(() => {
       </div>
     </section>
 
-    <!-- Intro Text with Tooltips -->
-    <section class="osc-intro-section">
+    <!-- Intro + Features Block -->
+    <section class="osc-intro-features-block">
       <p class="osc-intro-text">
         Этот калькулятор фокусируется на 
         <InfoTooltip text="Сервисные офисы — готовые к работе рабочие места с мебелью, интернетом и сервисами. Арендатор платит только за место, без забот об инфраструктуре." :maxWidth="480">
@@ -243,55 +242,54 @@ onMounted(() => {
           <span class="osc-highlight-text">целевой доходности 20%+ годовых</span>
         </InfoTooltip>.
       </p>
-    </section>
 
-    <!-- How It Works - with arrows and subtitles -->
-    <section class="osc-features">
-      <div class="osc-feature">
-        <InfoTooltip text="Укажите общую сумму, которую готовы инвестировать. Минимальный порог для Optima Space — 500 000 ₽ (1000 акций)." :maxWidth="420">
-          <div class="osc-feature-icon-wrap">
-            <Wallet :size="28" color="#00D9C0" />
-          </div>
-        </InfoTooltip>
-        <span class="osc-feature-title">Ваш капитал</span>
-        <span class="osc-feature-sub">Сколько готовы инвестировать</span>
-      </div>
-      <div class="osc-feature-arrow">→</div>
-      <div class="osc-feature">
-        <InfoTooltip text="Распределите капитал между классами активов: офисы, склады, ритейл, облигации, акции. Калькулятор рассчитает доходность и риск." :maxWidth="420">
-          <div class="osc-feature-icon-wrap">
-            <Scale :size="28" color="#00D9C0" />
-          </div>
-        </InfoTooltip>
-        <span class="osc-feature-title">Распределите активы</span>
-        <span class="osc-feature-sub">Офисы, склады, ритейл, резерв</span>
-      </div>
-      <div class="osc-feature-arrow">→</div>
-      <div class="osc-feature">
-        <InfoTooltip text="Узнайте детали инвестиции в Optima Space: количество акций, ожидаемые дивиденды, гарантии выкупа, покрытие залогом." :maxWidth="420">
-          <div class="osc-feature-icon-wrap">
-            <Building2 :size="28" color="#00D9C0" />
-          </div>
-        </InfoTooltip>
-        <span class="osc-feature-title">Детали Optima Space</span>
-        <span class="osc-feature-sub">Акции, дивиденды, гарантии</span>
-      </div>
-      <div class="osc-feature-arrow">→</div>
-      <div class="osc-feature">
-        <InfoTooltip text="Скачайте персональный PDF-отчёт с вашей инвестиционной стратегией, расчётами доходности и всеми деталями проекта." :maxWidth="420">
-          <div class="osc-feature-icon-wrap">
-            <FileText :size="28" color="#00D9C0" />
-          </div>
-        </InfoTooltip>
-        <span class="osc-feature-title">Скачайте отчёт</span>
-        <span class="osc-feature-sub">Персональная стратегия в PDF</span>
+      <div class="osc-features">
+        <div class="osc-feature">
+          <InfoTooltip text="Укажите общую сумму, которую готовы инвестировать. Минимальный порог для Optima Space — 500 000 ₽ (1000 акций)." :maxWidth="420">
+            <div class="osc-feature-icon-wrap">
+              <Wallet :size="28" color="#00D9C0" />
+            </div>
+          </InfoTooltip>
+          <span class="osc-feature-title">Ваш капитал</span>
+          <span class="osc-feature-sub">Сколько готовы инвестировать</span>
+        </div>
+        <div class="osc-feature-arrow">→</div>
+        <div class="osc-feature">
+          <InfoTooltip text="Распределите капитал между классами активов: офисы, склады, ритейл, облигации, акции. Калькулятор рассчитает доходность и риск." :maxWidth="420">
+            <div class="osc-feature-icon-wrap">
+              <Scale :size="28" color="#00D9C0" />
+            </div>
+          </InfoTooltip>
+          <span class="osc-feature-title">Распределите активы</span>
+          <span class="osc-feature-sub">Офисы, склады, ритейл, резерв</span>
+        </div>
+        <div class="osc-feature-arrow">→</div>
+        <div class="osc-feature">
+          <InfoTooltip text="Узнайте детали инвестиции в Optima Space: количество акций, ожидаемые дивиденды, гарантии выкупа, покрытие залогом." :maxWidth="420">
+            <div class="osc-feature-icon-wrap">
+              <Building2 :size="28" color="#00D9C0" />
+            </div>
+          </InfoTooltip>
+          <span class="osc-feature-title">Детали Optima Space</span>
+          <span class="osc-feature-sub">Акции, дивиденды, гарантии</span>
+        </div>
+        <div class="osc-feature-arrow">→</div>
+        <div class="osc-feature">
+          <InfoTooltip text="Скачайте персональный PDF-отчёт с вашей инвестиционной стратегией, расчётами доходности и всеми деталями проекта." :maxWidth="420">
+            <div class="osc-feature-icon-wrap">
+              <FileText :size="28" color="#00D9C0" />
+            </div>
+          </InfoTooltip>
+          <span class="osc-feature-title">Скачайте отчёт</span>
+          <span class="osc-feature-sub">Персональная стратегия в PDF</span>
+        </div>
       </div>
     </section>
 
     <!-- Project Passport -->
     <section class="osc-passport-section">
       <div class="osc-passport-header">
-        <span class="osc-passport-title">📋 Паспорт проекта Optima Space</span>
+        <span class="osc-passport-title">Паспорт проекта Optima Space</span>
         <span class="osc-passport-badge">{{ OPTIMA_SPACE.buildingClass }} класс</span>
       </div>
       
@@ -378,7 +376,7 @@ onMounted(() => {
       </div>
       
       <div class="osc-passport-proof">
-        <div class="osc-pp-proof-title">✓ Proof of Concept: {{ PROFIT_ROOMS.name }}</div>
+        <div class="osc-pp-proof-title">✓ Успешный кейс: {{ PROFIT_ROOMS.name }}</div>
         <div class="osc-pp-proof-metrics">
           <span>Площадь: {{ PROFIT_ROOMS.area }} кв.м</span>
           <span>Заполняемость: {{ PROFIT_ROOMS.occupancy }}%</span>
@@ -836,6 +834,28 @@ onMounted(() => {
 }
 
 /* Intro Section */
+/* Intro + Features Block */
+.osc-intro-features-block {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.osc-intro-features-block .osc-intro-text {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #bbb;
+  max-width: 800px;
+  margin: 0 auto 24px;
+}
+
+.osc-intro-features-block .osc-features {
+  margin-bottom: 0;
+}
+
 .osc-intro-section {
   text-align: center;
   margin-bottom: 32px;
@@ -1162,6 +1182,8 @@ onMounted(() => {
 /* Убеждаемся что InfoTooltip не ломает grid */
 .osc-strategy-grid > * {
   min-width: 0;
+  width: 100%;
+  display: flex;
 }
 
 .osc-strategy-card {
@@ -1173,6 +1195,8 @@ onMounted(() => {
   transition: all 0.2s;
   text-align: center;
   height: 100%;
+  width: 100%;
+  flex: 1;
 }
 
 .osc-strategy-card:hover {
@@ -1456,10 +1480,10 @@ onMounted(() => {
 .osc-auto-btn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, rgba(0,217,192,0.2) 0%, rgba(0,217,192,0.1) 100%);
-  border: 1px solid rgba(0,217,192,0.3);
+  background: #00D9C0;
+  border: none;
   border-radius: 10px;
-  color: #00D9C0;
+  color: #000;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -1467,8 +1491,9 @@ onMounted(() => {
 }
 
 .osc-auto-btn:hover {
-  background: rgba(0,217,192,0.25);
-  border-color: #00D9C0;
+  background: #00FFCC;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,217,192,0.4);
 }
 
 /* Optima Metrics */
@@ -1591,6 +1616,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding-bottom: 4px;
 }
 
 .osc-portfolio-row {

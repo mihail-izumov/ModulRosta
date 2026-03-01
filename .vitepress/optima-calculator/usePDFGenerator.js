@@ -69,7 +69,7 @@ ${userName ? `<p style="font-size:14px;margin-top:8px"><strong>${userName}</stro
 </div>
 
 <div class="section">
-<h2>📋 Паспорт проекта Optima Space</h2>
+<h2>Паспорт проекта Optima Space</h2>
 <div class="metric-grid">
 <div class="metric"><div class="metric-label">Локация</div><div class="metric-value" style="font-size:14px">${OPTIMA_SPACE.location}</div></div>
 <div class="metric"><div class="metric-label">Площадь</div><div class="metric-value">${OPTIMA_SPACE.area.toLocaleString()} м²</div></div>
@@ -78,12 +78,12 @@ ${userName ? `<p style="font-size:14px;margin-top:8px"><strong>${userName}</stro
 </div>
 <table><thead><tr><th>Параметр</th><th>Значение</th><th>Параметр</th><th>Значение</th></tr></thead><tbody>
 <tr><td>Общие инвестиции</td><td><strong>${formatCurrency(OPTIMA_SPACE.totalBudget)}</strong></td><td>От инвесторов</td><td>${formatCurrency(OPTIMA_SPACE.investorsShare)}</td></tr>
-<tr><td>ROI (I раунд)</td><td><strong style="color:#00a67d">${OPTIMA_SPACE.rounds[0].roi}% годовых</strong></td><td>Окупаемость</td><td><strong style="color:#00a67d">${OPTIMA_SPACE.paybackMonths} мес</strong></td></tr>
+<tr><td>ROI (I раунд)</td><td><strong>${OPTIMA_SPACE.rounds[0].roi}% годовых</strong></td><td>Окупаемость</td><td><strong>${OPTIMA_SPACE.paybackMonths} мес</strong></td></tr>
 <tr><td>Выкуп акций</td><td>через ${(OPTIMA_SPACE.buybackMonths / 12).toFixed(1)} года</td><td>Мин. цена выкупа</td><td>${OPTIMA_SPACE.buybackMinPrice}₽/акция</td></tr>
 <tr><td>Залог</td><td>${OPTIMA_SPACE.collateral} кв.м</td><td>Стоимость залога</td><td>~${formatCurrency(OPTIMA_SPACE.collateralValue)}</td></tr>
 </tbody></table>
 <div class="info-block" style="margin-top:16px">
-<h3>✓ Proof of Concept: ${PROFIT_ROOMS.name}</h3>
+<h3>✓ Успешный кейс: ${PROFIT_ROOMS.name}</h3>
 <p>Площадь: ${PROFIT_ROOMS.area} кв.м | Заполняемость: ${PROFIT_ROOMS.occupancy}% | Прибыль: ${formatCurrency(PROFIT_ROOMS.monthlyProfit)}/мес</p>
 </div>
 </div>
@@ -175,7 +175,7 @@ ${ma.competitors.map(c => `<tr><td>${c.name}</td><td>${c.city}</td><td>${formatC
 <div class="section">
 <h2>Риски и решения</h2>
 <table><thead><tr><th>Тип</th><th>Риск</th><th>Решение</th></tr></thead><tbody>
-${PROJECT_RISKS.map(r => `<tr><td>${r.icon} ${r.type}</td><td>${r.risk}</td><td>${r.solution}</td></tr>`).join('')}
+${PROJECT_RISKS.map(r => `<tr><td>${r.type}</td><td>${r.risk}</td><td>${r.solution}</td></tr>`).join('')}
 </tbody></table>
 </div>
 

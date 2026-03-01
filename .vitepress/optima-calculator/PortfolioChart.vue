@@ -84,6 +84,19 @@ const selectedItem = computed(() => {
   return null
 })
 
+// Сортированные сегменты - выбранный последний (рендерится поверх)
+const sortedSegments = computed(() => {
+  if (selectedIndex.value === null) return segments.value.map((s, i) => ({ ...s, originalIndex: i }))
+  
+  return segments.value
+    .map((s, i) => ({ ...s, originalIndex: i }))
+    .sort((a, b) => {
+      if (a.originalIndex === selectedIndex.value) return 1
+      if (b.originalIndex === selectedIndex.value) return -1
+      return 0
+    })
+})
+
 const getSegmentScale = (index) => {
   return selectedIndex.value === index ? 1.05 : 1
 }
@@ -103,7 +116,7 @@ const getSegmentScale = (index) => {
       />
       
       <!-- Segments -->
-      <g v-for="(segment, index) in segments" :key="index">
+      <g v-for="segment in sortedSegments" :key="segment.originalIndex">
         <!-- Full circle case -->
         <circle
           v-if="segment.isFull"
@@ -114,8 +127,8 @@ const getSegmentScale = (index) => {
           :stroke="segment.color"
           :stroke-width="strokeWidth"
           class="osc-segment"
-          :class="{ selected: selectedIndex === index }"
-          @click="handleSegmentClick(index)"
+          :class="{ selected: selectedIndex === segment.originalIndex }"
+          @click="handleSegmentClick(segment.originalIndex)"
         />
         <!-- Arc segment -->
         <path
@@ -126,25 +139,17 @@ const getSegmentScale = (index) => {
           :stroke-width="strokeWidth"
           stroke-linecap="round"
           class="osc-segment"
-          :class="{ selected: selectedIndex === index }"
+          :class="{ selected: selectedIndex === segment.originalIndex }"
           :style="{
-            transform: `scale(${getSegmentScale(index)})`,
+            transform: `scale(${getSegmentScale(segment.originalIndex)})`,
             transformOrigin: `${cx}px ${cy}px`
           }"
-          @click="handleSegmentClick(index)"
+          @click="handleSegmentClick(segment.originalIndex)"
         />
       </g>
       
-      <!-- Center display when selected -->
+      <!-- Center display when selected - only percentage -->
       <g v-if="selectedItem">
-        <text 
-          :x="cx" 
-          :y="cy - 18"
-          text-anchor="middle"
-          class="osc-center-name"
-        >
-          {{ selectedItem.name }}
-        </text>
         <text 
           :x="cx" 
           :y="cy + 8"
@@ -153,14 +158,6 @@ const getSegmentScale = (index) => {
           :fill="selectedItem.color"
         >
           {{ selectedItem.value }}%
-        </text>
-        <text 
-          :x="cx" 
-          :y="cy + 30"
-          text-anchor="middle"
-          class="osc-center-amount"
-        >
-          {{ formatCurrency(selectedItem.amount) }}
         </text>
       </g>
       
@@ -179,25 +176,24 @@ const getSegmentScale = (index) => {
     </svg>
     
     <!-- Static Info Block below chart -->
-    <div class="osc-chart-info-block">
+    <div 
+      class="osc-chart-info-block"
+      :style="selectedItem ? { background: selectedItem.color + '15' } : {}"
+    >
       <template v-if="selectedItem">
         <div class="osc-info-selected">
-          <span class="osc-info-dot" :style="{ background: selectedItem.color }"></span>
-          <span class="osc-info-name">{{ selectedItem.name }}</span>
-          <span class="osc-info-value" :style="{ color: selectedItem.color }">{{ selectedItem.value }}%</span>
-          <span class="osc-info-amount">{{ formatCurrency(selectedItem.amount) }}</span>
+          <div class="osc-info-name">{{ selectedItem.name }}</div>
+          <div class="osc-info-amount" :style="{ color: selectedItem.color }">{{ formatCurrency(selectedItem.amount) }}</div>
         </div>
       </template>
       <template v-else-if="data.length > 0">
         <div class="osc-info-hint">
-          <span class="osc-info-hint-icon">👆</span>
-          <span>Нажмите на сегмент диаграммы или название актива для просмотра деталей</span>
+          <span>Нажмите на сегмент или актив ниже</span>
         </div>
       </template>
       <template v-else>
         <div class="osc-info-hint">
-          <span class="osc-info-hint-icon">📊</span>
-          <span>Распределите капитал между активами, чтобы увидеть диаграмму портфеля</span>
+          <span>Распределите капитал между активами</span>
         </div>
       </template>
     </div>
@@ -266,52 +262,39 @@ const getSegmentScale = (index) => {
 /* Static Info Block */
 .osc-chart-info-block {
   width: 100%;
-  min-height: 50px;
-  padding: 12px 16px;
+  min-height: 44px;
+  padding: 10px 16px;
   background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
+  transition: background 0.2s;
 }
 
 .osc-info-selected {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.osc-info-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  flex-shrink: 0;
+  gap: 4px;
+  text-align: center;
 }
 
 .osc-info-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #aaa;
 }
 
-.osc-info-value {
+.osc-info-amount {
   font-size: 18px;
   font-weight: 700;
   font-family: 'SF Mono', Monaco, monospace;
 }
 
-.osc-info-amount {
-  font-size: 14px;
-  color: #888;
-}
-
 .osc-info-hint {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: #888;
+  font-size: 12px;
+  color: #666;
   text-align: center;
+  line-height: 1.4;
+}
   justify-content: center;
 }
 
