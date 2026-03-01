@@ -705,11 +705,6 @@ onMounted(() => {
   font-size: 13px;
   color: #aaa;
 }
-  gap: 10px;
-  margin-top: 20px;
-  font-size: 13px;
-  color: #aaa;
-}
 
 .osc-status-badge {
   padding: 4px 12px;
@@ -719,20 +714,6 @@ onMounted(() => {
   color: #00D9C0;
   font-size: 11px;
   font-weight: 600;
-}
-
-/* Intro Text */
-.osc-intro-section {
-  margin-bottom: 32px;
-  text-align: center;
-}
-
-.osc-intro-text {
-  font-size: 14px;
-  color: #aaa;
-  line-height: 1.5;
-  max-width: 700px;
-  margin: 0 auto;
 }
 
 /* Intro Section */
@@ -1456,9 +1437,6 @@ onMounted(() => {
 
 .osc-income-yield strong {
   color: #fff;
-}
-  background: linear-gradient(90deg, transparent, rgba(0,217,192,0.3), transparent);
-  animation: osc-badge-shine 3s linear infinite;
 }
 
 @keyframes osc-badge-shine {
