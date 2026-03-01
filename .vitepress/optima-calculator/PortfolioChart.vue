@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { formatCurrency } from './utils.js'
 
 const props = defineProps({
@@ -7,9 +7,9 @@ const props = defineProps({
   size: { type: Number, default: 220 }
 })
 
-const hoveredIndex = ref(null)
-const tooltipPosition = ref({ x: 0, y: 0 })
-const chartRef = ref(null)
+const emit = defineEmits(['select'])
+
+const selectedIndex = ref(null)
 
 const cx = computed(() => props.size / 2)
 const cy = computed(() => props.size / 2)
@@ -63,59 +63,34 @@ const polarToCartesian = (centerX, centerY, r, angleDeg) => {
   }
 }
 
-const handleMouseEnter = (index, event) => {
-  hoveredIndex.value = index
-  updateTooltipPosition(event)
-}
-
-const handleMouseMove = (event) => {
-  if (hoveredIndex.value !== null) {
-    updateTooltipPosition(event)
+const handleSegmentClick = (index) => {
+  if (selectedIndex.value === index) {
+    selectedIndex.value = null
+  } else {
+    selectedIndex.value = index
   }
+  emit('select', selectedIndex.value !== null ? segments.value[selectedIndex.value] : null)
 }
 
-const handleMouseLeave = () => {
-  hoveredIndex.value = null
+const handleLegendClick = (index) => {
+  handleSegmentClick(index)
 }
 
-const updateTooltipPosition = (event) => {
-  if (!chartRef.value) return
-  const rect = chartRef.value.getBoundingClientRect()
-  tooltipPosition.value = {
-    x: event.clientX - rect.left,
-    y: event.clientY - rect.top - 60
+// Selected item info
+const selectedItem = computed(() => {
+  if (selectedIndex.value !== null && segments.value[selectedIndex.value]) {
+    return segments.value[selectedIndex.value]
   }
-}
-
-const getSegmentOffset = (segment, index) => {
-  if (hoveredIndex.value !== index || segment.isFull) return { x: 0, y: 0 }
-  const midAngle = (segment.startAngle + segment.endAngle) / 2
-  const rad = (midAngle * Math.PI) / 180
-  const offset = 8
-  return {
-    x: Math.cos(rad) * offset,
-    y: Math.sin(rad) * offset
-  }
-}
-
-// Center display
-const centerDisplay = computed(() => {
-  if (hoveredIndex.value !== null && segments.value[hoveredIndex.value]) {
-    const seg = segments.value[hoveredIndex.value]
-    return {
-      show: true,
-      name: seg.name,
-      value: seg.value,
-      amount: seg.amount,
-      color: seg.color
-    }
-  }
-  return { show: false }
+  return null
 })
+
+const getSegmentScale = (index) => {
+  return selectedIndex.value === index ? 1.05 : 1
+}
 </script>
 
 <template>
-  <div class="osc-chart-wrapper" ref="chartRef">
+  <div class="osc-chart-wrapper">
     <svg :width="size" :height="size" class="osc-donut-chart">
       <!-- Background circle -->
       <circle 
@@ -139,10 +114,8 @@ const centerDisplay = computed(() => {
           :stroke="segment.color"
           :stroke-width="strokeWidth"
           class="osc-segment"
-          :class="{ hovered: hoveredIndex === index }"
-          @mouseenter="handleMouseEnter(index, $event)"
-          @mousemove="handleMouseMove"
-          @mouseleave="handleMouseLeave"
+          :class="{ selected: selectedIndex === index }"
+          @click="handleSegmentClick(index)"
         />
         <!-- Arc segment -->
         <path
@@ -153,38 +126,33 @@ const centerDisplay = computed(() => {
           :stroke-width="strokeWidth"
           stroke-linecap="round"
           class="osc-segment"
-          :class="{ 
-            hovered: hoveredIndex === index, 
-            dimmed: hoveredIndex !== null && hoveredIndex !== index 
-          }"
+          :class="{ selected: selectedIndex === index }"
           :style="{
-            transform: `translate(${getSegmentOffset(segment, index).x}px, ${getSegmentOffset(segment, index).y}px)`,
+            transform: `scale(${getSegmentScale(index)})`,
             transformOrigin: `${cx}px ${cy}px`
           }"
-          @mouseenter="handleMouseEnter(index, $event)"
-          @mousemove="handleMouseMove"
-          @mouseleave="handleMouseLeave"
+          @click="handleSegmentClick(index)"
         />
       </g>
       
-      <!-- Center display on hover -->
-      <g v-if="centerDisplay.show">
+      <!-- Center display when selected -->
+      <g v-if="selectedItem">
         <text 
           :x="cx" 
           :y="cy - 18"
           text-anchor="middle"
           class="osc-center-name"
         >
-          {{ centerDisplay.name }}
+          {{ selectedItem.name }}
         </text>
         <text 
           :x="cx" 
           :y="cy + 8"
           text-anchor="middle"
           class="osc-center-value"
-          :fill="centerDisplay.color"
+          :fill="selectedItem.color"
         >
-          {{ centerDisplay.value }}%
+          {{ selectedItem.value }}%
         </text>
         <text 
           :x="cx" 
@@ -192,7 +160,7 @@ const centerDisplay = computed(() => {
           text-anchor="middle"
           class="osc-center-amount"
         >
-          {{ formatCurrency(centerDisplay.amount) }}
+          {{ formatCurrency(selectedItem.amount) }}
         </text>
       </g>
       
@@ -210,26 +178,29 @@ const centerDisplay = computed(() => {
       </text>
     </svg>
     
-    <!-- Floating Tooltip -->
-    <Transition name="tooltip-fade">
-      <div 
-        v-if="hoveredIndex !== null && segments[hoveredIndex]" 
-        class="osc-chart-tooltip"
-        :style="{ 
-          left: tooltipPosition.x + 'px', 
-          top: tooltipPosition.y + 'px'
-        }"
-      >
-        <div class="osc-tooltip-dot" :style="{ background: segments[hoveredIndex].color }"></div>
-        <div class="osc-tooltip-content">
-          <div class="osc-tooltip-name">{{ segments[hoveredIndex].name }}</div>
-          <div class="osc-tooltip-value" :style="{ color: segments[hoveredIndex].color }">
-            {{ segments[hoveredIndex].value }}%
-          </div>
-          <div class="osc-tooltip-amount">{{ formatCurrency(segments[hoveredIndex].amount) }}</div>
+    <!-- Static Info Block below chart -->
+    <div class="osc-chart-info-block">
+      <template v-if="selectedItem">
+        <div class="osc-info-selected">
+          <span class="osc-info-dot" :style="{ background: selectedItem.color }"></span>
+          <span class="osc-info-name">{{ selectedItem.name }}</span>
+          <span class="osc-info-value" :style="{ color: selectedItem.color }">{{ selectedItem.value }}%</span>
+          <span class="osc-info-amount">{{ formatCurrency(selectedItem.amount) }}</span>
         </div>
-      </div>
-    </Transition>
+      </template>
+      <template v-else-if="data.length > 0">
+        <div class="osc-info-hint">
+          <span class="osc-info-hint-icon">👆</span>
+          <span>Нажмите на сегмент диаграммы или название актива для просмотра деталей</span>
+        </div>
+      </template>
+      <template v-else>
+        <div class="osc-info-hint">
+          <span class="osc-info-hint-icon">📊</span>
+          <span>Распределите капитал между активами, чтобы увидеть диаграмму портфеля</span>
+        </div>
+      </template>
+    </div>
     
     <!-- Legend -->
     <div class="osc-chart-legend">
@@ -237,16 +208,12 @@ const centerDisplay = computed(() => {
         v-for="(item, index) in data" 
         :key="item.name" 
         class="osc-legend-item"
-        :class="{ 
-          hovered: hoveredIndex === index, 
-          dimmed: hoveredIndex !== null && hoveredIndex !== index 
-        }"
-        @mouseenter="hoveredIndex = index"
-        @mouseleave="hoveredIndex = null"
+        :class="{ selected: selectedIndex === index }"
+        @click="handleLegendClick(index)"
       >
         <span class="osc-legend-dot" :style="{ background: item.color }"></span>
         <span class="osc-legend-name">{{ item.name }}</span>
-        <span class="osc-legend-value">{{ item.value }}%</span>
+        <span class="osc-legend-value" :style="{ color: item.color }">{{ item.value }}%</span>
       </div>
     </div>
   </div>
@@ -258,7 +225,7 @@ const centerDisplay = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .osc-donut-chart {
@@ -266,16 +233,17 @@ const centerDisplay = computed(() => {
 }
 
 .osc-segment {
-  transition: transform 0.25s ease, opacity 0.2s ease, filter 0.2s ease;
+  transition: transform 0.25s ease, filter 0.2s ease;
   cursor: pointer;
+  opacity: 1;
 }
 
-.osc-segment.dimmed {
-  opacity: 0.35;
+.osc-segment:hover {
+  filter: brightness(1.15);
 }
 
-.osc-segment.hovered {
-  filter: brightness(1.2) drop-shadow(0 0 8px currentColor);
+.osc-segment.selected {
+  filter: brightness(1.2) drop-shadow(0 0 10px currentColor);
 }
 
 .osc-center-name {
@@ -295,68 +263,69 @@ const centerDisplay = computed(() => {
   fill: #888;
 }
 
-.osc-chart-tooltip {
-  position: absolute;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  background: rgba(20, 20, 20, 0.96);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 10px;
+/* Static Info Block */
+.osc-chart-info-block {
+  width: 100%;
+  min-height: 50px;
   padding: 12px 16px;
-  pointer-events: none;
-  z-index: 100;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  transform: translateX(-50%);
-  white-space: nowrap;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
 }
 
-.osc-tooltip-dot {
-  width: 10px;
-  height: 10px;
+.osc-info-selected {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.osc-info-dot {
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  margin-top: 4px;
   flex-shrink: 0;
 }
 
-.osc-tooltip-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.osc-info-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  flex: 1;
 }
 
-.osc-tooltip-name {
-  font-size: 12px;
-  color: #aaa;
-}
-
-.osc-tooltip-value {
-  font-size: 22px;
+.osc-info-value {
+  font-size: 18px;
   font-weight: 700;
   font-family: 'SF Mono', Monaco, monospace;
 }
 
-.osc-tooltip-amount {
-  font-size: 12px;
-  color: #777;
+.osc-info-amount {
+  font-size: 14px;
+  color: #888;
 }
 
-.tooltip-fade-enter-active,
-.tooltip-fade-leave-active {
-  transition: opacity 0.15s ease;
+.osc-info-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+  justify-content: center;
 }
 
-.tooltip-fade-enter-from,
-.tooltip-fade-leave-to {
-  opacity: 0;
+.osc-info-hint-icon {
+  font-size: 16px;
 }
 
+/* Legend */
 .osc-chart-legend {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
-  padding: 0 8px;
+  padding: 0 4px;
 }
 
 .osc-legend-item {
@@ -365,22 +334,19 @@ const centerDisplay = computed(() => {
   gap: 10px;
   font-size: 13px;
   cursor: pointer;
-  transition: opacity 0.2s, background 0.2s;
-  padding: 8px 12px;
+  transition: background 0.2s;
+  padding: 10px 12px;
   border-radius: 8px;
-  margin: 0 -12px;
+  border: 1px solid transparent;
 }
 
 .osc-legend-item:hover {
   background: rgba(255,255,255,0.05);
 }
 
-.osc-legend-item.dimmed {
-  opacity: 0.4;
-}
-
-.osc-legend-item.hovered {
+.osc-legend-item.selected {
   background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
 }
 
 .osc-legend-dot {
@@ -397,7 +363,6 @@ const centerDisplay = computed(() => {
 
 .osc-legend-value {
   font-weight: 600;
-  color: #fff;
   font-family: 'SF Mono', Monaco, monospace;
 }
 </style>

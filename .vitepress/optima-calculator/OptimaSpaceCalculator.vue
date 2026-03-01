@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { Wallet, Building2, FileText, Rocket, ShieldCheck, Scale, Target, TrendingUp, PieChart, Clock } from './icons.js'
-import { OPTIMA_SPACE, ASSET_CLASSES, STRATEGIES, COLORS, TOOLTIPS, COMPARISON_COMMENTS } from './constants.js'
+import { OPTIMA_SPACE, ASSET_CLASSES, STRATEGIES, COLORS, TOOLTIPS, COMPARISON_COMMENTS, ANIK_GROUP, PROFIT_ROOMS } from './constants.js'
 import { formatCurrency, formatPercent } from './utils.js'
 import { usePortfolio } from './usePortfolio.js'
 import { usePDFGenerator } from './usePDFGenerator.js'
@@ -26,6 +26,8 @@ const { generatePDF } = usePDFGenerator()
 const {
   allocations,
   selectedStrategy,
+  isManualMode,
+  optimaValidationError,
   totalAllocation,
   portfolioMetrics,
   advisorComment,
@@ -36,6 +38,12 @@ const {
 } = usePortfolio(totalCapital)
 
 // Computed
+const capitalSliderProgress = computed(() => {
+  const min = 1000000
+  const max = 100000000
+  return ((totalCapital.value - min) / (max - min)) * 100
+})
+
 const optimaInvestment = computed(() => (totalCapital.value * allocations.value.optima) / 100)
 const optimaShares = computed(() => Math.floor(optimaInvestment.value / OPTIMA_SPACE.shareNominal))
 const totalExpectedIncome = computed(() => totalCapital.value * (portfolioMetrics.value.yield / 100) * 4.5)
@@ -190,7 +198,7 @@ onMounted(() => {
 
     <!-- Countdown Block - Flip Clock Style -->
     <section class="osc-countdown-section">
-      <h2 class="osc-countdown-title">До запуска Optima Space в Самаре</h2>
+      <div class="osc-countdown-heading">До запуска Optima Space в Самаре</div>
       <div class="osc-countdown-divider"></div>
       <div class="osc-countdown-content">
         <div class="osc-countdown-timer">
@@ -231,7 +239,7 @@ onMounted(() => {
           <span class="osc-highlight-text">гарантией обратного выкупа</span>
         </InfoTooltip>. 
         Мы помогаем инвесторам рассчитать оптимальную долю Optima Space в их портфеле для достижения 
-        <InfoTooltip text="20%+ годовых — целевая доходность портфеля, достижимая при включении Optima Space (38% годовых) в сочетании с более консервативными активами." :maxWidth="480">
+        <InfoTooltip text="20%+ годовых — целевая доходность портфеля, достижимая при включении Optima Space (36% годовых) в сочетании с более консервативными активами." :maxWidth="480">
           <span class="osc-highlight-text">целевой доходности 20%+ годовых</span>
         </InfoTooltip>.
       </p>
@@ -280,6 +288,105 @@ onMounted(() => {
       </div>
     </section>
 
+    <!-- Project Passport -->
+    <section class="osc-passport-section">
+      <div class="osc-passport-header">
+        <span class="osc-passport-title">📋 Паспорт проекта Optima Space</span>
+        <span class="osc-passport-badge">{{ OPTIMA_SPACE.buildingClass }} класс</span>
+      </div>
+      
+      <div class="osc-passport-grid">
+        <div class="osc-passport-block">
+          <div class="osc-pp-title">Основные параметры</div>
+          <div class="osc-pp-row">
+            <span>Локация</span>
+            <span>{{ OPTIMA_SPACE.location }}</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>Площадь</span>
+            <span>{{ OPTIMA_SPACE.area.toLocaleString() }} кв.м</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>Рабочих мест</span>
+            <span>{{ OPTIMA_SPACE.workplaces }}</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>Срок строительства</span>
+            <span>{{ OPTIMA_SPACE.constructionMonths }} мес</span>
+          </div>
+        </div>
+        
+        <div class="osc-passport-block">
+          <div class="osc-pp-title">Финансы</div>
+          <div class="osc-pp-row">
+            <span>Общие инвестиции</span>
+            <span>{{ formatCurrency(OPTIMA_SPACE.totalBudget) }}</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>От инвесторов</span>
+            <span>{{ formatCurrency(OPTIMA_SPACE.investorsShare) }}</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>ROI (I раунд)</span>
+            <span class="osc-pp-highlight">{{ OPTIMA_SPACE.rounds[0].roi }}% годовых</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>Окупаемость</span>
+            <span class="osc-pp-highlight">{{ OPTIMA_SPACE.paybackMonths }} мес</span>
+          </div>
+        </div>
+        
+        <div class="osc-passport-block">
+          <div class="osc-pp-title">Гарантии</div>
+          <div class="osc-pp-row">
+            <span>Обратный выкуп</span>
+            <span>через {{ (OPTIMA_SPACE.buybackMonths / 12).toFixed(1) }} года</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>Мин. цена выкупа</span>
+            <span>{{ OPTIMA_SPACE.buybackMinPrice }}₽/акция</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>Залог</span>
+            <span>{{ OPTIMA_SPACE.collateral }} кв.м</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>Стоимость залога</span>
+            <span>~{{ formatCurrency(OPTIMA_SPACE.collateralValue) }}</span>
+          </div>
+        </div>
+        
+        <div class="osc-passport-block">
+          <div class="osc-pp-title">Компания</div>
+          <div class="osc-pp-row">
+            <span>ГК "Аник"</span>
+            <span>{{ ANIK_GROUP.yearsOnMarket }} лет на рынке</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>Объектов</span>
+            <span>{{ ANIK_GROUP.objects }} в управлении</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>Выручка 2024</span>
+            <span>{{ formatCurrency(ANIK_GROUP.revenue2024) }}</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>Прибыль 2024</span>
+            <span>{{ formatCurrency(ANIK_GROUP.profit2024) }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="osc-passport-proof">
+        <div class="osc-pp-proof-title">✓ Proof of Concept: {{ PROFIT_ROOMS.name }}</div>
+        <div class="osc-pp-proof-metrics">
+          <span>Площадь: {{ PROFIT_ROOMS.area }} кв.м</span>
+          <span>Заполняемость: {{ PROFIT_ROOMS.occupancy }}%</span>
+          <span>Прибыль: {{ formatCurrency(PROFIT_ROOMS.monthlyProfit) }}/мес</span>
+        </div>
+      </div>
+    </section>
+
     <!-- Step 1: Capital -->
     <section class="osc-card-section">
       <div class="osc-section-header">
@@ -301,6 +408,7 @@ onMounted(() => {
           max="100000000"
           step="100000"
           class="osc-capital-slider"
+          :style="{ '--progress': capitalSliderProgress + '%' }"
         />
         <div class="osc-slider-labels">
           <span>1 млн ₽</span>
@@ -361,17 +469,18 @@ onMounted(() => {
 
       <!-- Asset Allocation -->
       <div class="osc-allocation-section">
-        <div class="osc-alloc-label">РАСПРЕДЕЛИТЕ АКТИВЫ ({{ inputMode === 'percent' ? 'в процентах' : 'в рублях' }})</div>
+        <div class="osc-alloc-label">
+          РАСПРЕДЕЛИТЕ АКТИВЫ ({{ inputMode === 'percent' ? 'в процентах' : 'в рублях' }})
+          <span v-if="isManualMode" class="osc-manual-badge">Ручной режим</span>
+        </div>
         
         <div class="osc-allocation-grid">
           <div class="osc-alloc-list">
             <div v-for="asset in ASSET_CLASSES" :key="asset.id" class="osc-alloc-item">
               <div class="osc-alloc-header">
                 <span class="osc-asset-name">{{ asset.name }}</span>
-                <InfoTooltip :text="asset.tooltip" :html="true" :maxWidth="480">
-                  <span class="osc-asset-tag" :style="{ background: asset.tagColor }">{{ asset.tag }}</span>
-                </InfoTooltip>
-                <span class="osc-asset-value">
+                <span class="osc-asset-tag" :style="{ background: asset.tagColor }">{{ asset.tag }}</span>
+                <span class="osc-asset-value" :style="{ color: asset.color }">
                   <template v-if="inputMode === 'percent'">{{ allocations[asset.id] }}%</template>
                   <template v-else>{{ formatCurrency(getAssetAmount(asset.id)) }}</template>
                 </span>
@@ -393,7 +502,12 @@ onMounted(() => {
                 />
               </div>
               
-              <div class="osc-alloc-meta">
+              <!-- Предупреждение о минимуме для Optima Space -->
+              <div v-if="asset.id === 'optima' && optimaValidationError" class="osc-optima-warning">
+                ⚠️ {{ optimaValidationError }}
+              </div>
+              
+              <div class="osc-alloc-meta" :style="{ color: asset.color + '99' }">
                 <span>Доходность: {{ asset.minYield }}-{{ asset.maxYield }}%</span>
                 <span>Риск: {{ asset.risk }}/10</span>
               </div>
@@ -628,12 +742,15 @@ onMounted(() => {
   border-radius: 16px;
   background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
   border: 1px solid transparent;
-  background-image: linear-gradient(#2a2a2a, #1a1a1a), linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.05));
+  background-image: linear-gradient(#2a2a2a, #1a1a1a), linear-gradient(135deg, rgba(0,217,192,0.3), rgba(0,217,192,0.05));
   background-origin: border-box;
   background-clip: padding-box, border-box;
 }
 
-.osc-countdown-title {
+/* Защита от VitePress стилей */
+.osc-countdown-section .osc-countdown-heading {
+  all: unset;
+  display: block;
   font-size: 18px;
   font-weight: 600;
   color: #fff;
@@ -659,12 +776,12 @@ onMounted(() => {
 }
 
 .osc-flip-card {
-  background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 50%, #222 50%, #1a1a1a 100%);
+  background: linear-gradient(180deg, rgba(0,217,192,0.15) 0%, rgba(0,217,192,0.08) 50%, rgba(0,217,192,0.05) 50%, rgba(0,217,192,0.02) 100%);
   border-radius: 12px;
   padding: 20px 24px;
   min-width: 100px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(0,217,192,0.2);
+  border: 1px solid rgba(0,217,192,0.3);
   position: relative;
 }
 
@@ -685,15 +802,17 @@ onMounted(() => {
   color: #fff;
   line-height: 1;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  text-align: center;
 }
 
 .osc-flip-label {
   font-size: 11px;
-  color: #d4a000;
+  color: #00D9C0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-top: 12px;
   font-weight: 600;
+  text-align: center;
 }
 
 .osc-countdown-status {
@@ -789,6 +908,113 @@ onMounted(() => {
   color: #00D9C0;
   font-weight: 300;
   padding-top: 40px;
+}
+
+/* Project Passport */
+.osc-passport-section {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.osc-passport-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.osc-passport-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.osc-passport-badge {
+  padding: 4px 12px;
+  background: rgba(0,217,192,0.15);
+  border: 1px solid rgba(0,217,192,0.3);
+  border-radius: 20px;
+  font-size: 12px;
+  color: #00D9C0;
+  font-weight: 600;
+}
+
+.osc-passport-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.osc-passport-block {
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.osc-pp-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #00D9C0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.osc-pp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.osc-pp-row:last-child {
+  border-bottom: none;
+}
+
+.osc-pp-row span:first-child {
+  color: #888;
+}
+
+.osc-pp-row span:last-child {
+  color: #fff;
+  font-weight: 500;
+  text-align: right;
+}
+
+.osc-pp-highlight {
+  color: #00D9C0 !important;
+}
+
+.osc-passport-proof {
+  background: rgba(0,217,192,0.08);
+  border: 1px solid rgba(0,217,192,0.2);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.osc-pp-proof-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #00D9C0;
+  margin-bottom: 10px;
+}
+
+.osc-pp-proof-metrics {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #aaa;
 }
 
 /* Card Sections */
@@ -933,6 +1159,11 @@ onMounted(() => {
   margin-bottom: 24px;
 }
 
+/* Убеждаемся что InfoTooltip не ломает grid */
+.osc-strategy-grid > * {
+  min-width: 0;
+}
+
 .osc-strategy-card {
   padding: 16px;
   background: rgba(255,255,255,0.03);
@@ -941,6 +1172,7 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
+  height: 100%;
 }
 
 .osc-strategy-card:hover {
@@ -1070,6 +1302,31 @@ onMounted(() => {
   justify-content: space-between;
   font-size: 11px;
   color: #666;
+}
+
+/* Предупреждение о минимуме Optima Space */
+.osc-optima-warning {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(245,197,66,0.1);
+  border: 1px solid rgba(245,197,66,0.3);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #F5C542;
+}
+
+/* Индикатор ручного режима */
+.osc-manual-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(139,92,246,0.2);
+  border: 1px solid rgba(139,92,246,0.4);
+  border-radius: 12px;
+  font-size: 10px;
+  color: #8B5CF6;
+  margin-left: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 /* Summary Sidebar */
@@ -1305,6 +1562,7 @@ onMounted(() => {
   border: 1px solid rgba(0,217,192,0.3);
   border-radius: 16px;
   padding: 32px;
+  margin-top: 40px;
   margin-bottom: 24px;
 }
 
@@ -1531,6 +1789,7 @@ onMounted(() => {
   .osc-optima-metrics { grid-template-columns: repeat(2, 1fr); }
   .osc-summary-grid { grid-template-columns: 1fr; }
   .osc-action-buttons { grid-template-columns: 1fr; }
+  .osc-passport-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 600px) {
@@ -1543,5 +1802,7 @@ onMounted(() => {
   .osc-strategy-grid { grid-template-columns: 1fr; }
   .osc-capital-buttons { flex-wrap: wrap; }
   .osc-income-value { font-size: 36px; }
+  .osc-passport-grid { grid-template-columns: 1fr; }
+  .osc-pp-proof-metrics { flex-direction: column; gap: 8px; }
 }
 </style>

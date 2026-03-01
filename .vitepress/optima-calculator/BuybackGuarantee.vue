@@ -44,7 +44,9 @@ const currentScenario = computed(() => {
   const totalDivs = yearlyDiv * 4.5
   const payback = yearlyDiv > 0 ? Math.round((props.investment / yearlyDiv) * 12) : Infinity
   const divPerShare = props.shares > 0 ? totalDivs / props.shares : 0
-  const buybackPrice = Math.max(OPTIMA_SPACE.buybackMinPrice, OPTIMA_SPACE.buybackPrice - divPerShare)
+  // Округляем цену выкупа до 10₽
+  const rawBuybackPrice = Math.max(OPTIMA_SPACE.buybackMinPrice, OPTIMA_SPACE.buybackPrice - divPerShare)
+  const buybackPrice = Math.round(rawBuybackPrice / 10) * 10
   return { 
     adjROI, 
     yearlyDiv, 
@@ -74,7 +76,7 @@ const collateralCoverage = computed(() => {
 
 // Timeline steps
 const timelineSteps = [
-  { label: 'Покупка', sub: 'акций', current: true },
+  { label: 'Покупка акций', sub: 'Сейчас', current: true },
   { label: 'Запуск', sub: '+6 мес', current: false },
   { label: 'Окупаемость', sub: '+29 мес', current: false },
   { label: 'Опцион', sub: '+55 мес', current: false }
@@ -303,11 +305,29 @@ const handleInvestmentClick = () => {
   background: linear-gradient(90deg, #00D9C0, #00FFCC);
   border-radius: 2px;
   animation: osc-progress-fill 2s ease-out forwards;
+  box-shadow: 0 0 10px rgba(0,217,192,0.5);
+}
+
+.osc-tl-progress::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  animation: osc-shimmer 1.5s infinite;
 }
 
 @keyframes osc-progress-fill {
-  0% { width: 0; }
-  100% { width: 60px; }
+  0% { width: 0; opacity: 0; }
+  20% { opacity: 1; }
+  100% { width: 60px; opacity: 1; }
+}
+
+@keyframes osc-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .osc-tl-steps {

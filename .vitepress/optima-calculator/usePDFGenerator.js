@@ -1,7 +1,7 @@
 // usePDFGenerator.js
 // Генератор PDF отчёта через Print to PDF
 
-import { OPTIMA_SPACE, ASSET_CLASSES } from './constants.js'
+import { OPTIMA_SPACE, ASSET_CLASSES, ANIK_GROUP, PROFIT_ROOMS, PROJECT_RISKS } from './constants.js'
 import { formatCurrency } from './utils.js'
 
 export function usePDFGenerator() {
@@ -15,7 +15,7 @@ export function usePDFGenerator() {
     const reportDate = applicationDate || new Date().toLocaleDateString('ru-RU')
     
     const allQuestions = [
-      { q: 'Откуда доходность 38%?', a: `Бизнес-модель: аренда по ${OPTIMA_SPACE.rentPerSqm}₽/кв.м, сдача по ~6000₽/кв.м. При загрузке 90% прибыль ${formatCurrency(OPTIMA_SPACE.monthlyProfit)}/мес.` },
+      { q: 'Откуда доходность 36%?', a: `Бизнес-модель: аренда по ${OPTIMA_SPACE.rentPerSqm}₽/кв.м, сдача по ${OPTIMA_SPACE.pricePerWorkplace}₽/место. При загрузке 90% прибыль ${formatCurrency(OPTIMA_SPACE.monthlyProfit)}/мес.` },
       { q: 'Как защищены инвестиции?', a: `Опционный договор, выкуп через 4,5 года. Залог: ${OPTIMA_SPACE.collateral} кв.м (~${formatCurrency(OPTIMA_SPACE.collateralValue)}).` },
       { q: 'Какие документы?', a: 'Договор купли-продажи, выписка ВТБ, опционный договор, акционерное соглашение.' },
       { q: 'Как выйти раньше?', a: 'Продажа инвесторам, участие в раундах, дивиденды (окупаемость 29 мес).' },
@@ -66,6 +66,37 @@ th{background:#e0e0e0;font-weight:700;font-size:11px;text-transform:uppercase}
 <p>Optima Space — сервисные офисы класса А в Самаре</p>
 ${userName ? `<p style="font-size:14px;margin-top:8px"><strong>${userName}</strong></p>` : ''}
 <div class="report-info">Отчёт № ${reportNum} от ${reportDate}</div>
+</div>
+
+<div class="section">
+<h2>📋 Паспорт проекта Optima Space</h2>
+<div class="metric-grid">
+<div class="metric"><div class="metric-label">Локация</div><div class="metric-value" style="font-size:14px">${OPTIMA_SPACE.location}</div></div>
+<div class="metric"><div class="metric-label">Площадь</div><div class="metric-value">${OPTIMA_SPACE.area.toLocaleString()} м²</div></div>
+<div class="metric"><div class="metric-label">Рабочих мест</div><div class="metric-value">${OPTIMA_SPACE.workplaces}</div></div>
+<div class="metric"><div class="metric-label">Класс</div><div class="metric-value">${OPTIMA_SPACE.buildingClass}</div></div>
+</div>
+<table><thead><tr><th>Параметр</th><th>Значение</th><th>Параметр</th><th>Значение</th></tr></thead><tbody>
+<tr><td>Общие инвестиции</td><td><strong>${formatCurrency(OPTIMA_SPACE.totalBudget)}</strong></td><td>От инвесторов</td><td>${formatCurrency(OPTIMA_SPACE.investorsShare)}</td></tr>
+<tr><td>ROI (I раунд)</td><td><strong style="color:#00a67d">${OPTIMA_SPACE.rounds[0].roi}% годовых</strong></td><td>Окупаемость</td><td><strong style="color:#00a67d">${OPTIMA_SPACE.paybackMonths} мес</strong></td></tr>
+<tr><td>Выкуп акций</td><td>через ${(OPTIMA_SPACE.buybackMonths / 12).toFixed(1)} года</td><td>Мин. цена выкупа</td><td>${OPTIMA_SPACE.buybackMinPrice}₽/акция</td></tr>
+<tr><td>Залог</td><td>${OPTIMA_SPACE.collateral} кв.м</td><td>Стоимость залога</td><td>~${formatCurrency(OPTIMA_SPACE.collateralValue)}</td></tr>
+</tbody></table>
+<div class="info-block" style="margin-top:16px">
+<h3>✓ Proof of Concept: ${PROFIT_ROOMS.name}</h3>
+<p>Площадь: ${PROFIT_ROOMS.area} кв.м | Заполняемость: ${PROFIT_ROOMS.occupancy}% | Прибыль: ${formatCurrency(PROFIT_ROOMS.monthlyProfit)}/мес</p>
+</div>
+</div>
+
+<div class="section">
+<h2>О компании: ГК "Аник"</h2>
+<div class="metric-grid">
+<div class="metric"><div class="metric-label">Лет на рынке</div><div class="metric-value">${ANIK_GROUP.yearsOnMarket}</div></div>
+<div class="metric"><div class="metric-label">Объектов</div><div class="metric-value">${ANIK_GROUP.objects}</div></div>
+<div class="metric"><div class="metric-label">Выручка 2024</div><div class="metric-value">${formatCurrency(ANIK_GROUP.revenue2024)}</div></div>
+<div class="metric"><div class="metric-label">Прибыль 2024</div><div class="metric-value">${formatCurrency(ANIK_GROUP.profit2024)}</div></div>
+</div>
+<p style="font-size:13px;color:#333">Клиентская база: ${ANIK_GROUP.clientBase.toLocaleString()} компаний | ${ANIK_GROUP.cities} городов России | Кредитная история: ${ANIK_GROUP.creditHistory}</p>
 </div>
 
 <div class="section">
@@ -142,6 +173,13 @@ ${ma.competitors.map(c => `<tr><td>${c.name}</td><td>${c.city}</td><td>${formatC
 </div>
 
 <div class="section">
+<h2>Риски и решения</h2>
+<table><thead><tr><th>Тип</th><th>Риск</th><th>Решение</th></tr></thead><tbody>
+${PROJECT_RISKS.map(r => `<tr><td>${r.icon} ${r.type}</td><td>${r.risk}</td><td>${r.solution}</td></tr>`).join('')}
+</tbody></table>
+</div>
+
+<div class="section">
 <h2>Вопросы и ответы</h2>
 ${allQuestions.map(item => `<div class="faq-item"><div class="faq-q">${item.q}</div><div class="faq-a">${item.a}</div></div>`).join('')}
 </div>
@@ -176,14 +214,21 @@ ${OPTIMA_SPACE.team.map(t => `<tr><td>${t.name}</td><td>${t.role}</td><td>${t.ex
 
 </body></html>`
 
-    const printWindow = window.open('', '_blank')
+    // Создаём Blob и открываем его
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    
+    const printWindow = window.open(url, 'OptimaPDF', 'width=900,height=700')
     if (!printWindow) {
       alert('Пожалуйста, разрешите всплывающие окна для скачивания PDF')
+      URL.revokeObjectURL(url)
       return { success: false, error: 'Popup blocked' }
     }
     
-    printWindow.document.write(htmlContent)
-    printWindow.document.close()
+    // Очищаем URL после загрузки
+    printWindow.onload = () => {
+      URL.revokeObjectURL(url)
+    }
     
     return { success: true, reportNumber: reportNum }
   }

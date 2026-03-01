@@ -1,6 +1,6 @@
 // usePortfolio.js
 import { ref, computed, watch } from 'vue'
-import { ASSET_CLASSES, STRATEGIES, ADVISOR_COMMENTS } from './constants.js'
+import { ASSET_CLASSES, STRATEGIES, ADVISOR_COMMENTS, OPTIMA_SPACE } from './constants.js'
 
 export function usePortfolio(totalCapital) {
   const allocations = ref({
@@ -13,6 +13,16 @@ export function usePortfolio(totalCapital) {
   })
 
   const selectedStrategy = ref(null)
+  const isManualMode = ref(false)
+  
+  // Ошибка валидации для Optima Space
+  const optimaValidationError = computed(() => {
+    const optimaAmount = (totalCapital.value * allocations.value.optima) / 100
+    if (optimaAmount > 0 && optimaAmount < OPTIMA_SPACE.minInvestment) {
+      return `Минимальная инвестиция в Optima Space — ${(OPTIMA_SPACE.minInvestment / 1000000).toFixed(1)} млн ₽`
+    }
+    return null
+  })
 
   const totalAllocation = computed(() => {
     return Object.values(allocations.value).reduce((sum, val) => sum + val, 0)
@@ -112,6 +122,7 @@ export function usePortfolio(totalCapital) {
 
   const applyStrategy = (strategyKey) => {
     selectedStrategy.value = strategyKey
+    isManualMode.value = false
     const strategy = STRATEGIES[strategyKey]
     if (strategy) {
       Object.keys(allocations.value).forEach(key => {
@@ -121,6 +132,7 @@ export function usePortfolio(totalCapital) {
   }
 
   const autoDistribute = () => {
+    isManualMode.value = false
     const currentTotal = totalAllocation.value
     
     // Если уже 100% - ничего не делаем
@@ -190,7 +202,10 @@ export function usePortfolio(totalCapital) {
     }
   }
 
-  const setAllocation = (assetId, value) => {
+  const setAllocation = (assetId, value, manual = true) => {
+    if (manual) {
+      isManualMode.value = true
+    }
     allocations.value[assetId] = Math.max(0, Math.min(100, value))
   }
 
@@ -199,11 +214,14 @@ export function usePortfolio(totalCapital) {
       allocations.value[key] = 0
     })
     selectedStrategy.value = null
+    isManualMode.value = false
   }
 
   return {
     allocations,
     selectedStrategy,
+    isManualMode,
+    optimaValidationError,
     totalAllocation,
     portfolioMetrics,
     advisorComment,
