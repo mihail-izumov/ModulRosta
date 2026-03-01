@@ -494,60 +494,80 @@ onMounted(() => {
         >₽</button>
       </div>
 
-      <!-- Asset Allocation -->
+      <!-- Asset Allocation - Two Column Layout -->
       <div class="osc-allocation-section">
-        <div class="osc-alloc-label">
-          РАСПРЕДЕЛИТЕ АКТИВЫ ({{ inputMode === 'percent' ? 'в процентах' : 'в рублях' }})
-          <span v-if="isManualMode" class="osc-manual-badge">Ручной режим</span>
-        </div>
-        
-        <div class="osc-allocation-grid">
-          <div class="osc-alloc-list">
-            <div v-for="asset in ASSET_CLASSES" :key="asset.id" class="osc-alloc-item">
-              <div class="osc-alloc-header">
-                <span class="osc-asset-name">{{ asset.name }}</span>
-                <span class="osc-asset-tag" :style="{ background: asset.tagColor }">{{ asset.tag }}</span>
-              </div>
-              
-              <div class="osc-alloc-controls">
-                <CustomSlider 
-                  v-if="inputMode === 'percent'"
-                  :modelValue="allocations[asset.id]"
-                  @update:modelValue="handleSliderChange(asset.id, $event)"
-                  :max="100"
-                  :color="asset.color"
-                />
-                <CurrencyInput 
-                  v-else
-                  :modelValue="getAssetAmount(asset.id)"
-                  @update:modelValue="handleAmountChange(asset.id, $event)"
-                  :max="totalCapital"
-                />
-              </div>
-              
-              <!-- Предупреждение о минимуме для Optima Space -->
-              <div v-if="asset.id === 'optima' && optimaValidationError" class="osc-optima-warning">
-                ⚠️ {{ optimaValidationError }}
-              </div>
-              
-              <div class="osc-alloc-meta" :style="{ color: asset.color + '99' }">
-                <span>Доходность: {{ asset.minYield }}-{{ asset.maxYield }}%</span>
-                <span>Риск: {{ asset.risk }}/10</span>
+        <div class="osc-alloc-two-columns">
+          <!-- Left Column: Controls -->
+          <div class="osc-alloc-left">
+            <div class="osc-alloc-label">
+              РАСПРЕДЕЛИТЕ АКТИВЫ ({{ inputMode === 'percent' ? 'в процентах' : 'в рублях' }})
+              <span v-if="isManualMode" class="osc-manual-badge">Ручной режим</span>
+            </div>
+            
+            <div class="osc-alloc-list">
+              <div v-for="asset in ASSET_CLASSES" :key="asset.id" class="osc-alloc-item">
+                <div class="osc-alloc-header">
+                  <span class="osc-asset-name">{{ asset.name }}</span>
+                  <span class="osc-asset-tag" :style="{ background: asset.tagColor }">{{ asset.tag }}</span>
+                </div>
+                
+                <div class="osc-alloc-controls">
+                  <CustomSlider 
+                    v-if="inputMode === 'percent'"
+                    :modelValue="allocations[asset.id]"
+                    @update:modelValue="handleSliderChange(asset.id, $event)"
+                    :max="100"
+                    :color="asset.color"
+                  />
+                  <CurrencyInput 
+                    v-else
+                    :modelValue="getAssetAmount(asset.id)"
+                    @update:modelValue="handleAmountChange(asset.id, $event)"
+                    :max="totalCapital"
+                  />
+                </div>
+                
+                <!-- Предупреждение о минимуме для Optima Space -->
+                <div v-if="asset.id === 'optima' && optimaValidationError" class="osc-optima-warning">
+                  ⚠️ {{ optimaValidationError }}
+                </div>
+                
+                <div class="osc-alloc-meta" :style="{ color: asset.color + '99' }">
+                  <span>Доходность: {{ asset.minYield }}-{{ asset.maxYield }}%</span>
+                  <span>Риск: {{ asset.risk }}/10</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="osc-alloc-summary">
+            <!-- Total & Auto-distribute -->
+            <div class="osc-alloc-footer">
+              <div class="osc-total-row">
+                <span>Итого распределено:</span>
+                <span class="osc-total-value" :class="{ over: totalAllocation > 100, under: totalAllocation < 100 }">
+                  {{ totalAllocation }}%
+                </span>
+              </div>
+              
+              <button class="osc-auto-btn" @click="autoDistribute">
+                Авто-распределение ({{ 100 - totalAllocation }}%)
+              </button>
+            </div>
+          </div>
+          
+          <!-- Right Column: Visualization -->
+          <div class="osc-alloc-right">
+            <div class="osc-alloc-label">ПОРТФЕЛЬ</div>
+            
             <PortfolioChart :data="chartData" :size="180" />
             
-            <div class="osc-metrics-grid">
-              <div class="osc-metric">
+            <div class="osc-metrics-row">
+              <div class="osc-metric-box">
                 <div class="osc-metric-label">Доходность</div>
                 <div class="osc-metric-value" :class="{ highlight: portfolioMetrics.yield >= 20 }">
                   {{ portfolioMetrics.yield.toFixed(1) }}%
                 </div>
               </div>
-              <div class="osc-metric">
+              <div class="osc-metric-box">
                 <div class="osc-metric-label">Риск</div>
                 <div class="osc-metric-value">{{ portfolioMetrics.risk.toFixed(1) }}/10</div>
               </div>
@@ -559,26 +579,12 @@ onMounted(() => {
                 <span>Цель 20%+ доходности</span>
               </div>
             </InfoTooltip>
+            
+            <!-- Advisor Comment -->
+            <div class="osc-advisor-comment" :class="advisorComment.type">
+              {{ advisorComment.text }}
+            </div>
           </div>
-        </div>
-
-        <!-- Total & Auto-distribute -->
-        <div class="osc-alloc-footer">
-          <div class="osc-total-row">
-            <span>Итого распределено:</span>
-            <span class="osc-total-value" :class="{ over: totalAllocation > 100, under: totalAllocation < 100 }">
-              {{ totalAllocation }}%
-            </span>
-          </div>
-          
-          <!-- Advisor Comment -->
-          <div class="osc-advisor-comment" :class="advisorComment.type">
-            {{ advisorComment.text }}
-          </div>
-          
-          <button class="osc-auto-btn" @click="autoDistribute">
-            Авто-распределение ({{ 100 - totalAllocation }}%)
-          </button>
         </div>
       </div>
     </section>
@@ -1349,20 +1355,39 @@ onMounted(() => {
   margin-bottom: 16px;
 }
 
-.osc-allocation-grid {
+/* Two Column Layout */
+.osc-alloc-two-columns {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 1fr;
   gap: 32px;
 }
 
-.osc-alloc-list {
+.osc-alloc-left,
+.osc-alloc-right {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
+.osc-alloc-right {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.osc-alloc-right .osc-alloc-label {
+  margin-bottom: 8px;
+}
+
+.osc-alloc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .osc-alloc-item {
-  padding: 16px;
+  padding: 14px;
   background: rgba(255,255,255,0.02);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
@@ -1372,7 +1397,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .osc-asset-tag {
@@ -1399,7 +1424,7 @@ onMounted(() => {
 }
 
 .osc-alloc-controls {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .osc-alloc-meta {
@@ -1434,7 +1459,46 @@ onMounted(() => {
   font-weight: 600;
 }
 
-/* Summary Sidebar */
+/* Metrics Row */
+.osc-metrics-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.osc-metric-box {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+}
+
+.osc-metric-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.osc-metric-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'SF Mono', Monaco, monospace;
+}
+
+.osc-metric-value.highlight {
+  color: #00D9C0;
+}
+
+/* Legacy - keep for compatibility */
+.osc-allocation-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 32px;
+}
+
 .osc-alloc-summary {
   display: flex;
   flex-direction: column;
@@ -1454,12 +1518,6 @@ onMounted(() => {
 
 .osc-metric {
   text-align: center;
-}
-
-.osc-metric-label {
-  font-size: 11px;
-  color: #888;
-  text-transform: uppercase;
 }
 
 .osc-metric-value {
