@@ -295,12 +295,6 @@ const getSegmentScale = (index) => {
   text-align: center;
   line-height: 1.4;
 }
-  justify-content: center;
-}
-
-.osc-info-hint-icon {
-  font-size: 16px;
-}
 
 /* Legend */
 .osc-chart-legend {
