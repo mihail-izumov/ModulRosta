@@ -33,7 +33,7 @@ export const TOOLTIPS = {
 
 export const OPTIMA_SPACE = {
   name: 'Optima Space',
-  location: 'Самара, Самара-Сити',
+  location: 'Самара<br>Самара-Сити',
   buildingClass: 'А',
   minInvestment: 500000,
   totalShares: 288000,
@@ -313,7 +313,7 @@ export const COVERAGE_COMMENTS = {
 }
 
 export const COMPARISON_COMMENTS = {
-  optima: 'Высокая доходность с гарантией выкупа — оптимальный выбор для роста',
+  optima: 'Высокая доходность с гарантией выкупа — оптимальный выбор для роста капитала',
   warehouse: 'Стабильный доход, низкая волатильность — для консервативной части',
   streetretail: 'Реальный актив, высокая ликвидность — можно продать в любой момент',
   bonds: 'Фиксированный купон, минимальный риск — защитная часть портфеля',

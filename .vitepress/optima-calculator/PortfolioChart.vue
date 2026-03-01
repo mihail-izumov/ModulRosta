@@ -98,7 +98,11 @@ const sortedSegments = computed(() => {
 })
 
 const getSegmentScale = (index) => {
-  return selectedIndex.value === index ? 1.05 : 1
+  return 1 // Убрали scale чтобы сегменты не выходили за границы
+}
+
+const getSegmentStrokeWidth = (index) => {
+  return selectedIndex.value === index ? 38 : 32
 }
 </script>
 
@@ -125,7 +129,7 @@ const getSegmentScale = (index) => {
           :r="radius"
           fill="none"
           :stroke="segment.color"
-          :stroke-width="strokeWidth"
+          :stroke-width="getSegmentStrokeWidth(segment.originalIndex)"
           class="osc-segment"
           :class="{ selected: selectedIndex === segment.originalIndex }"
           @click="handleSegmentClick(segment.originalIndex)"
@@ -136,14 +140,10 @@ const getSegmentScale = (index) => {
           :d="getArcPath(segment.startAngle, segment.endAngle - 0.5, radius)"
           fill="none"
           :stroke="segment.color"
-          :stroke-width="strokeWidth"
+          :stroke-width="getSegmentStrokeWidth(segment.originalIndex)"
           stroke-linecap="round"
           class="osc-segment"
           :class="{ selected: selectedIndex === segment.originalIndex }"
-          :style="{
-            transform: `scale(${getSegmentScale(segment.originalIndex)})`,
-            transformOrigin: `${cx}px ${cy}px`
-          }"
           @click="handleSegmentClick(segment.originalIndex)"
         />
       </g>

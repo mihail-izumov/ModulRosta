@@ -201,16 +201,22 @@ onMounted(() => {
       <div class="osc-countdown-heading">До запуска Optima Space в Самаре</div>
       <div class="osc-countdown-content">
         <div class="osc-countdown-timer">
-          <div class="osc-flip-card">
-            <div class="osc-flip-value">{{ String(countdown.days).padStart(2, '0') }}</div>
+          <div class="osc-flip-unit">
+            <div class="osc-flip-card">
+              <div class="osc-flip-value">{{ String(countdown.days).padStart(2, '0') }}</div>
+            </div>
             <div class="osc-flip-label">{{ countdown.daysText }}</div>
           </div>
-          <div class="osc-flip-card">
-            <div class="osc-flip-value">{{ String(countdown.hours).padStart(2, '0') }}</div>
+          <div class="osc-flip-unit">
+            <div class="osc-flip-card">
+              <div class="osc-flip-value">{{ String(countdown.hours).padStart(2, '0') }}</div>
+            </div>
             <div class="osc-flip-label">{{ countdown.hoursText }}</div>
           </div>
-          <div class="osc-flip-card">
-            <div class="osc-flip-value">{{ String(countdown.minutes).padStart(2, '0') }}</div>
+          <div class="osc-flip-unit">
+            <div class="osc-flip-card">
+              <div class="osc-flip-value">{{ String(countdown.minutes).padStart(2, '0') }}</div>
+            </div>
             <div class="osc-flip-label">{{ countdown.minutesText }}</div>
           </div>
         </div>
@@ -244,45 +250,45 @@ onMounted(() => {
       </p>
 
       <div class="osc-features">
-        <div class="osc-feature">
-          <InfoTooltip text="Укажите общую сумму, которую готовы инвестировать. Минимальный порог для Optima Space — 500 000 ₽ (1000 акций)." :maxWidth="420">
+        <InfoTooltip text="Укажите общую сумму, которую готовы инвестировать. Минимальный порог для Optima Space — 500 000 ₽ (1000 акций)." :maxWidth="420">
+          <div class="osc-feature">
             <div class="osc-feature-icon-wrap">
               <Wallet :size="28" color="#00D9C0" />
             </div>
-          </InfoTooltip>
-          <span class="osc-feature-title">Ваш капитал</span>
-          <span class="osc-feature-sub">Сколько готовы инвестировать</span>
-        </div>
+            <span class="osc-feature-title">Ваш капитал</span>
+            <span class="osc-feature-sub">Сколько готовы инвестировать</span>
+          </div>
+        </InfoTooltip>
         <div class="osc-feature-arrow">→</div>
-        <div class="osc-feature">
-          <InfoTooltip text="Распределите капитал между классами активов: офисы, склады, ритейл, облигации, акции. Калькулятор рассчитает доходность и риск." :maxWidth="420">
+        <InfoTooltip text="Распределите капитал между классами активов: офисы, склады, ритейл, облигации, акции. Калькулятор рассчитает доходность и риск." :maxWidth="420">
+          <div class="osc-feature">
             <div class="osc-feature-icon-wrap">
               <Scale :size="28" color="#00D9C0" />
             </div>
-          </InfoTooltip>
-          <span class="osc-feature-title">Распределите активы</span>
-          <span class="osc-feature-sub">Офисы, склады, ритейл, резерв</span>
-        </div>
+            <span class="osc-feature-title">Распределите активы</span>
+            <span class="osc-feature-sub">Офисы, склады, ритейл, резерв</span>
+          </div>
+        </InfoTooltip>
         <div class="osc-feature-arrow">→</div>
-        <div class="osc-feature">
-          <InfoTooltip text="Узнайте детали инвестиции в Optima Space: количество акций, ожидаемые дивиденды, гарантии выкупа, покрытие залогом." :maxWidth="420">
+        <InfoTooltip text="Узнайте детали инвестиции в Optima Space: количество акций, ожидаемые дивиденды, гарантии выкупа, покрытие залогом." :maxWidth="420">
+          <div class="osc-feature">
             <div class="osc-feature-icon-wrap">
               <Building2 :size="28" color="#00D9C0" />
             </div>
-          </InfoTooltip>
-          <span class="osc-feature-title">Детали Optima Space</span>
-          <span class="osc-feature-sub">Акции, дивиденды, гарантии</span>
-        </div>
+            <span class="osc-feature-title">Детали Optima Space</span>
+            <span class="osc-feature-sub">Акции, дивиденды, гарантии</span>
+          </div>
+        </InfoTooltip>
         <div class="osc-feature-arrow">→</div>
-        <div class="osc-feature">
-          <InfoTooltip text="Скачайте персональный PDF-отчёт с вашей инвестиционной стратегией, расчётами доходности и всеми деталями проекта." :maxWidth="420">
+        <InfoTooltip text="Скачайте персональный PDF-отчёт с вашей инвестиционной стратегией, расчётами доходности и всеми деталями проекта." :maxWidth="420">
+          <div class="osc-feature">
             <div class="osc-feature-icon-wrap">
               <FileText :size="28" color="#00D9C0" />
             </div>
-          </InfoTooltip>
-          <span class="osc-feature-title">Скачайте отчёт</span>
-          <span class="osc-feature-sub">Персональная стратегия в PDF</span>
-        </div>
+            <span class="osc-feature-title">Скачайте отчёт</span>
+            <span class="osc-feature-sub">Персональная стратегия в PDF</span>
+          </div>
+        </InfoTooltip>
       </div>
     </section>
 
@@ -290,7 +296,7 @@ onMounted(() => {
     <section class="osc-passport-section">
       <div class="osc-passport-header">
         <span class="osc-passport-title">Паспорт проекта Optima Space</span>
-        <span class="osc-passport-badge">{{ OPTIMA_SPACE.buildingClass }} класс</span>
+        <span class="osc-passport-badge">Сервисный офис – {{ OPTIMA_SPACE.buildingClass }} класс</span>
       </div>
       
       <div class="osc-passport-grid">
@@ -298,7 +304,7 @@ onMounted(() => {
           <div class="osc-pp-title">Основные параметры</div>
           <div class="osc-pp-row">
             <span>Локация</span>
-            <span>{{ OPTIMA_SPACE.location }}</span>
+            <span v-html="OPTIMA_SPACE.location"></span>
           </div>
           <div class="osc-pp-row">
             <span>Площадь</span>
@@ -323,6 +329,10 @@ onMounted(() => {
           <div class="osc-pp-row">
             <span>От инвесторов</span>
             <span>{{ formatCurrency(OPTIMA_SPACE.investorsShare) }}</span>
+          </div>
+          <div class="osc-pp-row">
+            <span>От организатора</span>
+            <span>{{ formatCurrency(OPTIMA_SPACE.founderShare) }}</span>
           </div>
           <div class="osc-pp-row">
             <span>ROI (I раунд)</span>
@@ -478,10 +488,6 @@ onMounted(() => {
               <div class="osc-alloc-header">
                 <span class="osc-asset-name">{{ asset.name }}</span>
                 <span class="osc-asset-tag" :style="{ background: asset.tagColor }">{{ asset.tag }}</span>
-                <span class="osc-asset-value" :style="{ color: asset.color }">
-                  <template v-if="inputMode === 'percent'">{{ allocations[asset.id] }}%</template>
-                  <template v-else>{{ formatCurrency(getAssetAmount(asset.id)) }}</template>
-                </span>
               </div>
               
               <div class="osc-alloc-controls">
@@ -768,19 +774,29 @@ onMounted(() => {
 
 .osc-countdown-timer {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 16px;
+  gap: 20px;
+}
+
+.osc-flip-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .osc-flip-card {
   background: linear-gradient(180deg, rgba(0,217,192,0.15) 0%, rgba(0,217,192,0.08) 50%, rgba(0,217,192,0.05) 50%, rgba(0,217,192,0.02) 100%);
-  border-radius: 12px;
-  padding: 20px 24px;
-  min-width: 100px;
+  border-radius: 16px;
+  padding: 24px 32px;
+  min-width: 110px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(0,217,192,0.2);
   border: 1px solid rgba(0,217,192,0.3);
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .osc-flip-card::before {
@@ -795,7 +811,7 @@ onMounted(() => {
 
 .osc-flip-value {
   font-family: 'SF Mono', Monaco, 'Inconsolata', monospace;
-  font-size: 52px;
+  font-size: 64px;
   font-weight: 700;
   color: #fff;
   line-height: 1;
@@ -804,11 +820,10 @@ onMounted(() => {
 }
 
 .osc-flip-label {
-  font-size: 11px;
+  font-size: 12px;
   color: #00D9C0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-top: 12px;
   font-weight: 600;
   text-align: center;
 }
@@ -880,9 +895,9 @@ onMounted(() => {
 /* Features with Arrows */
 .osc-features {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
   margin-bottom: 32px;
   flex-wrap: wrap;
 }
@@ -924,10 +939,12 @@ onMounted(() => {
 }
 
 .osc-feature-arrow {
-  font-size: 24px;
+  font-size: 28px;
   color: #00D9C0;
   font-weight: 300;
-  padding-top: 40px;
+  padding: 0 8px;
+  align-self: center;
+  opacity: 0.7;
 }
 
 /* Project Passport */
@@ -1609,7 +1626,7 @@ onMounted(() => {
   font-size: 16px;
   font-weight: 600;
   color: #fff;
-  margin: 0 0 20px;
+  margin: 0 0 28px;
 }
 
 .osc-portfolio-list {
