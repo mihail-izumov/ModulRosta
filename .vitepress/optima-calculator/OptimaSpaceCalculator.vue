@@ -190,11 +190,23 @@ onMounted(() => {
 
 <template>
   <div class="osc-calculator">
-    <!-- Header -->
-    <header class="osc-header">
-      <p class="osc-header-subtitle">Инвестиции в офисную недвижимость</p>
-      <h1 class="osc-header-title">Расчёт инвестиций в Optima Space</h1>
-    </header>
+    <!-- Mobile Block -->
+    <div class="osc-mobile-block">
+      <div class="osc-mobile-icon">💻</div>
+      <div class="osc-mobile-title">Откройте на компьютере</div>
+      <div class="osc-mobile-text">
+        Калькулятор инвестиций Optima Space оптимизирован для экранов шириной от 1024px. 
+        Пожалуйста, откройте эту страницу на компьютере или планшете.
+      </div>
+    </div>
+
+    <!-- Main Content (hidden on mobile) -->
+    <div class="osc-main-content">
+      <!-- Header -->
+      <header class="osc-header">
+        <p class="osc-header-subtitle">Инвестиции в офисную недвижимость</p>
+        <h1 class="osc-header-title">Расчёт инвестиций в Optima Space</h1>
+      </header>
 
     <!-- Countdown Block - Flip Clock Style -->
     <section class="osc-countdown-section">
@@ -650,7 +662,7 @@ onMounted(() => {
       <div class="osc-summary-grid">
         <!-- Left: Portfolio -->
         <div class="osc-portfolio-block">
-          <h3 class="osc-block-title">Портфель {{ formatCurrency(totalCapital) }}</h3>
+          <div class="osc-portfolio-title">Портфель {{ formatCurrency(totalCapital) }}</div>
           <div class="osc-portfolio-list">
             <div 
               v-for="item in chartData" 
@@ -704,6 +716,7 @@ onMounted(() => {
       @close="showModal = false"
       @submit="handleModalSubmit"
     />
+    </div><!-- end osc-main-content -->
   </div>
 </template>
 
@@ -715,6 +728,50 @@ onMounted(() => {
   padding: 40px 24px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #fff;
+}
+
+/* Mobile Block - shown only on small screens */
+.osc-mobile-block {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.osc-mobile-icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+}
+
+.osc-mobile-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.osc-mobile-text {
+  font-size: 15px;
+  color: #888;
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+/* Main content - hidden on mobile */
+.osc-main-content {
+  display: block;
+}
+
+@media (max-width: 1023px) {
+  .osc-mobile-block {
+    display: flex;
+  }
+  .osc-main-content {
+    display: none;
+  }
 }
 
 /* Header */
@@ -1622,6 +1679,16 @@ onMounted(() => {
   padding: 24px;
 }
 
+.osc-portfolio-title {
+  all: unset;
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 24px !important;
+  padding-bottom: 0;
+}
+
 .osc-block-title {
   font-size: 16px;
   font-weight: 600;
@@ -1633,7 +1700,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-bottom: 4px;
 }
 
 .osc-portfolio-row {
