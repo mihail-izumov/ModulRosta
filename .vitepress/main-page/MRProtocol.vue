@@ -9,7 +9,7 @@
         <div 
           class="mr-protocol-row" 
           @click="openModal('scout')"
-          @mousemove="handleMouseMove($event, 'scout')"
+          @mousemove="handleMouseMove"
         >
           <div class="mr-protocol-code"><span>MOD-01</span></div>
           <div class="mr-protocol-info">
@@ -18,10 +18,11 @@
           </div>
           <div class="mr-protocol-duration">7–10 дней</div>
           <div class="mr-protocol-result">→ Бренд-платформа + GO/NO-GO</div>
+          <div class="mr-protocol-price">150 000 ₽</div>
           <div class="mr-protocol-details-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 8v8"/><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z"/><path d="M8 12h8"/>
-            </svg>
+            <div class="mr-build-details-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v8"/><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z"/><path d="M8 12h8"/></svg>
+            </div>
             <span class="mr-details-text">ДЕТАЛИ</span>
           </div>
         </div>
@@ -30,7 +31,7 @@
         <div 
           class="mr-protocol-row" 
           @click="openModal('checkup')"
-          @mousemove="handleMouseMove($event, 'checkup')"
+          @mousemove="handleMouseMove"
         >
           <div class="mr-protocol-code"><span>MOD-02</span></div>
           <div class="mr-protocol-info">
@@ -39,10 +40,11 @@
           </div>
           <div class="mr-protocol-duration">30 дней</div>
           <div class="mr-protocol-result">→ Дизайн-система + Прототип</div>
+          <div class="mr-protocol-price">350 000 ₽</div>
           <div class="mr-protocol-details-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 8v8"/><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z"/><path d="M8 12h8"/>
-            </svg>
+            <div class="mr-build-details-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v8"/><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z"/><path d="M8 12h8"/></svg>
+            </div>
             <span class="mr-details-text">ДЕТАЛИ</span>
           </div>
         </div>
@@ -51,7 +53,7 @@
         <div 
           class="mr-protocol-row" 
           @click="openModal('execute')"
-          @mousemove="handleMouseMove($event, 'execute')"
+          @mousemove="handleMouseMove"
         >
           <div class="mr-protocol-code"><span>MOD-03</span></div>
           <div class="mr-protocol-info">
@@ -60,10 +62,11 @@
           </div>
           <div class="mr-protocol-duration">30 дней</div>
           <div class="mr-protocol-result">→ Рабочий продукт</div>
+          <div class="mr-protocol-price">по запросу</div>
           <div class="mr-protocol-details-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 8v8"/><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z"/><path d="M8 12h8"/>
-            </svg>
+            <div class="mr-build-details-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v8"/><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z"/><path d="M8 12h8"/></svg>
+            </div>
             <span class="mr-details-text">ДЕТАЛИ</span>
           </div>
         </div>
@@ -124,7 +127,6 @@ import { ref, computed } from 'vue'
 
 const modalOpen = ref(false)
 const currentMode = ref<string>('')
-const currentStep = ref(0)
 
 const protocolData = {
   scout: {
@@ -132,6 +134,7 @@ const protocolData = {
     title: "Разведка",
     subtitle: "СТРАТЕГИЯ И ПОЗИЦИОНИРОВАНИЕ",
     duration: "7–10 дней",
+    price: "150 000 ₽",
     result: "Бренд-платформа + GO/NO-GO",
     description: "Определяем, кто вы на рынке и чем отличаетесь. Формируем стратегическую основу для бренда и продукта.",
     method: "Глубинные интервью, анализ конкурентов, позиционирование, формулировка ценностного предложения.",
@@ -147,6 +150,7 @@ const protocolData = {
     title: "Чертёж",
     subtitle: "АЙДЕНТИКА И ИНТЕРФЕЙС",
     duration: "30 дней",
+    price: "350 000 ₽",
     result: "Дизайн-система + Прототип",
     description: "Создаём визуальную идентичность бренда и проектируем интерфейс продукта. Вы получаете полный дизайн-кит.",
     method: "Бренд-платформа, айдентика, UI-кит, кликабельный прототип ключевых экранов.",
@@ -163,6 +167,7 @@ const protocolData = {
     title: "Сборка",
     subtitle: "ДИЗАЙН В КОДЕ",
     duration: "30 дней",
+    price: "по запросу",
     result: "Рабочий продукт",
     description: "Превращаем дизайн в работающий продукт. Pixel-perfect вёрстка, чистый код, запуск в продакшн.",
     method: "Pixel-perfect вёрстка по макетам, современный стек, тестирование, деплой и поддержка.",
@@ -179,7 +184,21 @@ const protocolData = {
 
 const modalContent = computed(() => {
   if (currentMode.value === 'slot') {
-    return renderSlotContent()
+    return `
+      <div class="mr-modal-header">
+        <span class="mr-modal-code">SLOT-60</span>
+        <h3 class="mr-modal-title">Стартовый слот</h3>
+        <span class="mr-modal-subtitle">ПОЛНЫЙ ЦИКЛ 60 ДНЕЙ</span>
+      </div>
+      <p class="mr-modal-description">От идеи до бренда и продукта. Стратегия → Айдентика → Интерфейс → Код. Единая система.</p>
+      <div class="mr-slot-packages">
+        <div class="mr-slot-package"><span class="mr-slot-package-icon">📍</span><span>Бренд-платформа</span></div>
+        <div class="mr-slot-package"><span class="mr-slot-package-icon">🎨</span><span>Айдентика</span></div>
+        <div class="mr-slot-package"><span class="mr-slot-package-icon">📱</span><span>Интерфейс</span></div>
+        <div class="mr-slot-package"><span class="mr-slot-package-icon">🚀</span><span>Цифровой продукт</span></div>
+      </div>
+      <a href="https://t.me/runScale" target="_blank" class="mr-modal-cta">ЗАБРОНИРОВАТЬ СЛОТ →</a>
+    `
   }
   
   const data = protocolData[currentMode.value as keyof typeof protocolData]
@@ -191,25 +210,25 @@ const modalContent = computed(() => {
       <h3 class="mr-modal-title">${data.title}</h3>
       <span class="mr-modal-subtitle">${data.subtitle}</span>
     </div>
-    
     <div class="mr-modal-meta">
       <div class="mr-modal-meta-item">
         <span class="mr-modal-meta-label">Длительность</span>
         <span class="mr-modal-meta-value">${data.duration}</span>
       </div>
       <div class="mr-modal-meta-item">
+        <span class="mr-modal-meta-label">Стоимость</span>
+        <span class="mr-modal-meta-value">${data.price}</span>
+      </div>
+      <div class="mr-modal-meta-item">
         <span class="mr-modal-meta-label">Результат</span>
         <span class="mr-modal-meta-value mr-accent">${data.result}</span>
       </div>
     </div>
-    
     <p class="mr-modal-description">${data.description}</p>
-    
     <div class="mr-modal-section">
       <h4>Метод</h4>
       <p>${data.method}</p>
     </div>
-    
     <div class="mr-modal-section">
       <h4>Роадмап</h4>
       <div class="mr-modal-roadmap">
@@ -221,7 +240,6 @@ const modalContent = computed(() => {
         `).join('')}
       </div>
     </div>
-    
     <div class="mr-modal-section">
       <h4>Артефакты</h4>
       <div class="mr-modal-deliverables">
@@ -231,42 +249,8 @@ const modalContent = computed(() => {
   `
 })
 
-function renderSlotContent() {
-  return `
-    <div class="mr-modal-header">
-      <span class="mr-modal-code">SLOT-60</span>
-      <h3 class="mr-modal-title">Стартовый слот</h3>
-      <span class="mr-modal-subtitle">ПОЛНЫЙ ЦИКЛ 60 ДНЕЙ</span>
-    </div>
-    
-    <p class="mr-modal-description">От идеи до бренда и продукта. Стратегия → Айдентика → Интерфейс → Код. Единая система.</p>
-    
-    <div class="mr-slot-packages">
-      <div class="mr-slot-package">
-        <span class="mr-slot-package-icon">📍</span>
-        <span>Бренд-платформа</span>
-      </div>
-      <div class="mr-slot-package">
-        <span class="mr-slot-package-icon">🎨</span>
-        <span>Айдентика</span>
-      </div>
-      <div class="mr-slot-package">
-        <span class="mr-slot-package-icon">📱</span>
-        <span>Интерфейс</span>
-      </div>
-      <div class="mr-slot-package">
-        <span class="mr-slot-package-icon">🚀</span>
-        <span>Цифровой продукт</span>
-      </div>
-    </div>
-    
-    <a href="https://t.me/runScale" target="_blank" class="mr-modal-cta">ЗАБРОНИРОВАТЬ СЛОТ →</a>
-  `
-}
-
 function openModal(mode: string) {
   currentMode.value = mode
-  currentStep.value = 0
   modalOpen.value = true
   document.body.style.overflow = 'hidden'
 }
@@ -276,7 +260,7 @@ function closeModal() {
   document.body.style.overflow = ''
 }
 
-function handleMouseMove(event: MouseEvent, mode: string) {
+function handleMouseMove(event: MouseEvent) {
   const target = event.currentTarget as HTMLElement
   const rect = target.getBoundingClientRect()
   const x = event.clientX - rect.left
@@ -288,7 +272,7 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 
 <style scoped>
 .mr-launch-protocol-section {
-  background: var(--vp-c-bg-soft);
+  background: #0a0a0a;
   padding: 80px 24px;
 }
 
@@ -300,7 +284,7 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 .mr-section-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--vp-c-brand-1);
+  color: #00ff88;
   text-transform: uppercase;
   letter-spacing: 3px;
   margin-bottom: 16px;
@@ -310,12 +294,12 @@ function handleMouseMove(event: MouseEvent, mode: string) {
   font-size: clamp(28px, 5vw, 42px);
   font-weight: 300;
   margin-bottom: 24px;
-  color: var(--vp-c-text-1);
+  color: #fff;
 }
 
 .mr-protocol-table {
-  background: var(--vp-c-bg);
-  border: 1px solid var(--vp-c-divider);
+  background: #111111;
+  border: 1px solid #222222;
   border-radius: 8px;
   overflow: hidden;
   margin-top: 24px;
@@ -326,28 +310,63 @@ function handleMouseMove(event: MouseEvent, mode: string) {
   grid-template-columns: 80px 1fr 100px 100px;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--vp-c-divider);
+  border-bottom: 1px solid #222222;
   cursor: pointer;
   transition: all 0.3s ease;
   gap: 16px;
   position: relative;
+  --mouse-x: 50%;
+  --mouse-y: 50%;
 }
 
+/* Крестики по углам (CAD-стиль) */
+.mr-protocol-row::before,
+.mr-protocol-row::after {
+  content: '+';
+  position: absolute;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #222222;
+  transition: color 0.3s ease;
+}
+.mr-protocol-row::before { top: 8px; left: 8px; }
+.mr-protocol-row::after { top: 8px; right: 8px; }
+.mr-protocol-row:hover::before,
+.mr-protocol-row:hover::after { color: #00ff88; }
+
+/* Spotlight эффект */
 .mr-protocol-row:hover {
-  background: radial-gradient(300px circle at var(--mouse-x) var(--mouse-y), rgba(52, 123, 108, 0.06), transparent 50%);
-  border-left: 3px solid var(--vp-c-brand-1);
+  background: radial-gradient(
+    300px circle at var(--mouse-x) var(--mouse-y),
+    rgba(0, 255, 136, 0.06),
+    transparent 50%
+  );
+  border-left: 3px solid #00ff88;
 }
 
-.mr-protocol-row:last-child {
-  border-bottom: none;
+/* Скрываем цену и результат в таблице */
+.mr-protocol-row .mr-protocol-price,
+.mr-protocol-row .mr-protocol-result {
+  display: none;
+}
+
+.mr-protocol-row:last-child { border-bottom: none; }
+
+@media (max-width: 700px) {
+  .mr-protocol-row::before,
+  .mr-protocol-row::after { display: none; }
 }
 
 .mr-protocol-code span {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--vp-c-brand-1);
+  color: #00ff88;
   text-transform: uppercase;
   letter-spacing: 1px;
+  padding: 4px 8px;
+  border: 1px solid #00ff88;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .mr-protocol-info {
@@ -357,28 +376,23 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 }
 
 .mr-protocol-name {
-  font-size: 18px;
   font-weight: 600;
-  color: var(--vp-c-text-1);
+  font-size: 16px;
+  color: #fff;
 }
 
 .mr-protocol-subtitle {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--vp-c-text-3);
-  text-transform: uppercase;
+  font-size: 11px;
+  color: #00ff88;
   letter-spacing: 1px;
 }
 
 .mr-protocol-duration {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  color: var(--vp-c-text-2);
-}
-
-.mr-protocol-result {
-  font-size: 13px;
-  color: var(--vp-c-brand-1);
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
 }
 
 .mr-protocol-details-btn {
@@ -387,23 +401,38 @@ function handleMouseMove(event: MouseEvent, mode: string) {
   gap: 8px;
   padding: 8px 12px;
   background: transparent;
-  border: 1px solid var(--vp-c-divider);
+  border: 1px solid #222222;
   border-radius: 6px;
-  color: var(--vp-c-brand-1);
+  color: #00ff88;
   cursor: pointer;
   transition: all 0.3s ease;
   justify-content: center;
 }
 
 .mr-protocol-details-btn:hover {
-  background: var(--vp-c-brand-1);
-  border-color: var(--vp-c-brand-1);
+  background: #00ff88;
+  border-color: #00ff88;
 }
 
-.mr-protocol-details-btn:hover svg,
-.mr-protocol-details-btn:hover .mr-details-text {
+.mr-protocol-details-btn:hover .mr-details-text,
+.mr-protocol-details-btn:hover .mr-build-details-icon {
   color: #000;
+}
+
+.mr-protocol-details-btn:hover .mr-build-details-icon svg {
   stroke: #000;
+}
+
+.mr-build-details-icon {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mr-build-details-icon svg {
+  color: #00ff88;
 }
 
 .mr-details-text {
@@ -411,6 +440,7 @@ function handleMouseMove(event: MouseEvent, mode: string) {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 1px;
+  color: #00ff88;
 }
 
 /* Protocol Footer */
@@ -419,8 +449,8 @@ function handleMouseMove(event: MouseEvent, mode: string) {
   flex-direction: column;
   align-items: center;
   padding: 32px;
-  background: rgba(52, 123, 108, 0.05);
-  border: 2px solid var(--vp-c-brand-1);
+  background: rgba(0, 255, 136, 0.05);
+  border: 2px solid #00ff88;
   border-radius: 12px;
   margin-top: 24px;
   gap: 24px;
@@ -432,32 +462,41 @@ function handleMouseMove(event: MouseEvent, mode: string) {
   align-items: center;
   width: 100%;
   padding-bottom: 16px;
-  border-bottom: 1px solid rgba(52, 123, 108, 0.2);
+  border-bottom: 1px solid rgba(0, 255, 136, 0.2);
 }
 
 .mr-protocol-summary-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 14px;
-  color: var(--vp-c-brand-1);
+  color: #00ff88;
   text-transform: uppercase;
   letter-spacing: 2px;
-  font-weight: 700;
-}
-
-.mr-protocol-footer-duration {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 24px;
-  color: var(--vp-c-brand-1);
   font-weight: 700;
 }
 
 .mr-protocol-summary-value {
   font-family: 'JetBrains Mono', monospace;
   font-size: 18px;
-  color: var(--vp-c-brand-1);
+  color: #00ff88;
   font-weight: 600;
   text-align: center;
   margin: 0;
+}
+
+.mr-protocol-summary-note {
+  font-size: 14px;
+  color: #888888;
+  text-align: center;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0;
+}
+
+.mr-protocol-footer-duration {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  color: #00ff88;
+  font-weight: 700;
 }
 
 .mr-protocol-package-grid {
@@ -468,8 +507,8 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 }
 
 .mr-package-card {
-  background: var(--vp-c-bg);
-  border: 1px solid var(--vp-c-divider);
+  background: #111111;
+  border: 1px solid #222222;
   border-radius: 8px;
   padding: 20px 16px;
   text-align: center;
@@ -477,7 +516,7 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 }
 
 .mr-package-card:hover {
-  border-color: var(--vp-c-brand-1);
+  border-color: #00ff88;
   transform: translateY(-2px);
 }
 
@@ -489,16 +528,7 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 .mr-package-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--vp-c-text-1);
-}
-
-.mr-protocol-summary-note {
-  font-size: 14px;
-  color: var(--vp-c-text-2);
-  text-align: center;
-  line-height: 1.6;
-  max-width: 600px;
-  margin: 0;
+  color: #fff;
 }
 
 .mr-protocol-slots-line {
@@ -516,8 +546,8 @@ function handleMouseMove(event: MouseEvent, mode: string) {
   align-items: center;
   gap: 8px;
   padding: 16px 40px;
-  background: var(--vp-c-brand-1);
-  color: #fff;
+  background: #00ff88;
+  color: #000;
   text-decoration: none;
   font-size: 14px;
   font-weight: 700;
@@ -530,59 +560,8 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 }
 
 .mr-protocol-cta:hover {
-  background: var(--vp-c-brand-2);
-  color: #000;
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(52, 123, 108, 0.3);
-}
-
-/* Modal Styles */
-.mr-protocol-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 24px;
-}
-
-.mr-protocol-modal {
-  background: var(--vp-c-bg);
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 16px;
-  max-width: 700px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  padding: 40px;
-}
-
-.mr-modal-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 40px;
-  height: 40px;
-  background: transparent;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
-  color: var(--vp-c-text-2);
-  font-size: 24px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.mr-modal-close:hover {
-  background: var(--vp-c-brand-1);
-  color: #000;
-  border-color: var(--vp-c-brand-1);
+  box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
 }
 
 @media (max-width: 900px) {
@@ -613,6 +592,55 @@ function handleMouseMove(event: MouseEvent, mode: string) {
     text-align: center;
   }
 }
+
+/* Modal */
+.mr-protocol-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+}
+
+.mr-protocol-modal {
+  background: #111111;
+  border: 1px solid #222222;
+  border-radius: 16px;
+  max-width: 700px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 40px;
+}
+
+.mr-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid #222222;
+  border-radius: 8px;
+  color: #888888;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mr-modal-close:hover {
+  background: #00ff88;
+  color: #000;
+  border-color: #00ff88;
+}
 </style>
 
 <style>
@@ -625,7 +653,7 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 .mr-modal-code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--vp-c-brand-1);
+  color: #00ff88;
   letter-spacing: 2px;
 }
 
@@ -633,13 +661,13 @@ function handleMouseMove(event: MouseEvent, mode: string) {
   font-size: 32px;
   font-weight: 600;
   margin: 8px 0;
-  color: var(--vp-c-text-1);
+  color: #fff;
 }
 
 .mr-modal-subtitle {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
-  color: var(--vp-c-text-3);
+  color: #555555;
   letter-spacing: 2px;
 }
 
@@ -649,8 +677,9 @@ function handleMouseMove(event: MouseEvent, mode: string) {
   justify-content: center;
   margin-bottom: 24px;
   padding: 16px;
-  background: var(--vp-c-bg-soft);
+  background: #0a0a0a;
   border-radius: 8px;
+  flex-wrap: wrap;
 }
 
 .mr-modal-meta-item {
@@ -659,7 +688,7 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 
 .mr-modal-meta-label {
   font-size: 11px;
-  color: var(--vp-c-text-3);
+  color: #555555;
   text-transform: uppercase;
   letter-spacing: 1px;
   display: block;
@@ -669,16 +698,16 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 .mr-modal-meta-value {
   font-size: 16px;
   font-weight: 600;
-  color: var(--vp-c-text-1);
+  color: #fff;
 }
 
 .mr-modal-meta-value.mr-accent {
-  color: var(--vp-c-brand-1);
+  color: #00ff88;
 }
 
 .mr-modal-description {
   font-size: 16px;
-  color: var(--vp-c-text-2);
+  color: #888888;
   line-height: 1.8;
   margin-bottom: 24px;
 }
@@ -690,14 +719,14 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 .mr-modal-section h4 {
   font-size: 14px;
   font-weight: 600;
-  color: var(--vp-c-text-1);
+  color: #fff;
   margin-bottom: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .mr-modal-section p {
-  color: var(--vp-c-text-2);
+  color: #888888;
   line-height: 1.6;
 }
 
@@ -708,21 +737,21 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 }
 
 .mr-roadmap-phase {
-  background: var(--vp-c-bg-soft);
+  background: #0a0a0a;
   padding: 12px 16px;
   border-radius: 8px;
-  border-left: 3px solid var(--vp-c-brand-1);
+  border-left: 3px solid #00ff88;
 }
 
 .mr-roadmap-phase-title {
   font-weight: 600;
-  color: var(--vp-c-brand-1);
+  color: #00ff88;
   margin-bottom: 4px;
 }
 
 .mr-roadmap-items {
   font-size: 13px;
-  color: var(--vp-c-text-2);
+  color: #888888;
 }
 
 .mr-modal-deliverables {
@@ -732,9 +761,9 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 }
 
 .mr-deliverable-tag {
-  background: rgba(52, 123, 108, 0.1);
-  border: 1px solid var(--vp-c-brand-1);
-  color: var(--vp-c-brand-1);
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid #00ff88;
+  color: #00ff88;
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 13px;
@@ -752,8 +781,9 @@ function handleMouseMove(event: MouseEvent, mode: string) {
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: var(--vp-c-bg-soft);
+  background: #0a0a0a;
   border-radius: 8px;
+  color: #fff;
 }
 
 .mr-slot-package-icon {
@@ -764,8 +794,8 @@ function handleMouseMove(event: MouseEvent, mode: string) {
   display: block;
   width: 100%;
   padding: 16px;
-  background: var(--vp-c-brand-1);
-  color: #fff;
+  background: #00ff88;
+  color: #000;
   text-align: center;
   text-decoration: none;
   font-weight: 700;
@@ -776,7 +806,6 @@ function handleMouseMove(event: MouseEvent, mode: string) {
 }
 
 .mr-modal-cta:hover {
-  background: var(--vp-c-brand-2);
-  color: #000;
+  box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
 }
 </style>
