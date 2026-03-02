@@ -5,7 +5,6 @@
     <MRRunscale404 />
     <MRProtocol />
     <MRHistory />
-    <MRFooter />
   </div>
 </template>
 
@@ -15,7 +14,6 @@ import MRTeams from './MRTeams.vue'
 import MRRunscale404 from './MRRunscale404.vue'
 import MRProtocol from './MRProtocol.vue'
 import MRHistory from './MRHistory.vue'
-import MRFooter from './MRFooter.vue'
 </script>
 
 <style>

@@ -1,38 +1,37 @@
 <template>
-  <section class="mr-runscale-404-section">
-    <div class="mr-runscale-404-scanner mr-scanner-top"></div>
-    <div class="mr-runscale-404-scanner mr-scanner-bottom"></div>
-    
-    <div class="mr-runscale-404-container">
-      <div class="mr-runscale-404-badge">⚠ PROTOCOL_404 // RED TEAM OFFENSIVE</div>
-      <h2 class="mr-runscale-404-title">РАНСКЕЙЛ-404</h2>
-      <p class="mr-runscale-404-subtitle">Стресс-тест бизнеса за 5 дней. Находим уязвимости в маркетинге, бренде и продукте до того, как вы потратите бюджет.</p>
+  <section class="mr-rs404-section">
+    <div class="mr-rs404-scanner mr-rs404-scanner-top"></div>
+    <div class="mr-rs404-scanner mr-rs404-scanner-bottom"></div>
+    <div class="mr-rs404-container">
+      <div class="mr-rs404-badge">⚠ PROTOCOL_404 // RED TEAM OFFENSIVE</div>
+      <h2 class="mr-rs404-title">РАНСКЕЙЛ_404</h2>
+      <p class="mr-rs404-subtitle">Стресс-тест бизнеса за 5 дней. Находим уязвимости в маркетинге, бренде и продукте до того, как вы потратите бюджет.</p>
       
-      <div class="mr-runscale-404-stats">
-        <div class="mr-stat-item">
-          <div class="mr-stat-value">5</div>
-          <div class="mr-stat-label">дней диагностика</div>
+      <div class="mr-rs404-stats">
+        <div class="mr-rs404-stat-item">
+          <div class="mr-rs404-stat-value">5</div>
+          <div class="mr-rs404-stat-label">ДНЕЙ</div>
         </div>
-        <div class="mr-stat-divider"></div>
-        <div class="mr-stat-item">
-          <div class="mr-stat-value">8/10</div>
-          <div class="mr-stat-label">проектов — No-Go</div>
+        <div class="mr-rs404-stat-divider"></div>
+        <div class="mr-rs404-stat-item">
+          <div class="mr-rs404-stat-value">8/10</div>
+          <div class="mr-rs404-stat-label">NO-GO</div>
         </div>
-        <div class="mr-stat-divider"></div>
-        <div class="mr-stat-item">
-          <div class="mr-stat-value">Go / No-Go</div>
-          <div class="mr-stat-label">честный вердикт</div>
+        <div class="mr-rs404-stat-divider"></div>
+        <div class="mr-rs404-stat-item">
+          <div class="mr-rs404-stat-value">GO</div>
+          <div class="mr-rs404-stat-label">ВЕРДИКТ</div>
         </div>
       </div>
 
-      <a href="/runscale-404" class="mr-runscale-404-cta">ЗАПУСТИТЬ ДИАГНОСТИКУ →</a>
+      <a href="#" class="mr-rs404-cta">ЗАПУСТИТЬ ДИАГНОСТИКУ →</a>
       
-      <div class="mr-runscale-404-terminal">
-        <div class="mr-terminal-block mr-terminal-input mr-terminal-red">
-          Ранскейл-404: 5 дней<span class="mr-typing-cursor mr-cursor-red"></span>
+      <div class="mr-rs404-terminal">
+        <div class="mr-rs404-terminal-block mr-rs404-terminal-input">
+          Ранскейл_404: 5 дней<span class="mr-rs404-cursor"></span>
         </div>
-        <span class="mr-terminal-arrow mr-arrow-red">→</span>
-        <div class="mr-terminal-block mr-terminal-output-red">
+        <span class="mr-rs404-terminal-arrow">→</span>
+        <div class="mr-rs404-terminal-block mr-rs404-terminal-output">
           Go / No-Go решение
         </div>
       </div>
@@ -41,11 +40,12 @@
 </template>
 
 <script setup lang="ts">
-// Runscale-404 component
 </script>
 
 <style scoped>
-.mr-runscale-404-section {
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+
+.mr-rs404-section {
   position: relative;
   padding: 100px 24px;
   text-align: center;
@@ -54,7 +54,7 @@
   border-bottom: 1px solid rgba(255, 85, 85, 0.3);
 }
 
-.mr-runscale-404-section::before {
+.mr-rs404-section::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -66,7 +66,7 @@
   pointer-events: none;
 }
 
-.mr-runscale-404-scanner {
+.mr-rs404-scanner {
   position: absolute;
   left: 0;
   width: 100%;
@@ -74,61 +74,41 @@
   background: linear-gradient(90deg, transparent, #ff5555, transparent);
 }
 
-.mr-scanner-top {
-  top: 0;
-  animation: mr-scanner-move-right 4s linear infinite;
-}
+.mr-rs404-scanner-top { top: 0; animation: mr-rs404-scan-right 4s linear infinite; }
+.mr-rs404-scanner-bottom { bottom: 0; animation: mr-rs404-scan-left 4s linear infinite; }
 
-.mr-scanner-bottom {
-  bottom: 0;
-  animation: mr-scanner-move-left 4s linear infinite;
-}
+@keyframes mr-rs404-scan-right { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@keyframes mr-rs404-scan-left { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-@keyframes mr-scanner-move-right {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
+.mr-rs404-container { position: relative; max-width: 800px; margin: 0 auto; z-index: 1; }
 
-@keyframes mr-scanner-move-left {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-.mr-runscale-404-container {
-  position: relative;
-  max-width: 800px;
-  margin: 0 auto;
-  z-index: 1;
-}
-
-.mr-runscale-404-badge {
+.mr-rs404-badge {
   display: inline-block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
+  font-size: 10px;
   color: #ff5555;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   padding: 8px 16px;
   border: 1px solid rgba(255, 85, 85, 0.3);
   border-radius: 4px;
   margin-bottom: 24px;
-  animation: mr-badge-pulse 2s ease-in-out infinite;
+  animation: mr-rs404-badge-pulse 2s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(255, 85, 85, 0.5);
 }
 
-@keyframes mr-badge-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
+@keyframes mr-rs404-badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-.mr-runscale-404-title {
-  font-family: 'JetBrains Mono', monospace;
+.mr-rs404-title {
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
   font-size: clamp(36px, 8vw, 64px);
   font-weight: 700;
   color: #ff5555;
   margin-bottom: 24px;
   letter-spacing: 4px;
+  text-shadow: 0 0 30px rgba(255, 85, 85, 0.6), 0 0 60px rgba(255, 85, 85, 0.3);
 }
 
-.mr-runscale-404-subtitle {
+.mr-rs404-subtitle {
   font-size: 18px;
   color: #fff;
   line-height: 1.8;
@@ -136,41 +116,44 @@
   margin: 0 auto 48px;
 }
 
-.mr-runscale-404-stats {
+/* LED Stats - like screenshot */
+.mr-rs404-stats {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 32px;
+  gap: 48px;
   margin-bottom: 48px;
   flex-wrap: wrap;
 }
 
-.mr-stat-item {
-  text-align: center;
-}
+.mr-rs404-stat-item { text-align: center; }
 
-.mr-stat-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 32px;
+.mr-rs404-stat-value {
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
+  font-size: clamp(48px, 10vw, 72px);
   font-weight: 700;
   color: #ff5555;
-  margin-bottom: 8px;
+  line-height: 1;
+  margin-bottom: 12px;
+  text-shadow: 0 0 20px rgba(255, 85, 85, 0.8), 0 0 40px rgba(255, 85, 85, 0.4);
+  letter-spacing: 2px;
 }
 
-.mr-stat-label {
-  font-size: 13px;
-  color: var(--vp-c-text-3);
+.mr-rs404-stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: #555;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
 }
 
-.mr-stat-divider {
+.mr-rs404-stat-divider {
   width: 1px;
-  height: 50px;
+  height: 80px;
   background: rgba(255, 85, 85, 0.3);
 }
 
-.mr-runscale-404-cta {
+.mr-rs404-cta {
   display: inline-block;
   padding: 18px 48px;
   background: transparent;
@@ -185,10 +168,9 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  border-radius: 6px;
 }
 
-.mr-runscale-404-cta::before {
+.mr-rs404-cta::before {
   content: '';
   position: absolute;
   top: 0;
@@ -196,22 +178,19 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 85, 85, 0.3), transparent);
-  animation: mr-scan-btn 3s linear infinite;
+  animation: mr-rs404-cta-scan 3s linear infinite;
 }
 
-@keyframes mr-scan-btn {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
+@keyframes mr-rs404-cta-scan { 0% { left: -100%; } 100% { left: 100%; } }
 
-.mr-runscale-404-cta:hover {
+.mr-rs404-cta:hover {
   background: #ff5555;
   color: #000;
   box-shadow: 0 0 30px rgba(255, 85, 85, 0.5);
   transform: translateY(-2px);
 }
 
-.mr-runscale-404-terminal {
+.mr-rs404-terminal {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -220,80 +199,42 @@
   flex-wrap: wrap;
 }
 
-.mr-terminal-block {
-  background: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-divider);
+.mr-rs404-terminal-block {
+  background: rgba(17, 17, 17, 0.8);
+  border: 1px solid #333;
   border-radius: 8px;
   padding: 12px 20px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
-.mr-terminal-red::before {
-  content: '>';
-  color: #ff5555;
-  font-weight: 700;
-}
+.mr-rs404-terminal-input { color: #888; }
+.mr-rs404-terminal-input::before { content: '> '; color: #ff5555; }
 
-.mr-terminal-output-red {
+.mr-rs404-terminal-output {
   border-color: #ff5555;
   background: rgba(255, 85, 85, 0.1);
   color: #ff5555;
 }
 
-.mr-cursor-red {
-  background: #ff5555;
-}
+.mr-rs404-terminal-arrow { color: #ff5555; font-size: 18px; }
 
-.mr-arrow-red {
-  color: #ff5555;
-}
-
-.mr-typing-cursor {
+.mr-rs404-cursor {
   display: inline-block;
   width: 2px;
-  height: 16px;
+  height: 14px;
+  background: #ff5555;
   margin-left: 4px;
-  animation: mr-blink 1s step-end infinite;
+  animation: mr-rs404-blink 1s step-end infinite;
 }
 
-@keyframes mr-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-.mr-terminal-arrow {
-  font-size: 20px;
-  animation: mr-arrow-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes mr-arrow-pulse {
-  0%, 100% { opacity: 0.5; transform: translateX(0); }
-  50% { opacity: 1; transform: translateX(4px); }
-}
+@keyframes mr-rs404-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
 @media (max-width: 700px) {
-  .mr-runscale-404-stats {
-    flex-direction: column;
-    gap: 24px;
-  }
-  .mr-stat-divider {
-    width: 60px;
-    height: 1px;
-  }
-  .mr-runscale-404-cta {
-    width: 100%;
-    padding: 16px 24px;
-  }
-  .mr-runscale-404-terminal {
-    flex-direction: column;
-    gap: 12px;
-  }
-  .mr-terminal-arrow {
-    transform: rotate(90deg);
-  }
+  .mr-rs404-stats { flex-direction: row; gap: 24px; }
+  .mr-rs404-stat-divider { width: 1px; height: 60px; }
+  .mr-rs404-stat-value { font-size: 36px; }
+  .mr-rs404-cta { width: 100%; padding: 16px 24px; }
+  .mr-rs404-terminal { flex-direction: column; }
 }
 </style>
