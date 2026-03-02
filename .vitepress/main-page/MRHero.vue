@@ -14,7 +14,7 @@
         </div>
         <span class="mr-terminal-arrow">→</span>
         <div class="mr-terminal-block mr-terminal-output">
-          рабочий продукт через 8 недель
+          рабочий продукт через 60 дней
         </div>
       </div>
       

@@ -296,7 +296,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 /* Table - правка #14: фон ярче */
 .mr-history-table { background: rgba(26, 26, 26, 0.8); border: 1px solid #222; border-radius: 8px; overflow: hidden; }
 /* Правка #9: одинаковые отступы слева и справа */
-.mr-history-row { display: grid; grid-template-columns: 90px 1fr auto 170px; align-items: center; padding: 16px 32px; border-bottom: 1px solid #222; transition: all 0.3s ease; gap: 20px; cursor: pointer; }
+.mr-history-row { display: grid; grid-template-columns: 90px 1fr auto 160px; align-items: center; padding: 16px 32px; border-bottom: 1px solid #222; transition: all 0.3s ease; gap: 20px; cursor: pointer; }
 .mr-history-row:hover { background: rgba(0, 255, 136, 0.02); }
 .mr-history-row.hidden { display: none; }
 
@@ -357,13 +357,13 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-media-count { position: absolute; top: -4px; right: -4px; min-width: 14px; height: 14px; padding: 0 3px; background: #ff5555; color: white; border-radius: 7px; font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
 /* Build block - правка #10, #11, #12 */
-.mr-history-build { display: flex; align-items: center; flex-shrink: 0; }
-.mr-build-block { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: transparent !important; border: 2px solid rgb(0, 255, 136) !important; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; text-decoration: none !important; position: relative; }
+.mr-history-build { display: flex; align-items: center; flex-shrink: 0; min-width: 140px; }
+.mr-build-block { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: transparent !important; border: 2px solid rgb(0, 255, 136) !important; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; text-decoration: none !important; position: relative; min-width: 140px; }
 .mr-build-block::before, .mr-build-block::after { display: none !important; content: none !important; }
-.mr-build-block svg { color: rgb(0, 255, 136); flex-shrink: 0; }
-.mr-build-info { display: flex; flex-direction: column; gap: 1px; transition: opacity 0.2s ease; }
-.mr-build-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #555; text-transform: uppercase; }
-.mr-build-time { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #fff; font-weight: 700; }
+.mr-build-block svg { color: rgb(0, 255, 136); flex-shrink: 0; width: 16px; height: 16px; }
+.mr-build-info { display: flex; flex-direction: column; gap: 0; transition: opacity 0.2s ease; }
+.mr-build-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #555; text-transform: uppercase; line-height: 1.2; }
+.mr-build-time { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #fff; font-weight: 700; line-height: 1.2; }
 .mr-build-details { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; color: rgb(0, 255, 136); opacity: 0; transition: opacity 0.2s ease; }
 .mr-build-block:hover .mr-build-info { opacity: 0; }
 .mr-build-block:hover .mr-build-details { opacity: 1; }
@@ -433,11 +433,11 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
   .mr-mobile-close-btn:hover { background: #ff5555 !important; color: #000 !important; }
   .mr-mobile-close-btn::before, .mr-mobile-close-btn::after { display: none !important; content: none !important; }
   .mr-mobile-close-btn.soon { border-color: #58a6ff !important; color: #58a6ff !important; }
-  .mr-mobile-close-btn.soon:hover { background: #58a6ff !important; }
+  .mr-mobile-close-btn.soon:hover { background: #58a6ff !important; color: #000 !important; }
   .mr-mobile-close-btn.orbit { border-color: rgb(0, 255, 136) !important; color: rgb(0, 255, 136) !important; }
-  .mr-mobile-close-btn.orbit:hover { background: rgb(0, 255, 136) !important; }
+  .mr-mobile-close-btn.orbit:hover { background: rgb(0, 255, 136) !important; color: #000 !important; }
   .mr-mobile-close-btn.grounded { border-color: #7d8590 !important; color: #7d8590 !important; }
-  .mr-mobile-close-btn.grounded:hover { background: #7d8590 !important; }
+  .mr-mobile-close-btn.grounded:hover { background: #7d8590 !important; color: #000 !important; }
 }
 
 /* Gallery */
@@ -496,11 +496,15 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-link.primary { background: rgb(0, 255, 136) !important; border: 1px solid rgb(0, 255, 136) !important; color: #000 !important; }
 .mr-link.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4); }
 .mr-link.secondary { background: transparent !important; border: 1px solid rgb(0, 255, 136) !important; color: rgb(0, 255, 136) !important; }
-.mr-link.secondary:hover { background: rgba(0, 255, 136, 0.1) !important; }
+.mr-link.secondary:hover { background: rgba(0, 255, 136, 0.1) !important; transform: translateY(-2px); }
+/* Soon status */
 .mr-details-links.soon .mr-link.primary { background: #58a6ff !important; border-color: #58a6ff !important; }
+.mr-details-links.soon .mr-link.primary:hover { box-shadow: 0 10px 30px rgba(88, 166, 255, 0.4); }
 .mr-details-links.soon .mr-link.secondary { border-color: #58a6ff !important; color: #58a6ff !important; }
 .mr-details-links.soon .mr-link.secondary:hover { background: rgba(88, 166, 255, 0.1) !important; }
+/* Grounded status */
 .mr-details-links.grounded .mr-link.primary { background: #7d8590 !important; border-color: #7d8590 !important; }
+.mr-details-links.grounded .mr-link.primary:hover { box-shadow: 0 10px 30px rgba(125, 133, 144, 0.4); }
 .mr-details-links.grounded .mr-link.secondary { border-color: #7d8590 !important; color: #7d8590 !important; }
 .mr-details-links.grounded .mr-link.secondary:hover { background: rgba(125, 133, 144, 0.1) !important; }
 </style>

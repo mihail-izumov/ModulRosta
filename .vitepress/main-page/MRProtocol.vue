@@ -279,9 +279,9 @@ function goToStep(step: number) { currentStep.value = step }
 /* Modal Wrapper */
 .mr-protocol-modal-wrapper { position: fixed; inset: 0; z-index: 10000; display: flex; flex-direction: column; }
 
-.mr-protocol-modal-overlay { flex: 1; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); display: flex; align-items: flex-start; justify-content: center; overflow: hidden; }
+.mr-protocol-modal-overlay { flex: 1; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); display: flex; flex-direction: column; overflow: hidden; }
 
-.mr-protocol-modal-scroll { flex: 1; overflow-y: auto; padding: 40px; padding-bottom: 100px; width: 100%; display: flex; justify-content: center; }
+.mr-protocol-modal-scroll { flex: 1; overflow-y: auto; padding: 40px; padding-bottom: 100px; display: flex; justify-content: center; align-items: flex-start; }
 
 .mr-protocol-modal-close { position: fixed; top: 30px; right: 30px; width: 70px; height: 70px; background: transparent !important; border: 2px solid rgb(0, 255, 136) !important; color: rgb(0, 255, 136) !important; cursor: pointer; border-radius: 14px; transition: all 0.3s ease; z-index: 10001; }
 .mr-protocol-modal-close::before, .mr-protocol-modal-close::after { content: ''; position: absolute; top: 50%; left: 50%; width: 36px; height: 2px; background: currentColor; }
@@ -289,7 +289,7 @@ function goToStep(step: number) { currentStep.value = step }
 .mr-protocol-modal-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
 .mr-protocol-modal-close:hover { background: rgb(0, 255, 136) !important; color: #000 !important; }
 
-.mr-protocol-modal-content { max-width: 900px; width: 100%; margin-top: 60px; }
+.mr-protocol-modal-content { max-width: 900px; width: 100%; }
 
 /* Mobile close - fixed at bottom */
 .mr-protocol-mobile-close { display: none; }
