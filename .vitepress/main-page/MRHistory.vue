@@ -141,10 +141,10 @@
     <!-- IMAGES MODAL -->
     <Teleport to="body">
       <div v-if="imagesModalOpen" class="mr-modal-overlay" @click.self="closeImagesModal">
-        <button :class="['mr-modal-close', currentProjectStatusClass]" @click="closeImagesModal"></button>
-        <div class="mr-modal-content">
+        <button class="mr-modal-close mr-desktop-only" @click="closeImagesModal"></button>
+        <div class="mr-modal-content mr-gallery-modal">
           <div class="mr-modal-header">
-            <span :class="['mr-modal-title', currentProjectStatusClass]">{{ currentProject?.title }}</span>
+            <span class="mr-modal-title">{{ currentProject?.title }}</span>
           </div>
           <div class="mr-gallery-section">
             <div class="mr-gallery-label">
@@ -158,28 +158,49 @@
             </div>
           </div>
         </div>
+        <div class="mr-mobile-close-area">
+          <button class="mr-mobile-close-btn" @click="closeImagesModal">ЗАКРЫТЬ</button>
+        </div>
       </div>
     </Teleport>
 
-    <!-- VIDEOS MODAL -->
+    <!-- VIDEOS MODAL - VideoPlayer style -->
     <Teleport to="body">
-      <div v-if="videosModalOpen" class="mr-modal-overlay" @click.self="closeVideosModal">
-        <button :class="['mr-modal-close', currentProjectStatusClass]" @click="closeVideosModal"></button>
-        <div class="mr-modal-content">
-          <div class="mr-modal-header">
-            <span :class="['mr-modal-title', currentProjectStatusClass]">{{ currentProject?.title }}</span>
-          </div>
-          <div class="mr-gallery-section">
-            <div class="mr-gallery-label">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              Видео
+      <div v-if="videosModalOpen" class="mr-modal-overlay mr-video-modal-overlay" @click.self="closeVideosModal">
+        <button class="mr-modal-close mr-desktop-only" @click="closeVideosModal"></button>
+        <div class="mr-video-player-container">
+          <div class="mr-video-wrapper">
+            <!-- Poster -->
+            <div v-if="!videoLoaded" class="mr-video-poster">
+              <span class="mr-video-poster-title">{{ currentProject?.videos[0] || 'Видео' }}</span>
             </div>
-            <div class="mr-gallery-slider">
-              <div v-for="(vid, idx) in currentProject?.videos" :key="idx" class="mr-gallery-item video">
-                <span>{{ vid }}</span>
+            
+            <!-- Play overlay -->
+            <div v-if="!videoLoaded" class="mr-play-overlay" @click="initializeVideo">
+              <div class="mr-play-button">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                  <circle cx="40" cy="40" r="40" fill="rgba(255, 85, 85, 0.8)"/>
+                  <path d="M32 25L57 40L32 55V25Z" fill="#fff"/>
+                  <circle cx="40" cy="40" r="39" stroke="#ff5555" stroke-width="2"/>
+                </svg>
               </div>
             </div>
+            
+            <!-- Video element -->
+            <video 
+              ref="videoElement"
+              v-show="videoLoaded"
+              controls
+              class="mr-video-element"
+              @ended="onVideoEnded"
+            >
+              <source src="" type="video/mp4" />
+            </video>
           </div>
+          <div class="mr-video-title">{{ currentProject?.title }} — {{ currentProject?.videos[0] }}</div>
+        </div>
+        <div class="mr-mobile-close-area">
+          <button class="mr-mobile-close-btn" @click="closeVideosModal">ЗАКРЫТЬ</button>
         </div>
       </div>
     </Teleport>
@@ -187,7 +208,7 @@
     <!-- DETAILS MODAL -->
     <Teleport to="body">
       <div v-if="detailsModalOpen" class="mr-modal-overlay" @click.self="closeDetailsModal">
-        <button :class="['mr-modal-close', currentProjectStatusClass]" @click="closeDetailsModal"></button>
+        <button :class="['mr-modal-close', 'mr-desktop-only', currentProjectStatusClass]" @click="closeDetailsModal"></button>
         <div class="mr-modal-content">
           <div class="mr-modal-header">
             <span :class="['mr-modal-title', currentProjectStatusClass]">{{ currentProject?.title }}</span>
@@ -234,6 +255,9 @@
             <a v-if="currentProject?.behanceUrl" :href="currentProject.behanceUrl" target="_blank" class="mr-details-link">Behance</a>
           </div>
         </div>
+        <div class="mr-mobile-close-area">
+          <button class="mr-mobile-close-btn" @click="closeDetailsModal">ЗАКРЫТЬ</button>
+        </div>
       </div>
     </Teleport>
   </section>
@@ -265,33 +289,35 @@ const imagesModalOpen = ref(false)
 const videosModalOpen = ref(false)
 const detailsModalOpen = ref(false)
 const currentProjectId = ref<string | null>(null)
+const videoLoaded = ref(false)
+const videoElement = ref<HTMLVideoElement | null>(null)
 
 const allProjects = ref<Project[]>([
-  { id: 'boom', title: 'Companion App', subtitle: 'b00m.fun', website: 'https://b00m.fun', images: ['Главная страница', 'Каталог аттракционов', 'Карточка аттракциона', 'Система лояльности'], videos: ['Демо приложения', 'Промо ролик'], tags: ['App', 'CRM', 'Payment', 'PWA'], caseUrl: 'https://b00m.fun', behanceUrl: null, launchDate: '01.04.2026', buildTime: '30 дней', status: 'Скоро запуск', mrBranded: false },
-  { id: 'yurtrust', title: 'Айдентика и Веб', subtitle: 'ЮрТраст', website: '#', images: ['Главная', 'О компании', 'Услуги'], videos: [], tags: ['Айдентика', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '2024', buildTime: '28 дней', status: 'Запущен', mrBranded: true },
-  { id: 'hvorostovsky', title: 'Культурный портал', subtitle: 'Фонд Хворостовского', website: 'https://hvorostovsky.org', images: ['Главная', 'О фонде', 'Проекты', 'Артисты', 'Галерея', 'Партнёры', 'Контакты', 'Мобильная версия'], videos: ['Презентация фонда', 'Документальный фильм', 'Концертное видео'], tags: ['Айдентика', 'Веб', 'БД', 'Видео'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '15.11.2023', buildTime: '45 дней', status: 'Запущен', mrBranded: true },
-  { id: 'tanurkova', title: 'Архитектурное бюро', subtitle: 'Tanurkova Arch Design', website: 'https://tanurkova.com', images: ['Портфолио', 'Проект Villa', 'Проект Office', 'Проект Apartment', 'О студии', 'Контакты'], videos: ['Видео тур'], tags: ['Айдентика', 'Веб', 'Видео'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '10.09.2023', buildTime: '30 дней', status: 'Отложен', mrBranded: true },
-  { id: 'august', title: 'Театральная студия', subtitle: 'Август', website: 'https://august-theater.ru', images: ['Главная', 'Репертуар', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '22.07.2023', buildTime: '21 день', status: 'Отложен', mrBranded: true },
-  { id: 'fizkultura', title: 'Стратегия', subtitle: 'FIZКультура', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2022', buildTime: '14 дней', status: 'Отложен', mrBranded: false },
-  { id: 'bloomkids', title: 'Детский магазин', subtitle: 'Блумкидс', website: 'https://bloomkids.ru', images: ['Главная', 'Каталог', 'О нас', 'Доставка', 'Карточка товара', 'Корзина', 'Личный кабинет', 'Блог', 'Акции', 'Контакты'], videos: ['Презентация бренда', 'Рекламный ролик'], tags: ['Айдентика', 'Веб', 'Видео', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '20.01.2022', buildTime: '35 дней', status: 'Запущен', mrBranded: true },
-  { id: 'ermolaev', title: 'Стратегия', subtitle: 'Ермолаевъ', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2022', buildTime: '14 дней', status: 'Отложен', mrBranded: false },
-  { id: 'wps', title: 'Международный саммит', subtitle: 'World Plastics Summit', website: 'https://worldplastics.org', images: ['Главная', 'Спикеры', 'Программа', 'Партнёры', 'Регистрация', 'Галерея 2022', 'Пресс-центр', 'Архив', 'О саммите', 'Контакты', 'FAQ', 'Мобильная версия'], videos: ['Промо ролик', 'Aftermovie 2022', 'Интервью спикеров', 'Highlights'], tags: ['Айдентика', 'Веб', 'Видео', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '15.05.2022', buildTime: '28 дней', status: 'Запущен', mrBranded: true },
-  { id: 'modelex', title: 'Школа моделинга', subtitle: 'Modelex Education', website: 'https://modelex.pro', images: ['Главная', 'Курсы', 'О школе', 'Преподаватели', 'Расписание', 'Отзывы', 'Контакты'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '05.08.2021', buildTime: '30 дней', status: 'Запущен', mrBranded: true },
-  { id: 'smstretching1', title: 'Автоматизация маркетинга', subtitle: 'SMSTRETCHING', website: null, images: ['Dashboard'], videos: [], tags: ['Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '2021', buildTime: '21 день', status: 'Отложен', mrBranded: false },
-  { id: 'smstretching2', title: 'Стратегия', subtitle: 'SMSTRETCHING', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2021', buildTime: '14 дней', status: 'Отложен', mrBranded: false },
-  { id: 'gala', title: 'Благотворительный бал', subtitle: 'GALA RUSSE', website: 'https://galarusse.com', images: ['Главная', 'О мероприятии', 'Программа', 'Партнёры', 'Галерея'], videos: [], tags: ['Айдентика', 'Веб', 'Видео'], caseUrl: null, behanceUrl: null, launchDate: '18.10.2021', buildTime: '42 дня', status: 'Запущен', mrBranded: false },
-  { id: 'easybusy', title: 'Бизнес-сервис', subtitle: 'EASYBUSY', website: 'https://easybusy.ru', images: ['Главная', 'Сервисы', 'Тарифы', 'О компании', 'Кейсы', 'Контакты'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '2020', buildTime: '28 дней', status: 'Запущен', mrBranded: true },
-  { id: 'rawbites', title: 'Айдентика и Веб', subtitle: 'RAW BITES', website: '#', images: ['Главная', 'Продукция', 'О бренде'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2020', buildTime: '28 дней', status: 'Запущен', mrBranded: true },
-  { id: 'woodled', title: 'Дизайнерские светильники', subtitle: 'WOODLED', website: 'https://woodled.ru', images: ['Главная', 'Каталог', 'О бренде', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '28.02.2020', buildTime: '35 дней', status: 'Запущен', mrBranded: false },
-  { id: 'concordia', title: 'Автоматизация продаж', subtitle: 'Конкордия-Авто', website: null, images: ['Dashboard', 'CRM'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '2020', buildTime: '21 день', status: 'Запущен', mrBranded: false },
-  { id: 'superland', title: 'Парк развлечений', subtitle: 'SUPERLAND', website: null, images: ['Концепт главной', 'Wireframes'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '15.11.2018', buildTime: '14 дней', status: 'Отложен', mrBranded: false },
-  { id: 'chishminsky', title: 'Айдентика и Веб', subtitle: 'Чишминский', website: '#', images: ['Главная', 'Продукция', 'О компании'], videos: [], tags: ['Айдентика', 'Веб', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2018', buildTime: '35 дней', status: 'Запущен', mrBranded: true },
-  { id: 'milimon', title: 'Производитель мебели', subtitle: 'Milimon', website: 'https://milimon.ru', images: ['Главная', 'Услуги', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '2016', buildTime: '21 день', status: 'Запущен', mrBranded: false },
-  { id: 'mindal', title: 'Айдентика и Стратегия', subtitle: 'Миндаль', website: null, images: ['Концепт'], videos: [], tags: ['Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2014', buildTime: '21 день', status: 'Отложен', mrBranded: true },
-  { id: 'pozpsy', title: 'Концепция и Айдентика', subtitle: 'Школа Позитивной Психологии', website: null, images: ['Концепт'], videos: [], tags: ['Концепция', 'Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2011', buildTime: '28 дней', status: 'Отложен', mrBranded: true },
-  { id: 'moroshka', title: 'Концепция и Айдентика', subtitle: 'Морошка', website: null, images: ['Концепт'], videos: [], tags: ['Концепция', 'Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2010', buildTime: '28 дней', status: 'Запущен', mrBranded: true },
-  { id: 'smonline1', title: 'ИИ для контактов клиентов', subtitle: 'SM Online', website: null, images: ['Dashboard'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '2021', buildTime: '14 дней', status: 'Отложен', mrBranded: false },
-  { id: 'smonline2', title: 'ИИ-ассистенты для продаж', subtitle: 'SM Online', website: null, images: ['Dashboard'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '2021', buildTime: '14 дней', status: 'Отложен', mrBranded: false }
+  { id: 'boom', title: 'Companion App', subtitle: 'b00m.fun', website: 'https://b00m.fun', images: ['Главная страница', 'Каталог аттракционов', 'Карточка аттракциона', 'Система лояльности'], videos: ['Демо приложения', 'Промо ролик'], tags: ['App', 'CRM', 'Payment', 'PWA'], caseUrl: 'https://b00m.fun', behanceUrl: null, launchDate: '01.04.2026', buildTime: '30д', status: 'Скоро запуск', mrBranded: false },
+  { id: 'yurtrust', title: 'Айдентика и Веб', subtitle: 'ЮрТраст', website: '#', images: ['Главная', 'О компании', 'Услуги'], videos: [], tags: ['Айдентика', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '2024', buildTime: '28д', status: 'Запущен', mrBranded: true },
+  { id: 'hvorostovsky', title: 'Культурный портал', subtitle: 'Фонд Хворостовского', website: 'https://hvorostovsky.org', images: ['Главная', 'О фонде', 'Проекты', 'Артисты', 'Галерея', 'Партнёры', 'Контакты', 'Мобильная версия'], videos: ['Презентация фонда', 'Документальный фильм', 'Концертное видео'], tags: ['Айдентика', 'Веб', 'БД', 'Видео'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '15.11.2023', buildTime: '45д', status: 'Запущен', mrBranded: true },
+  { id: 'tanurkova', title: 'Архитектурное бюро', subtitle: 'Tanurkova Arch Design', website: 'https://tanurkova.com', images: ['Портфолио', 'Проект Villa', 'Проект Office', 'Проект Apartment', 'О студии', 'Контакты'], videos: ['Видео тур'], tags: ['Айдентика', 'Веб', 'Видео'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '10.09.2023', buildTime: '30д', status: 'Отложен', mrBranded: true },
+  { id: 'august', title: 'Театральная студия', subtitle: 'Август', website: 'https://august-theater.ru', images: ['Главная', 'Репертуар', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '22.07.2023', buildTime: '21д', status: 'Отложен', mrBranded: true },
+  { id: 'fizkultura', title: 'Стратегия', subtitle: 'FIZКультура', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2022', buildTime: '14д', status: 'Отложен', mrBranded: false },
+  { id: 'bloomkids', title: 'Детский магазин', subtitle: 'Блумкидс', website: 'https://bloomkids.ru', images: ['Главная', 'Каталог', 'О нас', 'Доставка', 'Карточка товара', 'Корзина', 'Личный кабинет', 'Блог', 'Акции', 'Контакты'], videos: ['Презентация бренда', 'Рекламный ролик'], tags: ['Айдентика', 'Веб', 'Видео', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '20.01.2022', buildTime: '35д', status: 'Запущен', mrBranded: true },
+  { id: 'ermolaev', title: 'Стратегия', subtitle: 'Ермолаевъ', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2022', buildTime: '14д', status: 'Отложен', mrBranded: false },
+  { id: 'wps', title: 'Международный саммит', subtitle: 'World Plastics Summit', website: 'https://worldplastics.org', images: ['Главная', 'Спикеры', 'Программа', 'Партнёры', 'Регистрация', 'Галерея 2022', 'Пресс-центр', 'Архив', 'О саммите', 'Контакты', 'FAQ', 'Мобильная версия'], videos: ['Промо ролик', 'Aftermovie 2022', 'Интервью спикеров', 'Highlights'], tags: ['Айдентика', 'Веб', 'Видео', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '15.05.2022', buildTime: '28д', status: 'Запущен', mrBranded: true },
+  { id: 'modelex', title: 'Школа моделинга', subtitle: 'Modelex Education', website: 'https://modelex.pro', images: ['Главная', 'Курсы', 'О школе', 'Преподаватели', 'Расписание', 'Отзывы', 'Контакты'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '05.08.2021', buildTime: '30д', status: 'Запущен', mrBranded: true },
+  { id: 'smstretching1', title: 'Автоматизация маркетинга', subtitle: 'SMSTRETCHING', website: null, images: ['Dashboard'], videos: [], tags: ['Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '2021', buildTime: '21д', status: 'Отложен', mrBranded: false },
+  { id: 'smstretching2', title: 'Стратегия', subtitle: 'SMSTRETCHING', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2021', buildTime: '14д', status: 'Отложен', mrBranded: false },
+  { id: 'gala', title: 'Благотворительный бал', subtitle: 'GALA RUSSE', website: 'https://galarusse.com', images: ['Главная', 'О мероприятии', 'Программа', 'Партнёры', 'Галерея'], videos: [], tags: ['Айдентика', 'Веб', 'Видео'], caseUrl: null, behanceUrl: null, launchDate: '18.10.2021', buildTime: '42д', status: 'Запущен', mrBranded: false },
+  { id: 'easybusy', title: 'Бизнес-сервис', subtitle: 'EASYBUSY', website: 'https://easybusy.ru', images: ['Главная', 'Сервисы', 'Тарифы', 'О компании', 'Кейсы', 'Контакты'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '2020', buildTime: '28д', status: 'Запущен', mrBranded: true },
+  { id: 'rawbites', title: 'Айдентика и Веб', subtitle: 'RAW BITES', website: '#', images: ['Главная', 'Продукция', 'О бренде'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2020', buildTime: '28д', status: 'Запущен', mrBranded: true },
+  { id: 'woodled', title: 'Дизайнерские светильники', subtitle: 'WOODLED', website: 'https://woodled.ru', images: ['Главная', 'Каталог', 'О бренде', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '28.02.2020', buildTime: '35д', status: 'Запущен', mrBranded: false },
+  { id: 'concordia', title: 'Автоматизация продаж', subtitle: 'Конкордия-Авто', website: null, images: ['Dashboard', 'CRM'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '2020', buildTime: '21д', status: 'Запущен', mrBranded: false },
+  { id: 'superland', title: 'Парк развлечений', subtitle: 'SUPERLAND', website: null, images: ['Концепт главной', 'Wireframes'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '15.11.2018', buildTime: '14д', status: 'Отложен', mrBranded: false },
+  { id: 'chishminsky', title: 'Айдентика и Веб', subtitle: 'Чишминский', website: '#', images: ['Главная', 'Продукция', 'О компании'], videos: [], tags: ['Айдентика', 'Веб', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2018', buildTime: '35д', status: 'Запущен', mrBranded: true },
+  { id: 'milimon', title: 'Производитель мебели', subtitle: 'Milimon', website: 'https://milimon.ru', images: ['Главная', 'Услуги', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '2016', buildTime: '21д', status: 'Запущен', mrBranded: false },
+  { id: 'mindal', title: 'Айдентика и Стратегия', subtitle: 'Миндаль', website: null, images: ['Концепт'], videos: [], tags: ['Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2014', buildTime: '21д', status: 'Отложен', mrBranded: true },
+  { id: 'pozpsy', title: 'Концепция и Айдентика', subtitle: 'Школа Позитивной Психологии', website: null, images: ['Концепт'], videos: [], tags: ['Концепция', 'Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2011', buildTime: '28д', status: 'Отложен', mrBranded: true },
+  { id: 'moroshka', title: 'Концепция и Айдентика', subtitle: 'Морошка', website: null, images: ['Концепт'], videos: [], tags: ['Концепция', 'Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '2010', buildTime: '28д', status: 'Запущен', mrBranded: true },
+  { id: 'smonline1', title: 'ИИ для контактов клиентов', subtitle: 'SM Online', website: null, images: ['Dashboard'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '2021', buildTime: '14д', status: 'Отложен', mrBranded: false },
+  { id: 'smonline2', title: 'ИИ-ассистенты для продаж', subtitle: 'SM Online', website: null, images: ['Dashboard'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '2021', buildTime: '14д', status: 'Отложен', mrBranded: false }
 ])
 
 const currentProject = computed(() => {
@@ -356,9 +382,41 @@ function getUptimeClass(status: string): string {
   return ''
 }
 
+// Uptime calculation like original
 function getUptime(project: Project): string {
-  if (project.status === 'Скоро запуск') return '00:00:00'
-  if (project.status === 'Отложен') return '--:--'
+  if (project.status === 'Скоро запуск') return 'T-30д'
+  if (project.status === 'Отложен') return '——'
+  
+  // Calculate actual uptime for launched projects
+  const launchDate = project.launchDate
+  
+  // If just year
+  if (/^\d{4}$/.test(launchDate)) {
+    const years = 2026 - parseInt(launchDate)
+    if (years >= 1) return `${years}+ год`
+    return '1+ год'
+  }
+  
+  // If full date DD.MM.YYYY
+  const match = launchDate.match(/(\d{2})\.(\d{2})\.(\d{4})/)
+  if (match) {
+    const [, day, month, year] = match
+    const launch = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+    const now = new Date(2026, 2, 2) // March 2, 2026
+    const diffMs = now.getTime() - launch.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+    
+    if (diffDays >= 365) {
+      const years = Math.floor(diffDays / 365)
+      return `${years}+ год`
+    } else if (diffDays >= 30) {
+      const months = Math.floor(diffDays / 30)
+      return `${months}+ мес`
+    } else {
+      return `${diffDays}д`
+    }
+  }
+  
   return '1+ год'
 }
 
@@ -381,13 +439,27 @@ function closeImagesModal() {
 
 function openVideos(id: string) {
   currentProjectId.value = id
+  videoLoaded.value = false
   videosModalOpen.value = true
   document.body.style.overflow = 'hidden'
 }
 
 function closeVideosModal() {
   videosModalOpen.value = false
+  videoLoaded.value = false
   document.body.style.overflow = ''
+  if (videoElement.value) {
+    videoElement.value.pause()
+  }
+}
+
+function initializeVideo() {
+  videoLoaded.value = true
+  // In real app, would load actual video source
+}
+
+function onVideoEnded() {
+  videoLoaded.value = false
 }
 
 function openDetails(id: string) {
@@ -403,7 +475,7 @@ function closeDetailsModal() {
 </script>
 
 <style scoped>
-.mr-launches-section { background: #0a0a0a; padding: 80px 24px; }
+.mr-launches-section { background: transparent; padding: 80px 24px; }
 .mr-launches-container { max-width: 1100px; margin: 0 auto; }
 .mr-launches-header { margin-bottom: 24px; }
 .mr-section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #00ff88; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 16px; }
@@ -411,10 +483,10 @@ function closeDetailsModal() {
 
 /* Filters */
 .mr-status-filters { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
-.mr-filter-btn { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: #111; border: 1px solid #222; border-radius: 8px; color: #888; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.3s ease; }
+.mr-filter-btn { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: rgba(17, 17, 17, 0.5); border: 1px solid #222; border-radius: 8px; color: #888; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.3s ease; }
 .mr-filter-btn:hover { border-color: #555; color: #fff; }
 .mr-filter-btn.active { border-color: white; color: white; background: rgba(255, 255, 255, 0.1); }
-.mr-filter-btn .mr-dot { width: 10px; height: 10px; border-radius: 50%; }
+.mr-filter-btn .mr-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .mr-filter-btn .mr-dot.blue { background: #58a6ff; }
 .mr-filter-btn .mr-dot.green { background: #00ff88; }
 .mr-filter-btn .mr-dot.gray { background: #7d8590; }
@@ -425,7 +497,7 @@ function closeDetailsModal() {
 .mr-identity-mode-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 85, 85, 0.3), transparent); animation: mr-scan-btn 2s infinite; }
 @keyframes mr-scan-btn { 0% { left: -100%; } 100% { left: 100%; } }
 .mr-identity-mode-btn:hover, .mr-identity-mode-btn.active { background: #ff5555; color: white; box-shadow: 0 0 30px rgba(255, 85, 85, 0.5); }
-.mr-identity-mode-btn svg { width: 18px; height: 18px; }
+.mr-identity-mode-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
 
 @media (max-width: 900px) {
   .mr-status-filters { flex-direction: column; align-items: stretch; }
@@ -434,18 +506,26 @@ function closeDetailsModal() {
 }
 
 /* Table View */
-.mr-launch-table-wrap { background: #111; border: 1px solid #222; border-radius: 8px; overflow: hidden; }
+.mr-launch-table-wrap { background: rgba(17, 17, 17, 0.5); border: 1px solid #222; border-radius: 8px; overflow: hidden; }
 .mr-launch-row { display: grid; grid-template-columns: 80px 1fr auto 150px; align-items: center; padding: 16px 20px; border-bottom: 1px solid #222; transition: all 0.3s ease; position: relative; gap: 20px; cursor: pointer; }
 .mr-launch-row:hover { background: rgba(0, 255, 136, 0.02); }
 .mr-launch-row.hidden { display: none; }
 
-@media (max-width: 700px) {
-  .mr-launch-row { grid-template-columns: 60px 1fr auto; padding: 12px 16px; gap: 12px; }
+@media (max-width: 900px) {
+  .mr-launch-row { grid-template-columns: 70px 1fr auto; padding: 12px 16px; gap: 16px; }
   .mr-launch-row .mr-launch-build { display: none; }
 }
 
+@media (max-width: 600px) {
+  .mr-launch-row { grid-template-columns: 56px 1fr auto; padding: 12px; gap: 12px; }
+  .mr-launch-logo { width: 48px !important; height: 48px !important; }
+  .mr-launch-logo svg { width: 22px !important; height: 22px !important; }
+  .mr-launch-name { font-size: 14px !important; }
+  .mr-launch-info { min-width: 0; overflow: hidden; }
+}
+
 /* Logo */
-.mr-launch-logo { width: 64px; height: 64px; background: #000; border: 2px solid #222; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; position: relative; overflow: visible; cursor: pointer; }
+.mr-launch-logo { width: 64px; height: 64px; background: transparent; border: 2px solid #222; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; position: relative; overflow: visible; cursor: pointer; }
 .mr-launch-logo svg { color: #00ff88; transition: color 0.3s ease; }
 .mr-launch-row:hover .mr-launch-logo { border-color: #00ff88; box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
 
@@ -471,16 +551,16 @@ function closeDetailsModal() {
 /* Info */
 .mr-launch-info { min-width: 0; flex: 1; }
 .mr-launch-top { display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
-.mr-launch-name { font-weight: 600; color: #fff; font-size: 16px; white-space: nowrap; }
-.mr-launch-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; }
+.mr-launch-name { font-weight: 600; color: #fff; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mr-launch-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mr-launch-subtitle.status-soon { color: #58a6ff; }
 .mr-launch-subtitle.status-orbit { color: #00ff88; }
 .mr-launch-subtitle.status-grounded { color: #7d8590; }
 
 /* Uptime */
 .mr-launch-uptime-wrap { display: flex; flex-direction: column; gap: 2px; }
-.mr-launch-uptime { display: inline-flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #fff; font-weight: 700; background: linear-gradient(90deg, rgba(0, 255, 136, 0.1), transparent); padding: 4px 10px 4px 8px; border-left: 3px solid #00ff88; border-radius: 0 4px 4px 0; }
-.mr-launch-uptime .mr-ticker-icon { width: 6px; height: 6px; background: #00ff88; border-radius: 50%; animation: mr-ticker-blink 1s infinite; }
+.mr-launch-uptime { display: inline-flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #fff; font-weight: 700; background: linear-gradient(90deg, rgba(0, 255, 136, 0.1), transparent); padding: 4px 10px 4px 8px; border-left: 3px solid #00ff88; border-radius: 0 4px 4px 0; white-space: nowrap; }
+.mr-launch-uptime .mr-ticker-icon { width: 6px; height: 6px; background: #00ff88; border-radius: 50%; animation: mr-ticker-blink 1s infinite; flex-shrink: 0; }
 @keyframes mr-ticker-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 .mr-launch-uptime.soon { background: linear-gradient(90deg, rgba(88, 166, 255, 0.1), transparent); border-left-color: #58a6ff; }
 .mr-launch-uptime.soon .mr-ticker-icon { background: #58a6ff; }
@@ -490,14 +570,14 @@ function closeDetailsModal() {
 
 /* Media buttons */
 .mr-launch-media { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.mr-media-btn { width: 40px; height: 40px; background: #000; border: 1px solid rgba(255, 85, 85, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; position: relative; }
+.mr-media-btn { width: 40px; height: 40px; background: transparent; border: 1px solid rgba(255, 85, 85, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; position: relative; flex-shrink: 0; }
 .mr-media-btn:hover { border-color: #ff5555; background: rgba(255, 85, 85, 0.1); transform: scale(1.05); }
 .mr-media-btn svg { width: 16px; height: 16px; color: #ff5555; }
 .mr-media-btn .mr-count { position: absolute; top: -4px; right: -4px; min-width: 14px; height: 14px; padding: 0 3px; background: #ff5555; color: white; border-radius: 7px; font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
 /* Build details */
 .mr-launch-build { display: flex; align-items: center; justify-content: flex-start; width: 140px; flex-shrink: 0; }
-.mr-build-details-block { display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: #000; border: 2px solid #00ff88; border-radius: 8px; height: 44px; cursor: pointer; transition: all 0.3s ease; position: relative; min-width: 120px; }
+.mr-build-details-block { display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: transparent; border: 2px solid #00ff88; border-radius: 8px; height: 44px; cursor: pointer; transition: all 0.3s ease; position: relative; min-width: 120px; }
 .mr-build-details-block .mr-build-details-icon, .mr-build-details-block .mr-build-info { transition: opacity 0.3s ease; }
 .mr-build-details-block .mr-details-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #00ff88; opacity: 0; transition: opacity 0.3s ease; }
 .mr-build-details-block:hover .mr-build-details-icon, .mr-build-details-block:hover .mr-build-info { opacity: 0; }
@@ -514,20 +594,20 @@ function closeDetailsModal() {
 .mr-build-details-block.status-grounded .mr-build-details-icon svg { color: #7d8590; }
 .mr-build-details-block.status-grounded:hover { background: rgba(125, 133, 144, 0.1); box-shadow: 0 0 20px rgba(125, 133, 144, 0.3); }
 
-.mr-build-details-icon { display: flex; align-items: center; justify-content: center; }
+.mr-build-details-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .mr-build-details-icon svg { width: 20px; height: 20px; color: #00ff88; }
-.mr-build-info { display: flex; align-items: center; gap: 8px; }
+.mr-build-info { display: flex; flex-direction: column; }
 .mr-build-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 1px; }
-.mr-build-time { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #fff; font-weight: 700; }
+.mr-build-time { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #fff; font-weight: 700; white-space: nowrap; }
 
 /* Accordion */
-.mr-accordion-toggle { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 20px; background: #000; border: none; border-top: 1px solid #222; color: #888; font-family: 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer; width: 100%; transition: all 0.3s ease; }
+.mr-accordion-toggle { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 20px; background: transparent; border: none; border-top: 1px solid #222; color: #888; font-family: 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer; width: 100%; transition: all 0.3s ease; }
 .mr-accordion-toggle:hover { background: rgba(0, 255, 136, 0.02); color: #00ff88; }
 .mr-accordion-toggle .mr-arrow { transition: transform 0.3s ease; }
 .mr-accordion-toggle.open .mr-arrow { transform: rotate(180deg); }
 .mr-accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; }
 .mr-accordion-content.open { max-height: 3000px; }
-.mr-accordion-content .mr-launch-row { background: rgba(0, 0, 0, 0.3); }
+.mr-accordion-content .mr-launch-row { background: rgba(0, 0, 0, 0.2); }
 
 /* Logo Grid (Identity Mode) */
 .mr-logo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -536,7 +616,7 @@ function closeDetailsModal() {
 
 .mr-logo-card { background: linear-gradient(180deg, rgba(255, 85, 85, 0.15), transparent); border: 2px solid rgba(255, 85, 85, 0.3); border-radius: 16px; padding: 32px 24px; text-align: center; transition: all 0.4s ease; cursor: pointer; position: relative; overflow: hidden; }
 .mr-logo-card:hover { background: #ff5555; border-color: #ff5555; transform: translateY(-4px); box-shadow: 0 20px 40px rgba(255, 85, 85, 0.3); }
-.mr-logo-card-logo { width: 120px; height: 120px; background: #000; border: 3px solid rgba(255, 85, 85, 0.3); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; transition: all 0.3s ease; }
+.mr-logo-card-logo { width: 120px; height: 120px; background: transparent; border: 3px solid rgba(255, 85, 85, 0.3); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; transition: all 0.3s ease; }
 .mr-logo-card-logo svg { width: 60px; height: 60px; color: #ff5555; transition: color 0.3s ease; }
 .mr-logo-card:hover .mr-logo-card-logo { background: transparent; border-color: rgba(0, 0, 0, 0.2); }
 .mr-logo-card:hover .mr-logo-card-logo svg { color: #000; }
@@ -545,40 +625,84 @@ function closeDetailsModal() {
 .mr-logo-card-date { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #555; transition: color 0.3s ease; }
 .mr-logo-card:hover .mr-logo-card-date { color: rgba(0, 0, 0, 0.6); }
 
-/* Modals */
-.mr-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 1); backdrop-filter: blur(10px); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 40px; overflow-y: auto; }
-.mr-modal-close { position: fixed; top: 30px; right: 30px; width: 70px; height: 70px; background: #000; border: 2px solid #00ff88; color: #00ff88; cursor: pointer; border-radius: 14px; transition: all 0.3s ease; z-index: 10001; display: flex; align-items: center; justify-content: center; }
+/* Modals - base */
+.mr-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(10px); z-index: 10000; display: flex; align-items: flex-start; justify-content: center; padding: 40px; padding-bottom: 100px; overflow-y: auto; }
+.mr-modal-close { position: fixed; top: 30px; right: 30px; width: 70px; height: 70px; background: transparent; border: 2px solid #ff5555; color: #ff5555; cursor: pointer; border-radius: 14px; transition: all 0.3s ease; z-index: 10001; display: flex; align-items: center; justify-content: center; }
 .mr-modal-close::before, .mr-modal-close::after { content: ''; position: absolute; width: 36px; height: 2px; background: currentColor; }
 .mr-modal-close::before { transform: rotate(45deg); }
 .mr-modal-close::after { transform: rotate(-45deg); }
-.mr-modal-close:hover { background: #00ff88; color: #000; box-shadow: 0 0 40px rgba(0, 255, 136, 0.4); transform: scale(1.05); }
+.mr-modal-close:hover { background: #ff5555; color: #000; box-shadow: 0 0 40px rgba(255, 85, 85, 0.4); transform: scale(1.05); }
 
 .mr-modal-close.status-soon { border-color: #58a6ff; color: #58a6ff; }
 .mr-modal-close.status-soon:hover { background: #58a6ff; color: #000; box-shadow: 0 0 40px rgba(88, 166, 255, 0.5); }
 .mr-modal-close.status-grounded { border-color: #7d8590; color: #7d8590; }
 .mr-modal-close.status-grounded:hover { background: #7d8590; color: #000; box-shadow: 0 0 40px rgba(125, 133, 144, 0.5); }
+.mr-modal-close.status-orbit { border-color: #00ff88; color: #00ff88; }
+.mr-modal-close.status-orbit:hover { background: #00ff88; color: #000; box-shadow: 0 0 40px rgba(0, 255, 136, 0.5); }
 
-.mr-modal-content { max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; overflow-x: hidden; }
+.mr-modal-content { max-width: 900px; width: 100%; max-height: none; overflow-y: visible; overflow-x: hidden; margin-top: 60px; }
 .mr-modal-header { display: flex; align-items: center; justify-content: flex-start; gap: 16px; margin-bottom: 32px; }
-.mr-modal-title { font-size: 28px; font-weight: 600; color: #00ff88; }
+.mr-modal-title { font-size: 28px; font-weight: 600; color: #ff5555; }
 .mr-modal-title.status-soon { color: #58a6ff; }
 .mr-modal-title.status-grounded { color: #7d8590; }
+.mr-modal-title.status-orbit { color: #00ff88; }
 
-/* Gallery */
+/* Mobile close button */
+.mr-mobile-close-area { display: none; }
+@media (max-width: 768px) {
+  .mr-desktop-only { display: none !important; }
+  .mr-modal-overlay { padding: 20px; padding-bottom: 80px; }
+  .mr-modal-content { margin-top: 20px; }
+  .mr-mobile-close-area { 
+    display: block; position: fixed; bottom: 0; left: 0; right: 0; 
+    padding: 16px; background: linear-gradient(transparent, rgba(0,0,0,0.95) 30%); z-index: 10002;
+  }
+  .mr-mobile-close-btn { 
+    width: 100%; padding: 16px; background: transparent; border: 2px solid #ff5555; 
+    color: #ff5555; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; 
+    letter-spacing: 2px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
+  }
+  .mr-mobile-close-btn:hover { background: #ff5555; color: #000; }
+}
+
+/* Gallery Modal - red theme, larger items, no left crop */
+.mr-gallery-modal { max-width: 100%; width: 100%; }
 .mr-gallery-section { margin-bottom: 32px; overflow: visible; }
 .mr-gallery-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #ff5555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .mr-gallery-label svg { width: 16px; height: 16px; }
-.mr-gallery-slider { display: flex; gap: 16px; overflow-x: auto; padding: 16px 8px; scroll-snap-type: x mandatory; margin: -8px; }
+.mr-gallery-slider { display: flex; gap: 24px; overflow-x: auto; padding: 16px 0; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
 .mr-gallery-slider::-webkit-scrollbar { height: 6px; }
-.mr-gallery-slider::-webkit-scrollbar-track { background: #111; border-radius: 3px; }
+.mr-gallery-slider::-webkit-scrollbar-track { background: rgba(17, 17, 17, 0.5); border-radius: 3px; }
 .mr-gallery-slider::-webkit-scrollbar-thumb { background: #ff5555; border-radius: 3px; }
-.mr-gallery-item { min-width: 280px; aspect-ratio: 16/10; background: #111; border: 1px solid rgba(255, 85, 85, 0.3); border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; position: relative; scroll-snap-align: start; flex-shrink: 0; }
-.mr-gallery-item:hover { border-color: #ff5555; transform: scale(1.05); box-shadow: 0 10px 30px rgba(255, 85, 85, 0.2); z-index: 10; }
-.mr-gallery-item.video::before { content: '▶'; position: absolute; font-size: 40px; color: #ff5555; text-shadow: 0 0 30px rgba(0,0,0,0.8); z-index: 2; }
-.mr-gallery-item span { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #ff5555; }
+.mr-gallery-item { min-width: 500px; height: 320px; background: rgba(17, 17, 17, 0.5); border: 1px solid rgba(255, 85, 85, 0.3); border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.4s ease; position: relative; scroll-snap-align: center; flex-shrink: 0; }
+.mr-gallery-item:first-child { margin-left: 0; }
+.mr-gallery-item:hover { border-color: #ff5555; transform: scale(1.02); box-shadow: 0 10px 30px rgba(255, 85, 85, 0.2); }
+.mr-gallery-item span { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #ff5555; }
+
+@media (max-width: 768px) {
+  .mr-gallery-item { min-width: 300px; height: 200px; }
+}
+
+/* Video Modal - VideoPlayer style */
+.mr-video-modal-overlay { align-items: center; justify-content: center; padding: 20px; }
+.mr-video-player-container { max-width: 900px; width: 100%; }
+.mr-video-wrapper { position: relative; background: #000; border-radius: 12px; overflow: hidden; aspect-ratio: 16/9; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); }
+.mr-video-poster { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a1a, #0a0a0a); display: flex; align-items: center; justify-content: center; z-index: 5; }
+.mr-video-poster-title { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #ff5555; }
+.mr-play-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 15; background: transparent; transition: background 0.3s ease; }
+.mr-play-overlay:hover { background: rgba(0, 0, 0, 0.2); }
+.mr-play-button { transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0.9; }
+.mr-play-overlay:hover .mr-play-button { transform: scale(1.05); opacity: 1; }
+.mr-play-button svg { filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5)); }
+.mr-video-element { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
+.mr-video-title { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #888; text-align: center; margin-top: 16px; }
+
+@media (max-width: 768px) {
+  .mr-video-modal-overlay { padding-bottom: 100px; }
+}
 
 /* Details Meta */
-.mr-details-meta { margin-bottom: 24px; background: #000; border-radius: 12px; }
+.mr-details-meta { margin-bottom: 24px; background: transparent; border-radius: 12px; }
 .mr-details-meta-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 14px; position: relative; }
 .mr-details-meta-row:last-child { border-bottom: none; }
 .mr-details-meta-row::before { content: '+'; position: absolute; left: -16px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #222; }
