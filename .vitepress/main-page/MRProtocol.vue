@@ -158,7 +158,7 @@ function goToStep(step: number) { currentStep.value = step }
 .mr-protocol-section { padding: 80px 24px; }
 .mr-protocol-container { max-width: 1000px; margin: 0 auto; }
 .mr-section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgb(0, 255, 136); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 16px; }
-.mr-section-title { font-size: clamp(28px, 5vw, 42px); font-weight: 300; margin-bottom: 24px; color: #fff; }
+.mr-section-title { font-size: clamp(28px, 5vw, 42px); font-weight: 500; margin-bottom: 24px; color: #fff; }
 
 .mr-protocol-table { background: rgba(17, 17, 17, 0.5); border: 1px solid #222; border-radius: 8px; overflow: hidden; margin-top: 24px; }
 
@@ -185,8 +185,7 @@ function goToStep(step: number) { currentStep.value = step }
 
 .mr-protocol-package-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; width: 100%; }
 
-.mr-package-card { background: rgba(17, 17, 17, 0.5); border: 1px solid #222; border-radius: 8px; padding: 20px 16px; text-align: center; transition: all 0.3s ease; }
-.mr-package-card:hover { border-color: rgb(0, 255, 136); transform: translateY(-2px); }
+.mr-package-card { background: rgba(17, 17, 17, 0.5); border: 1px solid #222; border-radius: 8px; padding: 20px 16px; text-align: center; }
 
 /* Glassmorphism icon */
 .mr-package-icon-glass {
@@ -227,8 +226,9 @@ function goToStep(step: number) { currentStep.value = step }
   .mr-protocol-modal-overlay { padding: 20px; padding-bottom: 80px; }
   .mr-protocol-modal-content { margin-top: 20px; }
   .mr-protocol-mobile-close { display: block; position: fixed; bottom: 0; left: 0; right: 0; padding: 16px; background: #000; z-index: 10002; }
-  .mr-protocol-mobile-close-btn { width: 100%; padding: 16px; background: transparent; border: 2px solid rgb(0, 255, 136); color: rgb(0, 255, 136); font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; letter-spacing: 2px; border-radius: 8px; cursor: pointer; }
-  .mr-protocol-mobile-close-btn:hover { background: rgb(0, 255, 136); color: #000; }
+  .mr-protocol-mobile-close-btn { width: 100%; padding: 16px; background: #000 !important; border: 2px solid rgb(0, 255, 136) !important; color: rgb(0, 255, 136) !important; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; letter-spacing: 2px; border-radius: 8px; cursor: pointer; text-decoration: none !important; }
+  .mr-protocol-mobile-close-btn:hover { background: rgb(0, 255, 136) !important; color: #000 !important; }
+  .mr-protocol-mobile-close-btn::after { display: none !important; }
 }
 
 /* Step Indicator */

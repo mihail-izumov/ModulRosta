@@ -19,8 +19,8 @@
             <li><span class="mr-feature-arrow">→</span><span>Протокол РАДАР-404: диагностика за 90 минут</span></li>
           </ul>
           <a href="#" class="mr-team-cta mr-team-cta-red">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-            АКТИВИРОВАТЬ ПРОТОКОЛ 404 →
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            Запустить стресс-тест
           </a>
         </div>
 
@@ -83,7 +83,7 @@
 
 .mr-teams-subtitle {
   font-size: clamp(24px, 4vw, 36px);
-  font-weight: 400;
+  font-weight: 500;
   color: #fff;
   margin-bottom: 48px;
   line-height: 1.4;

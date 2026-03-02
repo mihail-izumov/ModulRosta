@@ -3,7 +3,10 @@
     <div class="mr-rs404-scanner mr-rs404-scanner-top"></div>
     <div class="mr-rs404-scanner mr-rs404-scanner-bottom"></div>
     <div class="mr-rs404-container">
-      <div class="mr-rs404-badge">⚠ PROTOCOL_404 // RED TEAM OFFENSIVE</div>
+      <div class="mr-rs404-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        PROTOCOL_404 // RED TEAM OFFENSIVE
+      </div>
       <h2 class="mr-rs404-title">РАНСКЕЙЛ_404</h2>
       <p class="mr-rs404-subtitle">Стресс-тест бизнеса за 5 дней. Находим уязвимости в маркетинге, бренде и продукте до того, как вы потратите бюджет.</p>
       
@@ -83,7 +86,9 @@
 .mr-rs404-container { position: relative; max-width: 800px; margin: 0 auto; z-index: 1; }
 
 .mr-rs404-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: 'Orbitron', 'JetBrains Mono', monospace;
   font-size: 10px;
   color: #ff5555;
@@ -91,10 +96,11 @@
   padding: 8px 16px;
   border: 1px solid rgba(255, 85, 85, 0.3);
   border-radius: 4px;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   animation: mr-rs404-badge-pulse 2s ease-in-out infinite;
   text-shadow: 0 0 10px rgba(255, 85, 85, 0.5);
 }
+.mr-rs404-badge svg { flex-shrink: 0; }
 
 @keyframes mr-rs404-badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
