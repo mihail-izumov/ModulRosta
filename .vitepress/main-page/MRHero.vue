@@ -126,10 +126,11 @@
 
 .mr-hero-cta {
   display: inline-flex; align-items: center; gap: 12px; padding: 20px 48px;
-  background: rgb(0, 255, 136); color: #000; text-decoration: none;
+  background: rgb(0, 255, 136); color: #000; text-decoration: none !important;
   font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;
-  transition: all 0.3s ease; border-radius: 8px;
+  transition: all 0.3s ease; border-radius: 8px; border: none !important;
 }
+.mr-hero-cta::before, .mr-hero-cta::after { display: none !important; content: none !important; }
 .mr-hero-cta:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3); }
 
 @media (max-width: 700px) {

@@ -27,7 +27,10 @@
         </div>
       </div>
 
-      <a href="#" class="mr-rs404-cta">ЗАПУСТИТЬ ДИАГНОСТИКУ →</a>
+      <a href="#" class="mr-rs404-cta">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        ЗАПУСТИТЬ ДИАГНОСТИКУ
+      </a>
       
       <div class="mr-rs404-terminal">
         <div class="mr-rs404-terminal-block mr-rs404-terminal-input">
@@ -109,7 +112,7 @@
   font-size: clamp(36px, 8vw, 64px);
   font-weight: 700;
   color: #ff5555;
-  margin-bottom: 24px;
+  margin-bottom: 48px;
   letter-spacing: 4px;
   text-shadow: 0 0 30px rgba(255, 85, 85, 0.6), 0 0 60px rgba(255, 85, 85, 0.3);
 }
@@ -160,21 +163,25 @@
 }
 
 .mr-rs404-cta {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   padding: 18px 48px;
   background: transparent;
-  border: 2px solid #ff5555;
-  color: #ff5555;
+  border: 2px solid #ff5555 !important;
+  color: #ff5555 !important;
   font-family: 'JetBrains Mono', monospace;
   font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  text-decoration: none;
+  text-decoration: none !important;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
+.mr-rs404-cta::after { display: none !important; content: none !important; }
+.mr-rs404-cta svg { flex-shrink: 0; }
 
 .mr-rs404-cta::before {
   content: '';
@@ -228,9 +235,10 @@
 .mr-rs404-cursor {
   display: inline-block;
   width: 2px;
-  height: 14px;
+  height: 18px;
   background: #ff5555;
   margin-left: 4px;
+  vertical-align: middle;
   animation: mr-rs404-blink 1s step-end infinite;
 }
 

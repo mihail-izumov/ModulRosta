@@ -39,8 +39,11 @@
             <div class="mr-history-build">
               <div :class="['mr-build-block', getStatusClass(project.status)]" @click.stop="openDetails(project.id)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v8"/><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z"/><path d="M8 12h8"/></svg>
-                <span class="mr-build-label">СБОРКА</span>
-                <span class="mr-build-time">{{ project.buildTime }}</span>
+                <div class="mr-build-info">
+                  <span class="mr-build-label">СБОРКА</span>
+                  <span class="mr-build-time">{{ project.buildTime }}</span>
+                </div>
+                <span class="mr-build-details">ДЕТАЛИ</span>
               </div>
             </div>
           </div>
@@ -70,8 +73,11 @@
               <div class="mr-history-build">
                 <div :class="['mr-build-block', getStatusClass(project.status)]" @click.stop="openDetails(project.id)">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v8"/><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z"/><path d="M8 12h8"/></svg>
-                  <span class="mr-build-label">СБОРКА</span>
-                  <span class="mr-build-time">{{ project.buildTime }}</span>
+                  <div class="mr-build-info">
+                    <span class="mr-build-label">СБОРКА</span>
+                    <span class="mr-build-time">{{ project.buildTime }}</span>
+                  </div>
+                  <span class="mr-build-details">ДЕТАЛИ</span>
                 </div>
               </div>
             </div>
@@ -139,22 +145,22 @@
         <div class="mr-modal-content">
           <div class="mr-modal-header"><span :class="['mr-modal-title', currentProjectStatusClass]">{{ currentProject?.title }}</span></div>
           <div :class="['mr-details-meta', currentProjectStatusClass]">
-            <div class="mr-details-row"><span class="mr-details-label">Клиент</span><span class="mr-details-value" :style="{ color: getValueColor(currentProject?.status) }">{{ currentProject?.subtitle }}</span></div>
-            <div class="mr-details-row"><span class="mr-details-label">Статус</span><span class="mr-details-value" :style="{ color: getValueColor(currentProject?.status) }">{{ currentProject?.status }}</span></div>
+            <div class="mr-details-row"><span class="mr-details-label">Клиент</span><span class="mr-details-value accent">{{ currentProject?.subtitle }}</span></div>
+            <div class="mr-details-row"><span class="mr-details-label">Статус</span><span class="mr-details-value accent">{{ currentProject?.status }}</span></div>
             <div class="mr-details-row"><span class="mr-details-label">Дата запуска</span><span class="mr-details-value">{{ currentProject?.launchDate }}</span></div>
             <div class="mr-details-row"><span class="mr-details-label">Время сборки</span><span class="mr-details-value">{{ currentProject?.buildTime }}</span></div>
             <div class="mr-details-row"><span class="mr-details-label">Изображений</span><span class="mr-details-value">{{ currentProject?.images.length }}</span></div>
             <div v-if="currentProject?.videos.length" class="mr-details-row"><span class="mr-details-label">Видео</span><span class="mr-details-value">{{ currentProject?.videos.length }}</span></div>
-            <div v-if="currentProject?.mrBranded" class="mr-details-row"><span class="mr-details-label">Айдентика</span><span class="mr-details-value" :style="{ color: getValueColor(currentProject?.status) }">Модуль Роста®</span></div>
+            <div v-if="currentProject?.mrBranded" class="mr-details-row"><span class="mr-details-label">Айдентика</span><span class="mr-details-value accent">Модуль Роста®</span></div>
           </div>
           <div :class="['mr-details-tags', currentProjectStatusClass]"><span v-for="tag in currentProject?.tags" :key="tag" class="mr-tag">{{ tag }}</span></div>
           <div :class="['mr-details-links', currentProjectStatusClass]">
             <a v-if="currentProject?.website" :href="currentProject.website" target="_blank" class="mr-link primary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>Открыть сайт</a>
-            <a v-if="currentProject?.caseUrl" :href="currentProject.caseUrl" target="_blank" class="mr-link">Кейс</a>
-            <a v-if="currentProject?.behanceUrl" :href="currentProject.behanceUrl" target="_blank" class="mr-link">Behance</a>
+            <a v-if="currentProject?.caseUrl" :href="currentProject.caseUrl" target="_blank" class="mr-link secondary">Кейс</a>
+            <a v-if="currentProject?.behanceUrl" :href="currentProject.behanceUrl" target="_blank" class="mr-link secondary">Behance</a>
           </div>
         </div>
-        <div class="mr-mobile-close"><button class="mr-mobile-close-btn" @click="closeDetailsModal">ЗАКРЫТЬ</button></div>
+        <div class="mr-mobile-close"><button :class="['mr-mobile-close-btn', currentProjectStatusClass]" @click="closeDetailsModal">ЗАКРЫТЬ</button></div>
       </div>
     </Teleport>
   </section>
@@ -177,31 +183,31 @@ const videoEl = ref<HTMLVideoElement | null>(null)
 const expandedImageIndex = ref<number | null>(null)
 
 const allProjects = ref<Project[]>([
-  { id: 'boom', title: 'Companion App', subtitle: 'b00m.fun', website: 'https://b00m.fun', images: ['Главная страница', 'Каталог аттракционов', 'Карточка аттракциона', 'Система лояльности'], videos: ['Демо приложения', 'Промо ролик'], tags: ['App', 'CRM', 'Payment', 'PWA'], caseUrl: 'https://b00m.fun', behanceUrl: null, launchDate: '01.04.2026', buildTime: '30d', status: 'Скоро запуск', mrBranded: false },
-  { id: 'yurtrust', title: 'Айдентика и Веб', subtitle: 'ЮрТраст', website: '#', images: ['Главная', 'О компании', 'Услуги'], videos: [], tags: ['Айдентика', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '2024', buildTime: '28d', status: 'Запущен', mrBranded: true },
-  { id: 'hvorostovsky', title: 'Культурный портал', subtitle: 'Фонд Хворостовского', website: 'https://hvorostovsky.org', images: ['Главная', 'О фонде', 'Проекты', 'Артисты', 'Галерея', 'Партнёры', 'Контакты', 'Мобильная версия'], videos: ['Презентация фонда', 'Документальный фильм', 'Концертное видео'], tags: ['Айдентика', 'Веб', 'БД', 'Видео'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '15.11.2023', buildTime: '45d', status: 'Запущен', mrBranded: true },
-  { id: 'tanurkova', title: 'Архитектурное бюро', subtitle: 'Tanurkova Arch Design', website: 'https://tanurkova.com', images: ['Портфолио', 'Проект Villa', 'Проект Office', 'Проект Apartment', 'О студии', 'Контакты'], videos: ['Видео тур'], tags: ['Айдентика', 'Веб', 'Видео'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '10.09.2023', buildTime: '30d', status: 'Отложен', mrBranded: true },
-  { id: 'august', title: 'Театральная студия', subtitle: 'Август', website: 'https://august-theater.ru', images: ['Главная', 'Репертуар', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '22.07.2023', buildTime: '21d', status: 'Отложен', mrBranded: true },
-  { id: 'fizkultura', title: 'Стратегия', subtitle: 'FIZКультура', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2022', buildTime: '14d', status: 'Отложен', mrBranded: false },
-  { id: 'bloomkids', title: 'Детский магазин', subtitle: 'Блумкидс', website: 'https://bloomkids.ru', images: ['Главная', 'Каталог', 'О нас', 'Доставка', 'Карточка товара', 'Корзина', 'Личный кабинет', 'Блог', 'Акции', 'Контакты'], videos: ['Презентация бренда', 'Рекламный ролик'], tags: ['Айдентика', 'Веб', 'Видео', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '20.01.2022', buildTime: '35d', status: 'Запущен', mrBranded: true },
-  { id: 'ermolaev', title: 'Стратегия', subtitle: 'Ермолаевъ', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.03.2022', buildTime: '14d', status: 'Отложен', mrBranded: false },
-  { id: 'wps', title: 'Международный саммит', subtitle: 'World Plastics Summit', website: 'https://worldplastics.org', images: ['Главная', 'Спикеры', 'Программа', 'Партнёры', 'Регистрация', 'Галерея 2022', 'Пресс-центр', 'Архив', 'О саммите', 'Контакты', 'FAQ', 'Мобильная версия'], videos: ['Промо ролик', 'Aftermovie 2022', 'Интервью спикеров', 'Highlights'], tags: ['Айдентика', 'Веб', 'Видео', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '15.05.2022', buildTime: '28d', status: 'Запущен', mrBranded: true },
-  { id: 'modelex', title: 'Школа моделинга', subtitle: 'Modelex Education', website: 'https://modelex.pro', images: ['Главная', 'Курсы', 'О школе', 'Преподаватели', 'Расписание', 'Отзывы', 'Контакты'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '05.08.2021', buildTime: '30d', status: 'Запущен', mrBranded: true },
-  { id: 'smstretching1', title: 'Автоматизация маркетинга', subtitle: 'SMSTRETCHING', website: null, images: ['Dashboard'], videos: [], tags: ['Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.04.2021', buildTime: '21d', status: 'Отложен', mrBranded: false },
-  { id: 'smstretching2', title: 'Стратегия', subtitle: 'SMSTRETCHING', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.02.2021', buildTime: '14d', status: 'Отложен', mrBranded: false },
-  { id: 'gala', title: 'Благотворительный бал', subtitle: 'GALA RUSSE', website: 'https://galarusse.com', images: ['Главная', 'О мероприятии', 'Программа', 'Партнёры', 'Галерея'], videos: [], tags: ['Айдентика', 'Веб', 'Видео'], caseUrl: null, behanceUrl: null, launchDate: '18.10.2021', buildTime: '42d', status: 'Запущен', mrBranded: false },
-  { id: 'easybusy', title: 'Бизнес-сервис', subtitle: 'EASYBUSY', website: 'https://easybusy.ru', images: ['Главная', 'Сервисы', 'Тарифы', 'О компании', 'Кейсы', 'Контакты'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '01.06.2020', buildTime: '28d', status: 'Запущен', mrBranded: true },
-  { id: 'rawbites', title: 'Айдентика и Веб', subtitle: 'RAW BITES', website: '#', images: ['Главная', 'Продукция', 'О бренде'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.03.2020', buildTime: '28d', status: 'Запущен', mrBranded: true },
-  { id: 'woodled', title: 'Дизайнерские светильники', subtitle: 'WOODLED', website: 'https://woodled.ru', images: ['Главная', 'Каталог', 'О бренде', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '28.02.2020', buildTime: '35d', status: 'Запущен', mrBranded: false },
-  { id: 'concordia', title: 'Автоматизация продаж', subtitle: 'Конкордия-Авто', website: null, images: ['Dashboard', 'CRM'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2020', buildTime: '21d', status: 'Запущен', mrBranded: false },
-  { id: 'superland', title: 'Парк развлечений', subtitle: 'SUPERLAND', website: null, images: ['Концепт главной', 'Wireframes'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '15.11.2018', buildTime: '14d', status: 'Отложен', mrBranded: false },
-  { id: 'chishminsky', title: 'Айдентика и Веб', subtitle: 'Чишминский', website: '#', images: ['Главная', 'Продукция', 'О компании'], videos: [], tags: ['Айдентика', 'Веб', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2018', buildTime: '35d', status: 'Запущен', mrBranded: true },
-  { id: 'milimon', title: 'Производитель мебели', subtitle: 'Milimon', website: 'https://milimon.ru', images: ['Главная', 'Услуги', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2016', buildTime: '21d', status: 'Запущен', mrBranded: false },
-  { id: 'mindal', title: 'Айдентика и Стратегия', subtitle: 'Миндаль', website: null, images: ['Концепт'], videos: [], tags: ['Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2014', buildTime: '21d', status: 'Отложен', mrBranded: true },
-  { id: 'pozpsy', title: 'Концепция и Айдентика', subtitle: 'Школа Позитивной Психологии', website: null, images: ['Концепт'], videos: [], tags: ['Концепция', 'Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2011', buildTime: '28d', status: 'Отложен', mrBranded: true },
-  { id: 'moroshka', title: 'Концепция и Айдентика', subtitle: 'Морошка', website: null, images: ['Концепт'], videos: [], tags: ['Концепция', 'Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2010', buildTime: '28d', status: 'Запущен', mrBranded: true },
-  { id: 'smonline1', title: 'ИИ для контактов клиентов', subtitle: 'SM Online', website: null, images: ['Dashboard'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.05.2021', buildTime: '14d', status: 'Отложен', mrBranded: false },
-  { id: 'smonline2', title: 'ИИ-ассистенты для продаж', subtitle: 'SM Online', website: null, images: ['Dashboard'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2021', buildTime: '14d', status: 'Отложен', mrBranded: false }
+  { id: 'boom', title: 'Companion App', subtitle: 'b00m.fun', website: 'https://b00m.fun', images: ['Главная страница', 'Каталог аттракционов', 'Карточка аттракциона', 'Система лояльности'], videos: ['Демо приложения', 'Промо ролик'], tags: ['App', 'CRM', 'Payment', 'PWA'], caseUrl: 'https://b00m.fun', behanceUrl: null, launchDate: '01.04.2026', buildTime: '30дн', status: 'Скоро запуск', mrBranded: false },
+  { id: 'yurtrust', title: 'Айдентика и Веб', subtitle: 'ЮрТраст', website: '#', images: ['Главная', 'О компании', 'Услуги'], videos: [], tags: ['Айдентика', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2024', buildTime: '28дн', status: 'Запущен', mrBranded: true },
+  { id: 'hvorostovsky', title: 'Культурный портал', subtitle: 'Фонд Хворостовского', website: 'https://hvorostovsky.org', images: ['Главная', 'О фонде', 'Проекты', 'Артисты', 'Галерея', 'Партнёры', 'Контакты', 'Мобильная версия'], videos: ['Презентация фонда', 'Документальный фильм', 'Концертное видео'], tags: ['Айдентика', 'Веб', 'БД', 'Видео'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '15.11.2023', buildTime: '45дн', status: 'Запущен', mrBranded: true },
+  { id: 'tanurkova', title: 'Архитектурное бюро', subtitle: 'Tanurkova Arch Design', website: 'https://tanurkova.com', images: ['Портфолио', 'Проект Villa', 'Проект Office', 'Проект Apartment', 'О студии', 'Контакты'], videos: ['Видео тур'], tags: ['Айдентика', 'Веб', 'Видео'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '10.09.2023', buildTime: '30дн', status: 'Отложен', mrBranded: true },
+  { id: 'august', title: 'Театральная студия', subtitle: 'Август', website: 'https://august-theater.ru', images: ['Главная', 'Репертуар', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '22.07.2023', buildTime: '21дн', status: 'Отложен', mrBranded: true },
+  { id: 'fizkultura', title: 'Стратегия', subtitle: 'FIZКультура', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2022', buildTime: '14дн', status: 'Отложен', mrBranded: false },
+  { id: 'bloomkids', title: 'Детский магазин', subtitle: 'Блумкидс', website: 'https://bloomkids.ru', images: ['Главная', 'Каталог', 'О нас', 'Доставка', 'Карточка товара', 'Корзина', 'Личный кабинет', 'Блог', 'Акции', 'Контакты'], videos: ['Презентация бренда', 'Рекламный ролик'], tags: ['Айдентика', 'Веб', 'Видео', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '20.01.2022', buildTime: '35дн', status: 'Запущен', mrBranded: true },
+  { id: 'ermolaev', title: 'Стратегия', subtitle: 'Ермолаевъ', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.03.2022', buildTime: '14дн', status: 'Отложен', mrBranded: false },
+  { id: 'wps', title: 'Международный саммит', subtitle: 'World Plastics Summit', website: 'https://worldplastics.org', images: ['Главная', 'Спикеры', 'Программа', 'Партнёры', 'Регистрация', 'Галерея 2022', 'Пресс-центр', 'Архив', 'О саммите', 'Контакты', 'FAQ', 'Мобильная версия'], videos: ['Промо ролик', 'Aftermovie 2022', 'Интервью спикеров', 'Highlights'], tags: ['Айдентика', 'Веб', 'Видео', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '15.05.2022', buildTime: '28дн', status: 'Запущен', mrBranded: true },
+  { id: 'modelex', title: 'Школа моделинга', subtitle: 'Modelex Education', website: 'https://modelex.pro', images: ['Главная', 'Курсы', 'О школе', 'Преподаватели', 'Расписание', 'Отзывы', 'Контакты'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '05.08.2021', buildTime: '30дн', status: 'Запущен', mrBranded: true },
+  { id: 'smstretching1', title: 'Автоматизация маркетинга', subtitle: 'SMSTRETCHING', website: null, images: ['Dashboard'], videos: [], tags: ['Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.04.2021', buildTime: '21дн', status: 'Отложен', mrBranded: false },
+  { id: 'smstretching2', title: 'Стратегия', subtitle: 'SMSTRETCHING', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.02.2021', buildTime: '14дн', status: 'Отложен', mrBranded: false },
+  { id: 'gala', title: 'Благотворительный бал', subtitle: 'GALA RUSSE', website: 'https://galarusse.com', images: ['Главная', 'О мероприятии', 'Программа', 'Партнёры', 'Галерея'], videos: [], tags: ['Айдентика', 'Веб', 'Видео'], caseUrl: null, behanceUrl: null, launchDate: '18.10.2021', buildTime: '42дн', status: 'Запущен', mrBranded: false },
+  { id: 'easybusy', title: 'Бизнес-сервис', subtitle: 'EASYBUSY', website: 'https://easybusy.ru', images: ['Главная', 'Сервисы', 'Тарифы', 'О компании', 'Кейсы', 'Контакты'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '01.06.2020', buildTime: '28дн', status: 'Запущен', mrBranded: true },
+  { id: 'rawbites', title: 'Айдентика и Веб', subtitle: 'RAW BITES', website: '#', images: ['Главная', 'Продукция', 'О бренде'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.03.2020', buildTime: '28дн', status: 'Запущен', mrBranded: true },
+  { id: 'woodled', title: 'Дизайнерские светильники', subtitle: 'WOODLED', website: 'https://woodled.ru', images: ['Главная', 'Каталог', 'О бренде', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '28.02.2020', buildTime: '35дн', status: 'Запущен', mrBranded: false },
+  { id: 'concordia', title: 'Автоматизация продаж', subtitle: 'Конкордия-Авто', website: null, images: ['Dashboard', 'CRM'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2020', buildTime: '21дн', status: 'Запущен', mrBranded: false },
+  { id: 'superland', title: 'Парк развлечений', subtitle: 'SUPERLAND', website: null, images: ['Концепт главной', 'Wireframes'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '15.11.2018', buildTime: '14дн', status: 'Отложен', mrBranded: false },
+  { id: 'chishminsky', title: 'Айдентика и Веб', subtitle: 'Чишминский', website: '#', images: ['Главная', 'Продукция', 'О компании'], videos: [], tags: ['Айдентика', 'Веб', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2018', buildTime: '35дн', status: 'Запущен', mrBranded: true },
+  { id: 'milimon', title: 'Производитель мебели', subtitle: 'Milimon', website: 'https://milimon.ru', images: ['Главная', 'Услуги', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2016', buildTime: '21дн', status: 'Запущен', mrBranded: false },
+  { id: 'mindal', title: 'Айдентика и Стратегия', subtitle: 'Миндаль', website: null, images: ['Концепт'], videos: [], tags: ['Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2014', buildTime: '21дн', status: 'Отложен', mrBranded: true },
+  { id: 'pozpsy', title: 'Концепция и Айдентика', subtitle: 'Школа Позитивной Психологии', website: null, images: ['Концепт'], videos: [], tags: ['Концепция', 'Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2011', buildTime: '28дн', status: 'Отложен', mrBranded: true },
+  { id: 'moroshka', title: 'Концепция и Айдентика', subtitle: 'Морошка', website: null, images: ['Концепт'], videos: [], tags: ['Концепция', 'Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2010', buildTime: '28дн', status: 'Запущен', mrBranded: true },
+  { id: 'smonline1', title: 'ИИ для контактов клиентов', subtitle: 'SM Online', website: null, images: ['Dashboard'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.05.2021', buildTime: '14дн', status: 'Отложен', mrBranded: false },
+  { id: 'smonline2', title: 'ИИ-ассистенты для продаж', subtitle: 'SM Online', website: null, images: ['Dashboard'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2021', buildTime: '14дн', status: 'Отложен', mrBranded: false }
 ])
 
 const currentProject = computed(() => currentProjectId.value ? allProjects.value.find(p => p.id === currentProjectId.value) : null)
@@ -226,9 +232,9 @@ function getUptime(p: Project): string {
       const now = new Date(2026, 2, 2)
       const diff = Math.max(0, Math.floor((launch.getTime() - now.getTime()) / 1000))
       const d = Math.floor(diff / 86400), h = Math.floor((diff % 86400) / 3600), min = Math.floor((diff % 3600) / 60)
-      return `${d}d ${h}h ${min}m`
+      return `${d}дн:${h}ч:${min}мин`
     }
-    return 'T-30d'
+    return 'T-30дн'
   }
   if (p.status === 'Отложен') return '--:--'
   const m = p.launchDate.match(/(\d{2})\.(\d{2})\.(\d{4})/)
@@ -237,19 +243,12 @@ function getUptime(p: Project): string {
     const now = new Date(2026, 2, 2)
     const months = (now.getFullYear() - launch.getFullYear()) * 12 + (now.getMonth() - launch.getMonth())
     const y = Math.floor(months / 12), mo = months % 12
-    if (y >= 1) return mo > 0 ? `${y} год ${mo} мес` : `${y}+ год`
+    const yWord = y === 1 ? 'год' : (y >= 2 && y <= 4) ? 'года' : 'лет'
+    if (y >= 1) return mo > 0 ? `${y} ${yWord} ${mo} мес` : `${y}+ ${yWord}`
     return `${mo} мес`
-  }
-  // Если только год
-  const yearMatch = p.launchDate.match(/^(\d{4})$/)
-  if (yearMatch) {
-    const y = 2026 - parseInt(yearMatch[1])
-    return y >= 1 ? `${y}+ год` : '1+ год'
   }
   return '1+ год'
 }
-
-function getValueColor(s: string | undefined) { if (s === 'Скоро запуск') return '#58a6ff'; if (s === 'Отложен') return '#7d8590'; return 'rgb(0, 255, 136)' }
 
 function openImages(id: string) { currentProjectId.value = id; expandedImageIndex.value = null; imagesModalOpen.value = true; document.body.style.overflow = 'hidden' }
 function closeImagesModal() { imagesModalOpen.value = false; expandedImageIndex.value = null; document.body.style.overflow = '' }
@@ -276,7 +275,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-history-filters { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
 .mr-filter-btn { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: rgba(17, 17, 17, 0.5) !important; border: 1px solid #222 !important; border-radius: 8px; color: #888 !important; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.3s ease; text-decoration: none !important; }
 .mr-filter-btn:hover { border-color: #555 !important; color: #fff !important; }
-.mr-filter-btn:hover::after, .mr-filter-btn::after { display: none !important; }
+.mr-filter-btn::before, .mr-filter-btn::after { display: none !important; content: none !important; }
 .mr-filter-btn.active { border-color: white !important; color: white !important; background: rgba(255, 255, 255, 0.1) !important; }
 .mr-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .mr-dot.blue { background: #58a6ff; }
@@ -286,7 +285,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 
 .mr-identity-btn { display: flex; align-items: center; gap: 10px; padding: 12px 24px; background: linear-gradient(135deg, rgba(255, 85, 85, 0.2), rgba(255, 85, 85, 0.05)) !important; border: 2px solid #ff5555 !important; border-radius: 8px; color: #ff5555 !important; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; margin-left: auto; text-decoration: none !important; }
 .mr-identity-btn:hover, .mr-identity-btn.active { background: #ff5555 !important; color: white !important; box-shadow: 0 0 30px rgba(255, 85, 85, 0.5); }
-.mr-identity-btn:hover::after, .mr-identity-btn::after { display: none !important; }
+.mr-identity-btn::before, .mr-identity-btn::after { display: none !important; content: none !important; }
 .mr-identity-btn svg { flex-shrink: 0; }
 
 @media (max-width: 900px) {
@@ -294,19 +293,20 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
   .mr-identity-btn { margin-left: 0; width: 100%; justify-content: center; }
 }
 
-/* Table */
-.mr-history-table { background: rgba(17, 17, 17, 0.5); border: 1px solid #222; border-radius: 8px; overflow: hidden; }
-.mr-history-row { display: grid; grid-template-columns: 90px 1fr auto 160px; align-items: center; padding: 16px 16px 16px 24px; border-bottom: 1px solid #222; transition: all 0.3s ease; gap: 20px; cursor: pointer; }
+/* Table - правка #14: фон ярче */
+.mr-history-table { background: rgba(26, 26, 26, 0.8); border: 1px solid #222; border-radius: 8px; overflow: hidden; }
+/* Правка #9: одинаковые отступы слева и справа */
+.mr-history-row { display: grid; grid-template-columns: 90px 1fr auto 170px; align-items: center; padding: 16px 32px; border-bottom: 1px solid #222; transition: all 0.3s ease; gap: 20px; cursor: pointer; }
 .mr-history-row:hover { background: rgba(0, 255, 136, 0.02); }
 .mr-history-row.hidden { display: none; }
 
 @media (max-width: 900px) {
-  .mr-history-row { grid-template-columns: 70px 1fr auto; padding: 12px 16px 12px 20px; gap: 16px; }
+  .mr-history-row { grid-template-columns: 70px 1fr auto; padding: 12px 20px; gap: 16px; }
   .mr-history-row .mr-history-build { display: none; }
 }
 
 @media (max-width: 600px) {
-  .mr-history-row { grid-template-columns: 56px 1fr auto; padding: 12px 12px 12px 16px; gap: 14px; }
+  .mr-history-row { grid-template-columns: 56px 1fr auto; padding: 12px 16px; gap: 14px; }
   .mr-history-logo { width: 48px !important; height: 48px !important; }
   .mr-history-logo svg { width: 22px !important; height: 22px !important; }
   .mr-history-name { font-size: 14px !important; }
@@ -352,29 +352,35 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-history-media { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .mr-media-btn { width: 40px; height: 40px; background: transparent !important; border: 1px solid rgba(255, 85, 85, 0.3) !important; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; position: relative; flex-shrink: 0; text-decoration: none !important; }
 .mr-media-btn:hover { border-color: #ff5555 !important; background: rgba(255, 85, 85, 0.1) !important; transform: scale(1.05); }
-.mr-media-btn:hover::after, .mr-media-btn::after { display: none !important; }
+.mr-media-btn::before, .mr-media-btn::after { display: none !important; content: none !important; }
 .mr-media-btn svg { width: 16px; height: 16px; color: #ff5555; }
 .mr-media-count { position: absolute; top: -4px; right: -4px; min-width: 14px; height: 14px; padding: 0 3px; background: #ff5555; color: white; border-radius: 7px; font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
-/* Build block */
+/* Build block - правка #10, #11, #12 */
 .mr-history-build { display: flex; align-items: center; flex-shrink: 0; }
-.mr-build-block { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: transparent !important; border: 2px solid rgb(0, 255, 136) !important; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; text-decoration: none !important; }
-.mr-build-block:hover::after, .mr-build-block::after { display: none !important; }
+.mr-build-block { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: transparent !important; border: 2px solid rgb(0, 255, 136) !important; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; text-decoration: none !important; position: relative; }
+.mr-build-block::before, .mr-build-block::after { display: none !important; content: none !important; }
 .mr-build-block svg { color: rgb(0, 255, 136); flex-shrink: 0; }
-.mr-build-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 1px; color: #555; text-transform: uppercase; }
+.mr-build-info { display: flex; flex-direction: column; gap: 1px; transition: opacity 0.2s ease; }
+.mr-build-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #555; text-transform: uppercase; }
 .mr-build-time { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #fff; font-weight: 700; }
+.mr-build-details { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; color: rgb(0, 255, 136); opacity: 0; transition: opacity 0.2s ease; }
+.mr-build-block:hover .mr-build-info { opacity: 0; }
+.mr-build-block:hover .mr-build-details { opacity: 1; }
 .mr-build-block:hover { background: rgba(0, 255, 136, 0.1) !important; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); }
 .mr-build-block.soon { border-color: #58a6ff !important; }
 .mr-build-block.soon svg { color: #58a6ff; }
+.mr-build-block.soon .mr-build-details { color: #58a6ff; }
 .mr-build-block.soon:hover { background: rgba(88, 166, 255, 0.1) !important; box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
 .mr-build-block.grounded { border-color: #7d8590 !important; }
 .mr-build-block.grounded svg { color: #7d8590; }
+.mr-build-block.grounded .mr-build-details { color: #7d8590; }
 .mr-build-block.grounded:hover { background: rgba(125, 133, 144, 0.1) !important; box-shadow: 0 0 20px rgba(125, 133, 144, 0.3); }
 
 /* Accordion */
 .mr-accordion-toggle { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 20px; background: transparent !important; border: none !important; border-top: 1px solid #222 !important; color: #888 !important; font-family: 'JetBrains Mono', monospace; font-size: 13px; cursor: pointer; width: 100%; transition: all 0.3s ease; text-decoration: none !important; }
 .mr-accordion-toggle:hover { background: rgba(0, 255, 136, 0.02) !important; color: rgb(0, 255, 136) !important; }
-.mr-accordion-toggle:hover::after, .mr-accordion-toggle::after { display: none !important; }
+.mr-accordion-toggle::before, .mr-accordion-toggle::after { display: none !important; content: none !important; }
 .mr-arrow { transition: transform 0.3s ease; }
 .mr-accordion-toggle.open .mr-arrow { transform: rotate(180deg); }
 .mr-accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; }
@@ -397,7 +403,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 
 /* Modals */
 .mr-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(10px); z-index: 10000; display: flex; align-items: flex-start; justify-content: center; padding: 40px; padding-bottom: 100px; overflow-y: auto; }
-.mr-modal-close { position: fixed; top: 30px; right: 30px; width: 70px; height: 70px; background: transparent !important; border: 2px solid #ff5555 !important; color: #ff5555 !important; cursor: pointer; border-radius: 14px; transition: all 0.3s ease; z-index: 10001; text-decoration: none !important; }
+.mr-modal-close { position: fixed; top: 30px; right: 30px; width: 70px; height: 70px; background: transparent !important; border: 2px solid #ff5555 !important; color: #ff5555 !important; cursor: pointer; border-radius: 14px; transition: all 0.3s ease; z-index: 10001; }
 .mr-modal-close::before, .mr-modal-close::after { content: ''; position: absolute; top: 50%; left: 50%; width: 36px; height: 2px; background: currentColor; }
 .mr-modal-close::before { transform: translate(-50%, -50%) rotate(45deg); }
 .mr-modal-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
@@ -425,7 +431,13 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
   .mr-mobile-close { display: block; position: fixed; bottom: 0; left: 0; right: 0; padding: 16px; background: #000; z-index: 10002; }
   .mr-mobile-close-btn { width: 100%; padding: 16px; background: #000 !important; border: 2px solid #ff5555 !important; color: #ff5555 !important; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; letter-spacing: 2px; border-radius: 8px; cursor: pointer; text-decoration: none !important; }
   .mr-mobile-close-btn:hover { background: #ff5555 !important; color: #000 !important; }
-  .mr-mobile-close-btn::after { display: none !important; }
+  .mr-mobile-close-btn::before, .mr-mobile-close-btn::after { display: none !important; content: none !important; }
+  .mr-mobile-close-btn.soon { border-color: #58a6ff !important; color: #58a6ff !important; }
+  .mr-mobile-close-btn.soon:hover { background: #58a6ff !important; }
+  .mr-mobile-close-btn.orbit { border-color: rgb(0, 255, 136) !important; color: rgb(0, 255, 136) !important; }
+  .mr-mobile-close-btn.orbit:hover { background: rgb(0, 255, 136) !important; }
+  .mr-mobile-close-btn.grounded { border-color: #7d8590 !important; color: #7d8590 !important; }
+  .mr-mobile-close-btn.grounded:hover { background: #7d8590 !important; }
 }
 
 /* Gallery */
@@ -448,7 +460,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-expanded-image span { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #ff5555; }
 .mr-expanded-back { display: flex; align-items: center; gap: 8px; padding: 12px 24px; background: transparent !important; border: 2px solid #ff5555 !important; color: #ff5555 !important; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 1px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-decoration: none !important; }
 .mr-expanded-back:hover { background: #ff5555 !important; color: #000 !important; }
-.mr-expanded-back::after { display: none !important; }
+.mr-expanded-back::before, .mr-expanded-back::after { display: none !important; content: none !important; }
 
 /* Video modal */
 .mr-video-overlay { align-items: center; justify-content: center; }
@@ -463,24 +475,32 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-video-el { width: 100%; height: 100%; object-fit: contain; }
 .mr-video-title { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #888; text-align: center; margin-top: 16px; }
 
-/* Details */
+/* Details - правка #13: цвет кнопок по статусу */
 .mr-details-meta { margin-bottom: 24px; }
 .mr-details-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 14px; }
 .mr-details-row:last-child { border-bottom: none; }
 .mr-details-label { color: #555; }
 .mr-details-value { color: #fff; font-weight: 600; }
+.mr-details-value.accent { color: rgb(0, 255, 136); }
+.mr-details-meta.soon .mr-details-value.accent { color: #58a6ff; }
+.mr-details-meta.grounded .mr-details-value.accent { color: #7d8590; }
 
 .mr-details-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
 .mr-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 8px 16px; background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); color: rgb(0, 255, 136); border-radius: 6px; }
-.mr-details-tags.soon .mr-tag { border-color: rgba(88, 166, 255, 0.3); color: #58a6ff; }
-.mr-details-tags.grounded .mr-tag { border-color: rgba(125, 133, 144, 0.3); color: #7d8590; }
+.mr-details-tags.soon .mr-tag { border-color: rgba(88, 166, 255, 0.3); color: #58a6ff; background: rgba(88, 166, 255, 0.05); }
+.mr-details-tags.grounded .mr-tag { border-color: rgba(125, 133, 144, 0.3); color: #7d8590; background: rgba(125, 133, 144, 0.05); }
 
 .mr-details-links { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid #222; }
-.mr-link { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: transparent !important; border: 1px solid #222 !important; color: #fff !important; text-decoration: none !important; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; border-radius: 8px; transition: all 0.3s ease; }
-.mr-link:hover { border-color: rgb(0, 255, 136) !important; color: rgb(0, 255, 136) !important; }
-.mr-link:hover::after, .mr-link::after { display: none !important; }
-.mr-link.primary { background: rgb(0, 255, 136) !important; border-color: rgb(0, 255, 136) !important; color: #000 !important; }
+.mr-link { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; text-decoration: none !important; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; border-radius: 8px; transition: all 0.3s ease; }
+.mr-link::before, .mr-link::after { display: none !important; content: none !important; }
+.mr-link.primary { background: rgb(0, 255, 136) !important; border: 1px solid rgb(0, 255, 136) !important; color: #000 !important; }
 .mr-link.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4); }
+.mr-link.secondary { background: transparent !important; border: 1px solid rgb(0, 255, 136) !important; color: rgb(0, 255, 136) !important; }
+.mr-link.secondary:hover { background: rgba(0, 255, 136, 0.1) !important; }
 .mr-details-links.soon .mr-link.primary { background: #58a6ff !important; border-color: #58a6ff !important; }
+.mr-details-links.soon .mr-link.secondary { border-color: #58a6ff !important; color: #58a6ff !important; }
+.mr-details-links.soon .mr-link.secondary:hover { background: rgba(88, 166, 255, 0.1) !important; }
 .mr-details-links.grounded .mr-link.primary { background: #7d8590 !important; border-color: #7d8590 !important; }
+.mr-details-links.grounded .mr-link.secondary { border-color: #7d8590 !important; color: #7d8590 !important; }
+.mr-details-links.grounded .mr-link.secondary:hover { background: rgba(125, 133, 144, 0.1) !important; }
 </style>

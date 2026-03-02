@@ -209,6 +209,7 @@
   border: 1px solid #ff5555;
   color: #ff5555;
 }
+.mr-team-cta-red::before, .mr-team-cta-red::after { display: none !important; content: none !important; }
 
 .mr-team-cta-red:hover {
   background: #ff5555;
