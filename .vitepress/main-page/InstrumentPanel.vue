@@ -115,9 +115,9 @@ const nX = [20, 90, 160]
 </style>
 
 <style scoped>
-.ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:140px;padding-left:32px;padding-right:32px;padding-bottom:24px;min-height:100vh;overflow:visible}
-.tt{font-family:monospace;font-size:64px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(0,255,136,.4),0 0 16px rgba(0,255,136,.2);margin-bottom:64px;margin-top:0}
-@media(max-width:768px){.tt{font-size:28px;letter-spacing:2px;margin-bottom:56px}.ip{padding-top:80px;padding-left:16px;padding-right:16px;padding-bottom:16px}}
+.ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 32px 24px;overflow:visible}
+.tt{font-family:monospace;font-size:64px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(0,255,136,.4),0 0 16px rgba(0,255,136,.2);margin-bottom:96px;margin-top:0}
+@media(max-width:768px){.tt{font-size:28px;letter-spacing:2px;margin-bottom:56px}.ip{padding:48px 16px 16px}}
 .dk{display:flex;align-items:flex-start;justify-content:center;gap:64px}
 .dc{display:flex;flex-direction:column;align-items:center}
 .dcm{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:260px}
