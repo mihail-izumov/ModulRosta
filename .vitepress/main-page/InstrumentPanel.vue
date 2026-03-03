@@ -146,9 +146,9 @@ const nX = [20, 90, 160]
 .pt.vis{opacity:1}.ptm{font-size:24px}
 .lt{font-family:Inter,sans-serif;font-size:14px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.5;margin-top:24px}
 .ltm{font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.4;margin-top:16px}
-.sc{position:relative;width:100%;height:340px;max-width:100vw;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab}
+.sc{position:relative;width:100%;height:380px;max-width:100vw;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab}
 .sc:active{cursor:grabbing}
-.st{display:flex;align-items:flex-start;position:absolute;padding-top:20px}
+.st{display:flex;align-items:flex-start;position:absolute;padding-top:50px}
 .si{margin-top:24px;display:flex;flex-direction:column;align-items:center}
 .dsf{animation:dsfa 2s linear infinite}
 .dsb{animation:dsba 2s linear infinite}
