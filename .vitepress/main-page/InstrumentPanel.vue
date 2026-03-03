@@ -140,15 +140,15 @@ const nX = [20, 90, 160]
 .dcc{position:absolute;inset:0;z-index:10}
 .cn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Orbitron,monospace;font-weight:700;font-size:58px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);line-height:1}
 .cnm{font-size:60px}
-.cl{position:absolute;top:50%;left:50%;transform:translate(-50%,32px);font-family:Orbitron,monospace;font-size:13px;color:#00ff88;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
-.clm{transform:translate(-50%,36px)}
+.cl{position:absolute;top:50%;left:50%;transform:translate(-50%,26px);font-family:Orbitron,monospace;font-size:13px;color:#00ff88;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.clm{transform:translate(-50%,30px)}
 .pt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Orbitron,monospace;font-weight:700;font-size:23px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);text-align:center;opacity:0;transition:opacity 1s ease-out}
 .pt.vis{opacity:1}.ptm{font-size:24px}
 .lt{font-family:Inter,sans-serif;font-size:14px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.5;margin-top:24px}
 .ltm{font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.4;margin-top:16px}
-.sc{position:relative;width:100%;height:300px;max-width:100vw;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab}
+.sc{position:relative;width:100%;height:340px;max-width:100vw;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab}
 .sc:active{cursor:grabbing}
-.st{display:flex;align-items:flex-start;position:absolute}
+.st{display:flex;align-items:flex-start;position:absolute;padding-top:20px}
 .si{margin-top:24px;display:flex;flex-direction:column;align-items:center}
 .dsf{animation:dsfa 2s linear infinite}
 .dsb{animation:dsba 2s linear infinite}
