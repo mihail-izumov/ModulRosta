@@ -137,11 +137,11 @@ const nX = [20, 90, 160]
 .lb{animation:lba 12s ease-out infinite}
 .dkc{position:absolute;top:50%;left:50%;width:27px;height:27px;border-radius:50%;background:#000;border:3px solid #00ff88;box-shadow:0 0 12px #00ff88,inset 0 0 8px rgba(0,255,136,.3);animation:ca 12s ease-out infinite}
 .dkcm{width:28px;height:28px}
-.dcc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
-.cn{font-family:Orbitron,monospace;font-weight:700;font-size:58px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);line-height:1}
+.dcc{position:absolute;inset:0;z-index:10}
+.cn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Orbitron,monospace;font-weight:700;font-size:58px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);line-height:1}
 .cnm{font-size:60px}
-.cl{font-family:Orbitron,monospace;font-size:13px;color:#00ff88;opacity:.8;text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
-.pt{font-family:Orbitron,monospace;font-weight:700;font-size:23px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);text-align:center;opacity:0;transition:opacity 1s ease-out}
+.cl{position:absolute;top:50%;left:50%;transform:translate(-50%,20px);font-family:Orbitron,monospace;font-size:13px;color:#00ff88;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.pt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Orbitron,monospace;font-weight:700;font-size:23px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);text-align:center;opacity:0;transition:opacity 1s ease-out}
 .pt.vis{opacity:1}.ptm{font-size:24px}
 .lt{font-family:Inter,sans-serif;font-size:14px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.5;margin-top:24px}
 .ltm{font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.4;margin-top:16px}
