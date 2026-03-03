@@ -12,7 +12,9 @@ const isDragging = ref(false)
 const startX = ref(0)
 const translateX = ref(0)
 
-const dialWidth = 260, gap = 30, totalWidth = dialWidth + gap
+const dialWidth = 260
+const gap = 30
+const totalWidth = dialWidth + gap
 let interval = null
 
 const checkMobile = () => { isMobile.value = window.innerWidth < 768 }
@@ -22,12 +24,12 @@ onMounted(() => {
   window.addEventListener('resize', checkMobile)
   interval = setInterval(() => {
     if (phase.value === 'countdown') {
-      const n = snakeProgress.value - (100/240)
+      const n = snakeProgress.value - (100 / 240)
       if (n <= 0) { phase.value = 'complete'; snakeProgress.value = 0 }
-      else { snakeProgress.value = n; countdown.value = Math.ceil((n/100)*60) }
+      else { snakeProgress.value = n; countdown.value = Math.ceil((n / 100) * 60) }
     } else if (phase.value === 'complete') {
-      setTimeout(() => showPoehali.value = true, 100)
-      setTimeout(() => phase.value = 'fill', 2000)
+      setTimeout(() => { showPoehali.value = true }, 100)
+      setTimeout(() => { phase.value = 'fill' }, 2000)
     } else if (phase.value === 'fill') {
       if (fillProgress.value >= 100) {
         setTimeout(() => { phase.value = 'countdown'; snakeProgress.value = 100; fillProgress.value = 0; countdown.value = 60; showPoehali.value = false }, 1000)
@@ -38,116 +40,33 @@ onMounted(() => {
 
 onUnmounted(() => { window.removeEventListener('resize', checkMobile); if (interval) clearInterval(interval) })
 
-const handleStart = x => { if (!isMobile.value) return; isDragging.value = true; startX.value = x - translateX.value }
-const handleMove = x => { if (!isDragging.value || !isMobile.value) return; translateX.value = Math.max(-(totalWidth*2), Math.min(0, x - startX.value)) }
-const handleEnd = () => { if (!isDragging.value || !isMobile.value) return; isDragging.value = false; const i = Math.max(0, Math.min(2, Math.round(-translateX.value/totalWidth))); currentIndex.value = i; translateX.value = -i * totalWidth }
-const goToSlide = i => { currentIndex.value = i; translateX.value = -i * totalWidth }
+const handleStart = (x) => { if (!isMobile.value) return; isDragging.value = true; startX.value = x - translateX.value }
+const handleMove = (x) => { if (!isDragging.value || !isMobile.value) return; translateX.value = Math.max(-(totalWidth * 2), Math.min(0, x - startX.value)) }
+const handleEnd = () => { if (!isDragging.value || !isMobile.value) return; isDragging.value = false; const i = Math.max(0, Math.min(2, Math.round(-translateX.value / totalWidth))); currentIndex.value = i; translateX.value = -i * totalWidth }
+const goToSlide = (i) => { currentIndex.value = i; translateX.value = -i * totalWidth }
 
-const sliderStyle = computed(() => ({ left: '50%', gap: gap+'px', transform: 'translateX(calc(-130px + '+translateX.value+'px))', transition: isDragging.value ? 'none' : 'transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94)' }))
-const rndDash = computed(() => { const c = 2*Math.PI*63; return phase.value === 'countdown' ? (snakeProgress.value/100)*c + ' ' + c : (fillProgress.value/100)*c + ' ' + c })
-const dP = [{x:96,y:56},{x:130.6,y:76},{x:130.6,y:116},{x:96,y:136},{x:61.4,y:116},{x:61.4,y:76}]
+const sliderStyle = computed(() => ({ left: '50%', gap: gap + 'px', transform: 'translateX(calc(-130px + ' + translateX.value + 'px))', transition: isDragging.value ? 'none' : 'transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94)' }))
+const rndDash = computed(() => { const c = 2 * Math.PI * 63; return phase.value === 'countdown' ? (snakeProgress.value / 100) * c + ' ' + c : (fillProgress.value / 100) * c + ' ' + c })
+const dP = [{ x: 96, y: 56 }, { x: 130.6, y: 76 }, { x: 130.6, y: 116 }, { x: 96, y: 136 }, { x: 61.4, y: 116 }, { x: 61.4, y: 76 }]
 const nX = [20, 90, 160]
 </script>
 
 <template>
 <div class="ip">
   <h1 class="tt">R&D запуски</h1>
-  
   <div v-if="!isMobile" class="dk">
-    <div class="dc"><div class="dl d1"><div class="db"></div>
-      <svg class="ds" viewBox="0 0 192 192">
-        <line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.2)" stroke-width="1"/>
-        <line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.2)" stroke-width="1"/>
-        <g class="oc" style="--d:18s"><circle cx="96" cy="21" r="4" fill="#00ff88" class="pd"/><circle cx="161" cy="133" r="4" fill="#00ff88" class="pd"/><circle cx="31" cy="133" r="4" fill="#00ff88" class="pd"/></g>
-        <g class="occ" style="--d:15s"><circle cx="96" cy="31" r="3.5" fill="#00ff88"/><circle cx="152" cy="128" r="3.5" fill="#00ff88"/><circle cx="40" cy="128" r="3.5" fill="#00ff88"/></g>
-        <g class="oc" style="--d:12s"><circle cx="96" cy="40" r="3" fill="#00ff88"/><circle cx="144" cy="124" r="3" fill="#00ff88"/><circle cx="48" cy="124" r="3" fill="#00ff88"/></g>
-        <g class="occ" style="--d:9s"><circle cx="96" cy="50" r="2.5" fill="#00ff88"/><circle cx="136" cy="119" r="2.5" fill="#00ff88"/><circle cx="56" cy="119" r="2.5" fill="#00ff88"/></g>
-        <g class="oc" style="--d:7s"><circle cx="96" cy="58" r="2" fill="#00ff88"/><circle cx="129" cy="115" r="2" fill="#00ff88"/><circle cx="63" cy="115" r="2" fill="#00ff88"/></g>
-        <g class="occ" style="--d:5s"><circle cx="96" cy="66" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="122" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="70" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/></g>
-        <g class="oc" style="--d:3.5s"><circle cx="96" cy="74" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="115" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="77" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/></g>
-        <circle cx="96" cy="96" r="6" fill="#00ff88" class="cg"/>
-      </svg>
-    </div><span class="lt">RAG<br/>аналитика</span></div>
-    
-    <div class="dc"><div class="dl d1"><div class="db"></div>
-      <svg class="ds" viewBox="0 0 192 192">
-        <line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.15)" stroke-width="1"/>
-        <line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.15)" stroke-width="1"/>
-        <circle cx="96" cy="96" r="63" fill="none" stroke="rgba(0,255,136,0.1)" stroke-width="8"/>
-        <circle cx="96" cy="96" r="63" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" :stroke-dasharray="rndDash" transform="rotate(-90 96 96)" class="pr"/>
-      </svg>
-      <div class="dcc">
-        <template v-if="phase==='countdown'"><span class="cn">{{countdown}}</span><span class="cl">дней</span></template>
-        <span v-else class="pt" :class="{vis:showPoehali}">ПОЕХАЛИ!</span>
-      </div>
-    </div><span class="lt">R&D<br/>циклы</span></div>
-    
-    <div class="dc"><div class="dl d1"><div class="db"></div>
-      <svg class="ds" viewBox="0 0 192 192">
-        <line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.15)" stroke-width="1"/>
-        <line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.15)" stroke-width="1"/>
-        <line v-for="(p,i) in dP" :key="'c'+i" x1="96" y1="96" :x2="p.x" :y2="p.y" stroke="#00ff88" stroke-width="2.5" :class="'lc'+i"/>
-        <line v-for="(p,i) in dP" :key="'b'+i" :x1="p.x" :y1="p.y" :x2="dP[(i+1)%6].x" :y2="dP[(i+1)%6].y" stroke="#00ff88" stroke-width="2" class="lb"/>
-      </svg>
-      <div v-for="i in 6" :key="'m'+i" class="dm" :class="'cp'+(i-1)"></div>
-      <div class="dkc"></div>
-    </div><span class="lt">Стыковка<br/>модулей</span></div>
+    <div class="dc"><div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><g class="oc" style="--d:18s"><circle cx="96" cy="21" r="4" fill="#00ff88" class="pd"/><circle cx="161" cy="133" r="4" fill="#00ff88" class="pd"/><circle cx="31" cy="133" r="4" fill="#00ff88" class="pd"/></g><g class="occ" style="--d:15s"><circle cx="96" cy="31" r="3.5" fill="#00ff88"/><circle cx="152" cy="128" r="3.5" fill="#00ff88"/><circle cx="40" cy="128" r="3.5" fill="#00ff88"/></g><g class="oc" style="--d:12s"><circle cx="96" cy="40" r="3" fill="#00ff88"/><circle cx="144" cy="124" r="3" fill="#00ff88"/><circle cx="48" cy="124" r="3" fill="#00ff88"/></g><g class="occ" style="--d:9s"><circle cx="96" cy="50" r="2.5" fill="#00ff88"/><circle cx="136" cy="119" r="2.5" fill="#00ff88"/><circle cx="56" cy="119" r="2.5" fill="#00ff88"/></g><g class="oc" style="--d:7s"><circle cx="96" cy="58" r="2" fill="#00ff88"/><circle cx="129" cy="115" r="2" fill="#00ff88"/><circle cx="63" cy="115" r="2" fill="#00ff88"/></g><g class="occ" style="--d:5s"><circle cx="96" cy="66" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="122" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="70" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/></g><g class="oc" style="--d:3.5s"><circle cx="96" cy="74" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="115" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="77" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/></g><circle cx="96" cy="96" r="6" fill="#00ff88" class="cg"/></svg></div><span class="lt">RAG<br/>аналитика</span></div>
+    <div class="dc"><div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><circle cx="96" cy="96" r="63" fill="none" stroke="rgba(0,255,136,0.1)" stroke-width="8"/><circle cx="96" cy="96" r="63" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" :stroke-dasharray="rndDash" transform="rotate(-90 96 96)" class="pr"/></svg><div class="dcc"><template v-if="phase==='countdown'"><span class="cn">{{countdown}}</span><span class="cl">дней</span></template><span v-else class="pt" :class="{vis:showPoehali}">ПОЕХАЛИ!</span></div></div><span class="lt">R&D<br/>циклы</span></div>
+    <div class="dc"><div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line v-for="(p,i) in dP" :key="'c'+i" x1="96" y1="96" :x2="p.x" :y2="p.y" stroke="#00ff88" stroke-width="2.5" :class="'lc'+i"/><line v-for="(p,i) in dP" :key="'b'+i" :x1="p.x" :y1="p.y" :x2="dP[(i+1)%6].x" :y2="dP[(i+1)%6].y" stroke="#00ff88" stroke-width="2" class="lb"/></svg><div v-for="i in 6" :key="'m'+i" class="dm" :class="'cp'+(i-1)"></div><div class="dkc"></div></div><span class="lt">Стыковка<br/>модулей</span></div>
   </div>
-
   <template v-if="isMobile">
     <div class="sc" @mousedown="handleStart($event.clientX)" @mousemove="handleMove($event.clientX)" @mouseup="handleEnd" @mouseleave="handleEnd" @touchstart="handleStart($event.touches[0].clientX)" @touchmove="handleMove($event.touches[0].clientX)" @touchend="handleEnd">
       <div class="st" :style="sliderStyle">
-        <div class="dcm"><div class="dl d2"><div class="db"></div>
-          <svg class="ds" viewBox="0 0 200 200">
-            <line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.2)" stroke-width="1"/>
-            <line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.2)" stroke-width="1"/>
-            <g class="oc" style="--d:18s"><circle cx="100" cy="22" r="4" fill="#00ff88" class="pd"/><circle cx="168" cy="139" r="4" fill="#00ff88" class="pd"/><circle cx="32" cy="139" r="4" fill="#00ff88" class="pd"/></g>
-            <g class="occ" style="--d:15s"><circle cx="100" cy="32" r="3.5" fill="#00ff88"/><circle cx="159" cy="134" r="3.5" fill="#00ff88"/><circle cx="41" cy="134" r="3.5" fill="#00ff88"/></g>
-            <g class="oc" style="--d:12s"><circle cx="100" cy="42" r="3" fill="#00ff88"/><circle cx="150" cy="129" r="3" fill="#00ff88"/><circle cx="50" cy="129" r="3" fill="#00ff88"/></g>
-            <g class="occ" style="--d:9s"><circle cx="100" cy="52" r="2.5" fill="#00ff88"/><circle cx="142" cy="124" r="2.5" fill="#00ff88"/><circle cx="58" cy="124" r="2.5" fill="#00ff88"/></g>
-            <g class="oc" style="--d:7s"><circle cx="100" cy="62" r="2" fill="#00ff88"/><circle cx="133" cy="119" r="2" fill="#00ff88"/><circle cx="67" cy="119" r="2" fill="#00ff88"/></g>
-            <g class="occ" style="--d:5s"><circle cx="100" cy="72" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="124" cy="114" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="76" cy="114" r="1.5" fill="#00ff88" opacity="0.7"/></g>
-            <g class="oc" style="--d:3.5s"><circle cx="100" cy="80" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="117" cy="110" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="83" cy="110" r="1.5" fill="#00ff88" opacity="0.5"/></g>
-            <circle cx="100" cy="100" r="6" fill="#00ff88" class="cg"/>
-          </svg>
-        </div><span class="ltm">RAG<br/>аналитика</span></div>
-        
-        <div class="dcm"><div class="dl d2"><div class="db"></div>
-          <svg class="ds" viewBox="0 0 200 200">
-            <line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.15)" stroke-width="1"/>
-            <line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.15)" stroke-width="1"/>
-            <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(0,255,136,0.1)" stroke-width="8"/>
-            <circle cx="100" cy="100" r="70" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" :stroke-dasharray="(phase==='countdown'?snakeProgress:fillProgress)/100*440+' 440'" transform="rotate(-90 100 100)" class="pr"/>
-          </svg>
-          <div class="dcc">
-            <template v-if="phase==='countdown'"><span class="cn cnm">{{countdown}}</span><span class="cl">дней</span></template>
-            <span v-else class="pt ptm" :class="{vis:showPoehali}">ПОЕХАЛИ!</span>
-          </div>
-        </div><span class="ltm">R&D<br/>циклы</span></div>
-        
-        <div class="dcm"><div class="dl d2"><div class="db"></div>
-          <svg class="ds" viewBox="0 0 200 200">
-            <line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.15)" stroke-width="1"/>
-            <line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.15)" stroke-width="1"/>
-            <line x1="100" y1="100" x2="100" y2="58" stroke="#00ff88" stroke-width="2.5" class="lc0"/>
-            <line x1="100" y1="100" x2="136" y2="79" stroke="#00ff88" stroke-width="2.5" class="lc1"/>
-            <line x1="100" y1="100" x2="136" y2="121" stroke="#00ff88" stroke-width="2.5" class="lc2"/>
-            <line x1="100" y1="100" x2="100" y2="142" stroke="#00ff88" stroke-width="2.5" class="lc3"/>
-            <line x1="100" y1="100" x2="64" y2="121" stroke="#00ff88" stroke-width="2.5" class="lc4"/>
-            <line x1="100" y1="100" x2="64" y2="79" stroke="#00ff88" stroke-width="2.5" class="lc5"/>
-            <line x1="100" y1="58" x2="136" y2="79" stroke="#00ff88" stroke-width="2" class="lb"/>
-            <line x1="136" y1="79" x2="136" y2="121" stroke="#00ff88" stroke-width="2" class="lb"/>
-            <line x1="136" y1="121" x2="100" y2="142" stroke="#00ff88" stroke-width="2" class="lb"/>
-            <line x1="100" y1="142" x2="64" y2="121" stroke="#00ff88" stroke-width="2" class="lb"/>
-            <line x1="64" y1="121" x2="64" y2="79" stroke="#00ff88" stroke-width="2" class="lb"/>
-            <line x1="64" y1="79" x2="100" y2="58" stroke="#00ff88" stroke-width="2" class="lb"/>
-          </svg>
-          <div v-for="i in 6" :key="'mm'+i" class="dm dmm" :class="'cp'+(i-1)"></div>
-          <div class="dkc dkcm"></div>
-        </div><span class="ltm">Стыковка<br/>модулей</span></div>
+        <div class="dcm"><div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><g class="oc" style="--d:18s"><circle cx="100" cy="22" r="4" fill="#00ff88" class="pd"/><circle cx="168" cy="139" r="4" fill="#00ff88" class="pd"/><circle cx="32" cy="139" r="4" fill="#00ff88" class="pd"/></g><g class="occ" style="--d:15s"><circle cx="100" cy="32" r="3.5" fill="#00ff88"/><circle cx="159" cy="134" r="3.5" fill="#00ff88"/><circle cx="41" cy="134" r="3.5" fill="#00ff88"/></g><g class="oc" style="--d:12s"><circle cx="100" cy="42" r="3" fill="#00ff88"/><circle cx="150" cy="129" r="3" fill="#00ff88"/><circle cx="50" cy="129" r="3" fill="#00ff88"/></g><g class="occ" style="--d:9s"><circle cx="100" cy="52" r="2.5" fill="#00ff88"/><circle cx="142" cy="124" r="2.5" fill="#00ff88"/><circle cx="58" cy="124" r="2.5" fill="#00ff88"/></g><g class="oc" style="--d:7s"><circle cx="100" cy="62" r="2" fill="#00ff88"/><circle cx="133" cy="119" r="2" fill="#00ff88"/><circle cx="67" cy="119" r="2" fill="#00ff88"/></g><g class="occ" style="--d:5s"><circle cx="100" cy="72" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="124" cy="114" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="76" cy="114" r="1.5" fill="#00ff88" opacity="0.7"/></g><g class="oc" style="--d:3.5s"><circle cx="100" cy="80" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="117" cy="110" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="83" cy="110" r="1.5" fill="#00ff88" opacity="0.5"/></g><circle cx="100" cy="100" r="6" fill="#00ff88" class="cg"/></svg></div><span class="ltm">RAG<br/>аналитика</span></div>
+        <div class="dcm"><div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><circle cx="100" cy="100" r="70" fill="none" stroke="rgba(0,255,136,0.1)" stroke-width="8"/><circle cx="100" cy="100" r="70" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" :stroke-dasharray="(phase==='countdown'?snakeProgress:fillProgress)/100*440+' 440'" transform="rotate(-90 100 100)" class="pr"/></svg><div class="dcc"><template v-if="phase==='countdown'"><span class="cn cnm">{{countdown}}</span><span class="cl">дней</span></template><span v-else class="pt ptm" :class="{vis:showPoehali}">ПОЕХАЛИ!</span></div></div><span class="ltm">R&D<br/>циклы</span></div>
+        <div class="dcm"><div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="100" x2="100" y2="58" stroke="#00ff88" stroke-width="2.5" class="lc0"/><line x1="100" y1="100" x2="136" y2="79" stroke="#00ff88" stroke-width="2.5" class="lc1"/><line x1="100" y1="100" x2="136" y2="121" stroke="#00ff88" stroke-width="2.5" class="lc2"/><line x1="100" y1="100" x2="100" y2="142" stroke="#00ff88" stroke-width="2.5" class="lc3"/><line x1="100" y1="100" x2="64" y2="121" stroke="#00ff88" stroke-width="2.5" class="lc4"/><line x1="100" y1="100" x2="64" y2="79" stroke="#00ff88" stroke-width="2.5" class="lc5"/><line x1="100" y1="58" x2="136" y2="79" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="136" y1="79" x2="136" y2="121" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="136" y1="121" x2="100" y2="142" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="100" y1="142" x2="64" y2="121" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="64" y1="121" x2="64" y2="79" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="64" y1="79" x2="100" y2="58" stroke="#00ff88" stroke-width="2" class="lb"/></svg><div v-for="i in 6" :key="'mm'+i" class="dm dmm" :class="'cp'+(i-1)"></div><div class="dkc dkcm"></div></div><span class="ltm">Стыковка<br/>модулей</span></div>
       </div>
     </div>
-    
     <div class="si">
       <svg width="180" height="50" viewBox="0 0 180 50" style="overflow:visible">
         <path d="M 20 25 Q 90 5 160 25" fill="none" stroke="rgba(0,255,136,0.15)" stroke-width="1.5"/>
@@ -157,24 +76,15 @@ const nX = [20, 90, 160]
         <line x1="20" y1="25" x2="160" y2="25" stroke="rgba(0,255,136,0.2)" stroke-width="1.5"/>
         <line x1="20" y1="25" x2="90" y2="25" stroke="#00ff88" :stroke-width="currentIndex<=1?1.5:0.5" :opacity="currentIndex<=1?0.7:0.2" class="sl"/>
         <line x1="90" y1="25" x2="160" y2="25" stroke="#00ff88" :stroke-width="currentIndex>=1?1.5:0.5" :opacity="currentIndex>=1?0.7:0.2" class="sl"/>
-        <defs>
-          <path id="ob0" d="M 35,25 A 15,15 0 1,1 34.99,25"/>
-          <path id="ob1" d="M 105,25 A 15,15 0 1,1 104.99,25"/>
-          <path id="ob2" d="M 175,25 A 15,15 0 1,1 174.99,25"/>
-        </defs>
-        <g v-for="(x,i) in nX" :key="'n'+i" @click="goToSlide(i)" style="cursor:pointer">
+        <g v-for="(x,i) in nX" :key="'node'+i" @click="goToSlide(i)" style="cursor:pointer">
           <circle v-if="currentIndex===i" :cx="x" cy="25" r="16" fill="none" stroke="#00ff88" stroke-width="1" class="pra"/>
-          <circle v-if="currentIndex===i" r="2" fill="#00ff88"><animateMotion dur="3s" repeatCount="indefinite"><mpath :href="'#ob'+i"/></animateMotion></circle>
+          <g v-if="currentIndex===i" :transform="'translate('+x+',25)'"><g class="orb"><circle cx="15" cy="0" r="2" fill="#00ff88"/></g></g>
           <circle :cx="x" cy="25" :r="currentIndex===i?10:6" :fill="currentIndex===i?'#00ff88':'black'" stroke="#00ff88" :stroke-width="currentIndex===i?2:1.5" :class="{na:currentIndex===i}" class="nc"/>
           <circle v-if="currentIndex===i" :cx="x" cy="25" r="4" fill="black"/>
           <circle v-else :cx="x" cy="25" r="2" fill="#00ff88" opacity="0.5"/>
         </g>
       </svg>
-      <div class="sh">
-        <svg width="12" height="8" viewBox="0 0 12 8"><path d="M 4 4 L 8 0.5 M 4 4 L 8 7.5" stroke="#00ff88" stroke-width="1.5" fill="none" opacity="0.5"/></svg>
-        <span>переключить</span>
-        <svg width="12" height="8" viewBox="0 0 12 8"><path d="M 8 4 L 4 0.5 M 8 4 L 4 7.5" stroke="#00ff88" stroke-width="1.5" fill="none" opacity="0.5"/></svg>
-      </div>
+      <div class="sh"><svg width="12" height="8" viewBox="0 0 12 8"><path d="M 4 4 L 8 0.5 M 4 4 L 8 7.5" stroke="#00ff88" stroke-width="1.5" fill="none" opacity="0.5"/></svg><span>переключить</span><svg width="12" height="8" viewBox="0 0 12 8"><path d="M 8 4 L 4 0.5 M 8 4 L 4 7.5" stroke="#00ff88" stroke-width="1.5" fill="none" opacity="0.5"/></svg></div>
     </div>
   </template>
 </div>
@@ -201,72 +111,43 @@ const nX = [20, 90, 160]
 @keyframes pran{0%,100%{opacity:.4}50%{opacity:.2}}
 @keyframes dsfa{0%{stroke-dashoffset:40}100%{stroke-dashoffset:0}}
 @keyframes dsba{0%{stroke-dashoffset:0}100%{stroke-dashoffset:40}}
+@keyframes orbAnim{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
-
-.ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:96px 32px 24px;overflow:visible}
-.tt{font-family:monospace;font-size:64px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 10px rgba(0,255,136,.5),0 0 20px rgba(0,255,136,.3),0 0 40px rgba(0,255,136,.15);margin-bottom:64px;margin-top:0}
-
-@media(max-width:768px){
-  .tt{font-size:28px;letter-spacing:2px;margin-bottom:56px}
-  .ip{padding:48px 16px 16px}
-}
-
+.ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:140px;padding-left:32px;padding-right:32px;padding-bottom:24px;min-height:100vh;overflow:visible}
+.tt{font-family:monospace;font-size:64px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(0,255,136,.4),0 0 16px rgba(0,255,136,.2);margin-bottom:64px;margin-top:0}
+@media(max-width:768px){.tt{font-size:28px;letter-spacing:2px;margin-bottom:56px}.ip{padding-top:80px;padding-left:16px;padding-right:16px;padding-bottom:16px}}
 .dk{display:flex;align-items:flex-start;justify-content:center;gap:64px}
 .dc{display:flex;flex-direction:column;align-items:center}
 .dcm{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:260px}
-
 .dl{position:relative;border-radius:50%;border:1px solid rgba(16,185,129,.3);background:#000;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 40px rgba(0,255,136,.15),inset 0 0 70px rgba(0,255,136,.08),0 0 30px rgba(0,255,136,.2),0 0 60px rgba(0,255,136,.1)}
-.d1{width:192px;height:192px}
-.d2{width:200px;height:200px}
+.d1{width:192px;height:192px}.d2{width:200px;height:200px}
 .db{position:absolute;inset:10px;border-radius:50%;border:2px solid rgba(16,185,129,.5);pointer-events:none}
 .ds{position:absolute;inset:0;width:100%;height:100%}
-
 .oc{transform-origin:center;animation:scw var(--d,10s) linear infinite}
 .occ{transform-origin:center;animation:sccw var(--d,10s) linear infinite}
 .pd{animation:dp 3s ease-in-out infinite}
 .cg{filter:drop-shadow(0 0 10px #00ff88)}
 .pr{filter:drop-shadow(0 0 6px #00ff88)}
-
 .dm{position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:50%;background:#00ff88;box-shadow:0 0 8px #00ff88}
 .dmm{width:16px;height:16px}
-.cp0{animation:c0 12s ease-out infinite}
-.cp1{animation:c1 12s ease-out infinite}
-.cp2{animation:c2 12s ease-out infinite}
-.cp3{animation:c3 12s ease-out infinite}
-.cp4{animation:c4 12s ease-out infinite}
-.cp5{animation:c5 12s ease-out infinite}
-
-.lc0{animation:l0 12s ease-out infinite}
-.lc1{animation:l1 12s ease-out infinite}
-.lc2{animation:l2 12s ease-out infinite}
-.lc3{animation:l3 12s ease-out infinite}
-.lc4{animation:l4 12s ease-out infinite}
-.lc5{animation:l5 12s ease-out infinite}
+.cp0{animation:c0 12s ease-out infinite}.cp1{animation:c1 12s ease-out infinite}.cp2{animation:c2 12s ease-out infinite}.cp3{animation:c3 12s ease-out infinite}.cp4{animation:c4 12s ease-out infinite}.cp5{animation:c5 12s ease-out infinite}
+.lc0{animation:l0 12s ease-out infinite}.lc1{animation:l1 12s ease-out infinite}.lc2{animation:l2 12s ease-out infinite}.lc3{animation:l3 12s ease-out infinite}.lc4{animation:l4 12s ease-out infinite}.lc5{animation:l5 12s ease-out infinite}
 .lb{animation:lba 12s ease-out infinite}
-
 .dkc{position:absolute;top:50%;left:50%;width:27px;height:27px;border-radius:50%;background:#000;border:3px solid #00ff88;box-shadow:0 0 12px #00ff88,inset 0 0 8px rgba(0,255,136,.3);animation:ca 12s ease-out infinite}
 .dkcm{width:28px;height:28px}
-
 .dcc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
-.cn{font-family:'Orbitron',monospace;font-weight:700;font-size:58px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);line-height:1}
+.cn{font-family:Orbitron,monospace;font-weight:700;font-size:58px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);line-height:1}
 .cnm{font-size:60px}
-.cl{font-family:'Orbitron',monospace;font-size:13px;color:#00ff88;opacity:.8;text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
-
-.pt{font-family:'Orbitron',monospace;font-weight:700;font-size:23px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);text-align:center;opacity:0;transition:opacity 1s ease-out}
-.pt.vis{opacity:1}
-.ptm{font-size:24px}
-
-.lt{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.5;margin-top:24px}
-.ltm{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.4;margin-top:16px}
-
+.cl{font-family:Orbitron,monospace;font-size:13px;color:#00ff88;opacity:.8;text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+.pt{font-family:Orbitron,monospace;font-weight:700;font-size:23px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);text-align:center;opacity:0;transition:opacity 1s ease-out}
+.pt.vis{opacity:1}.ptm{font-size:24px}
+.lt{font-family:Inter,sans-serif;font-size:14px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.5;margin-top:24px}
+.ltm{font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.4;margin-top:16px}
 .sc{position:relative;width:100%;height:300px;max-width:100vw;overflow:visible;touch-action:pan-y;user-select:none;cursor:grab}
 .sc:active{cursor:grabbing}
 .st{display:flex;align-items:flex-start;position:absolute}
-
 .si{margin-top:24px;display:flex;flex-direction:column;align-items:center}
 .dsf{animation:dsfa 2s linear infinite}
 .dsb{animation:dsba 2s linear infinite}
@@ -274,7 +155,7 @@ const nX = [20, 90, 160]
 .nc{transition:all .3s ease}
 .na{filter:drop-shadow(0 0 12px #00ff88)}
 .sl{transition:all .3s ease}
-
+.orb{animation:orbAnim 3s linear infinite}
 .sh{display:flex;align-items:center;gap:8px;margin-top:12px}
-.sh span{font-family:'Inter',sans-serif;font-size:9px;color:rgba(0,255,136,.5);letter-spacing:2px;text-transform:uppercase}
+.sh span{font-family:Inter,sans-serif;font-size:9px;color:rgba(0,255,136,.5);letter-spacing:2px;text-transform:uppercase}
 </style>
