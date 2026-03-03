@@ -3,25 +3,25 @@
     <div class="mr-hero-content">
       <div class="mr-hero-radar">
         <div class="mr-hero-radar-dot"></div>
-        <span class="mr-hero-radar-text">МОДУЛЬ РОСТА® | R&D ЗАПУСКИ</span>
+        <span class="mr-hero-radar-text">Цифровые модульные системы</span>
       </div>
       
       <h1 class="mr-hero-title">Вы знаете, что хотите.<br><strong>Мы делаем это в цифре.</strong></h1>
       
       <div class="mr-hero-terminal">
         <div class="mr-terminal-block mr-terminal-input">
-          «Хочу как у лидеров рынка»<span class="mr-typing-cursor"></span>
+          Хочу, чтобы ___<span class="mr-typing-cursor"></span>
         </div>
         <span class="mr-terminal-arrow">→</span>
         <div class="mr-terminal-block mr-terminal-output">
-          рабочий продукт через 60 дней
+          Продукт через 60 дней
         </div>
       </div>
       
       <p class="mr-hero-subtitle">
         <span class="mr-hero-tip" data-tooltip="Дизайн без инженерии мёртв. Мы проектируем логику и тягу, а не просто перекрашиваем пиксели.">Не рисуем картинки.</span>
         <span class="mr-hero-tip" data-tooltip="Слайды не запускают. Запуск запускает. Мы строим работающий продукт, а не рассказываем о нём.">Не делаем презентации.</span>
-        <span class="mr-hero-tip" data-tooltip="Сайт — частный случай. Мы строим систему: продукт + аналитика + управление.">Не делаем сайты.</span><br>
+        <span class="mr-hero-tip" data-tooltip="Мы строим модульную систему: стратегия + дизайн-система + продукт + управление. Запускаем всё, что нужно. И ни сайтом меньше.">Не пилим сайты.</span><br>
         <span class="mr-text-accent"><strong>Строим и запускаем цифровые продукты.</strong></span>
       </p>
       

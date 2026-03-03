@@ -22,10 +22,10 @@
       <!-- Footer -->
       <div class="mr-protocol-footer">
         <div class="mr-protocol-footer-header">
-          <span class="mr-protocol-summary-label">СТАРТОВЫЙ СЛОТ — ПОЛНЫЙ ЦИКЛ</span>
+          <span class="mr-protocol-summary-label">R&D ЦИКЛ</span>
           <span class="mr-protocol-footer-duration">60 ДНЕЙ</span>
         </div>
-        <p class="mr-protocol-summary-value">СТРАТЕГИЯ → ДИЗАЙН → КОД</p>
+        <p class="mr-protocol-summary-value">АНАЛИТИКА → СТРАТЕГИЯ → ДИЗАЙН → ПРОДУКТ</p>
         <div class="mr-protocol-package-grid">
           <div class="mr-package-card">
             <div class="mr-package-icon-glass">
@@ -52,7 +52,7 @@
             <div class="mr-package-title">Цифровой продукт</div>
           </div>
         </div>
-        <button class="mr-protocol-cta" @click="openProtocolModal('scout')">ПРОВЕРИТЬ ГОТОВНОСТЬ →</button>
+        <button class="mr-protocol-cta" @click="openProtocolModal('scout')">Этапы сборки</button>
       </div>
     </div>
 
@@ -83,7 +83,7 @@
                 <div v-if="currentStep === 0" class="mr-step-scout">
                   <div class="mr-modal-header"><span class="mr-protocol-modal-code">MOD-01</span><h2 class="mr-modal-title">Разведка</h2></div>
                   <div class="mr-details-meta">
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">СТРАТЕГИЯ И ПОЗИЦИОНИРОВАНИЕ</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">АНАЛИЗ РЫНКА РАДАРОМ И ЧЕКАП КОМПАНИИ</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">7–10д</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">150 000 ₽</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Бренд-платформа + GO/NO-GO</span></div>
@@ -99,9 +99,9 @@
 
                 <!-- Step 1: Checkup -->
                 <div v-if="currentStep === 1" class="mr-step-checkup">
-                  <div class="mr-modal-header"><span class="mr-protocol-modal-code">MOD-02</span><h2 class="mr-modal-title">Чертёж</h2></div>
+                  <div class="mr-modal-header"><span class="mr-protocol-modal-code">MOD-02</span><h2 class="mr-modal-title">Симуляция</h2></div>
                   <div class="mr-details-meta">
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">АЙДЕНТИКА И ИНТЕРФЕЙС</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">ВИЗУАЛИЗАЦИЯ И ПРОТОТИПИРОВАНИЕ</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">30д</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">350 000 ₽</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Дизайн-система + Прототип</span></div>
@@ -136,9 +136,9 @@
 
                 <!-- Step 2: Execute -->
                 <div v-if="currentStep === 2" class="mr-step-execute">
-                  <div class="mr-modal-header"><span class="mr-protocol-modal-code">MOD-03</span><h2 class="mr-modal-title">Сборка</h2></div>
+                  <div class="mr-modal-header"><span class="mr-protocol-modal-code">MOD-03</span><h2 class="mr-modal-title">Запуск</h2></div>
                   <div class="mr-details-meta">
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">ДИЗАЙН В КОДЕ</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">ДИЗАЙН И СТРАТЕГИЯ В КОДЕ</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">30д</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">по запросу</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Рабочий продукт</span></div>
@@ -201,9 +201,9 @@ const modalOpen = ref(false)
 const currentStep = ref(0)
 
 const protocolItems = [
-  { id: 'scout', code: 'MOD-01', title: 'Разведка', subtitle: 'СТРАТЕГИЯ И ПОЗИЦИОНИРОВАНИЕ', duration: '7–10д' },
-  { id: 'checkup', code: 'MOD-02', title: 'Чертёж', subtitle: 'АЙДЕНТИКА И ИНТЕРФЕЙС', duration: '30д' },
-  { id: 'execute', code: 'MOD-03', title: 'Сборка', subtitle: 'ДИЗАЙН В КОДЕ', duration: '30д' }
+  { id: 'scout', code: 'MOD-01', title: 'Разведка', subtitle: 'АНАЛИЗ РЫНКА РАДАРОМ И ЧЕКАП КОМПАНИИ', duration: '7–10д' },
+  { id: 'checkup', code: 'MOD-02', title: 'Симуляция', subtitle: 'ВИЗУАЛИЗАЦИЯ И ПРОТОТИПИРОВАНИЕ', duration: '30д' },
+  { id: 'execute', code: 'MOD-03', title: 'Запуск', subtitle: 'ДИЗАЙН И СТРАТЕГИЯ В КОДЕ', duration: '30д' }
 ]
 
 function openProtocolModal(modeId: string) {

@@ -1,9 +1,9 @@
 <template>
   <div class="mr-page">
     <MRHero />
+    <MRProtocol />
     <MRTeams />
     <MRRunscale404 />
-    <MRProtocol />
     <MRHistory />
   </div>
 </template>

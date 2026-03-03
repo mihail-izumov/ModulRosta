@@ -205,16 +205,18 @@
 }
 
 .mr-team-cta-red {
-  background: rgba(255, 85, 85, 0.1);
-  border: 1px solid #ff5555;
-  color: #ff5555;
+  background: rgba(255, 85, 85, 0.1) !important;
+  border: 1px solid #ff5555 !important;
+  color: #ff5555 !important;
+  text-decoration: none !important;
 }
 .mr-team-cta-red::before, .mr-team-cta-red::after { display: none !important; content: none !important; }
 
 .mr-team-cta-red:hover {
-  background: #ff5555;
-  color: #000;
+  background: #ff5555 !important;
+  color: #000 !important;
   transform: translateY(-2px);
   box-shadow: 0 10px 30px rgba(255, 85, 85, 0.3);
+  text-decoration: none !important;
 }
 </style>
