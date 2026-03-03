@@ -78,7 +78,7 @@
 
 <style scoped>
 .mr-teams-section { padding: 80px 24px; }
-.mr-teams-container { max-width: 1400px; margin: 0 auto; }
+.mr-teams-container { max-width: 1100px; margin: 0 auto; }
 .mr-section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgb(0, 255, 136); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 16px; }
 
 .mr-teams-subtitle {
@@ -89,10 +89,9 @@
   line-height: 1.4;
 }
 
-.mr-teams-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; align-items: start; }
+.mr-teams-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; align-items: start; }
 
-@media (max-width: 1200px) { .mr-teams-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 700px) { .mr-teams-grid { grid-template-columns: 1fr; } }
+@media (max-width: 800px) { .mr-teams-grid { grid-template-columns: 1fr; } }
 
 .mr-team-card {
   background: rgba(17, 17, 17, 0.6);

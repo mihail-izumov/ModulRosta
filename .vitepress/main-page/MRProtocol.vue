@@ -221,7 +221,7 @@ function goToStep(step: number) { currentStep.value = step }
 
 <style scoped>
 .mr-protocol-section { padding: 80px 24px; }
-.mr-protocol-container { max-width: 1000px; margin: 0 auto; }
+.mr-protocol-container { max-width: 1100px; margin: 0 auto; }
 .mr-section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgb(0, 255, 136); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 16px; }
 .mr-section-title { font-size: clamp(28px, 5vw, 42px); font-weight: 500; margin-bottom: 24px; color: #fff; }
 
