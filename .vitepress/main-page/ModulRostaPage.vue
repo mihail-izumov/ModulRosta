@@ -24,6 +24,7 @@ import MRHistory from './MRHistory.vue'
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   color: var(--vp-c-text-1);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 /* Import JetBrains Mono for monospace elements */

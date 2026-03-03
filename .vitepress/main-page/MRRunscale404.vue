@@ -5,7 +5,7 @@
     <div class="mr-rs404-container">
       <div class="mr-rs404-badge">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-        R&D-РЕЖИМ // RED TEAM
+        R&D-MODE // RED TEAM
       </div>
       <h2 class="mr-rs404-title">РАНСКЕЙЛ_404</h2>
       <p class="mr-rs404-subtitle">Жечь в продукте, а не получать отчёты.</p>
@@ -245,7 +245,13 @@
   .mr-rs404-stats { flex-direction: row; gap: 24px; }
   .mr-rs404-stat-divider { width: 1px; height: 60px; }
   .mr-rs404-stat-value { font-size: 36px; }
-  .mr-rs404-cta { width: 100%; padding: 16px 24px; }
+  .mr-rs404-cta { width: 100%; padding: 16px 24px; justify-content: center; }
   .mr-rs404-terminal { flex-direction: column; }
+  .mr-rs404-terminal-arrow { transform: rotate(90deg); animation: mr-rs404-arrow-bounce 1.5s ease-in-out infinite; }
+}
+
+@keyframes mr-rs404-arrow-bounce {
+  0%, 100% { transform: rotate(90deg) translateX(0); }
+  50% { transform: rotate(90deg) translateX(4px); }
 }
 </style>

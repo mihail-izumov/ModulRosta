@@ -2,7 +2,7 @@
   <section class="mr-hero-section">
     <div class="mr-hero-content">
       <div class="mr-hero-radar">
-        <div class="mr-hero-radar-dot"></div>
+        <svg class="mr-hero-hexagon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         <span class="mr-hero-radar-text">Цифровые модульные системы</span>
       </div>
       
@@ -19,9 +19,9 @@
       </div>
       
       <p class="mr-hero-subtitle">
-        <span class="mr-hero-tip" data-tooltip="Дизайн без инженерии мёртв. Мы проектируем логику и тягу, а не просто перекрашиваем пиксели.">Не рисуем картинки.</span>
-        <span class="mr-hero-tip" data-tooltip="Слайды не запускают. Запуск запускает. Мы строим работающий продукт, а не рассказываем о нём.">Не делаем презентации.</span>
-        <span class="mr-hero-tip" data-tooltip="Мы строим модульную систему: стратегия + дизайн-система + продукт + управление. Запускаем всё, что нужно. И ни сайтом меньше.">Не пилим сайты.</span><br>
+        <span class="mr-hero-tip" :class="{ active: activeTip === 1 }" @click="toggleTip(1)" data-tooltip="Дизайн без инженерии мёртв. Мы проектируем логику и тягу, а не просто перекрашиваем пиксели.">Не рисуем картинки.</span>
+        <span class="mr-hero-tip" :class="{ active: activeTip === 2 }" @click="toggleTip(2)" data-tooltip="Слайды не запускают. Запуск запускает. Мы строим работающий продукт, а не рассказываем о нём.">Не делаем презентации.</span>
+        <span class="mr-hero-tip" :class="{ active: activeTip === 3 }" @click="toggleTip(3)" data-tooltip="Мы строим модульную систему: стратегия + дизайн-система + продукт + управление. Запускаем всё, что нужно. И ни сайтом меньше.">Не пилим сайты.</span><br>
         <span class="mr-text-accent"><strong>Строим и запускаем цифровые продукты.</strong></span>
       </p>
       
@@ -31,6 +31,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
+const activeTip = ref<number | null>(null)
+
+function toggleTip(id: number) {
+  activeTip.value = activeTip.value === id ? null : id
+}
 </script>
 
 <style scoped>
@@ -67,14 +74,16 @@
 
 @keyframes mr-hero-radar-scan { 0% { left: -100%; } 100% { left: 100%; } }
 
-.mr-hero-radar-dot {
-  width: 8px; height: 8px; background: rgb(0, 255, 136); border-radius: 50%;
-  animation: mr-hero-dot-pulse 3s ease-in-out infinite;
+.mr-hero-hexagon {
+  color: rgb(0, 255, 136);
+  flex-shrink: 0;
+  animation: mr-hero-hexagon-spin 8s linear infinite;
+  filter: drop-shadow(0 0 6px rgb(0, 255, 136));
 }
 
-@keyframes mr-hero-dot-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 12px rgb(0, 255, 136); }
-  50% { opacity: 0.4; box-shadow: 0 0 4px rgb(0, 255, 136); }
+@keyframes mr-hero-hexagon-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .mr-hero-radar-text {
@@ -121,6 +130,7 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); pointer-events: none;
 }
 .mr-hero-tip:hover::after { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-12px); }
+.mr-hero-tip.active::after { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-12px); }
 
 .mr-text-accent { color: rgb(0, 255, 136); }
 
@@ -137,7 +147,14 @@
   .mr-hero-terminal { flex-direction: column; gap: 12px; }
   .mr-terminal-block { padding: 10px 16px; font-size: 13px; }
   .mr-terminal-arrow { transform: rotate(90deg); }
-  .mr-hero-tip::after { left: 0; transform: translateX(0) translateY(-8px); width: 220px; }
-  .mr-hero-tip:hover::after { transform: translateX(0) translateY(-12px); }
+  .mr-hero-tip { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .mr-hero-tip::after { 
+    left: 50%; transform: translateX(-50%) translateY(-8px); 
+    width: 260px; max-width: 80vw; 
+    font-size: 13px; padding: 14px 16px;
+  }
+  .mr-hero-tip:hover::after { opacity: 0; visibility: hidden; }
+  .mr-hero-tip.active { color: rgb(0, 255, 136); border-bottom-color: rgb(0, 255, 136); }
+  .mr-hero-tip.active::after { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-12px); }
 }
 </style>

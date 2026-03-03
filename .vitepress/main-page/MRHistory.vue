@@ -14,7 +14,7 @@
         <button :class="['mr-filter-btn', { active: activeFilter === 'grounded' }]" @click="filterStatus('grounded')"><span class="mr-dot gray"></span>Отложен <span class="mr-count">({{ countByStatus('Отложен') }})</span></button>
         <button :class="['mr-identity-btn', { active: identityMode }]" @click="toggleIdentityMode">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="1"/><path d="M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0"/></svg>
-          Брендинг МР
+          Бренды
         </button>
       </div>
       
@@ -265,7 +265,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 </script>
 
 <style scoped>
-.mr-history-section { padding: 80px 24px 130px; }
+.mr-history-section { padding: 80px 24px 130px; overflow-x: hidden; }
 .mr-history-container { max-width: 1100px; margin: 0 auto; }
 .mr-history-header { margin-bottom: 24px; }
 .mr-section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgb(0, 255, 136); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 16px; }
@@ -283,8 +283,8 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-dot.gray { background: #7d8590; }
 .mr-count { font-size: 10px; color: #555; }
 
-.mr-identity-btn { display: flex; align-items: center; gap: 10px; padding: 12px 24px; background: linear-gradient(135deg, rgba(255, 85, 85, 0.2), rgba(255, 85, 85, 0.05)) !important; border: 2px solid #ff5555 !important; border-radius: 8px; color: #ff5555 !important; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; margin-left: auto; text-decoration: none !important; }
-.mr-identity-btn:hover, .mr-identity-btn.active { background: #ff5555 !important; color: white !important; box-shadow: 0 0 30px rgba(255, 85, 85, 0.5); }
+.mr-identity-btn { display: flex; align-items: center; gap: 10px; padding: 12px 24px; background: #ff5555 !important; border: none !important; border-radius: 8px; color: #000 !important; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; margin-left: auto; text-decoration: none !important; box-shadow: 0 4px 15px rgba(255, 85, 85, 0.4); }
+.mr-identity-btn:hover, .mr-identity-btn.active { background: #fff !important; color: #ff5555 !important; box-shadow: 0 0 30px rgba(255, 85, 85, 0.6); }
 .mr-identity-btn::before, .mr-identity-btn::after { display: none !important; content: none !important; }
 .mr-identity-btn svg { flex-shrink: 0; }
 

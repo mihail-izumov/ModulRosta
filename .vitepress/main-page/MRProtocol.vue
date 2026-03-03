@@ -25,7 +25,7 @@
           <span class="mr-protocol-summary-label">R&D ЦИКЛ</span>
           <span class="mr-protocol-footer-duration">60 ДНЕЙ</span>
         </div>
-        <p class="mr-protocol-summary-value">АНАЛИТИКА → СТРАТЕГИЯ → ДИЗАЙН → ПРОДУКТ</p>
+        <p class="mr-protocol-summary-value">Всё включено.</p>
         <div class="mr-protocol-package-grid">
           <div class="mr-package-card">
             <div class="mr-package-icon-glass">
@@ -201,9 +201,9 @@ const modalOpen = ref(false)
 const currentStep = ref(0)
 
 const protocolItems = [
-  { id: 'scout', code: 'MOD-01', title: 'Разведка', subtitle: 'АНАЛИЗ РЫНКА РАДАРОМ И ЧЕКАП КОМПАНИИ', duration: '7–10д' },
-  { id: 'checkup', code: 'MOD-02', title: 'Симуляция', subtitle: 'ВИЗУАЛИЗАЦИЯ И ПРОТОТИПИРОВАНИЕ', duration: '30д' },
-  { id: 'execute', code: 'MOD-03', title: 'Запуск', subtitle: 'ДИЗАЙН И СТРАТЕГИЯ В КОДЕ', duration: '30д' }
+  { id: 'scout', code: 'MOD-01', title: 'Разведка', subtitle: 'АНАЛИЗ РЫНКА РАДАРОМ И ЧЕКАП КОМПАНИИ', duration: '20д' },
+  { id: 'checkup', code: 'MOD-02', title: 'Симуляция', subtitle: 'ВИЗУАЛИЗАЦИЯ И ПРОТОТИПИРОВАНИЕ', duration: '20д' },
+  { id: 'execute', code: 'MOD-03', title: 'Запуск', subtitle: 'ДИЗАЙН И СТРАТЕГИЯ В КОДЕ', duration: '20д' }
 ]
 
 function openProtocolModal(modeId: string) {
@@ -214,13 +214,27 @@ function openProtocolModal(modeId: string) {
 }
 
 function closeModal() { modalOpen.value = false; document.body.style.overflow = '' }
-function nextStep() { if (currentStep.value < 3) currentStep.value++ }
-function prevStep() { if (currentStep.value > 0) currentStep.value-- }
+function nextStep() { 
+  if (currentStep.value < 3) {
+    currentStep.value++
+    scrollToTop()
+  }
+}
+function prevStep() { 
+  if (currentStep.value > 0) {
+    currentStep.value--
+    scrollToTop()
+  }
+}
+function scrollToTop() {
+  const scrollEl = document.querySelector('.mr-protocol-modal-scroll')
+  if (scrollEl) scrollEl.scrollTop = 0
+}
 function goToStep(step: number) { currentStep.value = step }
 </script>
 
 <style scoped>
-.mr-protocol-section { padding: 80px 24px; }
+.mr-protocol-section { padding: 80px 24px; overflow-x: hidden; }
 .mr-protocol-container { max-width: 1100px; margin: 0 auto; }
 .mr-section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgb(0, 255, 136); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 16px; }
 .mr-section-title { font-size: clamp(28px, 5vw, 42px); font-weight: 500; margin-bottom: 24px; color: #fff; }
@@ -245,7 +259,7 @@ function goToStep(step: number) { currentStep.value = step }
 .mr-protocol-footer { display: flex; flex-direction: column; align-items: center; padding: 32px; background: rgba(0, 255, 136, 0.05); border: 2px solid rgb(0, 255, 136); border-radius: 12px; margin-top: 24px; gap: 24px; }
 .mr-protocol-footer-header { display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 16px; border-bottom: 1px solid rgba(0, 255, 136, 0.2); }
 .mr-protocol-summary-label { font-family: 'JetBrains Mono', monospace; font-size: 24px; color: rgb(0, 255, 136); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
-.mr-protocol-summary-value { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: rgb(0, 255, 136); font-weight: 600; text-align: center; margin: 0; }
+.mr-protocol-summary-value { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 28px; color: #fff; font-weight: 500; text-align: center; margin: 0; }
 .mr-protocol-footer-duration { font-family: 'JetBrains Mono', monospace; font-size: 24px; color: rgb(0, 255, 136); font-weight: 700; }
 
 .mr-protocol-package-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; width: 100%; }
@@ -274,6 +288,7 @@ function goToStep(step: number) { currentStep.value = step }
   .mr-protocol-package-grid { grid-template-columns: repeat(2, 1fr); }
   .mr-protocol-summary-label { font-size: 14px; }
   .mr-protocol-footer-duration { font-size: 18px; }
+  .mr-protocol-cta { width: 100%; justify-content: center; }
 }
 
 /* Modal Wrapper */
