@@ -6,6 +6,7 @@
     <MRTeams />
     <MRRunscale404 />
     <MRHistory />
+    <LaunchesChart />
   </div>
 </template>
 
@@ -16,6 +17,7 @@ import MRTeams from './MRTeams.vue'
 import MRRunscale404 from './MRRunscale404.vue'
 import MRProtocol from './MRProtocol.vue'
 import MRHistory from './MRHistory.vue'
+import LaunchesChart from './LaunchesChart.vue'
 </script>
 
 <style>
