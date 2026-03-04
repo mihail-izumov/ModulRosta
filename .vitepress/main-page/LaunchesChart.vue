@@ -1,5 +1,6 @@
 <template>
-  <div class="mr-chart-root">
+  <div class="mr-chart-section">
+    <div class="mr-chart-container">
     <!-- ── Header ── -->
     <div class="mr-header">
       <div class="mr-label">Статистика запусков</div>
@@ -168,6 +169,7 @@
         </div>
 
       </div>
+    </div>
     </div>
   </div>
 </template>
@@ -360,10 +362,14 @@ const infoBarStyle = computed(() => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 
-.mr-chart-root {
+.mr-chart-section {
+  padding: 80px 24px 130px;
+}
+.mr-chart-container {
+  max-width: 1100px;
+  margin: 0 auto;
   font-family: 'JetBrains Mono', monospace;
   background: transparent;
-  padding: 80px 24px 100px;
   color: #fff;
 }
 
