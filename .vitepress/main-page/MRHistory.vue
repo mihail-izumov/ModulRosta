@@ -152,12 +152,17 @@
           <div class="mr-modal-header"><span :class="['mr-modal-title', currentProjectStatusClass]">{{ currentProject?.title }}</span></div>
           <div :class="['mr-details-meta', currentProjectStatusClass]">
             <div class="mr-details-row"><span class="mr-details-label">Клиент</span><span class="mr-details-value accent">{{ currentProject?.subtitle }}</span></div>
+            <div v-if="currentProject?.specialization" class="mr-details-row"><span class="mr-details-label">Специализация</span><span class="mr-details-value">{{ currentProject?.specialization }}</span></div>
             <div class="mr-details-row"><span class="mr-details-label">Статус</span><span class="mr-details-value accent">{{ currentProject?.status }}</span></div>
             <div class="mr-details-row"><span class="mr-details-label">Дата запуска</span><span class="mr-details-value">{{ currentProject?.launchDate }}</span></div>
             <div class="mr-details-row"><span class="mr-details-label">Время сборки</span><span class="mr-details-value">{{ currentProject?.buildTime }}</span></div>
             <div class="mr-details-row"><span class="mr-details-label">Изображений</span><span class="mr-details-value">{{ currentProject?.images.length }}</span></div>
             <div v-if="currentProject?.videos.length" class="mr-details-row"><span class="mr-details-label">Видео</span><span class="mr-details-value">{{ currentProject?.videos.length }}</span></div>
             <div v-if="currentProject?.mrBranded" class="mr-details-row"><span class="mr-details-label">Айдентика</span><span class="mr-details-value accent">Модуль Роста®</span></div>
+          </div>
+          <div v-if="currentProject?.details" :class="['mr-details-description', currentProjectStatusClass]">
+            <div class="mr-details-description-label">Детали</div>
+            <p class="mr-details-description-text">{{ currentProject?.details }}</p>
           </div>
           <div :class="['mr-details-tags', currentProjectStatusClass]"><span v-for="tag in currentProject?.tags" :key="tag" class="mr-tag">{{ tag }}</span></div>
           <div :class="['mr-details-links', currentProjectStatusClass]">
@@ -519,6 +524,15 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 8px 16px; background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); color: rgb(0, 255, 136); border-radius: 6px; }
 .mr-details-tags.soon .mr-tag { border-color: rgba(88, 166, 255, 0.3); color: #58a6ff; background: rgba(88, 166, 255, 0.05); }
 .mr-details-tags.grounded .mr-tag { border-color: rgba(125, 133, 144, 0.3); color: #7d8590; background: rgba(125, 133, 144, 0.05); }
+
+/* Details Description */
+.mr-details-description { margin-bottom: 24px; padding: 16px; background: rgba(0, 255, 136, 0.03); border: 1px solid rgba(0, 255, 136, 0.1); border-radius: 8px; }
+.mr-details-description-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(0, 255, 136, 0.7); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.mr-details-description-text { font-size: 14px; line-height: 1.6; color: #ccc; margin: 0; }
+.mr-details-description.soon { background: rgba(88, 166, 255, 0.03); border-color: rgba(88, 166, 255, 0.1); }
+.mr-details-description.soon .mr-details-description-label { color: rgba(88, 166, 255, 0.7); }
+.mr-details-description.grounded { background: rgba(125, 133, 144, 0.03); border-color: rgba(125, 133, 144, 0.1); }
+.mr-details-description.grounded .mr-details-description-label { color: rgba(125, 133, 144, 0.7); }
 
 .mr-details-links { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid #222; }
 .mr-link { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; text-decoration: none !important; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; border-radius: 8px; transition: all 0.3s ease; }
