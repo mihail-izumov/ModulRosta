@@ -2,14 +2,8 @@
   <section class="mr-history-section">
     <div class="mr-history-container">
       <div class="mr-history-header">
-        <div class="mr-section-label">Launch History</div>
+        <div class="mr-section-label">2010 – 2026</div>
         <h2 class="mr-section-title">Журнал запусков</h2>
-      </div>
-
-      <!-- Average Build Time -->
-      <div class="mr-history-stats">
-        <span class="mr-stats-label">Время запуска, сред.</span>
-        <span class="mr-stats-value">{{ averageBuildTime }}дн</span>
       </div>
 
       <!-- Filters -->
@@ -20,7 +14,7 @@
         <button :class="['mr-filter-btn', { active: activeFilter === 'grounded' }]" @click="filterStatus('grounded')"><span class="mr-dot gray"></span>Отложен <span class="mr-count">({{ countByStatus('Отложен') }})</span></button>
         <button :class="['mr-identity-btn', { active: identityMode }]" @click="toggleIdentityMode">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="1"/><path d="M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0"/></svg>
-          Айдентика МР
+          Бренды
         </button>
       </div>
       
@@ -161,9 +155,9 @@
           </div>
           <div :class="['mr-details-tags', currentProjectStatusClass]"><span v-for="tag in currentProject?.tags" :key="tag" class="mr-tag">{{ tag }}</span></div>
           <div :class="['mr-details-links', currentProjectStatusClass]">
-            <a v-if="currentProject?.website" :href="currentProject.website" target="_blank" rel="noopener noreferrer" class="mr-link primary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>Открыть сайт</a>
-            <a v-if="currentProject?.caseUrl" :href="currentProject.caseUrl" target="_blank" rel="noopener noreferrer" class="mr-link secondary">Кейс</a>
-            <a v-if="currentProject?.behanceUrl" :href="currentProject.behanceUrl" target="_blank" rel="noopener noreferrer" class="mr-link secondary">Behance</a>
+            <a v-if="currentProject?.website" :href="currentProject.website" target="_blank" class="mr-link primary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>Открыть сайт</a>
+            <a v-if="currentProject?.caseUrl" :href="currentProject.caseUrl" target="_blank" class="mr-link secondary">Кейс</a>
+            <a v-if="currentProject?.behanceUrl" :href="currentProject.behanceUrl" target="_blank" class="mr-link secondary">Behance</a>
           </div>
         </div>
         <div class="mr-mobile-close"><button :class="['mr-mobile-close-btn', currentProjectStatusClass]" @click="closeDetailsModal">ЗАКРЫТЬ</button></div>
@@ -189,51 +183,32 @@ const videoEl = ref<HTMLVideoElement | null>(null)
 const expandedImageIndex = ref<number | null>(null)
 
 const allProjects = ref<Project[]>([
-  { id: 'proj1', title: 'Приложение-компаньон', subtitle: 'b00m.fun', website: 'https://b00m.fun/', images: [], videos: [], tags: ['ИИ', 'R&D', 'Бренд', 'CJM'], caseUrl: null, behanceUrl: null, launchDate: '18.03.2026', buildTime: '30дн', status: 'Скоро запуск', mrBranded: true },
-  { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', website: 'https://profitrooms.ru/', images: [], videos: [], tags: ['ИИ', 'Чекап', 'Стратегия', 'Бренд', 'Лояльность'], caseUrl: null, behanceUrl: null, launchDate: '02.03.2026', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj3', title: 'Генератор сториз', subtitle: 'Корж', website: 'https://korzhcoffee.ru/', images: [], videos: [], tags: ['Чекап'], caseUrl: null, behanceUrl: null, launchDate: '25.12.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj4', title: 'Калькулятор инвестора', subtitle: 'Корж', website: 'https://korzhcoffee.ru/', images: [], videos: [], tags: ['Чекап'], caseUrl: null, behanceUrl: null, launchDate: '15.12.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj5', title: 'Конструктор Сигнала', subtitle: 'Сигнал', website: 'https://cffx.ru/pro/reserve.html', images: [], videos: [], tags: ['Чекап'], caseUrl: null, behanceUrl: null, launchDate: '15.11.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj6', title: 'LTV Калькулятор', subtitle: 'Сигнал', website: 'https://cffx.ru/pro/ltvcalc.html', images: [], videos: [], tags: ['Чекап'], caseUrl: null, behanceUrl: null, launchDate: '10.11.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj7', title: 'Диалоги Сигнала', subtitle: 'Корж', website: 'https://korzhcoffee.ru/', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'Бренд', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '15.10.2025', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj8', title: 'ИИ-ассистент Анна', subtitle: 'Сигнал', website: 'https://cffx.ru/pro/anna.html', images: [], videos: [], tags: ['Чекап'], caseUrl: null, behanceUrl: null, launchDate: '26.09.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj9', title: 'Индекс Роста', subtitle: 'Сигнал – Кофейни', website: 'https://cffx.ru/invest/smr.html', images: [], videos: [], tags: ['Чекап'], caseUrl: null, behanceUrl: null, launchDate: '31.08.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj10', title: 'Тикет-система', subtitle: 'Сигнал', website: 'https://cffx.ru', images: [], videos: [], tags: ['Стратегия', 'R&D', 'Бренд'], caseUrl: null, behanceUrl: null, launchDate: '30.08.2025', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj11', title: 'Прогноз выручки', subtitle: 'Сигнал – Кофейни', website: 'https://cffx.ru/invest/calc.html', images: [], videos: [], tags: ['Чекап'], caseUrl: null, behanceUrl: null, launchDate: '06.08.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj12', title: 'Симулятор Самары', subtitle: 'Сигнал – Кофейни', website: 'https://cffx.ru/invest/sim.html', images: [], videos: [], tags: ['Чекап'], caseUrl: null, behanceUrl: null, launchDate: '30.07.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj13', title: 'БАД', subtitle: 'Bengal Boost', website: null, images: [], videos: [], tags: ['R&D', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '20.06.2025', buildTime: '30дн', status: 'Отложен', mrBranded: false },
-  { id: 'proj14', title: 'Игристая брассерия', subtitle: 'BRIMS', website: 'https://brims63.ru', images: [], videos: [], tags: ['R&D', 'Стандарты'], caseUrl: null, behanceUrl: null, launchDate: '28.02.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj15', title: 'Юридический профайл', subtitle: 'ЮрТраст', website: 'https://jurtrust.ru', images: [], videos: [], tags: ['R&D', 'Бренд'], caseUrl: null, behanceUrl: null, launchDate: '23.07.2024', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj16', title: 'Захват контактов', subtitle: 'Конкордия-Авто', website: 'https://konkordia-auto.ru', images: [], videos: [], tags: ['ИИ', 'Чекап', 'Стратегия', 'CJM', 'Лояльность', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '26.05.2024', buildTime: '30дн', status: 'Отложен', mrBranded: false },
-  { id: 'proj17', title: 'ИИ-трекер качества', subtitle: 'Конкордия-Авто', website: 'https://konkordia-auto.ru', images: [], videos: [], tags: ['ИИ', 'Чекап', 'Стратегия', 'Лояльность', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '06.05.2024', buildTime: '30дн', status: 'Отложен', mrBranded: false },
-  { id: 'proj18', title: 'Автопилот продаж', subtitle: 'Конкордия-Авто', website: 'https://konkordia-auto.ru', images: [], videos: [], tags: ['ИИ', 'Чекап', 'Стратегия', 'CJM', 'Лояльность', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '31.03.2024', buildTime: '30дн', status: 'Отложен', mrBranded: false },
-  { id: 'proj19', title: 'Конструктор туров', subtitle: 'Август Глэмпинг', website: 'https://augustglamping.ru', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Бренд', 'Лояльность'], caseUrl: null, behanceUrl: null, launchDate: '30.09.2023', buildTime: '30дн', status: 'Отложен', mrBranded: true },
-  { id: 'proj20', title: 'Архитектурное портфолио', subtitle: 'Tanurkova Arch Design', website: null, images: [], videos: [], tags: ['R&D', 'Бренд', 'Упаковка', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '09.09.2023', buildTime: '30дн', status: 'Отложен', mrBranded: true },
-  { id: 'proj21', title: 'Цифровое наследие', subtitle: 'Фонд Хворостовского', website: 'https://hvorostovsky.com', images: [], videos: [], tags: ['Стратегия', 'R&D', 'Бренд', 'Веб', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '27.06.2023', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj22', title: 'Бассейн мечты', subtitle: 'Блумкидс', website: null, images: [], videos: [], tags: ['ИИ', 'Чекап', 'Стратегия', 'R&D', 'Бренд', 'Упаковка', 'Веб', 'Анимация', 'Видео', 'Лояльность', 'Стандарты', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '10.12.2022', buildTime: '30дн', status: 'Отложен', mrBranded: true },
-  { id: 'proj23', title: 'Фитнес-экосистема', subtitle: 'FIZ Культура', website: 'https://fizkultura63.ru', images: [], videos: [], tags: ['ИИ', 'Анимация', 'Видео', 'Лояльность', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '12.05.2022', buildTime: '30дн', status: 'Отложен', mrBranded: false },
-  { id: 'proj24', title: 'Платформа события', subtitle: 'World Plastics Summit 2022', website: null, images: [], videos: [], tags: ['ИИ', 'R&D', 'Бренд', 'Упаковка', 'Веб', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '24.03.2022', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj25', title: 'Крафт-франшиза', subtitle: 'Ермолаевъ', website: 'https://ermolaev.beer/', images: [], videos: [], tags: ['ИИ', 'Лояльность', 'Стандарты', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '27.12.2021', buildTime: '30дн', status: 'Отложен', mrBranded: false },
-  { id: 'proj26', title: 'Образовательный профайл', subtitle: 'Modelex Education', website: 'https://modelex.mc', images: [], videos: [], tags: ['ИИ', 'R&D', 'Бренд', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2021', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj27', title: 'Культурный профайл', subtitle: 'GALA RUSSE', website: null, images: [], videos: [], tags: ['ИИ', 'R&D', 'Бренд', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '02.04.2021', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj28', title: 'Новый персонаж', subtitle: 'Желток Белток', website: null, images: [], videos: [], tags: ['R&D', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '18.11.2020', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj29', title: 'Сервисный профайл', subtitle: 'EASYBUSY', website: 'https://easybusy.fr/', images: [], videos: [], tags: ['ИИ', 'R&D', 'Бренд', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '21.09.2020', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj30', title: 'Маркетинговый контур', subtitle: 'SMSTRETCHING', website: 'https://smstretching.ru', images: [], videos: [], tags: ['ИИ', 'Стратегия', 'Бренд', 'Лояльность', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '02.03.2020', buildTime: '30дн', status: 'Отложен', mrBranded: true },
-  { id: 'proj31', title: 'Цифровая витрина', subtitle: 'WOODLED', website: 'https://woodled.ru', images: [], videos: [], tags: ['ИИ', 'Автоматизация', 'Бренд', 'Лояльность', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '16.02.2020', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj32', title: 'Новая стратегия', subtitle: 'SMSTRETCHING', website: 'https://smstretching.ru', images: [], videos: [], tags: ['ИИ', 'Лояльность'], caseUrl: null, behanceUrl: null, launchDate: '08.02.2020', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj33', title: 'Витрина бренда', subtitle: 'RAW BITES', website: null, images: [], videos: [], tags: ['R&D', 'Автоматизация', 'Бренд', 'Лояльность'], caseUrl: null, behanceUrl: null, launchDate: '30.11.2019', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj34', title: 'Конструктор праздника', subtitle: 'СУПЕРЛЕНД', website: 'https://superland.ru', images: [], videos: [], tags: ['ИИ', 'Чекап', 'Анимация', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '22.08.2018', buildTime: '30дн', status: 'Отложен', mrBranded: false },
-  { id: 'proj35', title: 'Фирменный магазин', subtitle: 'Dymicana', website: null, images: [], videos: [], tags: [], caseUrl: null, behanceUrl: null, launchDate: '18.11.2016', buildTime: '30дн', status: 'Запущен', mrBranded: false },
-  { id: 'proj36', title: 'Запуск на полку', subtitle: 'Чишминский', website: null, images: [], videos: [], tags: ['ИИ', 'R&D', 'Автоматизация', 'Бренд', 'Видео', 'Лояльность', 'Стандарты', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2016', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj37', title: 'Единая доставка', subtitle: 'Milimon', website: 'https://milimon.ru', images: [], videos: [], tags: ['ИИ', 'Стратегия', 'Бренд', 'CJM', 'Лояльность', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '01.04.2016', buildTime: '30дн', status: 'Запущен', mrBranded: true },
-  { id: 'proj38', title: 'Центр психологической помощи', subtitle: 'Школа Позитивной Психологии', website: null, images: [], videos: [], tags: ['ИИ', 'R&D', 'Стандарты'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2011', buildTime: '30дн', status: 'Отложен', mrBranded: false },
-  { id: 'proj39', title: 'Ресторан и Гриль', subtitle: 'Морошка', website: null, images: [], videos: [], tags: ['R&D', 'Автоматизация', 'Бренд', 'Стандарты'], caseUrl: null, behanceUrl: null, launchDate: '01.11.2010', buildTime: '30дн', status: 'Запущен', mrBranded: true }
+  { id: 'boom', title: 'Companion App', subtitle: 'b00m.fun', website: 'https://b00m.fun', images: ['Главная страница', 'Каталог аттракционов', 'Карточка аттракциона', 'Система лояльности'], videos: ['Демо приложения', 'Промо ролик'], tags: ['App', 'CRM', 'Payment', 'PWA'], caseUrl: 'https://b00m.fun', behanceUrl: null, launchDate: '01.04.2026', buildTime: '30дн', status: 'Скоро запуск', mrBranded: false },
+  { id: 'yurtrust', title: 'Айдентика и Веб', subtitle: 'ЮрТраст', website: '#', images: ['Главная', 'О компании', 'Услуги'], videos: [], tags: ['Айдентика', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2024', buildTime: '28дн', status: 'Запущен', mrBranded: true },
+  { id: 'hvorostovsky', title: 'Культурный портал', subtitle: 'Фонд Хворостовского', website: 'https://hvorostovsky.org', images: ['Главная', 'О фонде', 'Проекты', 'Артисты', 'Галерея', 'Партнёры', 'Контакты', 'Мобильная версия'], videos: ['Презентация фонда', 'Документальный фильм', 'Концертное видео'], tags: ['Айдентика', 'Веб', 'БД', 'Видео'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '15.11.2023', buildTime: '45дн', status: 'Запущен', mrBranded: true },
+  { id: 'tanurkova', title: 'Архитектурное бюро', subtitle: 'Tanurkova Arch Design', website: 'https://tanurkova.com', images: ['Портфолио', 'Проект Villa', 'Проект Office', 'Проект Apartment', 'О студии', 'Контакты'], videos: ['Видео тур'], tags: ['Айдентика', 'Веб', 'Видео'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '10.09.2023', buildTime: '30дн', status: 'Отложен', mrBranded: true },
+  { id: 'august', title: 'Театральная студия', subtitle: 'Август', website: 'https://august-theater.ru', images: ['Главная', 'Репертуар', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '22.07.2023', buildTime: '21дн', status: 'Отложен', mrBranded: true },
+  { id: 'fizkultura', title: 'Стратегия', subtitle: 'FIZКультура', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2022', buildTime: '14дн', status: 'Отложен', mrBranded: false },
+  { id: 'bloomkids', title: 'Детский магазин', subtitle: 'Блумкидс', website: 'https://bloomkids.ru', images: ['Главная', 'Каталог', 'О нас', 'Доставка', 'Карточка товара', 'Корзина', 'Личный кабинет', 'Блог', 'Акции', 'Контакты'], videos: ['Презентация бренда', 'Рекламный ролик'], tags: ['Айдентика', 'Веб', 'Видео', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '20.01.2022', buildTime: '35дн', status: 'Запущен', mrBranded: true },
+  { id: 'ermolaev', title: 'Стратегия', subtitle: 'Ермолаевъ', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.03.2022', buildTime: '14дн', status: 'Отложен', mrBranded: false },
+  { id: 'wps', title: 'Международный саммит', subtitle: 'World Plastics Summit', website: 'https://worldplastics.org', images: ['Главная', 'Спикеры', 'Программа', 'Партнёры', 'Регистрация', 'Галерея 2022', 'Пресс-центр', 'Архив', 'О саммите', 'Контакты', 'FAQ', 'Мобильная версия'], videos: ['Промо ролик', 'Aftermovie 2022', 'Интервью спикеров', 'Highlights'], tags: ['Айдентика', 'Веб', 'Видео', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '15.05.2022', buildTime: '28дн', status: 'Запущен', mrBranded: true },
+  { id: 'modelex', title: 'Школа моделинга', subtitle: 'Modelex Education', website: 'https://modelex.pro', images: ['Главная', 'Курсы', 'О школе', 'Преподаватели', 'Расписание', 'Отзывы', 'Контакты'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '05.08.2021', buildTime: '30дн', status: 'Запущен', mrBranded: true },
+  { id: 'smstretching1', title: 'Автоматизация маркетинга', subtitle: 'SMSTRETCHING', website: null, images: ['Dashboard'], videos: [], tags: ['Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.04.2021', buildTime: '21дн', status: 'Отложен', mrBranded: false },
+  { id: 'smstretching2', title: 'Стратегия', subtitle: 'SMSTRETCHING', website: null, images: ['Концепт'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.02.2021', buildTime: '14дн', status: 'Отложен', mrBranded: false },
+  { id: 'gala', title: 'Благотворительный бал', subtitle: 'GALA RUSSE', website: 'https://galarusse.com', images: ['Главная', 'О мероприятии', 'Программа', 'Партнёры', 'Галерея'], videos: [], tags: ['Айдентика', 'Веб', 'Видео'], caseUrl: null, behanceUrl: null, launchDate: '18.10.2021', buildTime: '42дн', status: 'Запущен', mrBranded: false },
+  { id: 'easybusy', title: 'Бизнес-сервис', subtitle: 'EASYBUSY', website: 'https://easybusy.ru', images: ['Главная', 'Сервисы', 'Тарифы', 'О компании', 'Кейсы', 'Контакты'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: '#', behanceUrl: 'https://behance.net/orxaos', launchDate: '01.06.2020', buildTime: '28дн', status: 'Запущен', mrBranded: true },
+  { id: 'rawbites', title: 'Айдентика и Веб', subtitle: 'RAW BITES', website: '#', images: ['Главная', 'Продукция', 'О бренде'], videos: [], tags: ['Айдентика', 'Web', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.03.2020', buildTime: '28дн', status: 'Запущен', mrBranded: true },
+  { id: 'woodled', title: 'Дизайнерские светильники', subtitle: 'WOODLED', website: 'https://woodled.ru', images: ['Главная', 'Каталог', 'О бренде', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '28.02.2020', buildTime: '35дн', status: 'Запущен', mrBranded: false },
+  { id: 'concordia', title: 'Автоматизация продаж', subtitle: 'Конкордия-Авто', website: null, images: ['Dashboard', 'CRM'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2020', buildTime: '21дн', status: 'Запущен', mrBranded: false },
+  { id: 'superland', title: 'Парк развлечений', subtitle: 'SUPERLAND', website: null, images: ['Концепт главной', 'Wireframes'], videos: [], tags: ['Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '15.11.2018', buildTime: '14дн', status: 'Отложен', mrBranded: false },
+  { id: 'chishminsky', title: 'Айдентика и Веб', subtitle: 'Чишминский', website: '#', images: ['Главная', 'Продукция', 'О компании'], videos: [], tags: ['Айдентика', 'Веб', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2018', buildTime: '35дн', status: 'Запущен', mrBranded: true },
+  { id: 'milimon', title: 'Производитель мебели', subtitle: 'Milimon', website: 'https://milimon.ru', images: ['Главная', 'Услуги', 'Контакты'], videos: [], tags: ['Стратегия', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2016', buildTime: '21дн', status: 'Запущен', mrBranded: false },
+  { id: 'mindal', title: 'Айдентика и Стратегия', subtitle: 'Миндаль', website: null, images: ['Концепт'], videos: [], tags: ['Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2014', buildTime: '21дн', status: 'Отложен', mrBranded: true },
+  { id: 'pozpsy', title: 'Концепция и Айдентика', subtitle: 'Школа Позитивной Психологии', website: null, images: ['Концепт'], videos: [], tags: ['Концепция', 'Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2011', buildTime: '28дн', status: 'Отложен', mrBranded: true },
+  { id: 'moroshka', title: 'Концепция и Айдентика', subtitle: 'Морошка', website: null, images: ['Концепт'], videos: [], tags: ['Концепция', 'Айдентика', 'Стратегия'], caseUrl: null, behanceUrl: null, launchDate: '01.01.2010', buildTime: '28дн', status: 'Запущен', mrBranded: true },
+  { id: 'smonline1', title: 'ИИ для контактов клиентов', subtitle: 'SM Online', website: null, images: ['Dashboard'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.05.2021', buildTime: '14дн', status: 'Отложен', mrBranded: false },
+  { id: 'smonline2', title: 'ИИ-ассистенты для продаж', subtitle: 'SM Online', website: null, images: ['Dashboard'], videos: [], tags: ['Продажи', 'Автоматизация'], caseUrl: null, behanceUrl: null, launchDate: '01.06.2021', buildTime: '14дн', status: 'Отложен', mrBranded: false }
 ])
-
-const averageBuildTime = computed(() => {
-  const times = allProjects.value.map(p => parseInt(p.buildTime) || 30)
-  return Math.round(times.reduce((a, b) => a + b, 0) / times.length)
-})
 
 const currentProject = computed(() => currentProjectId.value ? allProjects.value.find(p => p.id === currentProjectId.value) : null)
 const currentProjectStatusClass = computed(() => currentProject.value ? getStatusClass(currentProject.value.status) : '')
@@ -254,7 +229,7 @@ function getUptime(p: Project): string {
     const m = p.launchDate.match(/(\d{2})\.(\d{2})\.(\d{4})/)
     if (m) {
       const launch = new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]))
-      const now = new Date(2026, 2, 4)
+      const now = new Date(2026, 2, 2)
       const diff = Math.max(0, Math.floor((launch.getTime() - now.getTime()) / 1000))
       const d = Math.floor(diff / 86400), h = Math.floor((diff % 86400) / 3600), min = Math.floor((diff % 3600) / 60)
       return `${d}дн:${h}ч:${min}мин`
@@ -265,7 +240,7 @@ function getUptime(p: Project): string {
   const m = p.launchDate.match(/(\d{2})\.(\d{2})\.(\d{4})/)
   if (m) {
     const launch = new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]))
-    const now = new Date(2026, 2, 4)
+    const now = new Date(2026, 2, 2)
     const months = (now.getFullYear() - launch.getFullYear()) * 12 + (now.getMonth() - launch.getMonth())
     const y = Math.floor(months / 12), mo = months % 12
     const yWord = y === 1 ? 'год' : (y >= 2 && y <= 4) ? 'года' : 'лет'
@@ -290,16 +265,11 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 </script>
 
 <style scoped>
-.mr-history-section { padding: 80px 24px 130px; }
+.mr-history-section { padding: 80px 24px 130px; overflow-x: hidden; }
 .mr-history-container { max-width: 1100px; margin: 0 auto; }
 .mr-history-header { margin-bottom: 24px; }
 .mr-section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgb(0, 255, 136); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 16px; }
 .mr-section-title { font-size: clamp(28px, 5vw, 42px); font-weight: 500; color: #fff; }
-
-/* Average Build Time Stats */
-.mr-history-stats { display: inline-flex; align-items: center; gap: 12px; background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 6px; padding: 10px 16px; margin-bottom: 24px; font-family: 'JetBrains Mono', monospace; }
-.mr-stats-label { font-size: 11px; color: rgba(0, 255, 136, 0.7); text-transform: uppercase; letter-spacing: 1px; }
-.mr-stats-value { font-size: 18px; color: rgb(0, 255, 136); font-weight: 600; }
 
 /* Filters */
 .mr-history-filters { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
@@ -313,8 +283,8 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-dot.gray { background: #7d8590; }
 .mr-count { font-size: 10px; color: #555; }
 
-.mr-identity-btn { display: flex; align-items: center; gap: 10px; padding: 12px 24px; background: linear-gradient(135deg, rgba(255, 85, 85, 0.2), rgba(255, 85, 85, 0.05)) !important; border: 2px solid #ff5555 !important; border-radius: 8px; color: #ff5555 !important; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; margin-left: auto; text-decoration: none !important; }
-.mr-identity-btn:hover, .mr-identity-btn.active { background: #ff5555 !important; color: white !important; box-shadow: 0 0 30px rgba(255, 85, 85, 0.5); }
+.mr-identity-btn { display: flex; align-items: center; gap: 10px; padding: 12px 24px; background: #ff5555 !important; border: none !important; border-radius: 8px; color: #000 !important; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; margin-left: auto; text-decoration: none !important; box-shadow: 0 4px 15px rgba(255, 85, 85, 0.4); }
+.mr-identity-btn:hover, .mr-identity-btn.active { background: #fff !important; color: #ff5555 !important; box-shadow: 0 0 30px rgba(255, 85, 85, 0.6); }
 .mr-identity-btn::before, .mr-identity-btn::after { display: none !important; content: none !important; }
 .mr-identity-btn svg { flex-shrink: 0; }
 
@@ -323,9 +293,10 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
   .mr-identity-btn { margin-left: 0; width: 100%; justify-content: center; }
 }
 
-/* Table */
+/* Table - правка #14: фон ярче */
 .mr-history-table { background: rgba(26, 26, 26, 0.8); border: 1px solid #222; border-radius: 8px; overflow: hidden; }
-.mr-history-row { display: grid; grid-template-columns: 90px 1fr auto 170px; align-items: center; padding: 16px 32px; border-bottom: 1px solid #222; transition: all 0.3s ease; gap: 20px; cursor: pointer; }
+/* Правка #9: одинаковые отступы слева и справа */
+.mr-history-row { display: grid; grid-template-columns: 90px 1fr auto 160px; align-items: center; padding: 16px 32px; border-bottom: 1px solid #222; transition: all 0.3s ease; gap: 20px; cursor: pointer; }
 .mr-history-row:hover { background: rgba(0, 255, 136, 0.02); }
 .mr-history-row.hidden { display: none; }
 
@@ -385,14 +356,14 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-media-btn svg { width: 16px; height: 16px; color: #ff5555; }
 .mr-media-count { position: absolute; top: -4px; right: -4px; min-width: 14px; height: 14px; padding: 0 3px; background: #ff5555; color: white; border-radius: 7px; font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
-/* Build block */
-.mr-history-build { display: flex; align-items: center; flex-shrink: 0; }
-.mr-build-block { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: transparent !important; border: 2px solid rgb(0, 255, 136) !important; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; text-decoration: none !important; position: relative; }
+/* Build block - правка #10, #11, #12 */
+.mr-history-build { display: flex; align-items: center; flex-shrink: 0; min-width: 140px; }
+.mr-build-block { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: transparent !important; border: 2px solid rgb(0, 255, 136) !important; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; text-decoration: none !important; position: relative; min-width: 140px; }
 .mr-build-block::before, .mr-build-block::after { display: none !important; content: none !important; }
-.mr-build-block svg { color: rgb(0, 255, 136); flex-shrink: 0; }
-.mr-build-info { display: flex; flex-direction: column; gap: 1px; transition: opacity 0.2s ease; }
-.mr-build-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #555; text-transform: uppercase; }
-.mr-build-time { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #fff; font-weight: 700; }
+.mr-build-block svg { color: rgb(0, 255, 136); flex-shrink: 0; width: 16px; height: 16px; }
+.mr-build-info { display: flex; flex-direction: column; gap: 0; transition: opacity 0.2s ease; }
+.mr-build-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #555; text-transform: uppercase; line-height: 1.2; }
+.mr-build-time { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #fff; font-weight: 700; line-height: 1.2; }
 .mr-build-details { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; color: rgb(0, 255, 136); opacity: 0; transition: opacity 0.2s ease; }
 .mr-build-block:hover .mr-build-info { opacity: 0; }
 .mr-build-block:hover .mr-build-details { opacity: 1; }
@@ -462,11 +433,11 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
   .mr-mobile-close-btn:hover { background: #ff5555 !important; color: #000 !important; }
   .mr-mobile-close-btn::before, .mr-mobile-close-btn::after { display: none !important; content: none !important; }
   .mr-mobile-close-btn.soon { border-color: #58a6ff !important; color: #58a6ff !important; }
-  .mr-mobile-close-btn.soon:hover { background: #58a6ff !important; }
+  .mr-mobile-close-btn.soon:hover { background: #58a6ff !important; color: #000 !important; }
   .mr-mobile-close-btn.orbit { border-color: rgb(0, 255, 136) !important; color: rgb(0, 255, 136) !important; }
-  .mr-mobile-close-btn.orbit:hover { background: rgb(0, 255, 136) !important; }
+  .mr-mobile-close-btn.orbit:hover { background: rgb(0, 255, 136) !important; color: #000 !important; }
   .mr-mobile-close-btn.grounded { border-color: #7d8590 !important; color: #7d8590 !important; }
-  .mr-mobile-close-btn.grounded:hover { background: #7d8590 !important; }
+  .mr-mobile-close-btn.grounded:hover { background: #7d8590 !important; color: #000 !important; }
 }
 
 /* Gallery */
@@ -504,7 +475,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-video-el { width: 100%; height: 100%; object-fit: contain; }
 .mr-video-title { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #888; text-align: center; margin-top: 16px; }
 
-/* Details */
+/* Details - правка #13: цвет кнопок по статусу */
 .mr-details-meta { margin-bottom: 24px; }
 .mr-details-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 14px; }
 .mr-details-row:last-child { border-bottom: none; }
@@ -525,11 +496,15 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-link.primary { background: rgb(0, 255, 136) !important; border: 1px solid rgb(0, 255, 136) !important; color: #000 !important; }
 .mr-link.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4); }
 .mr-link.secondary { background: transparent !important; border: 1px solid rgb(0, 255, 136) !important; color: rgb(0, 255, 136) !important; }
-.mr-link.secondary:hover { background: rgba(0, 255, 136, 0.1) !important; }
+.mr-link.secondary:hover { background: rgba(0, 255, 136, 0.1) !important; transform: translateY(-2px); }
+/* Soon status */
 .mr-details-links.soon .mr-link.primary { background: #58a6ff !important; border-color: #58a6ff !important; }
+.mr-details-links.soon .mr-link.primary:hover { box-shadow: 0 10px 30px rgba(88, 166, 255, 0.4); }
 .mr-details-links.soon .mr-link.secondary { border-color: #58a6ff !important; color: #58a6ff !important; }
 .mr-details-links.soon .mr-link.secondary:hover { background: rgba(88, 166, 255, 0.1) !important; }
+/* Grounded status */
 .mr-details-links.grounded .mr-link.primary { background: #7d8590 !important; border-color: #7d8590 !important; }
+.mr-details-links.grounded .mr-link.primary:hover { box-shadow: 0 10px 30px rgba(125, 133, 144, 0.4); }
 .mr-details-links.grounded .mr-link.secondary { border-color: #7d8590 !important; color: #7d8590 !important; }
 .mr-details-links.grounded .mr-link.secondary:hover { background: rgba(125, 133, 144, 0.1) !important; }
 </style>
