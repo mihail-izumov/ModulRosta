@@ -11,6 +11,7 @@ const currentIndex = ref(0)
 const isDragging = ref(false)
 const startX = ref(0)
 const translateX = ref(0)
+const activeModal = ref(null)
 
 const dialWidth = 260
 const gap = 30
@@ -18,6 +19,9 @@ const totalWidth = dialWidth + gap
 let interval = null
 
 const checkMobile = () => { isMobile.value = window.innerWidth < 768 }
+
+const openModal = (id) => { activeModal.value = id; document.body.style.overflow = 'hidden' }
+const closeModal = () => { activeModal.value = null; document.body.style.overflow = '' }
 
 onMounted(() => {
   checkMobile()
@@ -53,18 +57,43 @@ const nX = [20, 90, 160]
 
 <template>
 <div class="ip">
-  <h1 class="tt">R&D запуски</h1>
+  <h1 class="tt">Цифровое Превосходство<br/>для Бизнеса</h1>
+  <p class="tg">Один Чекап. Первый Запуск.</p>
   <div v-if="!isMobile" class="dk">
-    <div class="dc"><div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><g class="oc" style="--d:18s"><circle cx="96" cy="21" r="4" fill="#00ff88" class="pd"/><circle cx="161" cy="133" r="4" fill="#00ff88" class="pd"/><circle cx="31" cy="133" r="4" fill="#00ff88" class="pd"/></g><g class="occ" style="--d:15s"><circle cx="96" cy="31" r="3.5" fill="#00ff88"/><circle cx="152" cy="128" r="3.5" fill="#00ff88"/><circle cx="40" cy="128" r="3.5" fill="#00ff88"/></g><g class="oc" style="--d:12s"><circle cx="96" cy="40" r="3" fill="#00ff88"/><circle cx="144" cy="124" r="3" fill="#00ff88"/><circle cx="48" cy="124" r="3" fill="#00ff88"/></g><g class="occ" style="--d:9s"><circle cx="96" cy="50" r="2.5" fill="#00ff88"/><circle cx="136" cy="119" r="2.5" fill="#00ff88"/><circle cx="56" cy="119" r="2.5" fill="#00ff88"/></g><g class="oc" style="--d:7s"><circle cx="96" cy="58" r="2" fill="#00ff88"/><circle cx="129" cy="115" r="2" fill="#00ff88"/><circle cx="63" cy="115" r="2" fill="#00ff88"/></g><g class="occ" style="--d:5s"><circle cx="96" cy="66" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="122" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="70" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/></g><g class="oc" style="--d:3.5s"><circle cx="96" cy="74" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="115" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="77" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/></g><circle cx="96" cy="96" r="6" fill="#00ff88" class="cg"/></svg></div><span class="lt">RAG<br/>аналитика</span></div>
-    <div class="dc"><div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><circle cx="96" cy="96" r="63" fill="none" stroke="rgba(0,255,136,0.1)" stroke-width="8"/><circle cx="96" cy="96" r="63" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" :stroke-dasharray="rndDash" transform="rotate(-90 96 96)" class="pr"/></svg><div class="dcc"><template v-if="phase==='countdown'"><span class="cn">{{countdown}}</span><span class="cl">дней</span></template><span v-else class="pt" :class="{vis:showPoehali}">ПОЕХАЛИ!</span></div></div><span class="lt">R&D<br/>циклы</span></div>
-    <div class="dc"><div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line v-for="(p,i) in dP" :key="'c'+i" x1="96" y1="96" :x2="p.x" :y2="p.y" stroke="#00ff88" stroke-width="2.5" :class="'lc'+i"/><line v-for="(p,i) in dP" :key="'b'+i" :x1="p.x" :y1="p.y" :x2="dP[(i+1)%6].x" :y2="dP[(i+1)%6].y" stroke="#00ff88" stroke-width="2" class="lb"/></svg><div v-for="i in 6" :key="'m'+i" class="dm" :class="'cp'+(i-1)"></div><div class="dkc"></div></div><span class="lt">Стыковка<br/>модулей</span></div>
+    <div class="dc">
+      <div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><g class="oc" style="--d:18s"><circle cx="96" cy="21" r="4" fill="#00ff88" class="pd"/><circle cx="161" cy="133" r="4" fill="#00ff88" class="pd"/><circle cx="31" cy="133" r="4" fill="#00ff88" class="pd"/></g><g class="occ" style="--d:15s"><circle cx="96" cy="31" r="3.5" fill="#00ff88"/><circle cx="152" cy="128" r="3.5" fill="#00ff88"/><circle cx="40" cy="128" r="3.5" fill="#00ff88"/></g><g class="oc" style="--d:12s"><circle cx="96" cy="40" r="3" fill="#00ff88"/><circle cx="144" cy="124" r="3" fill="#00ff88"/><circle cx="48" cy="124" r="3" fill="#00ff88"/></g><g class="occ" style="--d:9s"><circle cx="96" cy="50" r="2.5" fill="#00ff88"/><circle cx="136" cy="119" r="2.5" fill="#00ff88"/><circle cx="56" cy="119" r="2.5" fill="#00ff88"/></g><g class="oc" style="--d:7s"><circle cx="96" cy="58" r="2" fill="#00ff88"/><circle cx="129" cy="115" r="2" fill="#00ff88"/><circle cx="63" cy="115" r="2" fill="#00ff88"/></g><g class="occ" style="--d:5s"><circle cx="96" cy="66" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="122" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="70" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/></g><g class="oc" style="--d:3.5s"><circle cx="96" cy="74" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="115" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="77" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/></g><circle cx="96" cy="96" r="6" fill="#00ff88" class="cg"/></svg></div>
+      <span class="lt">Видим</span>
+      <button class="mb" @click.stop="openModal('vidim')">Больше</button>
+    </div>
+    <div class="dc">
+      <div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><circle cx="96" cy="96" r="63" fill="none" stroke="rgba(0,255,136,0.1)" stroke-width="8"/><circle cx="96" cy="96" r="63" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" :stroke-dasharray="rndDash" transform="rotate(-90 96 96)" class="pr"/></svg><div class="dcc"><template v-if="phase==='countdown'"><span class="cn">{{countdown}}</span><span class="cl">дней</span></template><span v-else class="pt" :class="{vis:showPoehali}">ПОЕХАЛИ!</span></div></div>
+      <span class="lt">Строим</span>
+      <button class="mb" @click.stop="openModal('stroim')">Больше</button>
+    </div>
+    <div class="dc">
+      <div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line v-for="(p,i) in dP" :key="'c'+i" x1="96" y1="96" :x2="p.x" :y2="p.y" stroke="#00ff88" stroke-width="2.5" :class="'lc'+i"/><line v-for="(p,i) in dP" :key="'b'+i" :x1="p.x" :y1="p.y" :x2="dP[(i+1)%6].x" :y2="dP[(i+1)%6].y" stroke="#00ff88" stroke-width="2" class="lb"/></svg><div v-for="i in 6" :key="'m'+i" class="dm" :class="'cp'+(i-1)"></div><div class="dkc"></div></div>
+      <span class="lt">Расширяем</span>
+      <button class="mb" @click.stop="openModal('rasshiryaem')">Больше</button>
+    </div>
   </div>
   <template v-if="isMobile">
     <div class="sc" @mousedown="handleStart($event.clientX)" @mousemove="handleMove($event.clientX)" @mouseup="handleEnd" @mouseleave="handleEnd" @touchstart="handleStart($event.touches[0].clientX)" @touchmove="handleMove($event.touches[0].clientX)" @touchend="handleEnd">
       <div class="st" :style="sliderStyle">
-        <div class="dcm"><div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><g class="oc" style="--d:18s"><circle cx="100" cy="22" r="4" fill="#00ff88" class="pd"/><circle cx="168" cy="139" r="4" fill="#00ff88" class="pd"/><circle cx="32" cy="139" r="4" fill="#00ff88" class="pd"/></g><g class="occ" style="--d:15s"><circle cx="100" cy="32" r="3.5" fill="#00ff88"/><circle cx="159" cy="134" r="3.5" fill="#00ff88"/><circle cx="41" cy="134" r="3.5" fill="#00ff88"/></g><g class="oc" style="--d:12s"><circle cx="100" cy="42" r="3" fill="#00ff88"/><circle cx="150" cy="129" r="3" fill="#00ff88"/><circle cx="50" cy="129" r="3" fill="#00ff88"/></g><g class="occ" style="--d:9s"><circle cx="100" cy="52" r="2.5" fill="#00ff88"/><circle cx="142" cy="124" r="2.5" fill="#00ff88"/><circle cx="58" cy="124" r="2.5" fill="#00ff88"/></g><g class="oc" style="--d:7s"><circle cx="100" cy="62" r="2" fill="#00ff88"/><circle cx="133" cy="119" r="2" fill="#00ff88"/><circle cx="67" cy="119" r="2" fill="#00ff88"/></g><g class="occ" style="--d:5s"><circle cx="100" cy="72" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="124" cy="114" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="76" cy="114" r="1.5" fill="#00ff88" opacity="0.7"/></g><g class="oc" style="--d:3.5s"><circle cx="100" cy="80" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="117" cy="110" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="83" cy="110" r="1.5" fill="#00ff88" opacity="0.5"/></g><circle cx="100" cy="100" r="6" fill="#00ff88" class="cg"/></svg></div><span class="ltm">RAG<br/>аналитика</span></div>
-        <div class="dcm"><div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><circle cx="100" cy="100" r="70" fill="none" stroke="rgba(0,255,136,0.1)" stroke-width="8"/><circle cx="100" cy="100" r="70" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" :stroke-dasharray="(phase==='countdown'?snakeProgress:fillProgress)/100*440+' 440'" transform="rotate(-90 100 100)" class="pr"/></svg><div class="dcc"><template v-if="phase==='countdown'"><span class="cn cnm">{{countdown}}</span><span class="cl clm">дней</span></template><span v-else class="pt ptm" :class="{vis:showPoehali}">ПОЕХАЛИ!</span></div></div><span class="ltm">R&D<br/>циклы</span></div>
-        <div class="dcm"><div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="100" x2="100" y2="58" stroke="#00ff88" stroke-width="2.5" class="lc0"/><line x1="100" y1="100" x2="136" y2="79" stroke="#00ff88" stroke-width="2.5" class="lc1"/><line x1="100" y1="100" x2="136" y2="121" stroke="#00ff88" stroke-width="2.5" class="lc2"/><line x1="100" y1="100" x2="100" y2="142" stroke="#00ff88" stroke-width="2.5" class="lc3"/><line x1="100" y1="100" x2="64" y2="121" stroke="#00ff88" stroke-width="2.5" class="lc4"/><line x1="100" y1="100" x2="64" y2="79" stroke="#00ff88" stroke-width="2.5" class="lc5"/><line x1="100" y1="58" x2="136" y2="79" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="136" y1="79" x2="136" y2="121" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="136" y1="121" x2="100" y2="142" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="100" y1="142" x2="64" y2="121" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="64" y1="121" x2="64" y2="79" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="64" y1="79" x2="100" y2="58" stroke="#00ff88" stroke-width="2" class="lb"/></svg><div v-for="i in 6" :key="'mm'+i" class="dm dmm" :class="'cp'+(i-1)"></div><div class="dkc dkcm"></div></div><span class="ltm">Стыковка<br/>модулей</span></div>
+        <div class="dcm">
+          <div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><g class="oc" style="--d:18s"><circle cx="100" cy="22" r="4" fill="#00ff88" class="pd"/><circle cx="168" cy="139" r="4" fill="#00ff88" class="pd"/><circle cx="32" cy="139" r="4" fill="#00ff88" class="pd"/></g><g class="occ" style="--d:15s"><circle cx="100" cy="32" r="3.5" fill="#00ff88"/><circle cx="159" cy="134" r="3.5" fill="#00ff88"/><circle cx="41" cy="134" r="3.5" fill="#00ff88"/></g><g class="oc" style="--d:12s"><circle cx="100" cy="42" r="3" fill="#00ff88"/><circle cx="150" cy="129" r="3" fill="#00ff88"/><circle cx="50" cy="129" r="3" fill="#00ff88"/></g><g class="occ" style="--d:9s"><circle cx="100" cy="52" r="2.5" fill="#00ff88"/><circle cx="142" cy="124" r="2.5" fill="#00ff88"/><circle cx="58" cy="124" r="2.5" fill="#00ff88"/></g><g class="oc" style="--d:7s"><circle cx="100" cy="62" r="2" fill="#00ff88"/><circle cx="133" cy="119" r="2" fill="#00ff88"/><circle cx="67" cy="119" r="2" fill="#00ff88"/></g><g class="occ" style="--d:5s"><circle cx="100" cy="72" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="124" cy="114" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="76" cy="114" r="1.5" fill="#00ff88" opacity="0.7"/></g><g class="oc" style="--d:3.5s"><circle cx="100" cy="80" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="117" cy="110" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="83" cy="110" r="1.5" fill="#00ff88" opacity="0.5"/></g><circle cx="100" cy="100" r="6" fill="#00ff88" class="cg"/></svg></div>
+          <span class="ltm">Видим</span>
+          <button class="mb mbm" @click.stop="openModal('vidim')">Больше</button>
+        </div>
+        <div class="dcm">
+          <div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><circle cx="100" cy="100" r="70" fill="none" stroke="rgba(0,255,136,0.1)" stroke-width="8"/><circle cx="100" cy="100" r="70" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" :stroke-dasharray="(phase==='countdown'?snakeProgress:fillProgress)/100*440+' 440'" transform="rotate(-90 100 100)" class="pr"/></svg><div class="dcc"><template v-if="phase==='countdown'"><span class="cn cnm">{{countdown}}</span><span class="cl clm">дней</span></template><span v-else class="pt ptm" :class="{vis:showPoehali}">ПОЕХАЛИ!</span></div></div>
+          <span class="ltm">Строим</span>
+          <button class="mb mbm" @click.stop="openModal('stroim')">Больше</button>
+        </div>
+        <div class="dcm">
+          <div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="100" x2="100" y2="58" stroke="#00ff88" stroke-width="2.5" class="lc0"/><line x1="100" y1="100" x2="136" y2="79" stroke="#00ff88" stroke-width="2.5" class="lc1"/><line x1="100" y1="100" x2="136" y2="121" stroke="#00ff88" stroke-width="2.5" class="lc2"/><line x1="100" y1="100" x2="100" y2="142" stroke="#00ff88" stroke-width="2.5" class="lc3"/><line x1="100" y1="100" x2="64" y2="121" stroke="#00ff88" stroke-width="2.5" class="lc4"/><line x1="100" y1="100" x2="64" y2="79" stroke="#00ff88" stroke-width="2.5" class="lc5"/><line x1="100" y1="58" x2="136" y2="79" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="136" y1="79" x2="136" y2="121" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="136" y1="121" x2="100" y2="142" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="100" y1="142" x2="64" y2="121" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="64" y1="121" x2="64" y2="79" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="64" y1="79" x2="100" y2="58" stroke="#00ff88" stroke-width="2" class="lb"/></svg><div v-for="i in 6" :key="'mm'+i" class="dm dmm" :class="'cp'+(i-1)"></div><div class="dkc dkcm"></div></div>
+          <span class="ltm">Расширяем</span>
+          <button class="mb mbm" @click.stop="openModal('rasshiryaem')">Больше</button>
+        </div>
       </div>
     </div>
     <div class="si">
@@ -87,6 +116,25 @@ const nX = [20, 90, 160]
       <div class="sh"><svg width="12" height="8" viewBox="0 0 12 8"><path d="M 4 4 L 8 0.5 M 4 4 L 8 7.5" stroke="#00ff88" stroke-width="1.5" fill="none" opacity="0.5"/></svg><span>переключить</span><svg width="12" height="8" viewBox="0 0 12 8"><path d="M 8 4 L 4 0.5 M 8 4 L 4 7.5" stroke="#00ff88" stroke-width="1.5" fill="none" opacity="0.5"/></svg></div>
     </div>
   </template>
+
+  <!-- Modal -->
+  <Teleport to="body">
+    <div v-if="activeModal" class="mr-ip-overlay" @click.self="closeModal">
+      <div class="mr-ip-modal">
+        <button class="mr-ip-close" @click="closeModal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <div class="mr-ip-modal-body">
+          <!-- Content will be in separate component -->
+          <div class="mr-ip-modal-placeholder">
+            <span v-if="activeModal === 'vidim'">ВИДИМ</span>
+            <span v-else-if="activeModal === 'stroim'">СТРОИМ</span>
+            <span v-else-if="activeModal === 'rasshiryaem'">РАСШИРЯЕМ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </div>
 </template>
 
@@ -116,8 +164,9 @@ const nX = [20, 90, 160]
 
 <style scoped>
 .ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 32px 24px;overflow:visible}
-.tt{font-family:monospace;font-size:64px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(0,255,136,.4),0 0 16px rgba(0,255,136,.2);margin-bottom:96px;margin-top:0}
-@media(max-width:768px){.tt{font-size:28px;letter-spacing:2px;margin-bottom:56px}.ip{padding:48px 16px 16px}}
+.tt{font-family:'Inter',sans-serif;font-size:52px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(0,255,136,.4),0 0 16px rgba(0,255,136,.2);margin-bottom:16px;margin-top:0;text-align:center;line-height:1.2}
+.tg{font-family:'Inter',sans-serif;font-size:16px;font-weight:400;color:rgba(0,255,136,.5);letter-spacing:3px;text-transform:uppercase;margin:0 0 96px;text-align:center}
+@media(max-width:768px){.tt{font-size:24px;letter-spacing:2px;margin-bottom:12px}.tg{font-size:11px;letter-spacing:2px;margin-bottom:56px}.ip{padding:48px 16px 16px}}
 .dk{display:flex;align-items:flex-start;justify-content:center;gap:64px}
 .dc{display:flex;flex-direction:column;align-items:center}
 .dcm{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:260px}
@@ -144,9 +193,16 @@ const nX = [20, 90, 160]
 .clm{transform:translate(-50%,30px)}
 .pt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Orbitron,monospace;font-weight:700;font-size:23px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);text-align:center;opacity:0;transition:opacity 1s ease-out}
 .pt.vis{opacity:1}.ptm{font-size:24px}
-.lt{font-family:Inter,sans-serif;font-size:14px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.5;margin-top:24px}
-.ltm{font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.4;margin-top:16px}
-.sc{position:relative;width:100%;height:380px;max-width:100vw;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab}
+.lt{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.5;margin-top:24px}
+.ltm{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.4;margin-top:16px}
+
+/* More button */
+.mb{display:inline-flex;align-items:center;justify-content:center;padding:8px 24px;margin-top:12px;background:#00ff88 !important;color:#000 !important;border:none !important;border-radius:6px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:all .3s ease;text-decoration:none !important}
+.mb:hover{box-shadow:0 0 20px rgba(0,255,136,.5);transform:translateY(-1px)}
+.mb::before,.mb::after{display:none !important;content:none !important}
+.mbm{padding:6px 20px;font-size:10px;margin-top:10px}
+
+.sc{position:relative;width:100%;height:420px;max-width:100vw;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab}
 .sc:active{cursor:grabbing}
 .st{display:flex;align-items:flex-start;position:absolute;padding-top:50px}
 .si{margin-top:24px;display:flex;flex-direction:column;align-items:center}
@@ -158,5 +214,22 @@ const nX = [20, 90, 160]
 .sl{transition:all .3s ease}
 .orb{animation:orbAnim 3s linear infinite}
 .sh{display:flex;align-items:center;gap:8px;margin-top:12px}
-.sh span{font-family:Inter,sans-serif;font-size:9px;color:rgba(0,255,136,.5);letter-spacing:2px;text-transform:uppercase}
+.sh span{font-family:'Inter',sans-serif;font-size:9px;color:rgba(0,255,136,.5);letter-spacing:2px;text-transform:uppercase}
+
+/* Modal overlay */
+.mr-ip-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.92);backdrop-filter:blur(20px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:24px}
+.mr-ip-modal{position:relative;width:100%;max-width:900px;max-height:calc(100vh - 48px);background:#111;border:1px solid #222;border-radius:24px;overflow-y:auto;overflow-x:hidden}
+.mr-ip-close{position:absolute;top:24px;right:24px;width:56px;height:56px;background:transparent !important;border:2px solid rgba(0,255,136,.3) !important;border-radius:16px;color:#00ff88 !important;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;z-index:10;text-decoration:none !important}
+.mr-ip-close:hover{background:rgba(0,255,136,.1) !important;border-color:#00ff88 !important;box-shadow:0 0 20px rgba(0,255,136,.3)}
+.mr-ip-close::before,.mr-ip-close::after{display:none !important;content:none !important}
+.mr-ip-modal-body{padding:60px 48px 48px;min-height:400px}
+.mr-ip-modal-placeholder{display:flex;align-items:center;justify-content:center;height:300px;font-family:'Inter',sans-serif;font-size:32px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;opacity:.3}
+
+@media(max-width:768px){
+  .mr-ip-modal{border-radius:16px;max-height:calc(100vh - 32px)}
+  .mr-ip-modal-body{padding:48px 24px 32px}
+  .mr-ip-close{top:16px;right:16px;width:48px;height:48px;border-radius:12px}
+  .mr-ip-close svg{width:24px;height:24px}
+  .mr-ip-modal-placeholder{font-size:24px}
+}
 </style>
