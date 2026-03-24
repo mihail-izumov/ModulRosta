@@ -1,8 +1,8 @@
 <template>
   <div class="mr-page">
     <MRSneakPeek />
-    <MRHero />
     <InstrumentPanel />
+    <MRHero />
     <MRProtocol />
     <MRRunscale404 />
     <MRTeams />
