@@ -5,8 +5,6 @@
     <MRProtocol />
     <MRTeams />
     <MRRunscale404 />
-    <MRHistory />
-    <LaunchesChart />
   </div>
 </template>
 
@@ -16,12 +14,9 @@ import InstrumentPanel from './InstrumentPanel.vue'
 import MRTeams from './MRTeams.vue'
 import MRRunscale404 from './MRRunscale404.vue'
 import MRProtocol from './MRProtocol.vue'
-import MRHistory from './MRHistory.vue'
-import LaunchesChart from './LaunchesChart.vue'
 </script>
 
 <style>
-/* Global styles for Modul Rosta Page */
 .mr-page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   color: var(--vp-c-text-1);
@@ -29,6 +24,5 @@ import LaunchesChart from './LaunchesChart.vue'
   overflow-x: hidden;
 }
 
-/* Import JetBrains Mono for monospace elements */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 </style>
