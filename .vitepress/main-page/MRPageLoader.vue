@@ -32,25 +32,41 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vitepress'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vitepress'
 
 const loading = ref(false)
-const route = useRoute()
-const router = useRouter()
-let timeout: ReturnType<typeof setTimeout> | null = null
+let hideTimeout: ReturnType<typeof setTimeout> | null = null
 
 onMounted(() => {
-  router.onBeforeRouteChange = () => {
-    loading.value = true
-    return true
+  const router = useRouter()
+
+  // Intercept all link clicks that navigate within the site
+  const handleClick = (e: MouseEvent) => {
+    const target = (e.target as HTMLElement)?.closest('a')
+    if (!target) return
+    const href = target.getAttribute('href')
+    if (!href) return
+    // Only internal links
+    if (href.startsWith('/') || href.startsWith('./') || href.startsWith('../')) {
+      loading.value = true
+      if (hideTimeout) clearTimeout(hideTimeout)
+    }
   }
 
+  document.addEventListener('click', handleClick, true)
+
+  // Watch for route changes to hide loader
   router.onAfterRouteChanged = () => {
-    timeout = setTimeout(() => {
+    hideTimeout = setTimeout(() => {
       loading.value = false
     }, 400)
   }
+
+  onUnmounted(() => {
+    document.removeEventListener('click', handleClick, true)
+    if (hideTimeout) clearTimeout(hideTimeout)
+  })
 })
 </script>
 
