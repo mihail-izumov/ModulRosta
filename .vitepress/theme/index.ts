@@ -1,6 +1,6 @@
-import { h } from 'vue'
 import DefaultTheme from 'vitepress/theme'
 import './custom.css'
+import Layout from './Layout.vue'
 
 // Импортируем каждый компонент с уникальным именем
 import SimulatorCards from '../components/SimulatorCards.vue'
@@ -54,7 +54,6 @@ import MRProtocol from '../main-page/MRProtocol.vue'
 import MRFooter from '../main-page/MRFooter.vue'
 import ModulRostaPage from '../main-page/ModulRostaPage.vue'
 import MRSneakPeek from '../main-page/MRSneakPeek.vue'
-import MRPageLoader from '../main-page/MRPageLoader.vue'
 
 // Launches компоненты
 import MRHistory from '../launches/MRHistory.vue'
@@ -62,13 +61,8 @@ import LaunchesPage from '../launches/LaunchesPage.vue'
 
 export default {
   extends: DefaultTheme,
-  Layout() {
-    return h(DefaultTheme.Layout, null, {
-      'layout-top': () => h(MRPageLoader)
-    })
-  },
+  Layout,
   enhanceApp({ app }) {
-    // Регистрируем каждый компонент с уникальным тегом
     app.component('SimulatorCards', SimulatorCards)
     app.component('BrandCards', BrandCards)
     app.component('FeaturesGrid', FeaturesGrid)
@@ -122,7 +116,5 @@ export default {
     app.component('ModulRostaPage', ModulRostaPage)
     app.component('LaunchesPage', LaunchesPage)
     app.component('MRSneakPeek', MRSneakPeek)
-    app.component('MRPageLoader', MRPageLoader)
-    
   }
 }
