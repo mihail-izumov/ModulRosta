@@ -280,7 +280,7 @@ function nav(): DefaultTheme.NavItem[] {
   return [
     { text: 'Чекап', link: '/checkup/overview' },
     { text: 'Радар', link: '/radar/overview' },
-    { text: '⚡️ Сигнал', href: 'https://cffx.ru', target: '_blank' },
+    { text: '⚡️ Сигнал', link: 'https://cffx.ru', target: '_blank' },
     { 
       text: 'Компания', items: [
         { text: 'Кто мы', link: '/about/company' },
