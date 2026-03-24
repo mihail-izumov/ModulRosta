@@ -24,7 +24,7 @@ export default defineConfig({
           { text: 'Контакт', href: '/about/contacts' },
           { text: 'Условия использования', href: '/terms' },
           { text: 'Телеграм-канал', href: 'https://t.me/runScale', target: '_blank' },
-          { text: '⚡️ Сигнал', href: 'https://cffx.ru', target: '_blank' }
+          { text: 'Система', link: '/system/overview' }
         ];
         let html = '<hr style="border: 0; border-top: 1px solid var(--vp-c-divider); margin: 24px 0;">';
         html += '<div class="custom-footer-links"><div class="footer-row">';
@@ -278,9 +278,9 @@ export default defineConfig({
 // Остальные функции остаются без изменений
 function nav(): DefaultTheme.NavItem[] {
   return [
-    { text: 'Чекапы', link: '/checkup/overview' },
+    { text: 'Чекап', link: '/checkup/overview' },
     { text: 'Радар', link: '/radar/overview' },
-    { text: 'Система', link: '/system/overview' },
+    { text: '⚡️ Сигнал', href: 'https://cffx.ru', target: '_blank' },
     { 
       text: 'Компания', items: [
         { text: 'Кто мы', link: '/about/company' },
