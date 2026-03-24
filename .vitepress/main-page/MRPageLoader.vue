@@ -1,79 +1,85 @@
 <template>
-  <Transition name="mr-loader">
-    <div v-if="loading" class="mr-loader-overlay">
-      <svg class="mr-loader-svg" viewBox="0 0 200 200">
-        <defs>
-          <linearGradient id="mr-loader-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#00ff88" stop-opacity="0" />
-            <stop offset="50%" stop-color="#00ff88" stop-opacity="0.6" />
-            <stop offset="100%" stop-color="#00ff88" stop-opacity="1" />
-          </linearGradient>
-        </defs>
-        <circle
-          cx="100" cy="100" r="90"
-          fill="none"
-          stroke="rgba(0,255,136,0.04)"
-          stroke-width="0.5"
-        />
-        <circle
-          cx="100" cy="100" r="90"
-          fill="none"
-          stroke="url(#mr-loader-grad)"
-          stroke-width="1"
-          stroke-linecap="round"
-          stroke-dasharray="140 425"
-          class="mr-loader-spinner"
-        />
-      </svg>
-    </div>
-  </Transition>
+  <div v-show="loading" class="mr-loader-overlay" :class="{ 'mr-loader-hiding': hiding }">
+    <div class="mr-loader-ring"></div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRoute } from 'vitepress'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vitepress'
 
 const loading = ref(false)
-const route = useRoute()
+const hiding = ref(false)
 let hideTimeout: ReturnType<typeof setTimeout> | null = null
+let originalGo: ((href: string) => Promise<void>) | null = null
 
-// Watch route path — fires on EVERY navigation including cached pages
-watch(() => route.path, (newPath, oldPath) => {
-  if (newPath !== oldPath) {
-    // Hide after content has rendered
-    nextTick(() => {
-      hideTimeout = setTimeout(() => {
-        loading.value = false
-      }, 500)
-    })
-  }
-})
+function show() {
+  hiding.value = false
+  loading.value = true
+}
+
+function hide() {
+  hiding.value = true
+  hideTimeout = setTimeout(() => {
+    loading.value = false
+    hiding.value = false
+  }, 350)
+}
 
 onMounted(() => {
-  // Intercept clicks on internal links
-  const handleClick = (e: MouseEvent) => {
-    const target = (e.target as HTMLElement)?.closest('a')
-    if (!target) return
-    const href = target.getAttribute('href')
-    if (!href) return
-    
-    // Internal links only
-    if (href.startsWith('/') || href.startsWith('./') || href.startsWith('../')) {
-      // Don't trigger for same page anchors
+  const router = useRouter()
+
+  // Patch router.go to intercept ALL navigations
+  originalGo = router.go.bind(router)
+  router.go = async (href: string) => {
+    // Don't show for same-page anchors
+    try {
       const url = new URL(href, window.location.origin)
-      if (url.pathname === window.location.pathname) return
-      
-      if (hideTimeout) clearTimeout(hideTimeout)
-      loading.value = true
-    }
+      if (url.pathname === window.location.pathname) {
+        return originalGo!(href)
+      }
+    } catch {}
+
+    show()
+
+    // Small delay to let the overlay render before heavy navigation
+    await new Promise(r => setTimeout(r, 50))
+    await originalGo!(href)
+
+    // Hide after navigation completes
+    if (hideTimeout) clearTimeout(hideTimeout)
+    hide()
   }
 
+  // Also catch direct link clicks that VitePress intercepts
   document.addEventListener('click', handleClick, true)
+})
 
-  onUnmounted(() => {
-    document.removeEventListener('click', handleClick, true)
-    if (hideTimeout) clearTimeout(hideTimeout)
-  })
+function handleClick(e: MouseEvent) {
+  const anchor = (e.target as HTMLElement)?.closest('a')
+  if (!anchor) return
+  const href = anchor.getAttribute('href')
+  if (!href) return
+  if (href.startsWith('#')) return
+  if (href.startsWith('http') || href.startsWith('mailto:')) return
+  
+  // Internal link
+  try {
+    const url = new URL(href, window.location.origin)
+    if (url.pathname !== window.location.pathname) {
+      show()
+    }
+  } catch {}
+}
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClick, true)
+  if (hideTimeout) clearTimeout(hideTimeout)
+  // Restore original router.go
+  if (originalGo) {
+    const router = useRouter()
+    router.go = originalGo
+  }
 })
 </script>
 
@@ -89,33 +95,39 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 1;
+  transition: opacity 0.1s ease-out;
 }
 
-.mr-loader-svg {
+.mr-loader-overlay.mr-loader-hiding {
+  opacity: 0;
+  transition: opacity 0.35s ease-in;
+}
+
+.mr-loader-ring {
   width: 70vmin;
   height: 70vmin;
   max-width: 600px;
   max-height: 600px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 255, 136, 0.04);
+  position: relative;
 }
 
-.mr-loader-spinner {
-  transform-origin: center;
+.mr-loader-ring::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  border-top-color: #00ff88;
+  border-right-color: rgba(0, 255, 136, 0.3);
   animation: mr-loader-spin 1.2s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.3));
 }
 
 @keyframes mr-loader-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-.mr-loader-enter-active {
-  transition: opacity 0.1s ease-out;
-}
-.mr-loader-leave-active {
-  transition: opacity 0.35s ease-in;
-}
-.mr-loader-enter-from,
-.mr-loader-leave-to {
-  opacity: 0;
 }
 </style>
