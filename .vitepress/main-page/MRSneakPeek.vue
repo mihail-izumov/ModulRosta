@@ -12,7 +12,7 @@
         <div class="mr-sneak-label" style="color: #00ff88">В полёте</div>
         <div class="mr-sneak-row">
           <div class="mr-sneak-icon" style="border-color: #00ff8830">
-            <img v-if="lastLaunched.icon" :src="lastLaunched.icon" alt="" class="mr-sneak-icon-img mr-sneak-icon-green" />
+            <div v-if="lastLaunched.icon" class="mr-sneak-icon-img mr-sneak-icon-green" :style="{ '--icon-src': `url(${lastLaunched.icon})` }"></div>
             <svg v-else xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00ff88" stroke-width="2">
               <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
               <path d="m3.3 7 8.7 5 8.7-5"/>
@@ -41,7 +41,7 @@
         </div>
         <div class="mr-sneak-row">
           <div class="mr-sneak-icon" :style="{ borderColor: isOverdue(nextLaunch) ? '#00ff8830' : '#58a6ff30' }">
-            <img v-if="nextLaunch.icon" :src="nextLaunch.icon" alt="" :class="['mr-sneak-icon-img', isOverdue(nextLaunch) ? 'mr-sneak-icon-green' : 'mr-sneak-icon-blue']" />
+            <div v-if="nextLaunch.icon" :class="['mr-sneak-icon-img', isOverdue(nextLaunch) ? 'mr-sneak-icon-green' : 'mr-sneak-icon-blue']" :style="{ '--icon-src': `url(${nextLaunch.icon})` }"></div>
             <svg v-else xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" :stroke="isOverdue(nextLaunch) ? '#00ff88' : '#58a6ff'" stroke-width="2">
               <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
               <path d="m3.3 7 8.7 5 8.7-5"/>
@@ -247,10 +247,26 @@ function goToLaunches() {
   object-fit: contain;
 }
 .mr-sneak-icon-green {
-  filter: brightness(0) saturate(100%) invert(62%) sepia(98%) saturate(1200%) hue-rotate(120deg) brightness(1.05) contrast(1);
+  -webkit-mask-image: var(--icon-src);
+  mask-image: var(--icon-src);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  background-color: rgb(0, 255, 136);
 }
 .mr-sneak-icon-blue {
-  filter: brightness(0) saturate(100%) invert(55%) sepia(80%) saturate(600%) hue-rotate(190deg) brightness(1.05);
+  -webkit-mask-image: var(--icon-src);
+  mask-image: var(--icon-src);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  background-color: #58a6ff;
 }
 
 /* Radar pulse for branded */
