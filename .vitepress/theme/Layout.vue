@@ -25,22 +25,43 @@ const router = useRouter()
 const showPreloader = ref(false)
 let preloaderTimeout = null
 let preloaderStart = 0
+let preloaderRendered = false
 const PRELOADER_MIN_MS = 600
 
 onMounted(() => {
   router.onBeforeRouteChange = () => {
     showPreloader.value = true
     preloaderStart = Date.now()
+    preloaderRendered = false
     clearTimeout(preloaderTimeout)
-    // Safety: auto-hide after 3s in case onAfterRouteChanged doesn't fire
+    // Safety: auto-hide after 3s
     preloaderTimeout = setTimeout(() => { showPreloader.value = false }, 3000)
+    // Mark as rendered after next frame
+    nextTick(() => {
+      requestAnimationFrame(() => {
+        preloaderRendered = true
+      })
+    })
   }
 
   router.onAfterRouteChanged = () => {
-    const elapsed = Date.now() - preloaderStart
-    const remaining = Math.max(0, PRELOADER_MIN_MS - elapsed)
-    clearTimeout(preloaderTimeout)
-    preloaderTimeout = setTimeout(() => { showPreloader.value = false }, remaining)
+    const hidePreloader = () => {
+      const elapsed = Date.now() - preloaderStart
+      const remaining = Math.max(0, PRELOADER_MIN_MS - elapsed)
+      clearTimeout(preloaderTimeout)
+      preloaderTimeout = setTimeout(() => { showPreloader.value = false }, remaining)
+    }
+
+    // If preloader hasn't rendered yet, wait until it does
+    if (!preloaderRendered) {
+      nextTick(() => {
+        requestAnimationFrame(() => {
+          hidePreloader()
+        })
+      })
+    } else {
+      hidePreloader()
+    }
   }
 })
 
