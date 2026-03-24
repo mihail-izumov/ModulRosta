@@ -87,7 +87,7 @@ interface Project {
 }
 
 const allProjects = ref<Project[]>([
-  { id: 'proj1', title: 'Приложение-компаньон', subtitle: 'b00m.fun', status: 'Скоро запуск', launchDate: '31.03.2026', buildTime: '45дн', mrBranded: true, icon: 'https://runscale.ru/icons/boombastic_icon.svg' },
+  { id: 'proj1', title: 'Игровая призотека', subtitle: 'b00m.fun', status: 'Скоро запуск', launchDate: '31.03.2026', buildTime: '45дн', mrBranded: true, icon: 'https://runscale.ru/icons/boombastic_icon.svg' },
   { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', status: 'Запущен', launchDate: '02.03.2026', buildTime: '10дн', mrBranded: false, icon: 'https://runscale.ru/icons/optima_space_icon.svg' },
   { id: 'proj3', title: 'Генератор сториз', subtitle: 'Корж', status: 'Запущен', launchDate: '25.12.2025', buildTime: '10дн', mrBranded: false, icon: null },
 ])
@@ -247,7 +247,7 @@ function goToLaunches() {
   object-fit: contain;
 }
 .mr-sneak-icon-green {
-  filter: brightness(0) saturate(100%) invert(80%) sepia(50%) saturate(1000%) hue-rotate(100deg) brightness(1.1);
+  filter: brightness(0) saturate(100%) invert(70%) sepia(95%) saturate(400%) hue-rotate(95deg) brightness(1.3);
 }
 .mr-sneak-icon-blue {
   filter: brightness(0) saturate(100%) invert(55%) sepia(80%) saturate(600%) hue-rotate(190deg) brightness(1.05);
