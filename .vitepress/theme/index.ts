@@ -54,6 +54,7 @@ import MRProtocol from '../main-page/MRProtocol.vue'
 import MRFooter from '../main-page/MRFooter.vue'
 import ModulRostaPage from '../main-page/ModulRostaPage.vue'
 import MRSneakPeek from '../main-page/MRSneakPeek.vue'
+import MRPageLoader from '../main-page/MRPageLoader.vue'
 
 // Launches компоненты
 import MRHistory from '../launches/MRHistory.vue'
@@ -62,7 +63,9 @@ import LaunchesPage from '../launches/LaunchesPage.vue'
 export default {
   extends: DefaultTheme,
   Layout() {
-    return h(DefaultTheme.Layout, null, {})
+    return h(DefaultTheme.Layout, null, {
+      'layout-top': () => h(MRPageLoader)
+    })
   },
   enhanceApp({ app }) {
     // Регистрируем каждый компонент с уникальным тегом
@@ -119,6 +122,7 @@ export default {
     app.component('ModulRostaPage', ModulRostaPage)
     app.component('LaunchesPage', LaunchesPage)
     app.component('MRSneakPeek', MRSneakPeek)
+    app.component('MRPageLoader', MRPageLoader)
     
   }
 }
