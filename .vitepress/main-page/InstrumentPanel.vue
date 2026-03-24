@@ -58,22 +58,21 @@ const nX = [20, 90, 160]
 <template>
 <div class="ip">
   <h1 class="tt">Цифровое Превосходство<br/>для Бизнеса</h1>
-  <p class="tg">Один Чекап. Первый Запуск.</p>
   <div v-if="!isMobile" class="dk">
     <div class="dc">
       <div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><g class="oc" style="--d:18s"><circle cx="96" cy="21" r="4" fill="#00ff88" class="pd"/><circle cx="161" cy="133" r="4" fill="#00ff88" class="pd"/><circle cx="31" cy="133" r="4" fill="#00ff88" class="pd"/></g><g class="occ" style="--d:15s"><circle cx="96" cy="31" r="3.5" fill="#00ff88"/><circle cx="152" cy="128" r="3.5" fill="#00ff88"/><circle cx="40" cy="128" r="3.5" fill="#00ff88"/></g><g class="oc" style="--d:12s"><circle cx="96" cy="40" r="3" fill="#00ff88"/><circle cx="144" cy="124" r="3" fill="#00ff88"/><circle cx="48" cy="124" r="3" fill="#00ff88"/></g><g class="occ" style="--d:9s"><circle cx="96" cy="50" r="2.5" fill="#00ff88"/><circle cx="136" cy="119" r="2.5" fill="#00ff88"/><circle cx="56" cy="119" r="2.5" fill="#00ff88"/></g><g class="oc" style="--d:7s"><circle cx="96" cy="58" r="2" fill="#00ff88"/><circle cx="129" cy="115" r="2" fill="#00ff88"/><circle cx="63" cy="115" r="2" fill="#00ff88"/></g><g class="occ" style="--d:5s"><circle cx="96" cy="66" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="122" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="70" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/></g><g class="oc" style="--d:3.5s"><circle cx="96" cy="74" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="115" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="77" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/></g><circle cx="96" cy="96" r="6" fill="#00ff88" class="cg"/></svg></div>
       <span class="lt">Видим</span>
-      <button class="mb" @click.stop="openModal('vidim')">Больше</button>
+      <button class="mb" @click.stop="openModal('vidim')">Узнать</button>
     </div>
     <div class="dc">
       <div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><circle cx="96" cy="96" r="63" fill="none" stroke="rgba(0,255,136,0.1)" stroke-width="8"/><circle cx="96" cy="96" r="63" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" :stroke-dasharray="rndDash" transform="rotate(-90 96 96)" class="pr"/></svg><div class="dcc"><template v-if="phase==='countdown'"><span class="cn">{{countdown}}</span><span class="cl">дней</span></template><span v-else class="pt" :class="{vis:showPoehali}">ПОЕХАЛИ!</span></div></div>
-      <span class="lt">Строим</span>
-      <button class="mb" @click.stop="openModal('stroim')">Больше</button>
+      <span class="lt">Запускаем</span>
+      <button class="mb" @click.stop="openModal('zapuskaem')">Узнать</button>
     </div>
     <div class="dc">
       <div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line v-for="(p,i) in dP" :key="'c'+i" x1="96" y1="96" :x2="p.x" :y2="p.y" stroke="#00ff88" stroke-width="2.5" :class="'lc'+i"/><line v-for="(p,i) in dP" :key="'b'+i" :x1="p.x" :y1="p.y" :x2="dP[(i+1)%6].x" :y2="dP[(i+1)%6].y" stroke="#00ff88" stroke-width="2" class="lb"/></svg><div v-for="i in 6" :key="'m'+i" class="dm" :class="'cp'+(i-1)"></div><div class="dkc"></div></div>
       <span class="lt">Расширяем</span>
-      <button class="mb" @click.stop="openModal('rasshiryaem')">Больше</button>
+      <button class="mb" @click.stop="openModal('rasshiryaem')">Узнать</button>
     </div>
   </div>
   <template v-if="isMobile">
@@ -82,17 +81,17 @@ const nX = [20, 90, 160]
         <div class="dcm">
           <div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><g class="oc" style="--d:18s"><circle cx="100" cy="22" r="4" fill="#00ff88" class="pd"/><circle cx="168" cy="139" r="4" fill="#00ff88" class="pd"/><circle cx="32" cy="139" r="4" fill="#00ff88" class="pd"/></g><g class="occ" style="--d:15s"><circle cx="100" cy="32" r="3.5" fill="#00ff88"/><circle cx="159" cy="134" r="3.5" fill="#00ff88"/><circle cx="41" cy="134" r="3.5" fill="#00ff88"/></g><g class="oc" style="--d:12s"><circle cx="100" cy="42" r="3" fill="#00ff88"/><circle cx="150" cy="129" r="3" fill="#00ff88"/><circle cx="50" cy="129" r="3" fill="#00ff88"/></g><g class="occ" style="--d:9s"><circle cx="100" cy="52" r="2.5" fill="#00ff88"/><circle cx="142" cy="124" r="2.5" fill="#00ff88"/><circle cx="58" cy="124" r="2.5" fill="#00ff88"/></g><g class="oc" style="--d:7s"><circle cx="100" cy="62" r="2" fill="#00ff88"/><circle cx="133" cy="119" r="2" fill="#00ff88"/><circle cx="67" cy="119" r="2" fill="#00ff88"/></g><g class="occ" style="--d:5s"><circle cx="100" cy="72" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="124" cy="114" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="76" cy="114" r="1.5" fill="#00ff88" opacity="0.7"/></g><g class="oc" style="--d:3.5s"><circle cx="100" cy="80" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="117" cy="110" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="83" cy="110" r="1.5" fill="#00ff88" opacity="0.5"/></g><circle cx="100" cy="100" r="6" fill="#00ff88" class="cg"/></svg></div>
           <span class="ltm">Видим</span>
-          <button class="mb mbm" @click.stop="openModal('vidim')">Больше</button>
+          <button class="mb mbm" @click.stop="openModal('vidim')">Узнать</button>
         </div>
         <div class="dcm">
           <div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><circle cx="100" cy="100" r="70" fill="none" stroke="rgba(0,255,136,0.1)" stroke-width="8"/><circle cx="100" cy="100" r="70" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" :stroke-dasharray="(phase==='countdown'?snakeProgress:fillProgress)/100*440+' 440'" transform="rotate(-90 100 100)" class="pr"/></svg><div class="dcc"><template v-if="phase==='countdown'"><span class="cn cnm">{{countdown}}</span><span class="cl clm">дней</span></template><span v-else class="pt ptm" :class="{vis:showPoehali}">ПОЕХАЛИ!</span></div></div>
-          <span class="ltm">Строим</span>
-          <button class="mb mbm" @click.stop="openModal('stroim')">Больше</button>
+          <span class="ltm">Запускаем</span>
+          <button class="mb mbm" @click.stop="openModal('zapuskaem')">Узнать</button>
         </div>
         <div class="dcm">
           <div class="dl d2"><div class="db"></div><svg class="ds" viewBox="0 0 200 200"><line x1="10" y1="100" x2="190" y2="100" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="10" x2="100" y2="190" stroke="rgba(0,255,136,0.15)" stroke-width="1"/><line x1="100" y1="100" x2="100" y2="58" stroke="#00ff88" stroke-width="2.5" class="lc0"/><line x1="100" y1="100" x2="136" y2="79" stroke="#00ff88" stroke-width="2.5" class="lc1"/><line x1="100" y1="100" x2="136" y2="121" stroke="#00ff88" stroke-width="2.5" class="lc2"/><line x1="100" y1="100" x2="100" y2="142" stroke="#00ff88" stroke-width="2.5" class="lc3"/><line x1="100" y1="100" x2="64" y2="121" stroke="#00ff88" stroke-width="2.5" class="lc4"/><line x1="100" y1="100" x2="64" y2="79" stroke="#00ff88" stroke-width="2.5" class="lc5"/><line x1="100" y1="58" x2="136" y2="79" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="136" y1="79" x2="136" y2="121" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="136" y1="121" x2="100" y2="142" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="100" y1="142" x2="64" y2="121" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="64" y1="121" x2="64" y2="79" stroke="#00ff88" stroke-width="2" class="lb"/><line x1="64" y1="79" x2="100" y2="58" stroke="#00ff88" stroke-width="2" class="lb"/></svg><div v-for="i in 6" :key="'mm'+i" class="dm dmm" :class="'cp'+(i-1)"></div><div class="dkc dkcm"></div></div>
           <span class="ltm">Расширяем</span>
-          <button class="mb mbm" @click.stop="openModal('rasshiryaem')">Больше</button>
+          <button class="mb mbm" @click.stop="openModal('rasshiryaem')">Узнать</button>
         </div>
       </div>
     </div>
@@ -128,7 +127,7 @@ const nX = [20, 90, 160]
           <!-- Content will be in separate component -->
           <div class="mr-ip-modal-placeholder">
             <span v-if="activeModal === 'vidim'">ВИДИМ</span>
-            <span v-else-if="activeModal === 'stroim'">СТРОИМ</span>
+            <span v-else-if="activeModal === 'zapuskaem'">ЗАПУСКАЕМ</span>
             <span v-else-if="activeModal === 'rasshiryaem'">РАСШИРЯЕМ</span>
           </div>
         </div>
@@ -164,9 +163,8 @@ const nX = [20, 90, 160]
 
 <style scoped>
 .ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 32px 24px;overflow:visible}
-.tt{font-family:'Inter',sans-serif;font-size:52px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(0,255,136,.4),0 0 16px rgba(0,255,136,.2);margin-bottom:16px;margin-top:0;text-align:center;line-height:1.2}
-.tg{font-family:'Inter',sans-serif;font-size:16px;font-weight:400;color:rgba(0,255,136,.5);letter-spacing:3px;text-transform:uppercase;margin:0 0 96px;text-align:center}
-@media(max-width:768px){.tt{font-size:24px;letter-spacing:2px;margin-bottom:12px}.tg{font-size:11px;letter-spacing:2px;margin-bottom:56px}.ip{padding:48px 16px 16px}}
+.tt{font-family:'Inter',sans-serif;font-size:52px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(0,255,136,.4),0 0 16px rgba(0,255,136,.2);margin-bottom:96px;margin-top:0;text-align:center;line-height:1.2}
+@media(max-width:768px){.tt{font-size:24px;letter-spacing:2px;margin-bottom:56px}.ip{padding:48px 16px 16px}}
 .dk{display:flex;align-items:flex-start;justify-content:center;gap:64px}
 .dc{display:flex;flex-direction:column;align-items:center}
 .dcm{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:260px}
@@ -217,19 +215,20 @@ const nX = [20, 90, 160]
 .sh span{font-family:'Inter',sans-serif;font-size:9px;color:rgba(0,255,136,.5);letter-spacing:2px;text-transform:uppercase}
 
 /* Modal overlay */
-.mr-ip-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.92);backdrop-filter:blur(20px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:24px}
-.mr-ip-modal{position:relative;width:100%;max-width:900px;max-height:calc(100vh - 48px);background:#111;border:1px solid #222;border-radius:24px;overflow-y:auto;overflow-x:hidden}
-.mr-ip-close{position:absolute;top:24px;right:24px;width:56px;height:56px;background:transparent !important;border:2px solid rgba(0,255,136,.3) !important;border-radius:16px;color:#00ff88 !important;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;z-index:10;text-decoration:none !important}
-.mr-ip-close:hover{background:rgba(0,255,136,.1) !important;border-color:#00ff88 !important;box-shadow:0 0 20px rgba(0,255,136,.3)}
+.mr-ip-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:24px 24px 0;overflow-y:auto}
+.mr-ip-modal{position:relative;width:100%;max-width:1100px;min-height:calc(100vh - 24px);background:#111;border:1px solid #222;border-bottom:none;border-radius:24px 24px 0 0;overflow:hidden}
+.mr-ip-close{position:sticky;top:24px;float:right;margin-right:24px;width:56px;height:56px;background:rgba(0,0,0,.5) !important;border:2px solid rgba(255,255,255,.2) !important;border-radius:50%;color:#fff !important;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;z-index:10;text-decoration:none !important;backdrop-filter:blur(10px)}
+.mr-ip-close:hover{background:rgba(255,255,255,.1) !important;border-color:rgba(255,255,255,.4) !important}
 .mr-ip-close::before,.mr-ip-close::after{display:none !important;content:none !important}
-.mr-ip-modal-body{padding:60px 48px 48px;min-height:400px}
-.mr-ip-modal-placeholder{display:flex;align-items:center;justify-content:center;height:300px;font-family:'Inter',sans-serif;font-size:32px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;opacity:.3}
+.mr-ip-modal-body{padding:24px 48px 80px}
+.mr-ip-modal-placeholder{display:flex;align-items:center;justify-content:center;height:60vh;font-family:'Inter',sans-serif;font-size:32px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;opacity:.3}
 
 @media(max-width:768px){
-  .mr-ip-modal{border-radius:16px;max-height:calc(100vh - 32px)}
-  .mr-ip-modal-body{padding:48px 24px 32px}
-  .mr-ip-close{top:16px;right:16px;width:48px;height:48px;border-radius:12px}
+  .mr-ip-overlay{padding:16px 16px 0}
+  .mr-ip-modal{min-height:calc(100vh - 16px);border-radius:16px 16px 0 0}
+  .mr-ip-modal-body{padding:16px 24px 60px}
+  .mr-ip-close{top:16px;margin-right:16px;width:48px;height:48px}
   .mr-ip-close svg{width:24px;height:24px}
-  .mr-ip-modal-placeholder{font-size:24px}
+  .mr-ip-modal-placeholder{font-size:24px;height:50vh}
 }
 </style>
