@@ -247,7 +247,7 @@ function goToLaunches() {
   object-fit: contain;
 }
 .mr-sneak-icon-green {
-  filter: brightness(0) saturate(100%) invert(70%) sepia(95%) saturate(400%) hue-rotate(95deg) brightness(1.3);
+  filter: brightness(0) saturate(100%) invert(62%) sepia(98%) saturate(1200%) hue-rotate(120deg) brightness(1.05) contrast(1);
 }
 .mr-sneak-icon-blue {
   filter: brightness(0) saturate(100%) invert(55%) sepia(80%) saturate(600%) hue-rotate(190deg) brightness(1.05);
