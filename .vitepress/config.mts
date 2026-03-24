@@ -24,7 +24,7 @@ export default defineConfig({
           { text: 'Контакт', href: '/about/contacts' },
           { text: 'Условия использования', href: '/terms' },
           { text: 'Телеграм-канал', href: 'https://t.me/runScale', target: '_blank' },
-          { text: 'Система', link: '/system/overview' }
+          { text: 'Система', href: '/system/overview' }
         ];
         let html = '<hr style="border: 0; border-top: 1px solid var(--vp-c-divider); margin: 24px 0;">';
         html += '<div class="custom-footer-links"><div class="footer-row">';
