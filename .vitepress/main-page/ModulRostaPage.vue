@@ -4,15 +4,15 @@
     <MRHero />
     <InstrumentPanel />
     <MRProtocol />
-    <MRTeams />
     <MRRunscale404 />
+    <MRTeams />
   </div>
 </template>
 
 <script setup lang="ts">
 import MRSneakPeek from './MRSneakPeek.vue'
-import MRHero from './MRHero.vue'
 import InstrumentPanel from './InstrumentPanel.vue'
+import MRHero from './MRHero.vue'
 import MRTeams from './MRTeams.vue'
 import MRRunscale404 from './MRRunscale404.vue'
 import MRProtocol from './MRProtocol.vue'
