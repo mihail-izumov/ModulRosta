@@ -1,67 +1,74 @@
 <template>
   <Transition name="mr-loader">
     <div v-if="loading" class="mr-loader-overlay">
-      <div class="mr-loader-ring">
-        <svg viewBox="0 0 200 200" width="120" height="120">
-          <defs>
-            <linearGradient id="mr-loader-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#00ff88" stop-opacity="0" />
-              <stop offset="50%" stop-color="#00ff88" stop-opacity="0.6" />
-              <stop offset="100%" stop-color="#00ff88" stop-opacity="1" />
-            </linearGradient>
-          </defs>
-          <circle
-            cx="100" cy="100" r="90"
-            fill="none"
-            stroke="rgba(0,255,136,0.06)"
-            stroke-width="1.5"
-          />
-          <circle
-            cx="100" cy="100" r="90"
-            fill="none"
-            stroke="url(#mr-loader-grad)"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-dasharray="180 388"
-            class="mr-loader-spinner"
-          />
-        </svg>
-      </div>
+      <svg class="mr-loader-svg" viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="mr-loader-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00ff88" stop-opacity="0" />
+            <stop offset="50%" stop-color="#00ff88" stop-opacity="0.6" />
+            <stop offset="100%" stop-color="#00ff88" stop-opacity="1" />
+          </linearGradient>
+        </defs>
+        <circle
+          cx="100" cy="100" r="90"
+          fill="none"
+          stroke="rgba(0,255,136,0.04)"
+          stroke-width="0.5"
+        />
+        <circle
+          cx="100" cy="100" r="90"
+          fill="none"
+          stroke="url(#mr-loader-grad)"
+          stroke-width="1"
+          stroke-linecap="round"
+          stroke-dasharray="140 425"
+          class="mr-loader-spinner"
+        />
+      </svg>
     </div>
   </Transition>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vitepress'
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { useRoute } from 'vitepress'
 
 const loading = ref(false)
+const route = useRoute()
 let hideTimeout: ReturnType<typeof setTimeout> | null = null
 
-onMounted(() => {
-  const router = useRouter()
+// Watch route path — fires on EVERY navigation including cached pages
+watch(() => route.path, (newPath, oldPath) => {
+  if (newPath !== oldPath) {
+    // Hide after content has rendered
+    nextTick(() => {
+      hideTimeout = setTimeout(() => {
+        loading.value = false
+      }, 500)
+    })
+  }
+})
 
-  // Intercept all link clicks that navigate within the site
+onMounted(() => {
+  // Intercept clicks on internal links
   const handleClick = (e: MouseEvent) => {
     const target = (e.target as HTMLElement)?.closest('a')
     if (!target) return
     const href = target.getAttribute('href')
     if (!href) return
-    // Only internal links
+    
+    // Internal links only
     if (href.startsWith('/') || href.startsWith('./') || href.startsWith('../')) {
-      loading.value = true
+      // Don't trigger for same page anchors
+      const url = new URL(href, window.location.origin)
+      if (url.pathname === window.location.pathname) return
+      
       if (hideTimeout) clearTimeout(hideTimeout)
+      loading.value = true
     }
   }
 
   document.addEventListener('click', handleClick, true)
-
-  // Watch for route changes to hide loader
-  router.onAfterRouteChanged = () => {
-    hideTimeout = setTimeout(() => {
-      loading.value = false
-    }, 400)
-  }
 
   onUnmounted(() => {
     document.removeEventListener('click', handleClick, true)
@@ -77,20 +84,23 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.95);
+  background: rgba(0, 0, 0, 0.97);
   z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.mr-loader-ring {
-  animation: mr-loader-fade-in 0.15s ease-out;
+.mr-loader-svg {
+  width: 70vmin;
+  height: 70vmin;
+  max-width: 600px;
+  max-height: 600px;
 }
 
 .mr-loader-spinner {
   transform-origin: center;
-  animation: mr-loader-spin 1s linear infinite;
+  animation: mr-loader-spin 1.2s linear infinite;
 }
 
 @keyframes mr-loader-spin {
@@ -98,16 +108,11 @@ onMounted(() => {
   to { transform: rotate(360deg); }
 }
 
-@keyframes mr-loader-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 .mr-loader-enter-active {
-  transition: opacity 0.15s ease-out;
+  transition: opacity 0.1s ease-out;
 }
 .mr-loader-leave-active {
-  transition: opacity 0.3s ease-in;
+  transition: opacity 0.35s ease-in;
 }
 .mr-loader-enter-from,
 .mr-loader-leave-to {
