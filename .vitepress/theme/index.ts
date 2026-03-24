@@ -46,14 +46,16 @@ import RadarTestDrive2Cards from '../components/RadarTestDrive2Cards.vue'
 import BumbastikABC from '../components/BumbastikABC.vue'
 import OptimaSpaceCalculator from '../optima-calculator/OptimaSpaceCalculator.vue'
 
-// Модуль Роста — Main Page компоненты
+// Main Page компоненты
 import MRHero from '../main-page/MRHero.vue'
 import MRTeams from '../main-page/MRTeams.vue'
 import MRRunscale404 from '../main-page/MRRunscale404.vue'
 import MRProtocol from '../main-page/MRProtocol.vue'
-import MRHistory from '../main-page/MRHistory.vue'
 import MRFooter from '../main-page/MRFooter.vue'
 import ModulRostaPage from '../main-page/ModulRostaPage.vue'
+
+// Launches компоненты
+import MRHistory from '../launches/MRHistory.vue'
 import LaunchesPage from '../launches/LaunchesPage.vue'
 
 export default {
