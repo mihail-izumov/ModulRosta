@@ -48,6 +48,7 @@ import OptimaSpaceCalculator from '../optima-calculator/OptimaSpaceCalculator.vu
 
 // Main Page компоненты
 import MRHero from '../main-page/MRHero.vue'
+import InstrumentPanel from '../main-page/InstrumentPanel.vue'
 import MRTeams from '../main-page/MRTeams.vue'
 import MRRunscale404 from '../main-page/MRRunscale404.vue'
 import MRProtocol from '../main-page/MRProtocol.vue'
@@ -106,8 +107,9 @@ export default {
     app.component('BumbastikABC', BumbastikABC)
     app.component('OptimaSpaceCalculator', OptimaSpaceCalculator)
     
-    // Модуль Роста — Main Page компоненты
+    // Модуль Роста — Main Page
     app.component('MRHero', MRHero)
+    app.component('InstrumentPanel', InstrumentPanel)
     app.component('MRTeams', MRTeams)
     app.component('MRRunscale404', MRRunscale404)
     app.component('MRProtocol', MRProtocol)
