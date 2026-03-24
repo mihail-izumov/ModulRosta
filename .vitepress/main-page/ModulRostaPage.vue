@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import MRHero from './MRSneakPeek.vue'
+import MRSneakPeek from './MRSneakPeek.vue'
 import MRHero from './MRHero.vue'
 import InstrumentPanel from './InstrumentPanel.vue'
 import MRTeams from './MRTeams.vue'
