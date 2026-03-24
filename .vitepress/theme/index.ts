@@ -54,6 +54,7 @@ import MRProtocol from '../main-page/MRProtocol.vue'
 import MRHistory from '../main-page/MRHistory.vue'
 import MRFooter from '../main-page/MRFooter.vue'
 import ModulRostaPage from '../main-page/ModulRostaPage.vue'
+import LaunchesPage from '../main-page/LaunchesPage.vue'
 
 export default {
   extends: DefaultTheme,
@@ -113,5 +114,6 @@ export default {
     app.component('MRHistory', MRHistory)
     app.component('MRFooter', MRFooter)
     app.component('ModulRostaPage', ModulRostaPage)
+    app.component('LaunchesPage', LaunchesPage)
   }
 }
