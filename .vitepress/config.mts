@@ -69,11 +69,11 @@ export default defineConfig({
       function updateApplyLinkTarget() {
         var applyLinks = document.querySelectorAll('.VPSocialLink[aria-label="apply-link"]');
         applyLinks.forEach(function(applyLink) {
-          applyLink.href = '/book-launch';
+          applyLink.href = '/book-my-launch';
           applyLink.setAttribute('target', '_self');
           applyLink.removeAttribute('rel');
           var newLink = document.createElement('a');
-          newLink.href = '/book-launch';
+          newLink.href = '/book-my-launch';
           newLink.className = applyLink.className;
           newLink.setAttribute('aria-label', 'apply-link');
           newLink.setAttribute('target', '_self');
@@ -134,6 +134,19 @@ export default defineConfig({
     
     .VPNavBarTitle .logo{height:32px!important;width:auto!important}
     
+    /* ═══ Nav hover: amber instead of green ═══ */
+    .VPNavBar .VPNavBarMenu .VPNavBarMenuLink:hover{color:#000!important;background:#ff8800!important}
+    .VPNavBar .VPNavBarMenu .VPNavBarMenuLink.active{color:#ff8800!important}
+    .VPNavBar .VPNavBarMenu .VPFlyout.active > button .text{color:#ff8800!important}
+    .VPNavBar .VPNavBarMenu .VPFlyout > button:hover{background:#ff8800!important}
+    .VPNavBar .VPNavBarMenu .VPFlyout > button:hover .text{color:#000!important}
+    .VPMenu .VPMenuLink a:hover,.VPFlyout .VPMenuLink a:hover{background-color:#ff8800!important}
+    .VPMenu .VPMenuLink a:hover span,.VPFlyout .VPMenuLink a:hover span{color:#000!important}
+    .VPMenuLink a.active span,.VPLink.link.active span{color:#ff8800!important}
+    .VPNavScreen .VPNavScreenMenuLink:hover{color:#ff8800!important}
+    .VPNavScreen .VPNavScreenMenuGroup.open .title{color:#ff8800!important}
+    .VPNavScreen .VPNavScreenMenuGroup .item a:hover{color:#ff8800!important}
+    
     /* ═══ Exo 2 for nav ═══ */
     .VPNavBar .VPNavBarMenu .VPNavBarMenuLink,
     .VPNavBar .VPNavBarMenu .VPFlyout > button .text,
@@ -146,6 +159,8 @@ export default defineConfig({
     .VPFlyout .VPMenuItem .text,
     .VPMenuGroup .title {
       font-family: 'Exo 2', 'Inter', sans-serif !important;
+      text-transform: uppercase !important;
+      letter-spacing: 1px !important;
     }
     
     /* ═══ Exo 2 for footer ═══ */
@@ -186,8 +201,8 @@ export default defineConfig({
         width:100%!important;
         content:"БРОНЬ ЗАПУСКА"!important;
         background:transparent!important;
-        border:1.5px solid #f59e0b!important;
-        color:#f59e0b!important;
+        border:1.5px solid #ff8800!important;
+        color:#ff8800!important;
         font-size:16px!important;
         font-weight:700!important;
         font-family:'Exo 2','Inter',sans-serif!important;
@@ -201,7 +216,7 @@ export default defineConfig({
         transition:all .3s ease!important;
       }
       .VPNavScreen .VPSocialLink[aria-label="login-link"]:hover::after{
-        background:#f59e0b!important;
+        background:#ff8800!important;
         color:#000!important;
       }
       .footer-row{flex-direction:column!important;gap:8px!important}
@@ -219,18 +234,18 @@ export default defineConfig({
       font-weight:700;
       letter-spacing:3px;
       text-transform:uppercase;
-      color:#f59e0b;
+      color:#ff8800;
       padding:8px 20px;
       border-radius:2px;
       background:transparent;
-      border:1.5px solid #f59e0b;
+      border:1.5px solid #ff8800;
       transition:all 0.3s ease;
       white-space:nowrap;
       margin:0;
       flex-shrink:0;
     }
     .VPSocialLink[aria-label="login-link"]:hover::after{
-      background:#f59e0b;
+      background:#ff8800;
       color:#000;
       box-shadow:0 0 20px rgba(245,158,11,0.3);
       transform:translateY(-1px);
@@ -300,7 +315,7 @@ export default defineConfig({
         }, 
         link: 'https://t.me/runscale' 
       },
-      { icon: 'github', link: '/book-launch', ariaLabel: 'login-link' }
+      { icon: 'github', link: '/book-my-launch', ariaLabel: 'login-link' }
     ],
   }
 })
