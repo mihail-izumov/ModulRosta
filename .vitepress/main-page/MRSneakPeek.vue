@@ -182,8 +182,8 @@ function goToLaunches() {
   cursor: pointer;
 }
 .mr-sneak-block.hovered {
-  background: rgba(255, 160, 0, 0.02);
-  border-color: rgba(255, 160, 0, 0.12);
+  background: rgba(255, 136, 0, 0.02);
+  border-color: rgba(255, 136, 0, 0.12);
 }
 
 /* Cards container */
@@ -357,8 +357,8 @@ function goToLaunches() {
   transition: all 0.4s ease;
 }
 .mr-sneak-launches-hover {
-  background: rgba(255, 160, 0, 0.08);
-  border-color: rgba(255, 160, 0, 0.2);
+  background: rgba(255, 136, 0, 0.08);
+  border-color: rgba(255, 136, 0, 0.2);
 }
 .mr-sneak-launches-text {
   font-family: 'Inter', sans-serif;
@@ -370,7 +370,7 @@ function goToLaunches() {
   transition: color 0.4s ease;
 }
 .mr-sneak-launches-hover .mr-sneak-launches-text {
-  color: rgb(255, 160, 0);
+  color: rgb(255, 136, 0);
 }
 .mr-sneak-launches-arrow {
   font-size: 14px;
@@ -379,7 +379,7 @@ function goToLaunches() {
   display: inline-block;
 }
 .mr-sneak-arrow-hover {
-  color: rgb(255, 160, 0);
+  color: rgb(255, 136, 0);
   transform: translateX(3px);
 }
 
