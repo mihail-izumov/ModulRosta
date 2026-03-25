@@ -134,9 +134,9 @@ export default defineConfig({
     
     .VPNavBarTitle .logo{height:32px!important;width:auto!important}
     
-    /* ═══ Nav hover: amber instead of green ═══ */
+    /* ═══ Nav hover: amber ═══ */
     .VPNavBar .VPNavBarMenu .VPNavBarMenuLink:hover{color:#000!important;background:#ff8800!important}
-    .VPNavBar .VPNavBarMenu .VPNavBarMenuLink.active{color:#ff8800!important}
+    .VPNavBar .VPNavBarMenu .VPNavBarMenuLink.active{color:#ff8800!important;background:transparent!important}
     .VPNavBar .VPNavBarMenu .VPFlyout.active > button .text{color:#ff8800!important}
     .VPNavBar .VPNavBarMenu .VPFlyout > button:hover{background:#ff8800!important}
     .VPNavBar .VPNavBarMenu .VPFlyout > button:hover .text{color:#000!important}
@@ -144,8 +144,10 @@ export default defineConfig({
     .VPMenu .VPMenuLink a:hover span,.VPFlyout .VPMenuLink a:hover span{color:#000!important}
     .VPMenuLink a.active span,.VPLink.link.active span{color:#ff8800!important}
     .VPNavScreen .VPNavScreenMenuLink:hover{color:#ff8800!important}
-    .VPNavScreen .VPNavScreenMenuGroup.open .title{color:#ff8800!important}
+    .VPNavScreen .VPNavScreenMenuGroup .button-text{color:#fff!important}
+    .VPNavScreen .VPNavScreenMenuGroup.open .button-text{color:#ff8800!important}
     .VPNavScreen .VPNavScreenMenuGroup .item a:hover{color:#ff8800!important}
+    .VPNavScreen .VPNavScreenMenuGroup .bb-chevron-wrap svg{stroke:#ff8800!important}
     
     /* ═══ External link icon: bigger, amber ═══ */
     .VPNavBar .VPNavBarMenu .VPNavBarMenuLink .vpi-external-link,
