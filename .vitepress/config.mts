@@ -67,7 +67,7 @@ export default defineConfig({
         }
       }
       function updateApplyLinkTarget() {
-        var applyLinks = document.querySelectorAll('.VPSocialLink[aria-label="apply-link"]');
+        var applyLinks = document.querySelectorAll('.VPSocialLink[aria-label="login-link"]');
         applyLinks.forEach(function(applyLink) {
           applyLink.href = '/book-my-launch';
           applyLink.setAttribute('target', '_self');
@@ -75,7 +75,7 @@ export default defineConfig({
           var newLink = document.createElement('a');
           newLink.href = '/book-my-launch';
           newLink.className = applyLink.className;
-          newLink.setAttribute('aria-label', 'apply-link');
+          newLink.setAttribute('aria-label', 'login-link');
           newLink.setAttribute('target', '_self');
           Array.from(applyLink.attributes).forEach(function(attr) {
             if (attr.name !== 'href' && attr.name !== 'target' && attr.name !== 'rel') {
@@ -146,6 +146,19 @@ export default defineConfig({
     .VPNavScreen .VPNavScreenMenuLink:hover{color:#ff8800!important}
     .VPNavScreen .VPNavScreenMenuGroup.open .title{color:#ff8800!important}
     .VPNavScreen .VPNavScreenMenuGroup .item a:hover{color:#ff8800!important}
+    
+    /* ═══ External link icon: bigger, amber ═══ */
+    .VPNavBar .VPNavBarMenu .VPNavBarMenuLink .vpi-external-link,
+    .VPNavBar .VPNavBarMenu .VPNavBarMenuLink svg.icon{width:14px!important;height:14px!important;color:#ff8800!important;fill:#ff8800!important;margin-left:4px!important}
+    .VPNavBar .VPNavBarMenu .VPNavBarMenuLink:hover .vpi-external-link,
+    .VPNavBar .VPNavBarMenu .VPNavBarMenuLink:hover svg.icon{color:#000!important;fill:#000!important}
+    .VPNavBarMenuLink[target="_blank"]::after{color:#ff8800!important;font-size:14px!important}
+    .vpi-external-link{color:#ff8800!important;width:14px!important;height:14px!important}
+    .VPNavBarMenuLink .text-icon,.VPNavScreenMenuLink .text-icon{color:#ff8800!important;width:16px!important;height:16px!important}
+    
+    /* ═══ Dropdown alignment fix ═══ */
+    .VPNavBar .VPNavBarMenu .VPFlyout .VPMenu{left:50%!important;transform:translateX(-50%)!important;min-width:180px!important}
+    .VPNavBar .VPNavBarMenu .VPFlyout{position:relative!important}
     
     /* ═══ Exo 2 for nav ═══ */
     .VPNavBar .VPNavBarMenu .VPNavBarMenuLink,
@@ -247,7 +260,7 @@ export default defineConfig({
     .VPSocialLink[aria-label="login-link"]:hover::after{
       background:#ff8800;
       color:#000;
-      box-shadow:0 0 20px rgba(245,158,11,0.3);
+      box-shadow:0 0 20px rgba(255,136,0,0.3);
       transform:translateY(-1px);
     }
     
@@ -324,7 +337,7 @@ function nav(): DefaultTheme.NavItem[] {
   return [
     { text: 'Чекап', link: '/checkup/overview' },
     { text: 'Радар', link: '/radar/overview' },
-    { text: '⚡️ Сигнал', link: 'https://cffx.ru', target: '_blank' },
+    { text: 'Сигнал', link: 'https://cffx.ru', target: '_blank' },
     { 
       text: 'Компания', items: [
         { text: 'Кто мы', link: '/about/company' },
