@@ -152,12 +152,12 @@ export default defineConfig({
     .VPNavBar .VPNavBarMenu .VPNavBarMenuLink svg.icon{width:14px!important;height:14px!important;color:#ff8800!important;fill:#ff8800!important;margin-left:4px!important}
     .VPNavBar .VPNavBarMenu .VPNavBarMenuLink:hover .vpi-external-link,
     .VPNavBar .VPNavBarMenu .VPNavBarMenuLink:hover svg.icon{color:#000!important;fill:#000!important}
-    .VPNavBarMenuLink[target="_blank"]::after{color:#ff8800!important;font-size:14px!important}
     .vpi-external-link{color:#ff8800!important;width:14px!important;height:14px!important}
     .VPNavBarMenuLink .text-icon,.VPNavScreenMenuLink .text-icon{color:#ff8800!important;width:16px!important;height:16px!important}
+    .VPNavBarMenuLink:hover .text-icon{color:#000!important}
     
     /* ═══ Dropdown alignment fix ═══ */
-    .VPNavBar .VPNavBarMenu .VPFlyout .VPMenu{left:50%!important;transform:translateX(-50%)!important;min-width:180px!important}
+    .VPNavBar .VPNavBarMenu .VPFlyout .VPMenu{right:0!important;left:auto!important;transform:none!important;min-width:180px!important}
     .VPNavBar .VPNavBarMenu .VPFlyout{position:relative!important}
     
     /* ═══ Exo 2 for nav ═══ */
