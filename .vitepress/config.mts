@@ -16,35 +16,38 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/runscale_icon_2026.svg' }],
     ['meta', { name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
+    ['link', { href: 'https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&display=swap', rel: 'stylesheet' }],
     ['script', {}, `
     (function() {
       function createFooterContent() {
-        const links = [
+        var links = [
           { text: 'Журнал', href: '/journal/contents/overview' },
           { text: 'Контакт', href: '/about/contacts' },
           { text: 'Условия использования', href: '/terms' },
           { text: 'Телеграм-канал', href: 'https://t.me/runScale', target: '_blank' },
           { text: 'Система', href: '/system/overview' }
         ];
-        let html = '<hr style="border: 0; border-top: 1px solid var(--vp-c-divider); margin: 24px 0;">';
+        var html = '<hr style="border: 0; border-top: 1px solid var(--vp-c-divider); margin: 24px 0;">';
         html += '<div class="custom-footer-links"><div class="footer-row">';
-        links.slice(0, 3).forEach((link, i) => {
+        links.slice(0, 3).forEach(function(link, i) {
           if (i > 0) html += '<span class="dot-separator">•</span>';
           html += '<a href="' + link.href + '"' + (link.target ? ' target="' + link.target + '" rel="noopener noreferrer"' : '') + '>' + link.text + '</a>';
         });
         html += '</div><div class="footer-row">';
-        links.slice(3).forEach((link, i) => {
+        links.slice(3).forEach(function(link, i) {
           if (i > 0) html += '<span class="dot-separator">•</span>';
           html += '<a href="' + link.href + '"' + (link.target ? ' target="' + link.target + '" rel="noopener noreferrer"' : '') + '>' + link.text + '</a>';
         });
         html += '</div></div>';
         html += '<div style="margin-top: 24px; text-align: center;">';
-        html += '<div style="color: white; font-size: 14px;">Расти по своим правилам.</div>';
-        html += '<div style="color: var(--vp-c-text-2); margin-top: 4px; font-size: 14px; text-align: center;">© Модуль Роста® • Создано в <a href="https://orxaos.sbs" target="_blank" style="color: inherit; text-decoration: underline;">Orxaos</a></div>';
+        html += '<div style="color: white; font-size: 14px; font-family: Exo 2, Inter, sans-serif;">Расти по своим правилам.</div>';
+        html += '<div style="color: var(--vp-c-text-2); margin-top: 4px; font-size: 14px; text-align: center; font-family: Exo 2, Inter, sans-serif;">© Модуль Роста® • Создано в <a href="https://orxaos.sbs" target="_blank" style="color: inherit; text-decoration: underline;">Orxaos</a></div>';
         return html;
       }
       function replaceFooter() {
-        let footer = document.querySelector('.VPFooter');
+        var footer = document.querySelector('.VPFooter');
         if (!footer) {
           footer = document.createElement('footer');
           footer.className = 'VPFooter';
@@ -64,17 +67,17 @@ export default defineConfig({
         }
       }
       function updateApplyLinkTarget() {
-        const applyLinks = document.querySelectorAll('.VPSocialLink[aria-label="apply-link"]');
-        applyLinks.forEach(applyLink => {
-          applyLink.href = '/apply';
+        var applyLinks = document.querySelectorAll('.VPSocialLink[aria-label="apply-link"]');
+        applyLinks.forEach(function(applyLink) {
+          applyLink.href = '/book-launch';
           applyLink.setAttribute('target', '_self');
           applyLink.removeAttribute('rel');
-          const newLink = document.createElement('a');
-          newLink.href = '/apply';
+          var newLink = document.createElement('a');
+          newLink.href = '/book-launch';
           newLink.className = applyLink.className;
           newLink.setAttribute('aria-label', 'apply-link');
           newLink.setAttribute('target', '_self');
-          Array.from(applyLink.attributes).forEach(attr => {
+          Array.from(applyLink.attributes).forEach(function(attr) {
             if (attr.name !== 'href' && attr.name !== 'target' && attr.name !== 'rel') {
               newLink.setAttribute(attr.name, attr.value);
             }
@@ -83,17 +86,17 @@ export default defineConfig({
         });
       }
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => { replaceFooter(); updateApplyLinkTarget(); });
+        document.addEventListener('DOMContentLoaded', function() { replaceFooter(); updateApplyLinkTarget(); });
       } else { replaceFooter(); updateApplyLinkTarget(); }
-      window.addEventListener('load', () => { replaceFooter(); updateApplyLinkTarget(); });
-      setTimeout(() => { replaceFooter(); updateApplyLinkTarget(); }, 1000);
-      setTimeout(() => { replaceFooter(); updateApplyLinkTarget(); }, 2000);
-      let lastUrl = location.href;
-      new MutationObserver(() => {
-        const url = location.href;
+      window.addEventListener('load', function() { replaceFooter(); updateApplyLinkTarget(); });
+      setTimeout(function() { replaceFooter(); updateApplyLinkTarget(); }, 1000);
+      setTimeout(function() { replaceFooter(); updateApplyLinkTarget(); }, 2000);
+      var lastUrl = location.href;
+      new MutationObserver(function() {
+        var url = location.href;
         if (url !== lastUrl) {
           lastUrl = url;
-          setTimeout(() => { replaceFooter(); updateApplyLinkTarget(); }, 100);
+          setTimeout(function() { replaceFooter(); updateApplyLinkTarget(); }, 100);
         }
       }).observe(document, { subtree: true, childList: true });
     })();
@@ -131,6 +134,28 @@ export default defineConfig({
     
     .VPNavBarTitle .logo{height:32px!important;width:auto!important}
     
+    /* ═══ Exo 2 for nav ═══ */
+    .VPNavBar .VPNavBarMenu .VPNavBarMenuLink,
+    .VPNavBar .VPNavBarMenu .VPFlyout > button .text,
+    .VPNavScreen .VPNavScreenMenuLink,
+    .VPNavScreen .VPNavScreenMenuGroup .title,
+    .VPNavScreen .VPNavScreenMenuGroup .item a,
+    .VPMenu .VPMenuLink .text,
+    .VPFlyout .VPMenuLink .text,
+    .VPMenu .VPMenuItem .text,
+    .VPFlyout .VPMenuItem .text,
+    .VPMenuGroup .title {
+      font-family: 'Exo 2', 'Inter', sans-serif !important;
+    }
+    
+    /* ═══ Exo 2 for footer ═══ */
+    .custom-footer-links,
+    .footer-row,
+    .footer-row a,
+    .VPFooter {
+      font-family: 'Exo 2', 'Inter', sans-serif !important;
+    }
+    
     @media (min-width:961px){
       .VPNavBar .content{gap:0!important}
       .VPNavBarMenu{margin-right:0!important}
@@ -159,51 +184,56 @@ export default defineConfig({
         align-items:center!important;
         justify-content:center!important;
         width:100%!important;
-        content:"Результаты Чекапов"!important;
-        background-image:linear-gradient(-45deg, #c5f946, #85a931, #c5f946, #85a931);
-        background-size:400% 400%;
-        animation:liquid-fluid 6s ease infinite;
-        color:#000!important;
-        border:none!important;
-        font-size:18px!important;
-        font-weight:600!important;
-        border-radius:12px!important;
+        content:"БРОНЬ ЗАПУСКА"!important;
+        background:transparent!important;
+        border:1.5px solid #f59e0b!important;
+        color:#f59e0b!important;
+        font-size:16px!important;
+        font-weight:700!important;
+        font-family:'Exo 2','Inter',sans-serif!important;
+        letter-spacing:3px!important;
+        border-radius:2px!important;
         padding:18px!important;
         margin:0!important;
         height:52px!important;
         min-height:52px!important;
+        text-transform:uppercase!important;
+        transition:all .3s ease!important;
+      }
+      .VPNavScreen .VPSocialLink[aria-label="login-link"]:hover::after{
+        background:#f59e0b!important;
+        color:#000!important;
       }
       .footer-row{flex-direction:column!important;gap:8px!important}
       .dot-separator{display:none!important}
     }
     
-    @keyframes liquid-fluid {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-    
     .VPSocialLink .vpi-social-github{display:none!important}
     .VPSocialLink{width:auto!important;height:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important}
+    
+    /* ═══ БРОНЬ ЗАПУСКА — amber button ═══ */
     .VPSocialLink[aria-label="login-link"]::after{
-      content:"Результаты Чекапов";
-      font-size:14px;
-      color:#000;
-      padding:8px 16px;
-      border-radius:12px;
-      background-image:linear-gradient(-45deg, #c5f946, #85a931, #c5f946, #85a931);
-      background-size:400% 400%;
-      animation:liquid-fluid 6s ease infinite;
+      content:"БРОНЬ ЗАПУСКА";
+      font-size:12px;
+      font-family:'Exo 2','Inter',sans-serif;
+      font-weight:700;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      color:#f59e0b;
+      padding:8px 20px;
+      border-radius:2px;
+      background:transparent;
+      border:1.5px solid #f59e0b;
       transition:all 0.3s ease;
       white-space:nowrap;
       margin:0;
       flex-shrink:0;
-      font-weight:600;
-      border:none;
     }
     .VPSocialLink[aria-label="login-link"]:hover::after{
-      background-image:linear-gradient(-45deg, #85a931, #c5f946, #85a931, #c5f946);
+      background:#f59e0b;
       color:#000;
-      transform:translateY(-2px);
+      box-shadow:0 0 20px rgba(245,158,11,0.3);
+      transform:translateY(-1px);
     }
     
     .custom-footer-links{display:flex;flex-direction:column;gap:3px;align-items:center}
@@ -270,12 +300,11 @@ export default defineConfig({
         }, 
         link: 'https://t.me/runscale' 
       },
-      { icon: 'github', link: '/results', ariaLabel: 'login-link' }
+      { icon: 'github', link: '/book-launch', ariaLabel: 'login-link' }
     ],
   }
 })
 
-// Остальные функции остаются без изменений
 function nav(): DefaultTheme.NavItem[] {
   return [
     { text: 'Чекап', link: '/checkup/overview' },
@@ -294,170 +323,126 @@ function nav(): DefaultTheme.NavItem[] {
 }
 
 function sidebarBrew(): DefaultTheme.SidebarItem[] {
-  return [
-    {
-      text: "B‑R‑E‑W",
-      collapsed: false,
-      items: [
-        { text: 'Платформа', link: '/brew/run' },
-        { text: 'Протокол', link: '/brew/protocol' },
-        { text: '→ Подключиться', link: '/brew/membership' }
-      ]
-    }
-  ]
+  return [{ text: "B‑R‑E‑W", collapsed: false, items: [
+    { text: 'Платформа', link: '/brew/run' },
+    { text: 'Протокол', link: '/brew/protocol' },
+    { text: '→ Подключиться', link: '/brew/membership' }
+  ]}]
 }
 
 function sidebarRadarSamara(): DefaultTheme.SidebarItem[] {
-  return [
-    {
-      text: 'Индекс Роста // Самара',
-      collapsed: false,
-      items: [
-        { text: 'Рейтинг', link: '/radar/index-smr/overview' },
-        { text: 'Калькулятор', link: '/radar/index-smr/calc' },
-        { text: 'Симулятор', link: '/radar/signal/coffee-points-smr-2025/dashboard' }
-      ]
-    }
-  ]
+  return [{ text: 'Индекс Роста // Самара', collapsed: false, items: [
+    { text: 'Рейтинг', link: '/radar/index-smr/overview' },
+    { text: 'Калькулятор', link: '/radar/index-smr/calc' },
+    { text: 'Симулятор', link: '/radar/signal/coffee-points-smr-2025/dashboard' }
+  ]}]
 }
 
 function sidebarRadarRussia(): DefaultTheme.SidebarItem[] {
-  return [
-    {
-      text: 'Радар',
-      collapsed: false,
-      items: [
-        { text: 'Обзор рынка', link: '/radar/overview' },
-        { text: 'Скрытый потенциал', link: '/radar/scale_index' },
-        { text: 'Фильтр потенциала', link: '/radar/filter' },
-        { text: 'Кто Анна', link: '/radar/who-is-anna' },
-        { text: 'Программа рекомендаций', link: '/radar/invite' }
-      ]
-    }
-  ]
+  return [{ text: 'Радар', collapsed: false, items: [
+    { text: 'Обзор рынка', link: '/radar/overview' },
+    { text: 'Скрытый потенциал', link: '/radar/scale_index' },
+    { text: 'Фильтр потенциала', link: '/radar/filter' },
+    { text: 'Кто Анна', link: '/radar/who-is-anna' },
+    { text: 'Программа рекомендаций', link: '/radar/invite' }
+  ]}]
 }
 
 function sidebarCheckup(): DefaultTheme.SidebarItem[] {
-  return [
-    { 
-      text: 'Чекап', 
-      collapsed: false, 
-      items: [
-        { text: 'Обзор', link: '/checkup/overview' },
-        { text: 'Карта чекапа', link: '/checkup/roadmap' },
-        { text: 'Глубокий чекап', link: '/checkup/deep' },
-        { text: 'Чекап инвестпроекта', link: '/checkup/invest' },
-        { text: 'Подготовка к чекапу', link: '/checkup/prep/overview' },
-        { text: '→ Пройти Чекап', link: '/apply' }
-      ]
-    }
-  ]
+  return [{ text: 'Чекап', collapsed: false, items: [
+    { text: 'Обзор', link: '/checkup/overview' },
+    { text: 'Карта чекапа', link: '/checkup/roadmap' },
+    { text: 'Глубокий чекап', link: '/checkup/deep' },
+    { text: 'Чекап инвестпроекта', link: '/checkup/invest' },
+    { text: 'Подготовка к чекапу', link: '/checkup/prep/overview' },
+    { text: '→ Пройти Чекап', link: '/apply' }
+  ]}]
 }
 
 function sidebarCheckupPrep(): DefaultTheme.SidebarItem[] {
-  return [
-    { 
-      text: 'Подготовка к чекапу', 
-      collapsed: false, 
-      items: [
-        { text: 'Обзор', link: '/checkup/prep/overview' },        
-        { text: '1 - Скрытые проблемы, которые блокируют рост', link: '/checkup/prep/01-hidden-problems-blocking-growth' },
-        { text: '2 - Почему мы запрашиваем готовые отчёты, а не доступы к системам', link: '/checkup/prep/02-why-we-request-ready-reports-not-system-access' },
-        { text: '3 - Почему важно смотреть на весь бизнес, а не на «локальные проблемы»', link: '/checkup/prep/03-system-diagnostics-vs-one-time-solutions' },
-        { text: '4 - Чекап как первый шаг к фрейм-менеджменту', link: '/checkup/prep/04-checkup-for-data-driven-decisions' },
-        { text: '5 - ИИ-аналитика в модели RAG: как живая база знаний меняет подход', link: '/checkup/prep/05-ai-analytics-rag-management' },
-        { text: '6 - 10 разделов аналитики: анатомия вашего бизнеса', link: '/checkup/prep/06-10-diagnostic-sections' },
-        { text: '7 - Три принципа здоровой аналитики на практике', link: '/checkup/prep/07-three-reliable-analytics-principles' },
-        { text: '8 - Как превратить аналитику в ресурс роста – Итоги серии', link: '/checkup/prep/08-analytics-transparent-management' },
-        { text: 'Чек-лист готовности', link: '/checkup/prep/checklist' },
-      ]
-    }
-  ]
+  return [{ text: 'Подготовка к чекапу', collapsed: false, items: [
+    { text: 'Обзор', link: '/checkup/prep/overview' },
+    { text: '1 - Скрытые проблемы, которые блокируют рост', link: '/checkup/prep/01-hidden-problems-blocking-growth' },
+    { text: '2 - Почему мы запрашиваем готовые отчёты, а не доступы к системам', link: '/checkup/prep/02-why-we-request-ready-reports-not-system-access' },
+    { text: '3 - Почему важно смотреть на весь бизнес, а не на «локальные проблемы»', link: '/checkup/prep/03-system-diagnostics-vs-one-time-solutions' },
+    { text: '4 - Чекап как первый шаг к фрейм-менеджменту', link: '/checkup/prep/04-checkup-for-data-driven-decisions' },
+    { text: '5 - ИИ-аналитика в модели RAG: как живая база знаний меняет подход', link: '/checkup/prep/05-ai-analytics-rag-management' },
+    { text: '6 - 10 разделов аналитики: анатомия вашего бизнеса', link: '/checkup/prep/06-10-diagnostic-sections' },
+    { text: '7 - Три принципа здоровой аналитики на практике', link: '/checkup/prep/07-three-reliable-analytics-principles' },
+    { text: '8 - Как превратить аналитику в ресурс роста – Итоги серии', link: '/checkup/prep/08-analytics-transparent-management' },
+    { text: 'Чек-лист готовности', link: '/checkup/prep/checklist' },
+  ]}]
 }
 
 function sidebarAbout(): DefaultTheme.SidebarItem[] {
-  return [{
-      text: 'Компания', collapsed: false, items: [
-        { text: 'Кто мы', link: '/about/company' },
-        { text: 'Мы, Растем', link: '/about/mission' },
-        { text: 'Не только цифры, но и эмоции', link: '/about/balance' },
-        { text: 'Контакт', link: '/about/contacts' }
-      ]
-    }]
+  return [{ text: 'Компания', collapsed: false, items: [
+    { text: 'Кто мы', link: '/about/company' },
+    { text: 'Мы, Растем', link: '/about/mission' },
+    { text: 'Не только цифры, но и эмоции', link: '/about/balance' },
+    { text: 'Контакт', link: '/about/contacts' }
+  ]}]
 }
 
 function sidebarMethod(): DefaultTheme.SidebarItem[] {
-  return [{
-      text: 'Метод', collapsed: false, items: [
-        { text: 'Обзор', link: '/method/overview' },
-        { text: '3 принципа здоровой аналитики', link: '/method/the-three-principles' },
-        { text: 'Метод эффективной трансформации', link: '/method/transform' },
-        { text: 'Фрейм-менеджмент', link: '/method/frames' },
-        { text: 'Рост – это не гонка, а приключение', link: '/method/not-a-race' },
-        { text: 'Сравнить', link: '/method/pro-et-contra' }
-      ]
-    }]
+  return [{ text: 'Метод', collapsed: false, items: [
+    { text: 'Обзор', link: '/method/overview' },
+    { text: '3 принципа здоровой аналитики', link: '/method/the-three-principles' },
+    { text: 'Метод эффективной трансформации', link: '/method/transform' },
+    { text: 'Фрейм-менеджмент', link: '/method/frames' },
+    { text: 'Рост – это не гонка, а приключение', link: '/method/not-a-race' },
+    { text: 'Сравнить', link: '/method/pro-et-contra' }
+  ]}]
 }
 
 function sidebarTechnology(): DefaultTheme.SidebarItem[] {
-  return [{
-      text: 'Технологии', collapsed: false, items: [
-        { text: 'Обзор', link: '/technology/overview' },
-        { text: 'Живая база знаний', link: '/technology/datahub' },
-        { text: 'Аналитика 360°', link: '/technology/analytics-360' },
-        { text: 'ИИ-ассистент продаж', link: '/technology/anna' },
-        { text: 'Речевая аналитика', link: '/technology/wordpower' },
-        { text: 'Дистанционные стратегические сессии', link: '/technology/vision-now' },
-        { text: 'Живые Стандарты', link: '/technology/live-standarts' }
-      ]
-    }]
+  return [{ text: 'Технологии', collapsed: false, items: [
+    { text: 'Обзор', link: '/technology/overview' },
+    { text: 'Живая база знаний', link: '/technology/datahub' },
+    { text: 'Аналитика 360°', link: '/technology/analytics-360' },
+    { text: 'ИИ-ассистент продаж', link: '/technology/anna' },
+    { text: 'Речевая аналитика', link: '/technology/wordpower' },
+    { text: 'Дистанционные стратегические сессии', link: '/technology/vision-now' },
+    { text: 'Живые Стандарты', link: '/technology/live-standarts' }
+  ]}]
 }
 
 function sidebarSystem(): DefaultTheme.SidebarItem[] {
-  return [{
-      text: 'Система роста бизнеса', collapsed: false, items: [
-        { text: 'Обзор', link: '/system/overview' },
-        { text: '12-нед. интенсив', link: '/system/12-weeks' }
-      ]
-    }]
+  return [{ text: 'Система роста бизнеса', collapsed: false, items: [
+    { text: 'Обзор', link: '/system/overview' },
+    { text: '12-нед. интенсив', link: '/system/12-weeks' }
+  ]}]
 }
 
 function sidebarJournal(): DefaultTheme.SidebarItem[] {
-  return [{
-      text: 'Журнал', collapsed: false, items: [
-        { text: 'Содержание', link: '/journal/contents/overview' },        
-        { text: 'Кейсы', link: '/journal/contents/cases' },
-        { text: 'Статьи', link: '/journal/contents/articles' }
-      ]
-    }]
+  return [{ text: 'Журнал', collapsed: false, items: [
+    { text: 'Содержание', link: '/journal/contents/overview' },
+    { text: 'Кейсы', link: '/journal/contents/cases' },
+    { text: 'Статьи', link: '/journal/contents/articles' }
+  ]}]
 }
 
 function sidebarClients(): DefaultTheme.SidebarItem[] {
-  return [{
-      text: 'Клиенты', collapsed: false, items: [
-        { text: 'Обзор', link: '/clients/list' },
-        { text: 'Конкордия-Авто', link: '/clients/konkordiya-auto' },
-        { text: 'Блумкидс', link: '/clients/bloomkids' },
-        { text: 'Чишминский Молочный Завод', link: '/clients/chishminskiy' },
-        { text: 'Ермолаевъ', link: '/clients/ermolaev' },
-        { text: 'FIZ Культура', link: '/clients/fiz-kultura.md' },
-        { text: 'Фонд им. Дмитрия Хворостовского', link: '/clients/hvorostovsky-foundation' },
-        { text: 'Milimon', link: '/clients/milimon.md' },
-        { text: 'SM Live', link: '/clients/sm-live' },
-        { text: 'SMSTRETCHING', link: '/clients/smstretching' },
-        { text: 'СУПЕРЛЕНД', link: '/clients/superland' },
-        { text: 'WOODLED', link: '/clients/woodled' },
-        { text: 'World Plastics Summit 2022', link: '/clients/world-plastics-summit-2022' }
-      ]
-    }]
+  return [{ text: 'Клиенты', collapsed: false, items: [
+    { text: 'Обзор', link: '/clients/list' },
+    { text: 'Конкордия-Авто', link: '/clients/konkordiya-auto' },
+    { text: 'Блумкидс', link: '/clients/bloomkids' },
+    { text: 'Чишминский Молочный Завод', link: '/clients/chishminskiy' },
+    { text: 'Ермолаевъ', link: '/clients/ermolaev' },
+    { text: 'FIZ Культура', link: '/clients/fiz-kultura.md' },
+    { text: 'Фонд им. Дмитрия Хворостовского', link: '/clients/hvorostovsky-foundation' },
+    { text: 'Milimon', link: '/clients/milimon.md' },
+    { text: 'SM Live', link: '/clients/sm-live' },
+    { text: 'SMSTRETCHING', link: '/clients/smstretching' },
+    { text: 'СУПЕРЛЕНД', link: '/clients/superland' },
+    { text: 'WOODLED', link: '/clients/woodled' },
+    { text: 'World Plastics Summit 2022', link: '/clients/world-plastics-summit-2022' }
+  ]}]
 }
 
 function sidebarTerms(): DefaultTheme.SidebarItem[] {
-  return [{
-      text: 'Условия использования', collapsed: false, items: [
-        { text: 'Соглашения', link: '/terms' },
-        { text: 'Политика конфиденциальности', link: '/terms/policy' },
-        { text: 'Согласие на обработку данных', link: '/terms/privacy' }
-      ]
-    }]
+  return [{ text: 'Условия использования', collapsed: false, items: [
+    { text: 'Соглашения', link: '/terms' },
+    { text: 'Политика конфиденциальности', link: '/terms/policy' },
+    { text: 'Согласие на обработку данных', link: '/terms/privacy' }
+  ]}]
 }
