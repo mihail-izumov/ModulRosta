@@ -14,7 +14,7 @@ export default defineConfig({
     },
   },
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/runscale_icon_2026.svg' }],
     ['meta', { name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
     ['script', {}, `
     (function() {
@@ -218,7 +218,7 @@ export default defineConfig({
   outDir: '.vitepress/dist',
   description: 'Находим то, что другие упускают.',
   themeConfig: {
-    logo: '/favicon.svg',
+    logo: '/runscale_logo_2026_2.svg',
     siteTitle: "Модуль Роста®",
     sidebarMenuLabel: 'Меню',
     outlineTitle: 'На этой странице',
