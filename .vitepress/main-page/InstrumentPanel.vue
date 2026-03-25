@@ -60,7 +60,7 @@ const nX = [20, 90, 160]
   <h1 class="tt">Цифровое Превосходство<br/>для Бизнеса</h1>
   <div v-if="!isMobile" class="dk">
     <div class="dc">
-      <div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><g class="oc" style="--d:18s"><circle cx="96" cy="21" r="4" fill="#00ff88" class="pd"/><circle cx="161" cy="133" r="4" fill="#00ff88" class="pd"/><circle cx="31" cy="133" r="4" fill="#00ff88" class="pd"/></g><g class="occ" style="--d:15s"><circle cx="96" cy="31" r="3.5" fill="#00ff88"/><circle cx="152" cy="128" r="3.5" fill="#00ff88"/><circle cx="40" cy="128" r="3.5" fill="#00ff88"/></g><g class="oc" style="--d:12s"><circle cx="96" cy="40" r="3" fill="#00ff88"/><circle cx="144" cy="124" r="3" fill="#00ff88"/><circle cx="48" cy="124" r="3" fill="#00ff88"/></g><g class="occ" style="--d:9s"><circle cx="96" cy="50" r="2.5" fill="#00ff88"/><circle cx="136" cy="119" r="2.5" fill="#00ff88"/><circle cx="56" cy="119" r="2.5" fill="#00ff88"/></g><g class="oc" style="--d:7s"><circle cx="96" cy="58" r="2" fill="#00ff88"/><circle cx="129" cy="115" r="2" fill="#00ff88"/><circle cx="63" cy="115" r="2" fill="#00ff88"/></g><g class="occ" style="--d:5s"><circle cx="96" cy="66" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="122" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="70" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/></g><g class="oc" style="--d:3.5s"><circle cx="96" cy="74" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="115" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="77" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/></g><circle cx="96" cy="96" r="6" fill="#00ff88" class="cg"/></svg></div>
+      <div class="dl d1"><div class="db"></div><svg class="ds" viewBox="0 0 192 192"><line x1="10" y1="96" x2="182" y2="96" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><line x1="96" y1="10" x2="96" y2="182" stroke="rgba(0,255,136,0.2)" stroke-width="1"/><g class="oc" style="--d:18s"><circle cx="96" cy="21" r="4" fill="#00ff88" class="pd"/><circle cx="161" cy="133" r="4" fill="#00ff88" class="pd"/><circle cx="31" cy="133" r="4" fill="#00ff88" class="pd"/></g><g class="occ" style="--d:15s"><circle cx="96" cy="31" r="3.5" fill="#00ff88"/><circle cx="152" cy="128" r="3.5" fill="#00ff88"/><circle cx="40" cy="128" r="3.5" fill="#00ff88"/></g><g class="oc" style="--d:12s"><circle cx="96" cy="40" r="3" fill="#00ff88"/><circle cx="144" cy="124" r="3" fill="#00ff88"/><circle cx="48" cy="124" r="3" fill="#00ff88"/></g><g class="occ" style="--d:9s"><circle cx="96" cy="52" r="2.5" fill="#00ff88"/><circle cx="136" cy="119" r="2.5" fill="#00ff88"/><circle cx="56" cy="119" r="2.5" fill="#00ff88"/></g><g class="oc" style="--d:7s"><circle cx="96" cy="58" r="2" fill="#00ff88"/><circle cx="129" cy="115" r="2" fill="#00ff88"/><circle cx="63" cy="115" r="2" fill="#00ff88"/></g><g class="occ" style="--d:5s"><circle cx="96" cy="66" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="122" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/><circle cx="70" cy="111" r="1.5" fill="#00ff88" opacity="0.7"/></g><g class="oc" style="--d:3.5s"><circle cx="96" cy="74" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="115" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/><circle cx="77" cy="107" r="1.5" fill="#00ff88" opacity="0.5"/></g><circle cx="96" cy="96" r="6" fill="#00ff88" class="cg"/></svg></div>
       <span class="lt">Видим</span>
       <button class="mb" @click.stop="openModal('vidim')">Узнать</button>
     </div>
@@ -138,6 +138,7 @@ const nX = [20, 90, 160]
 </template>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&subset=cyrillic,latin&display=swap');
 @keyframes scw{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 @keyframes sccw{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
 @keyframes dp{0%,100%{opacity:.5}50%{opacity:1}}
@@ -163,7 +164,7 @@ const nX = [20, 90, 160]
 
 <style scoped>
 .ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 32px 24px;overflow:visible}
-.tt{font-family:'Inter',sans-serif;font-size:52px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(0,255,136,.4),0 0 16px rgba(0,255,136,.2);margin-bottom:96px;margin-top:0;text-align:center;line-height:1.2}
+.tt{font-family:'Exo 2',sans-serif;font-size:52px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(0,255,136,.4),0 0 16px rgba(0,255,136,.2);margin-bottom:96px;margin-top:0;text-align:center;line-height:1.2}
 @media(max-width:768px){.tt{font-size:24px;letter-spacing:2px;margin-bottom:56px}.ip{padding:48px 16px 16px}}
 .dk{display:flex;align-items:flex-start;justify-content:center;gap:64px}
 .dc{display:flex;flex-direction:column;align-items:center}
@@ -185,17 +186,17 @@ const nX = [20, 90, 160]
 .dkc{position:absolute;top:50%;left:50%;width:27px;height:27px;border-radius:50%;background:#000;border:3px solid #00ff88;box-shadow:0 0 12px #00ff88,inset 0 0 8px rgba(0,255,136,.3);animation:ca 12s ease-out infinite}
 .dkcm{width:28px;height:28px}
 .dcc{position:absolute;inset:0;z-index:10}
-.cn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Orbitron,monospace;font-weight:700;font-size:58px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);line-height:1}
+.cn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Exo 2',sans-serif;font-weight:700;font-size:58px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);line-height:1}
 .cnm{font-size:60px}
-.cl{position:absolute;top:50%;left:50%;transform:translate(-50%,26px);font-family:Orbitron,monospace;font-size:13px;color:#00ff88;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.cl{position:absolute;top:50%;left:50%;transform:translate(-50%,26px);font-family:'Exo 2',sans-serif;font-size:13px;color:#00ff88;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
 .clm{transform:translate(-50%,30px)}
-.pt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Orbitron,monospace;font-weight:700;font-size:23px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);text-align:center;opacity:0;transition:opacity 1s ease-out}
+.pt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Exo 2',sans-serif;font-weight:700;font-size:23px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);text-align:center;opacity:0;transition:opacity 1s ease-out}
 .pt.vis{opacity:1}.ptm{font-size:24px}
-.lt{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.5;margin-top:24px}
-.ltm{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.4;margin-top:16px}
+.lt{font-family:'Exo 2',sans-serif;font-size:14px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.5;margin-top:24px}
+.ltm{font-family:'Exo 2',sans-serif;font-size:12px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.4;margin-top:16px}
 
 /* More button */
-.mb{display:inline-flex;align-items:center;justify-content:center;padding:8px 24px;margin-top:12px;background:#00ff88 !important;color:#000 !important;border:none !important;border-radius:6px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:all .3s ease;text-decoration:none !important}
+.mb{display:inline-flex;align-items:center;justify-content:center;padding:8px 24px;margin-top:12px;background:#00ff88 !important;color:#000 !important;border:none !important;border-radius:6px;font-family:'Exo 2',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:all .3s ease;text-decoration:none !important}
 .mb:hover{box-shadow:0 0 20px rgba(0,255,136,.5);transform:translateY(-1px)}
 .mb::before,.mb::after{display:none !important;content:none !important}
 .mbm{padding:6px 20px;font-size:10px;margin-top:10px}
@@ -212,7 +213,7 @@ const nX = [20, 90, 160]
 .sl{transition:all .3s ease}
 .orb{animation:orbAnim 3s linear infinite}
 .sh{display:flex;align-items:center;gap:8px;margin-top:12px}
-.sh span{font-family:'Inter',sans-serif;font-size:9px;color:rgba(0,255,136,.5);letter-spacing:2px;text-transform:uppercase}
+.sh span{font-family:'Exo 2',sans-serif;font-size:9px;color:rgba(0,255,136,.5);letter-spacing:2px;text-transform:uppercase}
 
 /* Modal overlay */
 .mr-ip-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:24px 24px 0;overflow-y:auto}
@@ -221,7 +222,7 @@ const nX = [20, 90, 160]
 .mr-ip-close:hover{background:rgba(255,255,255,.1) !important;border-color:rgba(255,255,255,.4) !important}
 .mr-ip-close::before,.mr-ip-close::after{display:none !important;content:none !important}
 .mr-ip-modal-body{padding:24px 48px 80px}
-.mr-ip-modal-placeholder{display:flex;align-items:center;justify-content:center;height:60vh;font-family:'Inter',sans-serif;font-size:32px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;opacity:.3}
+.mr-ip-modal-placeholder{display:flex;align-items:center;justify-content:center;height:60vh;font-family:'Exo 2',sans-serif;font-size:32px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;opacity:.3}
 
 @media(max-width:768px){
   .mr-ip-overlay{padding:16px 16px 0}
