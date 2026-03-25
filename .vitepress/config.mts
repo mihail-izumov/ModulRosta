@@ -218,8 +218,8 @@ export default defineConfig({
   outDir: '.vitepress/dist',
   description: 'Находим то, что другие упускают.',
   themeConfig: {
-    logo: '/runscale_logo_2026_2.svg',
-    siteTitle: "Модуль Роста®",
+    logo: { src: '/runscale_logo_2026_2.svg', alt: 'Модуль Роста®' },
+    siteTitle: false,
     sidebarMenuLabel: 'Меню',
     outlineTitle: 'На этой странице',
     returnToTopLabel: 'Наверх',
