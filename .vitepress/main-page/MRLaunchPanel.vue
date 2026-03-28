@@ -430,7 +430,7 @@ function goToForm() {
   flex-direction: column !important;
   align-items: center !important;
   gap: 22px !important;
-  margin-bottom: 270px !important;
+  margin-bottom: 135px !important;
 }
 
 /* ── Heading ── */
@@ -726,7 +726,7 @@ function goToForm() {
 /* ── Mobile ── */
 @media (max-width: 639px) {
   .mr-sl-root { padding-top: 56px !important; }
-  .mr-sl-column { margin-bottom: 170px !important; gap: 16px !important; }
+  .mr-sl-column { margin-bottom: 85px !important; gap: 16px !important; }
   .mr-sl-heading-white,
   .mr-sl-heading-accent { font-size: 20px !important; }
   .mr-sl-heading { padding: 0 8px !important; }
