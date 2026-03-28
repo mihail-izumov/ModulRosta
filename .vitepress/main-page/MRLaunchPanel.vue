@@ -303,7 +303,7 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
               @mouseleave="launchHover = false"
               @touchstart.passive="onLaunchTouchStart"
               @touchend.passive="onLaunchTouchEnd"
-              @click="allSelected && (window.location.href = '/launch')"
+              @click="allSelected && (window.location.href = '/launch-terminal')"
             >
               <!-- Shimmer when inactive -->
               <div
@@ -409,8 +409,8 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
   width: 100% !important;
   display: flex !important;
   justify-content: center !important;
-  padding-top: 75px !important;
-  padding-bottom: 75px !important;
+  padding-top: 90px !important;
+  padding-bottom: 16px !important;
   padding-left: 16px !important;
   padding-right: 16px !important;
   font-family: 'Inter', sans-serif !important;
@@ -423,6 +423,7 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
   flex-direction: column !important;
   align-items: center !important;
   gap: 22px !important;
+  margin-bottom: 90px !important;
 }
 
 /* ── Heading ── */
@@ -717,8 +718,8 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
 
 /* ── Mobile ── */
 @media (max-width: 639px) {
-  .mr-sl-root { padding-top: 48px !important; padding-bottom: 48px !important; }
-  .mr-sl-column { gap: 16px !important; }
+  .mr-sl-root { padding-top: 56px !important; }
+  .mr-sl-column { margin-bottom: 56px !important; gap: 16px !important; }
   .mr-sl-heading-white,
   .mr-sl-heading-accent { font-size: 20px !important; }
   .mr-sl-heading { padding: 0 8px !important; }
