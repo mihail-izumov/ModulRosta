@@ -55,14 +55,14 @@ const headerBg = computed(() => {
 })
 const formBg = computed(() => headerBg.value)
 
-// ── Watch allSelected ──
+// ── Watch for 3/3 pulse ──
 let pulseTimer: ReturnType<typeof setTimeout> | null = null
 
-watch(allSelected, (val) => {
-  waveTarget = val ? 1 : 0
-  if (!val) {
+watch(count, (newVal, oldVal) => {
+  waveTarget = newVal === 3 ? 1 : 0
+  if (newVal < 3) {
     wasReset = true
-  } else if (wasReset) {
+  } else if (newVal === 3 && oldVal !== undefined && oldVal < 3 && wasReset) {
     launchPulse.value = true
     if (pulseTimer) clearTimeout(pulseTimer)
     pulseTimer = setTimeout(() => { launchPulse.value = false }, 2000)
@@ -402,7 +402,7 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
   width: 100% !important;
   display: flex !important;
   justify-content: center !important;
-  padding: 24px 16px !important;
+  padding: 64px 16px !important;
   font-family: 'Inter', sans-serif !important;
 }
 
@@ -707,6 +707,7 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
 
 /* ── Mobile ── */
 @media (max-width: 639px) {
+  .mr-sl-root { padding: 40px 16px !important; }
   .mr-sl-column { gap: 16px !important; }
   .mr-sl-heading-white,
   .mr-sl-heading-accent { font-size: 20px !important; }
