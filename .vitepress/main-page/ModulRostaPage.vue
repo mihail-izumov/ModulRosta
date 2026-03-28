@@ -5,7 +5,7 @@
     <MRHero />
     <MRProtocol />
     <MRRunscale404 />
-    <MRTeams />
+    <MRLaunchPanel />
   </div>
 </template>
 
