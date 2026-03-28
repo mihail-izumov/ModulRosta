@@ -56,6 +56,8 @@ import MRProtocol from '../main-page/MRProtocol.vue'
 import MRFooter from '../main-page/MRFooter.vue'
 import ModulRostaPage from '../main-page/ModulRostaPage.vue'
 import MRSneakPeek from '../main-page/MRSneakPeek.vue'
+import MRLaunchPanel from '../main-page/MRLaunchPanel.vue'
+
 
 // Launches компоненты
 import MRHistory from '../launches/MRHistory.vue'
@@ -121,5 +123,7 @@ export default {
     app.component('ModulRostaPage', ModulRostaPage)
     app.component('LaunchesPage', LaunchesPage)
     app.component('MRSneakPeek', MRSneakPeek)
+    app.component('MRLaunchPanel', MRLaunchPanel)
+    
   }
 }
