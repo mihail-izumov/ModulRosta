@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 
 // ── Data ──
 const PAIRS = [
@@ -63,9 +63,16 @@ watch(count, (newVal, oldVal) => {
   if (newVal < 3) {
     wasReset = true
   } else if (newVal === 3 && oldVal !== undefined && oldVal < 3 && wasReset) {
-    launchPulse.value = true
-    if (pulseTimer) clearTimeout(pulseTimer)
-    pulseTimer = setTimeout(() => { launchPulse.value = false }, 2000)
+    // Wait for v-if to mount the icon in default state, then trigger rotation
+    nextTick(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          launchPulse.value = true
+          if (pulseTimer) clearTimeout(pulseTimer)
+          pulseTimer = setTimeout(() => { launchPulse.value = false }, 2000)
+        })
+      })
+    })
   }
 })
 
@@ -402,7 +409,10 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
   width: 100% !important;
   display: flex !important;
   justify-content: center !important;
-  padding: 64px 16px !important;
+  padding-top: 75px !important;
+  padding-bottom: 75px !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
   font-family: 'Inter', sans-serif !important;
 }
 
@@ -707,7 +717,7 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
 
 /* ── Mobile ── */
 @media (max-width: 639px) {
-  .mr-sl-root { padding: 40px 16px !important; }
+  .mr-sl-root { padding-top: 48px !important; padding-bottom: 48px !important; }
   .mr-sl-column { gap: 16px !important; }
   .mr-sl-heading-white,
   .mr-sl-heading-accent { font-size: 20px !important; }
