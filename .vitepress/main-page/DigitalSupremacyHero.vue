@@ -47,8 +47,8 @@
           <strong>Строим и запускаем <span class="accent-wrap">цифровые продукты.</span></strong>
         </div>
 
-        <!-- Tooltip -->
-        <div class="tooltip-anchor" :style="{ pointerEvents: activeTipData ? 'auto' : 'none', minHeight: activeTipData ? 'auto' : 0 }">
+        <!-- Tooltip — absolute, no layout shift -->
+        <div class="tooltip-anchor">
           <div v-if="activeTipData" ref="tooltipRef" class="mr-hero-tooltip">
             {{ activeTipData.tip }}
             <svg ref="chevronRef" class="mr-hero-chevron" width="28" height="28" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
@@ -71,14 +71,12 @@ const CELL = 10
 const GAP = 2
 const STEP = CELL + GAP
 const FONT = '"Camera Plain Variable", "Camera Plain", ui-sans-serif, system-ui, sans-serif'
-const LINE_H = 4
 
 const tips = [
   { id: 1, text: 'Не рисуем картинки.', tip: 'Дизайн без инженерии мёртв. Мы проектируем логику и тягу, а не просто перекрашиваем пиксели.' },
   { id: 2, text: 'Не делаем презентации.', tip: 'Слайды не запускают. Запуск запускает. Мы строим работающий продукт, а не рассказываем о нём.' },
 ]
 
-// Refs
 const wrapRef = ref(null)
 const canvas1Ref = ref(null)
 const canvas2Ref = ref(null)
@@ -88,7 +86,6 @@ const beamTextRef = ref(null)
 const tooltipRef = ref(null)
 const chevronRef = ref(null)
 
-// State
 const activeTip = ref(null)
 const hovered = ref(null)
 const fontSize = ref(100)
@@ -99,7 +96,6 @@ function toggleTip(id) {
   activeTip.value = activeTip.value === id ? null : id
 }
 
-// Internal state (not reactive — used in rAF)
 let pix1 = []
 let pix2 = []
 let animId = null
@@ -107,7 +103,6 @@ let pixelTime = 0
 let mountTime = 0
 let fontSizeInternal = 100
 
-// Pixel builder
 function buildPixelsForCanvas(canvas) {
   if (!canvas) return []
   const parent = canvas.parentElement
@@ -270,7 +265,6 @@ onUnmounted(() => {
   document.removeEventListener('touchstart', onClickOutside)
 })
 
-// Rebuild pixels when fontSize changes
 watch(fontSize, () => {
   nextTick(buildAll)
 })
@@ -283,10 +277,10 @@ watch(fontSize, () => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: #050608;
+  background: transparent;
   overflow: hidden;
   font-family: 'Camera Plain Variable', 'Camera Plain', ui-sans-serif, system-ui, sans-serif;
-  padding: 32px 12px;
+  padding: 19px 12px 32px;
   position: relative;
 }
 
@@ -408,10 +402,18 @@ watch(fontSize, () => {
 }
 
 .tooltip-anchor {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
   margin-top: 24px;
   display: flex;
   justify-content: center;
+  pointer-events: none;
+}
+
+.tooltip-anchor > * {
+  pointer-events: auto;
 }
 
 .mr-hero-tooltip {
