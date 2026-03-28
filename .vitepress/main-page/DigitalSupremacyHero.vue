@@ -275,12 +275,12 @@ watch(fontSize, () => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   background: transparent;
   overflow: hidden;
   font-family: 'Camera Plain Variable', 'Camera Plain', ui-sans-serif, system-ui, sans-serif;
-  padding: 10px 12px 19px;
+  padding: 5vh 12px 5vh;
   position: relative;
 }
 
