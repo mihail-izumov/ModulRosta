@@ -16,6 +16,7 @@ import MRHero from './MRHero.vue'
 import MRTeams from './MRTeams.vue'
 import MRRunscale404 from './MRRunscale404.vue'
 import MRProtocol from './MRProtocol.vue'
+import MRLaunchPanel from './MRLaunchPanel.vue'
 </script>
 
 <style>
