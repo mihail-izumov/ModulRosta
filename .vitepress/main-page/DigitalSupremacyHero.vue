@@ -280,7 +280,7 @@ watch(fontSize, () => {
   background: transparent;
   overflow: hidden;
   font-family: 'Camera Plain Variable', 'Camera Plain', ui-sans-serif, system-ui, sans-serif;
-  padding: 5vh 12px 5vh;
+  padding: 5vh 12px 15vh;
   position: relative;
 }
 
