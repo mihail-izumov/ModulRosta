@@ -1,8 +1,8 @@
 <template>
   <div class="mr-page">
     <MRSneakPeek />
+    <DigitalSupremacyHero />
     <InstrumentPanel />
-    <MRHero />
     <MRProtocol />
     <MRRunscale404 />
     <MRLaunchPanel />
@@ -17,6 +17,8 @@ import MRTeams from './MRTeams.vue'
 import MRRunscale404 from './MRRunscale404.vue'
 import MRProtocol from './MRProtocol.vue'
 import MRLaunchPanel from './MRLaunchPanel.vue'
+import DigitalSupremacyHero from './DigitalSupremacyHero.vue'
+  
 </script>
 
 <style>
