@@ -186,6 +186,13 @@ function onLaunchTouchStart() { launchHover.value = true }
 function onLaunchTouchEnd() { setTimeout(() => { launchHover.value = false }, 400) }
 function onFormTouchStart() { formHover.value = true }
 function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
+
+function goToLaunch() {
+  if (allSelected.value) window.location.href = '/launch-terminal'
+}
+function goToForm() {
+  window.location.href = '/book-my-launch'
+}
 </script>
 
 <template>
@@ -303,7 +310,7 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
               @mouseleave="launchHover = false"
               @touchstart.passive="onLaunchTouchStart"
               @touchend.passive="onLaunchTouchEnd"
-              @click="allSelected && (window.location.href = '/launch-terminal')"
+              @click="goToLaunch"
             >
               <!-- Shimmer when inactive -->
               <div
@@ -361,7 +368,7 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
         class="mr-sl-form-link"
         :class="{ 'mr-sl-form-link--hover': formHover }"
         :style="{ background: formBg }"
-        @click="window.location.href = '/book-my-launch'"
+        @click="goToForm"
         @mouseenter="formHover = true"
         @mouseleave="formHover = false"
         @touchstart.passive="onFormTouchStart"
@@ -423,7 +430,7 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
   flex-direction: column !important;
   align-items: center !important;
   gap: 22px !important;
-  margin-bottom: 90px !important;
+  margin-bottom: 270px !important;
 }
 
 /* ── Heading ── */
@@ -719,7 +726,7 @@ function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
 /* ── Mobile ── */
 @media (max-width: 639px) {
   .mr-sl-root { padding-top: 56px !important; }
-  .mr-sl-column { margin-bottom: 56px !important; gap: 16px !important; }
+  .mr-sl-column { margin-bottom: 170px !important; gap: 16px !important; }
   .mr-sl-heading-white,
   .mr-sl-heading-accent { font-size: 20px !important; }
   .mr-sl-heading { padding: 0 8px !important; }
