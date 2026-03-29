@@ -74,7 +74,7 @@ const STEP = CELL + GAP
 const FONT = '"Camera Plain Variable", "Camera Plain", ui-sans-serif, system-ui, sans-serif'
 
 const tips = [
-  { id: 1, text: 'Не рисуем картинки.', bold: 'Дизайн без инженерии мёртв.', normal: 'Проектируем логику и тягу,<br>а не просто перекрашиваем пиксели.' },
+  { id: 1, text: 'Не рисуем картинки.', bold: 'Дизайн без инженерии мёртв.', normal: 'Проектируем логику и тягу,<br>а не перекрашиваем пиксели.' },
   { id: 2, text: 'Не делаем презентации.', bold: 'Слайды не запускают. Запуск запускает.', normal: 'Строим работающий продукт,<br>а не рассказываем о нём.' },
 ]
 
@@ -460,6 +460,7 @@ watch(fontSize, () => {
   .mr-hero-root {
     padding: 7.5vh 12px 24px !important;
     min-height: auto !important;
+    overflow: visible !important;
   }
   .beam-wrap {
     display: block !important;
@@ -475,6 +476,8 @@ watch(fontSize, () => {
     display: block !important;
   }
   .tooltip-anchor {
+    position: relative !important;
+    top: auto !important;
     margin-top: 1.5em !important;
   }
   .mr-tooltip-bold {
