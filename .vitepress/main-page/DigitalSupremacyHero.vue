@@ -51,7 +51,7 @@
         <div class="tooltip-anchor">
           <div v-if="activeTipData" ref="tooltipRef" class="mr-hero-tooltip">
             <div class="mr-tooltip-bold">{{ activeTipData.bold }}</div>
-            <div class="mr-tooltip-normal">{{ activeTipData.normal }}</div>
+            <div class="mr-tooltip-normal" v-html="activeTipData.normal"></div>
             <svg ref="chevronRef" class="mr-hero-chevron" width="28" height="28" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
               <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
                 <path d="M6895.66,4460.27L6895.66,4367.25L7170.76,4203.17L7445.87,4369.28L7445.87,4463.27L7609.08,4560.65L7609.08,4661.64L7608.88,4661.52L7608.48,4859.02L7446.82,4762.34L7446.82,4952.95L7171.71,4793.75L6896.61,4950.91L6896.61,4761.4L6732.45,4859.02L6732.45,4658.64C6732.45,4658.64 6732.45,4557.65 6732.45,4557.65L6895.66,4460.27ZM7171.71,4696.96L6982.75,4804.41L6982.75,4710.18L7171.71,4597.82L7360.68,4710.83L7360.68,4805.79L7171.71,4696.96ZM7391.44,4531.16L7170.76,4397.91L6895.66,4561.99L6895.66,4561.27L6814.11,4609.92L6814.14,4709.48L7171.69,4497.69L7171.71,4497.69L7527.73,4711.65L7527.68,4613.08L7391.44,4531.8L7391.44,4531.16Z" fill="rgba(88,166,255,0.4)" />
@@ -74,7 +74,7 @@ const STEP = CELL + GAP
 const FONT = '"Camera Plain Variable", "Camera Plain", ui-sans-serif, system-ui, sans-serif'
 
 const tips = [
-  { id: 1, text: 'Не рисуем картинки.', bold: 'Дизайн без инженерии мёртв.', normal: 'Проектируем логику и тягу, а не просто перекрашиваем пиксели.' },
+  { id: 1, text: 'Не рисуем картинки.', bold: 'Дизайн без инженерии мёртв.', normal: 'Проектируем логику и тягу,<br>а не просто перекрашиваем пиксели.' },
   { id: 2, text: 'Не делаем презентации.', bold: 'Слайды не запускают. Запуск запускает.', normal: 'Строим работающий продукт, а не рассказываем о нём.' },
 ]
 
@@ -281,7 +281,7 @@ watch(fontSize, () => {
   background: transparent;
   overflow: hidden;
   font-family: 'Camera Plain Variable', 'Camera Plain', ui-sans-serif, system-ui, sans-serif;
-  padding: 5vh 12px 10vh;
+  padding: 7.5vh 12px 40px;
   position: relative;
 }
 
@@ -456,6 +456,9 @@ watch(fontSize, () => {
     font-size: clamp(20px, 5.5vw, 28px) !important;
     max-width: 100% !important;
     margin-top: 16px !important;
+  }
+  .mr-hero-root {
+    padding: 7.5vh 12px 24px !important;
   }
   .beam-wrap {
     display: block !important;
