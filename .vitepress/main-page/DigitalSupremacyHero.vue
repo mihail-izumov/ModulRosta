@@ -75,7 +75,7 @@ const FONT = '"Camera Plain Variable", "Camera Plain", ui-sans-serif, system-ui,
 
 const tips = [
   { id: 1, text: 'Не рисуем картинки.', bold: 'Дизайн без инженерии мёртв.', normal: 'Проектируем логику и тягу,<br>а не просто перекрашиваем пиксели.' },
-  { id: 2, text: 'Не делаем презентации.', bold: 'Слайды не запускают. Запуск запускает.', normal: 'Строим работающий продукт, а не рассказываем о нём.' },
+  { id: 2, text: 'Не делаем презентации.', bold: 'Слайды не запускают. Запуск запускает.', normal: 'Строим работающий продукт,<br>а не рассказываем о нём.' },
 ]
 
 const wrapRef = ref(null)
@@ -459,6 +459,7 @@ watch(fontSize, () => {
   }
   .mr-hero-root {
     padding: 7.5vh 12px 24px !important;
+    min-height: auto !important;
   }
   .beam-wrap {
     display: block !important;
