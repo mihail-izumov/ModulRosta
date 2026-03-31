@@ -165,7 +165,7 @@ const nX = [20, 90, 160]
 </style>
 
 <style scoped>
-.ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 32px 24px;overflow:visible}
+.ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px 24px;overflow:visible}
 .chev{width:48px;height:48px;margin-bottom:16px}
 .tt{font-family:'Inter',sans-serif;font-size:52px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(255,255,255,.2);margin-bottom:16px;margin-top:0;text-align:center;line-height:1.2}
 .sub{font-family:'Inter',sans-serif;font-size:34px;font-weight:400;color:#00ff88;text-align:center;margin:0 0 56px;letter-spacing:1px;line-height:1.3}
@@ -194,8 +194,8 @@ const nX = [20, 90, 160]
 .cnm{font-size:60px}
 .cl{position:absolute;top:50%;left:50%;transform:translate(-50%,26px);font-family:'Inter',sans-serif;font-size:13px;color:#00ff88;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
 .clm{transform:translate(-50%,30px)}
-.pt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Inter',sans-serif;font-weight:700;font-size:23px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);text-align:center;opacity:0;transition:opacity 1s ease-out}
-.pt.vis{opacity:1}.ptm{font-size:24px}
+.pt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Inter',sans-serif;font-weight:700;font-size:16px;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);text-align:center;opacity:0;transition:opacity 1s ease-out}
+.pt.vis{opacity:1}.ptm{font-size:17px}
 .lt{font-family:'Inter',sans-serif;font-size:28px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.5;margin-top:24px}
 .ltm{font-family:'Inter',sans-serif;font-size:24px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.4;margin-top:16px}
 
