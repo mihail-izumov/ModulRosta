@@ -248,7 +248,6 @@ const _e = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5QjFJS0hGeHRQ
 const COUNTER_API = typeof atob !== 'undefined' ? atob(_e) : ''
 
 async function fetchAndIncrement(): Promise<number> {
-  // Если API настроен — используем общий счётчик
   if (COUNTER_API) {
     try {
       const res = await fetch(COUNTER_API, { method: 'POST' })
@@ -257,9 +256,8 @@ async function fetchAndIncrement(): Promise<number> {
         localStorage.setItem('rs_launch_num', String(data.count))
         return data.count
       }
-    } catch (e) { /* fallback to localStorage */ }
+    } catch (e) { /* fallback */ }
   }
-  // Fallback: localStorage (per-browser)
   let num = parseInt(localStorage.getItem('rs_launch_num') || '0'); num++
   localStorage.setItem('rs_launch_num', String(num))
   return num
@@ -267,6 +265,12 @@ async function fetchAndIncrement(): Promise<number> {
 
 function displayNum(num: number) {
   if (jNumRef.value) jNumRef.value.textContent = String(num).padStart(3, '0')
+}
+
+function showCachedNum() {
+  // Мгновенно показать последнее известное значение
+  const cached = parseInt(localStorage.getItem('rs_launch_num') || '0')
+  displayNum(cached || 1)
 }
 
 async function incLaunchNum() {
@@ -385,8 +389,10 @@ function updateClock() {
 function onResize() { buildPixels() }
 
 onMounted(async () => {
-  const num = await fetchAndIncrement()
-  displayNum(num)
+  // Мгновенно показать кэшированное значение
+  showCachedNum()
+  // API обновит в фоне (без await — не блокирует загрузку)
+  fetchAndIncrement().then(num => displayNum(num))
   updateClock(); clockIv = setInterval(updateClock, 1000)
 
   await buildLogoMask()
@@ -502,7 +508,7 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700;800&family=Fira+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
 
-.lt-root{width:100vw;height:calc(100vh - 120px);background:#050608;overflow:hidden;padding:12px;font-family:'Fira Sans',sans-serif;color:#fff;position:relative;z-index:1;}
+.lt-root{width:100vw;height:calc(100vh - 120px);background:transparent;overflow:hidden;padding:12px;font-family:'Fira Sans',sans-serif;color:#fff;position:relative;z-index:1;}
 .layout{display:flex;width:100%;height:100%;border:1px solid rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
 
 /* LEFT */
@@ -597,21 +603,21 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 
 /* MOBILE */
 @media(max-width:768px){
-  .lt-root{padding:8px;height:calc(100vh - 100px);}
+  .lt-root{padding:8px;height:calc(100vh - 100px);background:transparent;}
   .layout{flex-direction:column;}
-  .panel-left{width:100%;max-width:none;height:140px;min-height:140px;padding:16px 20px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);overflow:hidden;flex-shrink:0;}
+  .panel-left{width:100%;max-width:none;height:120px;min-height:120px;padding:14px 20px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);overflow:hidden;flex-shrink:0;}
   .journal-header{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
   .journal-icon{width:36px;height:36px;margin-bottom:0;}
   .journal-title-row{margin-bottom:0;}.journal-title{font-size:14px;}.journal-badge{font-size:14px;padding:4px 12px;}
-  .journal-log{max-height:60px;flex:none;font-size:10px;line-height:1.6;}.journal-clock{display:none;}
-  .panel-right{flex:1;min-height:0;}.canvas-area{flex:1;min-height:0;}
-  .terminal-wrap{width:92%;}.terminal{height:38vh;}
-  .patch-notes{height:auto;min-height:240px;max-height:360px;padding:20px 20px;font-size:16px;line-height:2.0;flex-shrink:0;}
-  .pn-title{font-size:16px;margin-bottom:14px;padding-bottom:10px;}
-  .pn-dim{font-size:14px;}
+  .journal-log{max-height:50px;flex:none;font-size:10px;line-height:1.6;}.journal-clock{display:none;}
+  .panel-right{flex:1;min-height:0;}.canvas-area{flex:3;min-height:0;}
+  .terminal-wrap{width:92%;}.terminal{height:42vh;}
+  .patch-notes{flex-shrink:0;height:auto;min-height:140px;max-height:180px;padding:16px 20px;font-size:13px;line-height:1.8;margin-top:4px;}
+  .pn-title{font-size:13px;margin-bottom:10px;padding-bottom:8px;}
+  .pn-dim{font-size:11px;}
   :deep(.t-btn),:deep(.t-btn-sleep){max-width:100%;width:100%;text-align:center;line-height:1.4;}
-  .pn-btn-wrap{margin-bottom:16px !important;padding-bottom:4px !important;}
-  .pn-details-btn{font-size:14px !important;padding:10px 24px !important;}
+  .pn-btn-wrap{margin-bottom:12px !important;padding-bottom:4px !important;}
+  .pn-details-btn{font-size:12px !important;padding:8px 20px !important;}
   .sm-panel{padding:28px 20px;}
   .sm-close{top:12px;right:14px;font-size:22px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;}
   .sm-header{margin-top:32px;}.sm-stats{gap:16px;}.sm-stat-val{font-size:28px;}.sm-stat-div{height:40px;}
