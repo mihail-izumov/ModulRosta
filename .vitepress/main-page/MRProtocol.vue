@@ -21,17 +21,9 @@
 
       <!-- Footer -->
       <div class="mr-protocol-footer">
-        <div class="mr-protocol-footer-header">
-          <div class="mr-protocol-footer-left">
-            <span class="mr-protocol-summary-label">ПОЛНЫЙ R&D ЦИКЛ</span>
-            <p class="mr-protocol-summary-value">Всё включено. Продукт через 60 дней.</p>
-          </div>
-          <button class="mr-protocol-cta" @click="openProtocolModal('scout')">Этапы сборки</button>
-        </div>
-        <div class="mr-protocol-terminal-line">
-          <span class="mr-terminal-prompt">›</span>
-          <span class="mr-terminal-text">Стратегия → Дизайн-система → Интерфейс → Продукт.</span>
-        </div>
+        <div class="mr-protocol-footer-label">ВСЁ ВКЛЮЧЕНО</div>
+        <p class="mr-protocol-footer-text">Стратегия, дизайн-система, интерфейс, код, запуск и&nbsp;сопровождение&nbsp;— одна команда, один процесс, один результат.</p>
+        <button class="mr-protocol-cta" @click="openProtocolModal('scout')">Детали</button>
       </div>
     </div>
 
@@ -60,9 +52,9 @@
               <div class="mr-protocol-step-content">
                 <!-- Step 0: Scout -->
                 <div v-if="currentStep === 0" class="mr-step-scout">
-                  <div class="mr-modal-header"><span class="mr-protocol-modal-code">MOD-01</span><h2 class="mr-modal-title">Разведка</h2></div>
+                  <div class="mr-modal-header"><span class="mr-protocol-modal-code">ЗАП-01</span><h2 class="mr-modal-title">Разведка</h2></div>
                   <div class="mr-details-meta">
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">ЧЕКАП БИЗНЕСА + АНАЛИЗ РЫНКА РАДАРОМ</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">НАХОДИМ ЧТО ТОРМОЗИТ РОСТ</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">7–10д</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">150 000 ₽</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Бренд-платформа + GO/NO-GO</span></div>
@@ -78,9 +70,9 @@
 
                 <!-- Step 1: Checkup -->
                 <div v-if="currentStep === 1" class="mr-step-checkup">
-                  <div class="mr-modal-header"><span class="mr-protocol-modal-code">MOD-02</span><h2 class="mr-modal-title">Симуляция</h2></div>
+                  <div class="mr-modal-header"><span class="mr-protocol-modal-code">ЗАП-02</span><h2 class="mr-modal-title">Симуляция</h2></div>
                   <div class="mr-details-meta">
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">ДИЗАЙН-СИСТЕМА И ПРОТОТИП</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">ПРОВЕРЯЕМ РЕШЕНИЕ</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">30д</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">350 000 ₽</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Дизайн-система + Прототип</span></div>
@@ -115,9 +107,9 @@
 
                 <!-- Step 2: Execute -->
                 <div v-if="currentStep === 2" class="mr-step-execute">
-                  <div class="mr-modal-header"><span class="mr-protocol-modal-code">MOD-03</span><h2 class="mr-modal-title">Запуск продукта</h2></div>
+                  <div class="mr-modal-header"><span class="mr-protocol-modal-code">ЗАП-03</span><h2 class="mr-modal-title">Запуск</h2></div>
                   <div class="mr-details-meta">
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">ДИЗАЙН И СТРАТЕГИЯ В КОДЕ</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">РЕШЕНИЕ РАБОТАЕТ</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">30д</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">по запросу</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Рабочий продукт</span></div>
@@ -180,9 +172,9 @@ const modalOpen = ref(false)
 const currentStep = ref(0)
 
 const protocolItems = [
-  { id: 'scout', code: 'MOD-01', title: 'Разведка', subtitle: 'ЧЕКАП БИЗНЕСА + АНАЛИЗ РЫНКА РАДАРОМ', duration: '20д' },
-  { id: 'checkup', code: 'MOD-02', title: 'Симуляция', subtitle: 'ДИЗАЙН-СИСТЕМА И ПРОТОТИП', duration: '20д' },
-  { id: 'execute', code: 'MOD-03', title: 'Запуск продукта', subtitle: 'ДИЗАЙН И СТРАТЕГИЯ В КОДЕ', duration: '20д' }
+  { id: 'scout', code: 'ЗАП-01', title: 'Разведка', subtitle: 'НАХОДИМ ЧТО ТОРМОЗИТ РОСТ', duration: '~20д' },
+  { id: 'checkup', code: 'ЗАП-02', title: 'Симуляция', subtitle: 'ПРОВЕРЯЕМ РЕШЕНИЕ', duration: '~20д' },
+  { id: 'execute', code: 'ЗАП-03', title: 'Запуск', subtitle: 'РЕШЕНИЕ РАБОТАЕТ', duration: '~20д' }
 ]
 
 function openProtocolModal(modeId: string) {
@@ -235,47 +227,18 @@ function goToStep(step: number) { currentStep.value = step }
 .mr-protocol-details-btn span { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
 
 /* Footer */
-.mr-protocol-footer { display: flex; flex-direction: column; padding: 32px; background: rgba(0, 255, 136, 0.05); border: 2px solid rgb(0, 255, 136); border-radius: 12px; margin-top: 24px; gap: 24px; }
-.mr-protocol-footer-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-.mr-protocol-footer-left { display: flex; flex-direction: column; gap: 6px; }
-.mr-protocol-summary-label { font-family: 'Camera Plain Variable', 'Inter', sans-serif; font-size: 14px; color: rgba(0, 255, 136, 0.7); text-transform: uppercase; letter-spacing: 3px; font-weight: 400; }
-.mr-protocol-summary-value { font-family: 'Camera Plain Variable', 'Inter', sans-serif; font-size: clamp(24px, 3.5vw, 34px); color: #fff; font-weight: 500; text-align: left; margin: 0; line-height: 1.2; }
+.mr-protocol-footer { display: flex; flex-direction: column; align-items: flex-start; padding: 32px; background: rgba(0, 255, 136, 0.05); border: 2px solid rgb(0, 255, 136); border-radius: 12px; margin-top: 24px; gap: 16px; }
+.mr-protocol-footer-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgb(0, 255, 136); text-transform: uppercase; letter-spacing: 3px; }
+.mr-protocol-footer-text { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 17px; color: rgba(255, 255, 255, 0.5); margin: 0; line-height: 1.6; max-width: 560px; }
 
-/* Glassmorphism terminal line */
-.mr-protocol-terminal-line {
-  display: inline-flex; align-items: center; gap: 12px; padding: 14px 24px;
-  background: rgba(0, 255, 136, 0.04);
-  border-radius: 8px; position: relative; overflow: hidden;
-  border: 1px solid transparent;
-  background-clip: padding-box;
-}
-.mr-protocol-terminal-line::before {
-  content: ''; position: absolute; inset: 0; border-radius: 8px; padding: 1px;
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.5), rgba(0, 255, 136, 0.05) 40%, rgba(0, 255, 136, 0.15) 70%, rgba(0, 255, 136, 0.4));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-}
-.mr-protocol-terminal-line::after {
-  content: ''; position: absolute; inset: 0; border-radius: 8px;
-  background: radial-gradient(ellipse at 20% 50%, rgba(0, 255, 136, 0.08), transparent 60%);
-  pointer-events: none;
-}
-.mr-terminal-prompt { font-family: 'Camera Plain Variable', 'JetBrains Mono', monospace; font-size: 16px; color: rgb(0, 255, 136); font-weight: 700; flex-shrink: 0; position: relative; z-index: 1; }
-.mr-terminal-text { font-family: 'Camera Plain Variable', 'JetBrains Mono', monospace; font-size: 14px; color: rgba(255, 255, 255, 0.85); letter-spacing: 1px; position: relative; z-index: 1; }
-
-.mr-protocol-cta { display: inline-flex; align-items: center; gap: 8px; padding: 16px 40px; background: rgb(0, 255, 136) !important; color: #000 !important; font-family: 'Camera Plain Variable', 'Inter', sans-serif; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s ease; border: none !important; cursor: pointer; border-radius: 6px; text-decoration: none !important; flex-shrink: 0; }
+.mr-protocol-cta { display: inline-flex; align-items: center; gap: 8px; padding: 16px 40px; background: rgb(0, 255, 136) !important; color: #000 !important; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s ease; border: none !important; cursor: pointer; border-radius: 6px; text-decoration: none !important; margin-top: 8px; }
 .mr-protocol-cta::before, .mr-protocol-cta::after { display: none !important; content: none !important; }
 .mr-protocol-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4); }
 
 @media (max-width: 900px) {
   .mr-protocol-row { grid-template-columns: 70px 1fr 60px; }
   .mr-protocol-details-btn { display: none; }
-  .mr-protocol-footer-header { flex-direction: column; align-items: flex-start; gap: 20px; }
-  .mr-protocol-summary-label { font-size: 12px; }
   .mr-protocol-cta { width: 100%; justify-content: center; }
-  .mr-protocol-terminal-line { padding: 12px 16px; }
-  .mr-terminal-text { font-size: 12px; }
 }
 
 /* Modal Wrapper */
