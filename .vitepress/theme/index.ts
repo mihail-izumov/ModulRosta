@@ -59,6 +59,7 @@ import MRSneakPeek from '../main-page/MRSneakPeek.vue'
 import MRLaunchPanel from '../main-page/MRLaunchPanel.vue'
 import DigitalSupremacyHero from '../main-page/DigitalSupremacyHero.vue'
 import MRRadarBadge from '../main-page/MRRadarBadge.vue'
+import LaunchTerminal from '../main-page/LaunchTerminal.vue'
 
 
 // Launches компоненты
@@ -127,7 +128,8 @@ export default {
     app.component('MRSneakPeek', MRSneakPeek)
     app.component('MRLaunchPanel', MRLaunchPanel)
     app.component('DigitalSupremacyHero', DigitalSupremacyHero)
-    app.component('MRRadarBadge', MRRadarBadge)    
+    app.component('MRRadarBadge', MRRadarBadge)   
+    app.component('LaunchTerminal', LaunchTerminal)   
     
   }
 }
