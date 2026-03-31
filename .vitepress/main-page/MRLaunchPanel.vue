@@ -3,9 +3,9 @@ import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 
 // ── Data ──
 const PAIRS = [
-  { left: 'Симптом', right: 'Причина', label: 'Фокус' },
-  { left: 'Шум', right: 'Сигнал', label: 'Ускорение' },
-  { left: 'Шоу', right: 'Результат', label: 'Амбиция' },
+  { left: 'Симптом', right: 'Причина', label: 'Что ищем' },
+  { left: 'Шум', right: 'Сигнал', label: 'Как решаем' },
+  { left: 'Отчёт', right: 'Вердикт', label: 'Что получаете' },
 ]
 
 const BLUE = { r: 88, g: 166, b: 255 }
@@ -227,7 +227,7 @@ function goToForm() {
               class="mr-sl-header-text"
               :style="{ color: allSelected ? accentRgb : 'rgba(255,255,255,0.85)' }"
             >
-              {{ allSelected ? 'Системы активны' : 'Первый запуск' }}
+              {{ allSelected ? 'Готовы к сессии' : 'Синхронизация' }}
             </span>
           </div>
 
@@ -346,7 +346,7 @@ function goToForm() {
                   </div>
                 </div>
                 <span class="mr-sl-btn-text" :style="{ color: accentRgb }">
-                  Ранскейл режим
+                  90 мин. ранскейл сессия
                 </span>
               </div>
 

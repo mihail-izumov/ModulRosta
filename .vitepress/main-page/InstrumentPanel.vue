@@ -57,7 +57,6 @@ const nX = [20, 90, 160]
 
 <template>
 <div class="ip">
-  <svg class="chev" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg"><g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)"><path d="M6895.66,4460.27L6895.66,4367.25L7170.76,4203.17L7445.87,4369.28L7445.87,4463.27L7609.08,4560.65L7609.08,4661.64L7608.88,4661.52L7608.48,4859.02L7446.82,4762.34L7446.82,4952.95L7171.71,4793.75L6896.61,4950.91L6896.61,4761.4L6732.45,4859.02L6732.45,4658.64C6732.45,4658.64 6732.45,4557.65 6732.45,4557.65L6895.66,4460.27ZM7171.71,4696.96L6982.75,4804.41L6982.75,4710.18L7171.71,4597.82L7360.68,4710.83L7360.68,4805.79L7171.71,4696.96ZM7391.44,4531.16L7170.76,4397.91L6895.66,4561.99L6895.66,4561.27L6814.11,4609.92L6814.14,4709.48L7171.69,4497.69L7171.71,4497.69L7527.73,4711.65L7527.68,4613.08L7391.44,4531.8L7391.44,4531.16Z" fill="white"/></g></svg>
   <h1 class="tt">От проблемы<br/>до работающей системы.</h1>
   <p class="sub">Одна команда. Полный цикл.</p>
   <div v-if="!isMobile" class="dk">
@@ -166,10 +165,9 @@ const nX = [20, 90, 160]
 
 <style scoped>
 .ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px 24px;overflow:visible}
-.chev{width:48px;height:48px;margin-bottom:16px}
 .tt{font-family:'Inter',sans-serif;font-size:52px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(255,255,255,.2);margin-bottom:16px;margin-top:0;text-align:center;line-height:1.2}
 .sub{font-family:'Inter',sans-serif;font-size:34px;font-weight:400;color:#00ff88;text-align:center;margin:0 0 56px;letter-spacing:1px;line-height:1.3}
-@media(max-width:768px){.chev{width:32px;height:32px;margin-bottom:12px}.tt{font-size:24px;letter-spacing:2px;margin-bottom:12px}.sub{font-size:18px;margin-bottom:36px}.ip{padding:24px 16px 16px}}
+@media(max-width:768px){.tt{font-size:24px;letter-spacing:2px;margin-bottom:12px}.sub{font-size:18px;margin-bottom:36px}.ip{padding:24px 16px 16px}}
 .dk{display:flex;align-items:flex-start;justify-content:center;gap:64px;overflow:visible}
 .dc{display:flex;flex-direction:column;align-items:center;overflow:visible}
 .dcm{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:260px;overflow:visible}
