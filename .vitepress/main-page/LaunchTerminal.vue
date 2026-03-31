@@ -412,9 +412,6 @@ onMounted(async () => {
   setPhase('blue')
   window.addEventListener('resize', onResize)
 
-  // Prevent touch scroll on canvas area (causes color flicker on mobile)
-  canvasWrapRef.value?.addEventListener('touchmove', (e: Event) => { e.preventDefault() }, { passive: false })
-
   await wait(800); jl('Загрузка версии 1.0', 'dim')
   await wait(800); jl('Настройка параметров...', 'dim')
   await wait(800); jl('Текущая дата: ' + new Date().toLocaleDateString('ru-RU'), 'dim')
@@ -617,16 +614,16 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 
 /* MOBILE */
 @media(max-width:768px){
-  .lt-root{padding:0;height:auto;min-height:calc(100vh - 64px);background:transparent;overflow:hidden;margin-bottom:80px;max-width:100vw;overscroll-behavior:none;}
-  .layout{flex-direction:column;border:none;border-radius:0;gap:0;overflow:hidden;height:calc(100vh - 64px);overscroll-behavior:none;}
+  .lt-root{padding:0;height:auto;min-height:calc(100vh - 64px);background:transparent;overflow:hidden;margin-bottom:80px;max-width:100vw;}
+  .layout{flex-direction:column;border:none;border-radius:0;gap:0;overflow:hidden;height:calc(100vh - 64px);}
   .panel-left{width:100%;max-width:none;min-width:0;height:110px;min-height:110px;padding:12px 16px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);overflow:hidden;flex-shrink:0;}
   .journal-header{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
   .journal-icon{width:32px;height:32px;margin-bottom:0;}
   .journal-title-row{margin-bottom:0;}.journal-title{font-size:14px;}.journal-badge{font-size:14px;padding:4px 12px;}
   .journal-log{max-height:45px;flex:none;font-size:10px;line-height:1.6;}.journal-clock{display:none;}
-  .panel-right{flex:1;min-height:0;overflow:hidden;}.canvas-area{flex:3;min-height:0;overflow:hidden;touch-action:none;-webkit-overflow-scrolling:auto;}
+  .panel-right{flex:1;min-height:0;overflow:hidden;}.canvas-area{flex:3;min-height:0;overflow:hidden;}
   .terminal-wrap{width:90% !important;}
-  .terminal{height:42vh;touch-action:pan-y;}
+  .terminal{height:42vh;}
   .patch-notes{flex-shrink:0;height:auto;min-height:130px;max-height:170px;padding:14px 16px;font-size:13px;line-height:1.8;margin-top:0;border-top:1px solid rgba(255,255,255,0.06);}
   .pn-title{font-size:13px;margin-bottom:10px;padding-bottom:8px;}
   .pn-dim{font-size:11px;}
