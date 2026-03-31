@@ -9,8 +9,8 @@
 
 <style scoped>
 .mr-radar-wrapper {
-  padding: 20px 0 0 0;
-  margin-bottom: 48px;
+  padding: 0;
+  margin: 0 0 64px 0;
   display: flex;
   justify-content: center;
   background: transparent;
