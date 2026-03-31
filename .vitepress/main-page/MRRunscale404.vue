@@ -47,12 +47,14 @@
 </template>
 
 <script setup lang="ts">
-import MRLaunchPanel from '../.vitepress/main-page/MRLaunchPanel.vue'
+import MRLaunchPanel from './MRLaunchPanel.vue'
 </script>
 
-<style scoped>
+<style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+</style>
 
+<style scoped>
 .mr-rs404-section {
   position: relative;
   padding: 100px 24px;
