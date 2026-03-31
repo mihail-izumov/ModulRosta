@@ -6,6 +6,7 @@
     <MRProtocol />
     <MRRunscale404 />
     <MRLaunchPanel />
+    <MRRadarBadge />
   </div>
 </template>
 
@@ -18,6 +19,7 @@ import MRRunscale404 from './MRRunscale404.vue'
 import MRProtocol from './MRProtocol.vue'
 import MRLaunchPanel from './MRLaunchPanel.vue'
 import DigitalSupremacyHero from './DigitalSupremacyHero.vue'
+import MRRadarBadge from './MRRadarBadge.vue' 
   
 </script>
 
