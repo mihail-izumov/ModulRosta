@@ -2,15 +2,9 @@
   <section class="mr-rs404-section">
     <div class="mr-rs404-scanner mr-rs404-scanner-top"></div>
     <div class="mr-rs404-container">
-      <div class="mr-rs404-badge">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-        90 минут. Одна сессия. Один вердикт.
-      </div>
-      <h2 class="mr-rs404-title">РЕЖИМ РАНСКЕЙЛ</h2>
-
       <div class="mr-rs404-terminal">
         <div class="mr-rs404-terminal-block mr-rs404-terminal-input">
-          Чекап системы и процессов<span class="mr-rs404-cursor"></span>
+          Одна сессия. Одно решение.<span class="mr-rs404-cursor"></span>
         </div>
         <span class="mr-rs404-terminal-arrow">→</span>
         <div class="mr-rs404-terminal-block mr-rs404-terminal-output">
@@ -18,11 +12,7 @@
         </div>
       </div>
 
-      <div class="mr-rs404-description">
-        <p>Находим что тормозит рост прямо сейчас. Выбираем один цифровой продукт, который решает это.</p>
-        <p>Документ на одной странице: <span class="mr-rs404-go">GO</span> или <span class="mr-rs404-nogo">NO GO</span>.</p>
-        <p><span class="mr-rs404-go">GO</span> — запускаем. <span class="mr-rs404-nogo">NO GO</span> — документ показывает что устранить, чтобы запуск стал возможным.</p>
-      </div>
+      <h2 class="mr-rs404-title">РЕЖИМ РАНСКЕЙЛ</h2>
 
       <div class="mr-rs404-stats">
         <div class="mr-rs404-stat-item">
@@ -39,6 +29,12 @@
           <div class="mr-rs404-stat-value">GO</div>
           <div class="mr-rs404-stat-label">ВЕРДИКТ</div>
         </div>
+      </div>
+
+      <div class="mr-rs404-description">
+        <p>Находим что тормозит рост прямо сейчас. Выбираем один цифровой продукт, который решает это.</p>
+        <p>Документ на одной странице: <span class="mr-rs404-go">GO</span> или <span class="mr-rs404-nogo">NO GO</span>.</p>
+        <p><span class="mr-rs404-go">GO</span> — запускаем. <span class="mr-rs404-nogo">NO GO</span> — документ показывает что устранить, чтобы запуск стал возможным.</p>
       </div>
     </div>
     <MRLaunchPanel />
@@ -57,7 +53,7 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
 <style scoped>
 .mr-rs404-section {
   position: relative;
-  padding: 100px 24px;
+  padding: 100px 24px 32px;
   text-align: center;
   overflow: hidden;
   border-top: 1px solid rgba(255, 136, 0, 0.3);
@@ -92,31 +88,12 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
 
 .mr-rs404-container { position: relative; max-width: 800px; margin: 0 auto; z-index: 1; }
 
-.mr-rs404-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Orbitron', 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: #f80;
-  letter-spacing: 3px;
-  padding: 8px 16px;
-  border: 1px solid rgba(255, 136, 0, 0.3);
-  border-radius: 4px;
-  margin-bottom: 32px;
-  animation: mr-rs404-badge-pulse 2s ease-in-out infinite;
-  text-shadow: 0 0 10px rgba(255, 136, 0, 0.5);
-}
-.mr-rs404-badge svg { flex-shrink: 0; }
-
-@keyframes mr-rs404-badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-
 .mr-rs404-title {
   font-family: 'JetBrains Mono', monospace;
-  font-size: clamp(36px, 8vw, 64px);
+  font-size: clamp(42px, 10vw, 80px);
   font-weight: 700;
   color: #f80;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   letter-spacing: 4px;
   text-shadow: 0 0 30px rgba(255, 136, 0, 0.6), 0 0 60px rgba(255, 136, 0, 0.3);
   text-transform: uppercase;
@@ -125,8 +102,8 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
 /* Description block */
 .mr-rs404-description {
   max-width: 620px;
-  margin: 32px auto 48px;
-  text-align: left;
+  margin: 24px auto 0;
+  text-align: center;
 }
 
 .mr-rs404-description p {
@@ -157,7 +134,7 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
   justify-content: center;
   align-items: center;
   gap: 48px;
-  margin-bottom: 48px;
+  margin-bottom: 0;
   flex-wrap: wrap;
 }
 
@@ -193,7 +170,7 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
   align-items: center;
   justify-content: center;
   gap: 16px;
-  margin-bottom: 8px;
+  margin-bottom: 32px;
   flex-wrap: wrap;
 }
 
@@ -235,7 +212,7 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
   .mr-rs404-stat-value { font-size: 36px; }
   .mr-rs404-terminal { flex-direction: column; }
   .mr-rs404-terminal-arrow { transform: rotate(90deg); animation: mr-rs404-arrow-bounce 1.5s ease-in-out infinite; }
-  .mr-rs404-description { text-align: left; padding: 0 8px; }
+  .mr-rs404-description { padding: 0 8px; }
 }
 
 @keyframes mr-rs404-arrow-bounce {
