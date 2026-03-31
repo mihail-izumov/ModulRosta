@@ -22,16 +22,16 @@
               class="tip-span"
               :class="{ hovered: hovered === 1 }"
               @click.stop="toggleTip(1)"
-              @mouseenter="hovered = 1"
-              @mouseleave="hovered = null"
+              @mouseenter="onHoverIn(1)"
+              @mouseleave="onHoverOut"
             >Не рисуем картинки.</span>
             <span class="beam-spacer">&ensp;</span>
             <span
               class="tip-span"
               :class="{ hovered: hovered === 2 }"
               @click.stop="toggleTip(2)"
-              @mouseenter="hovered = 2"
-              @mouseleave="hovered = null"
+              @mouseenter="onHoverIn(2)"
+              @mouseleave="onHoverOut"
             >Не делаем презентации.</span>
           </span>
 
@@ -47,11 +47,15 @@
           <strong>Строим и запускаем <span class="accent-wrap">цифровые продукты.</span></strong>
         </div>
 
-        <!-- Tooltip — absolute, no layout shift -->
+        <!-- Tooltip — absolute, auto-cycling fade in/out -->
         <div class="tooltip-anchor">
-          <div v-if="activeTipData" ref="tooltipRef" class="mr-hero-tooltip">
-            <div class="mr-tooltip-bold">{{ activeTipData.bold }}</div>
-            <div class="mr-tooltip-normal" v-html="activeTipData.normal"></div>
+          <div
+            ref="tooltipRef"
+            class="mr-hero-tooltip"
+            :class="{ 'tooltip-visible': tooltipVisible }"
+          >
+            <div class="mr-tooltip-bold">{{ displayTip.bold }}</div>
+            <div class="mr-tooltip-normal" v-html="displayTip.normal"></div>
             <svg ref="chevronRef" class="mr-hero-chevron" width="28" height="28" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
               <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
                 <path d="M6895.66,4460.27L6895.66,4367.25L7170.76,4203.17L7445.87,4369.28L7445.87,4463.27L7609.08,4560.65L7609.08,4661.64L7608.88,4661.52L7608.48,4859.02L7446.82,4762.34L7446.82,4952.95L7171.71,4793.75L6896.61,4950.91L6896.61,4761.4L6732.45,4859.02L6732.45,4658.64C6732.45,4658.64 6732.45,4557.65 6732.45,4557.65L6895.66,4460.27ZM7171.71,4696.96L6982.75,4804.41L6982.75,4710.18L7171.71,4597.82L7360.68,4710.83L7360.68,4805.79L7171.71,4696.96ZM7391.44,4531.16L7170.76,4397.91L6895.66,4561.99L6895.66,4561.27L6814.11,4609.92L6814.14,4709.48L7171.69,4497.69L7171.71,4497.69L7527.73,4711.65L7527.68,4613.08L7391.44,4531.8L7391.44,4531.16Z" fill="rgba(88,166,255,0.4)" />
@@ -87,14 +91,102 @@ const beamTextRef = ref(null)
 const tooltipRef = ref(null)
 const chevronRef = ref(null)
 
-const activeTip = ref(null)
 const hovered = ref(null)
 const fontSize = ref(100)
+const tooltipVisible = ref(false)
+const currentTipIndex = ref(0)
 
-const activeTipData = computed(() => tips.find(t => t.id === activeTip.value) || null)
+const displayTip = computed(() => tips[currentTipIndex.value])
+
+/* ── Auto-cycle state ── */
+const FADE_DUR = 500      // ms — matches CSS transition
+const HOLD_DUR = 3500     // ms — how long tooltip stays visible
+const PAUSE_DUR = 800     // ms — gap between tooltips
+let cycleTimer = null
+let isPaused = false       // true when user manually interacts
+
+function startCycle() {
+  stopCycle()
+  // Fade in current tip
+  tooltipVisible.value = true
+  hovered.value = tips[currentTipIndex.value].id
+
+  cycleTimer = setTimeout(() => {
+    // Fade out
+    tooltipVisible.value = false
+    hovered.value = null
+
+    cycleTimer = setTimeout(() => {
+      // Switch to next tip
+      currentTipIndex.value = (currentTipIndex.value + 1) % tips.length
+      if (!isPaused) startCycle()
+    }, FADE_DUR + PAUSE_DUR)
+  }, HOLD_DUR)
+}
+
+function stopCycle() {
+  if (cycleTimer) {
+    clearTimeout(cycleTimer)
+    cycleTimer = null
+  }
+}
 
 function toggleTip(id) {
-  activeTip.value = activeTip.value === id ? null : id
+  const tipIdx = tips.findIndex(t => t.id === id)
+  if (tipIdx === -1) return
+
+  // If clicking the currently visible tip — close and resume cycle
+  if (tooltipVisible.value && currentTipIndex.value === tipIdx) {
+    tooltipVisible.value = false
+    hovered.value = null
+    isPaused = false
+    setTimeout(() => {
+      currentTipIndex.value = (tipIdx + 1) % tips.length
+      startCycle()
+    }, FADE_DUR + PAUSE_DUR)
+    return
+  }
+
+  // Pause auto-cycle, show the clicked tip
+  isPaused = true
+  stopCycle()
+  const wasVisible = tooltipVisible.value
+  tooltipVisible.value = false
+  hovered.value = null
+
+  setTimeout(() => {
+    currentTipIndex.value = tipIdx
+    tooltipVisible.value = true
+    hovered.value = id
+
+    // Resume auto-cycle after hold
+    cycleTimer = setTimeout(() => {
+      tooltipVisible.value = false
+      hovered.value = null
+      isPaused = false
+      setTimeout(() => {
+        currentTipIndex.value = (tipIdx + 1) % tips.length
+        startCycle()
+      }, FADE_DUR + PAUSE_DUR)
+    }, HOLD_DUR)
+  }, wasVisible ? FADE_DUR : 50)
+}
+
+let userHoverId = null  // tracks explicit mouse hover
+
+function onHoverIn(id) {
+  userHoverId = id
+  hovered.value = id
+}
+
+function onHoverOut() {
+  userHoverId = null
+  // Restore auto-cycle highlight if it's currently showing a tip
+  if (tooltipVisible.value) {
+    hovered.value = tips[currentTipIndex.value].id
+  } else {
+    hovered.value = null
+  }
 }
 
 let pix1 = []
@@ -238,7 +330,16 @@ function onResize() {
 
 function onClickOutside(e) {
   if (subBlockRef.value && !subBlockRef.value.contains(e.target)) {
-    activeTip.value = null
+    // If user clicked outside while paused, resume cycle
+    if (isPaused) {
+      isPaused = false
+      tooltipVisible.value = false
+      hovered.value = null
+      setTimeout(() => {
+        currentTipIndex.value = (currentTipIndex.value + 1) % tips.length
+        startCycle()
+      }, FADE_DUR + PAUSE_DUR)
+    }
   }
 }
 
@@ -254,6 +355,9 @@ onMounted(() => {
   mountTime = performance.now()
   animId = requestAnimationFrame(draw)
 
+  // Start auto-cycling tooltips after a brief initial delay
+  setTimeout(() => startCycle(), 1200)
+
   window.addEventListener('resize', onResize)
   document.addEventListener('mousedown', onClickOutside)
   document.addEventListener('touchstart', onClickOutside)
@@ -261,6 +365,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (animId) cancelAnimationFrame(animId)
+  stopCycle()
   window.removeEventListener('resize', onResize)
   document.removeEventListener('mousedown', onClickOutside)
   document.removeEventListener('touchstart', onClickOutside)
@@ -430,6 +535,16 @@ watch(fontSize, () => {
   text-align: center;
   border: 1px solid rgba(88,166,255,0.12);
   z-index: 100;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+
+.mr-hero-tooltip.tooltip-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .mr-hero-chevron {

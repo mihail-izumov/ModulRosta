@@ -37,8 +37,8 @@
         <p><span class="mr-rs404-go">GO</span> — запускаем. <span class="mr-rs404-nogo">NO GO</span> — документ показывает что устранить, чтобы запуск стал возможным.</p>
       </div>
     </div>
-    <MRLaunchPanel />
     <div class="mr-rs404-scanner mr-rs404-scanner-bottom"></div>
+    <MRLaunchPanel />
   </section>
 </template>
 
@@ -53,8 +53,7 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
 <style scoped>
 .mr-rs404-section {
   position: relative;
-  padding: 100px 24px 32px;
-  text-align: center;
+  padding: 100px 24px 0;
   overflow: hidden;
   border-top: 1px solid rgba(255, 136, 0, 0.3);
   border-bottom: 1px solid rgba(255, 136, 0, 0.3);
@@ -81,20 +80,21 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
 }
 
 .mr-rs404-scanner-top { top: 0; animation: mr-rs404-scan-right 4s linear infinite; }
-.mr-rs404-scanner-bottom { bottom: 0; animation: mr-rs404-scan-left 4s linear infinite; }
+.mr-rs404-scanner-bottom { position: relative; margin: 32px 0 16px; animation: mr-rs404-scan-left 4s linear infinite; }
 
 @keyframes mr-rs404-scan-right { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 @keyframes mr-rs404-scan-left { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-.mr-rs404-container { position: relative; max-width: 800px; margin: 0 auto; z-index: 1; }
+.mr-rs404-container { position: relative; max-width: 800px; margin: 0 auto; z-index: 1; text-align: center; }
 
 .mr-rs404-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: clamp(42px, 10vw, 80px);
+  font-family: 'Inter', sans-serif;
+  font-size: 52px;
   font-weight: 700;
   color: #f80;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   letter-spacing: 4px;
+  line-height: 62px;
   text-shadow: 0 0 30px rgba(255, 136, 0, 0.6), 0 0 60px rgba(255, 136, 0, 0.3);
   text-transform: uppercase;
 }
@@ -133,7 +133,7 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 48px;
+  gap: 64px;
   margin-bottom: 0;
   flex-wrap: wrap;
 }
@@ -144,17 +144,16 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
   font-family: 'Orbitron', 'JetBrains Mono', monospace;
   font-size: clamp(48px, 10vw, 72px);
   font-weight: 500;
-  color: #f80;
+  color: #fff;
   line-height: 1;
   margin-bottom: 12px;
-  text-shadow: 0 0 20px rgba(255, 136, 0, 0.8), 0 0 40px rgba(255, 136, 0, 0.4);
   letter-spacing: 2px;
 }
 
 .mr-rs404-stat-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 14px;
-  color: #555;
+  color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
   letter-spacing: 2px;
 }
@@ -162,7 +161,7 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
 .mr-rs404-stat-divider {
   width: 1px;
   height: 80px;
-  background: rgba(255, 136, 0, 0.3);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .mr-rs404-terminal {
