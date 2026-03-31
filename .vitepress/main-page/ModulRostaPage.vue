@@ -5,8 +5,6 @@
     <InstrumentPanel />
     <MRProtocol />
     <MRRunscale404 />
-    <MRLaunchPanel />
-    <MRRadarBadge />
   </div>
 </template>
 
