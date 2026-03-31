@@ -164,7 +164,7 @@ const nX = [20, 90, 160]
 </style>
 
 <style scoped>
-.ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px 24px;overflow:visible}
+.ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:15px 32px 24px;overflow:visible}
 .tt{font-family:'Inter',sans-serif;font-size:52px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(255,255,255,.2);margin-bottom:16px;margin-top:0;text-align:center;line-height:1.2}
 .sub{font-family:'Inter',sans-serif;font-size:34px;font-weight:400;color:#00ff88;text-align:center;margin:0 0 56px;letter-spacing:1px;line-height:1.3}
 @media(max-width:768px){.tt{font-size:24px;letter-spacing:2px;margin-bottom:12px}.sub{font-size:18px;margin-bottom:36px}.ip{padding:24px 16px 16px}}
