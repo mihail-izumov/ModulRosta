@@ -2,7 +2,7 @@
   <div class="mr-radar-wrapper">
     <div class="mr-radar-badge">
       <svg class="mr-radar-hexagon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-      <span class="mr-radar-text">Цифровые модульные системы</span>
+      <span class="mr-radar-text">Модульные системы роста</span>
     </div>
   </div>
 </template>
@@ -10,7 +10,7 @@
 <style scoped>
 .mr-radar-wrapper {
   padding: 0;
-  margin: 0 0 64px 0;
+  margin: 0 0 96px 0;
   display: flex;
   justify-content: center;
   background: transparent;
