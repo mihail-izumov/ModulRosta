@@ -22,36 +22,11 @@
       <!-- Footer -->
       <div class="mr-protocol-footer">
         <div class="mr-protocol-footer-header">
-          <span class="mr-protocol-summary-label">R&D ЦИКЛ</span>
+          <span class="mr-protocol-summary-label">ПОЛНЫЙ ЦИКЛ</span>
           <span class="mr-protocol-footer-duration">60 ДНЕЙ</span>
         </div>
-        <p class="mr-protocol-summary-value">Всё включено.</p>
-        <div class="mr-protocol-package-grid">
-          <div class="mr-package-card">
-            <div class="mr-package-icon-glass">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg>
-            </div>
-            <div class="mr-package-title">Стратегия</div>
-          </div>
-          <div class="mr-package-card">
-            <div class="mr-package-icon-glass">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="7"/><circle cx="15" cy="15" r="7"/></svg>
-            </div>
-            <div class="mr-package-title">Дизайн-система</div>
-          </div>
-          <div class="mr-package-card">
-            <div class="mr-package-icon-glass">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21v-6"/><path d="M12 9V3"/><path d="M3 15h18"/><path d="M3 9h18"/><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
-            </div>
-            <div class="mr-package-title">Интерфейс</div>
-          </div>
-          <div class="mr-package-card">
-            <div class="mr-package-icon-glass">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09"/><path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05"/></svg>
-            </div>
-            <div class="mr-package-title">Цифровой продукт</div>
-          </div>
-        </div>
+        <p class="mr-protocol-summary-value">Всё включено. Продукт через 60 дней.</p>
+        <p class="mr-protocol-summary-subtitle">R&D ЦИКЛ: Стратегия → Дизайн-система → Интерфейс → Продукт.</p>
         <button class="mr-protocol-cta" @click="openProtocolModal('scout')">Этапы сборки</button>
       </div>
     </div>
@@ -260,6 +235,7 @@ function goToStep(step: number) { currentStep.value = step }
 .mr-protocol-footer-header { display: flex; justify-content: space-between; align-items: center; width: 100%; padding-bottom: 16px; border-bottom: 1px solid rgba(0, 255, 136, 0.2); }
 .mr-protocol-summary-label { font-family: 'JetBrains Mono', monospace; font-size: 24px; color: rgb(0, 255, 136); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
 .mr-protocol-summary-value { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 28px; color: #fff; font-weight: 500; text-align: center; margin: 0; }
+.mr-protocol-summary-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: rgba(0, 255, 136, 0.7); text-align: center; margin: 0; letter-spacing: 1px; }
 .mr-protocol-footer-duration { font-family: 'JetBrains Mono', monospace; font-size: 24px; color: rgb(0, 255, 136); font-weight: 700; }
 
 .mr-protocol-package-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; width: 100%; }
