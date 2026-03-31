@@ -59,7 +59,7 @@
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">150 000 ₽</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Бренд-платформа + GO/NO-GO</span></div>
                   </div>
-                  <div class="mr-protocol-modal-method">Глубинные интервью, анализ конкурентов, позиционирование.</div>
+                  <div class="mr-protocol-modal-method">Находим что именно тормозит рост. Не симптомы — причину.</div>
                   <div class="mr-protocol-modal-roadmap">
                     <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">1–3</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Погружение</div><div class="mr-roadmap-step-desc">Интервью с основателем, изучение рынка.</div></div></div>
                     <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">4–6</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Позиционирование</div><div class="mr-roadmap-step-desc">Анализ конкурентов, поиск дифференциации.</div></div></div>
@@ -77,7 +77,7 @@
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">350 000 ₽</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Дизайн-система + Прототип</span></div>
                   </div>
-                  <div class="mr-protocol-modal-method">Создаём визуальную идентичность и проектируем интерфейс.</div>
+                  <div class="mr-protocol-modal-method">Собираем решение и проверяем на реальных данных. До запуска.</div>
                   <!-- Artifact Gallery -->
                   <div class="mr-artifact-gallery">
                     <div class="mr-artifact-card">
@@ -114,7 +114,7 @@
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">по запросу</span></div>
                     <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Рабочий продукт</span></div>
                   </div>
-                  <div class="mr-protocol-modal-method">Превращаем дизайн в работающий продукт. Pixel-perfect.</div>
+                  <div class="mr-protocol-modal-method">Решение работает. На ваших данных, в вашем бизнесе.</div>
                   <!-- Assembly Animation -->
                   <div class="mr-module-assembly-visual">
                     <div class="mr-assembly-block header">HEADER</div>
@@ -134,9 +134,9 @@
 
                 <!-- Step 3: Slot -->
                 <div v-if="currentStep === 3" class="mr-step-slot">
-                  <div class="mr-slot-header"><h2 class="mr-slot-title">От идеи до бренда и продукта</h2><p class="mr-slot-subtitle">Стратегия → Айдентика → Интерфейс → Код. Единая система.</p></div>
-                  <div class="mr-slot-offer"><div class="mr-slot-offer-label">LAUNCH PAD • ПОЛНЫЙ ЦИКЛ</div><h3 class="mr-slot-offer-title">Бренд-платформа + Дизайн-система + Рабочий продукт</h3><div class="mr-slot-duration"><span class="mr-slot-duration-label">Срок реализации</span><span class="mr-slot-duration-value">60 дней</span></div></div>
-                  <div class="mr-slot-grid"><div class="mr-slot-box"><div class="mr-slot-box-label">ВХОДИТ В ПАКЕТ:</div><ul class="mr-slot-list"><li>→ Аудит и Стратегия (MOD-01)</li><li>→ Дизайн-система и Прототип (MOD-02)</li><li>→ Разработка и Релиз (MOD-03)</li></ul></div><div class="mr-slot-box mr-slot-price-box"><div class="mr-slot-box-label">СТОИМОСТЬ СЛОТА:</div><div class="mr-slot-price">от 500 000 ₽</div><div class="mr-slot-price-note">*оплата поэтапная (3 транша)</div></div></div>
+                  <div class="mr-slot-header"><h2 class="mr-slot-title">Всё включено</h2></div>
+                  <div class="mr-slot-offer"><div class="mr-slot-offer-label">ПОЛНЫЙ ЗАПУСК</div><h3 class="mr-slot-offer-title">Стратегия, дизайн, код, запуск — одна команда, один результат.</h3><div class="mr-slot-duration"><span class="mr-slot-duration-label">Срок реализации</span><span class="mr-slot-duration-value mr-slot-duration-small">~60д</span></div></div>
+                  <div class="mr-slot-grid"><div class="mr-slot-box"><div class="mr-slot-box-label">ВХОДИТ:</div><ul class="mr-slot-list"><li>→ ЗАП-01  Разведка</li><li>→ ЗАП-02  Симуляция</li><li>→ ЗАП-03  Запуск</li></ul></div><div class="mr-slot-box mr-slot-price-box"><div class="mr-slot-box-label">СТОИМОСТЬ СЛОТА:</div><div class="mr-slot-price">от 800 000 ₽</div><div class="mr-slot-price-note">*оплата поэтапная (3 транша)</div></div></div>
                   <a href="https://t.me/runScale" target="_blank" class="mr-slot-cta">ЗАБРОНИРОВАТЬ СЛОТ →</a>
                 </div>
               </div>
@@ -228,8 +228,8 @@ function goToStep(step: number) { currentStep.value = step }
 
 /* Footer */
 .mr-protocol-footer { display: flex; flex-direction: column; align-items: flex-start; padding: 32px; background: rgba(0, 255, 136, 0.05); border: 2px solid rgb(0, 255, 136); border-radius: 12px; margin-top: 24px; gap: 16px; }
-.mr-protocol-footer-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgb(0, 255, 136); text-transform: uppercase; letter-spacing: 3px; }
-.mr-protocol-footer-text { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 17px; color: rgba(255, 255, 255, 0.5); margin: 0; line-height: 1.6; max-width: 560px; }
+.mr-protocol-footer-label { font-size: clamp(28px, 5vw, 42px); font-weight: 500; color: #fff; }
+.mr-protocol-footer-text { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: rgb(0, 255, 136); margin: 0; line-height: 1.7; max-width: 600px; letter-spacing: 0.5px; }
 
 .mr-protocol-cta { display: inline-flex; align-items: center; gap: 8px; padding: 16px 40px; background: rgb(0, 255, 136) !important; color: #000 !important; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s ease; border: none !important; cursor: pointer; border-radius: 6px; text-decoration: none !important; margin-top: 8px; }
 .mr-protocol-cta::before, .mr-protocol-cta::after { display: none !important; content: none !important; }
@@ -344,6 +344,7 @@ function goToStep(step: number) { currentStep.value = step }
 .mr-slot-offer-title { font-size: 20px; color: #fff; margin: 0 0 16px 0; }
 .mr-slot-duration-label { font-size: 12px; color: #555; display: block; margin-bottom: 4px; }
 .mr-slot-duration-value { font-family: 'JetBrains Mono', monospace; font-size: 32px; color: rgb(0, 255, 136); font-weight: 600; }
+.mr-slot-duration-value.mr-slot-duration-small { font-size: 14px; color: #555; font-weight: 700; letter-spacing: 1px; }
 .mr-slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
 @media (max-width: 600px) { .mr-slot-grid { grid-template-columns: 1fr; } }
 .mr-slot-box { padding: 20px; background: rgba(10, 10, 10, 0.5); border-radius: 8px; border: 1px solid #222; }
