@@ -58,7 +58,7 @@ import ModulRostaPage from '../main-page/ModulRostaPage.vue'
 import MRSneakPeek from '../main-page/MRSneakPeek.vue'
 import MRLaunchPanel from '../main-page/MRLaunchPanel.vue'
 import DigitalSupremacyHero from '../main-page/DigitalSupremacyHero.vue'
-
+import MRRadarBadge from '../main-page/MRRadarBadge.vue'
 
 
 // Launches компоненты
@@ -127,7 +127,7 @@ export default {
     app.component('MRSneakPeek', MRSneakPeek)
     app.component('MRLaunchPanel', MRLaunchPanel)
     app.component('DigitalSupremacyHero', DigitalSupremacyHero)
-    
+    app.component('MRRadarBadge', MRRadarBadge)    
     
   }
 }
