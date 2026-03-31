@@ -508,7 +508,7 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700;800&family=Fira+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
 
-.lt-root{width:100vw;height:calc(100vh - 120px);background:transparent;overflow:hidden;padding:12px;font-family:'Fira Sans',sans-serif;color:#fff;position:relative;z-index:1;}
+.lt-root{width:100%;height:calc(100vh - 120px);background:transparent;overflow:hidden;padding:12px;font-family:'Fira Sans',sans-serif;color:#fff;position:relative;z-index:1;}
 .layout{display:flex;width:100%;height:100%;border:1px solid rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
 
 /* LEFT */
@@ -603,16 +603,16 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 
 /* MOBILE */
 @media(max-width:768px){
-  .lt-root{padding:8px;height:calc(100vh - 100px);background:transparent;}
-  .layout{flex-direction:column;}
-  .panel-left{width:100%;max-width:none;height:120px;min-height:120px;padding:14px 20px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);overflow:hidden;flex-shrink:0;}
-  .journal-header{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
-  .journal-icon{width:36px;height:36px;margin-bottom:0;}
+  .lt-root{padding:0;height:calc(100vh - 64px);background:transparent;overflow:hidden;}
+  .layout{flex-direction:column;border:none;border-radius:0;gap:0;}
+  .panel-left{width:100%;max-width:none;height:110px;min-height:110px;padding:12px 16px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);overflow:hidden;flex-shrink:0;}
+  .journal-header{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+  .journal-icon{width:32px;height:32px;margin-bottom:0;}
   .journal-title-row{margin-bottom:0;}.journal-title{font-size:14px;}.journal-badge{font-size:14px;padding:4px 12px;}
-  .journal-log{max-height:50px;flex:none;font-size:10px;line-height:1.6;}.journal-clock{display:none;}
+  .journal-log{max-height:45px;flex:none;font-size:10px;line-height:1.6;}.journal-clock{display:none;}
   .panel-right{flex:1;min-height:0;}.canvas-area{flex:3;min-height:0;}
   .terminal-wrap{width:92%;}.terminal{height:42vh;}
-  .patch-notes{flex-shrink:0;height:auto;min-height:140px;max-height:180px;padding:16px 20px;font-size:13px;line-height:1.8;margin-top:4px;}
+  .patch-notes{flex-shrink:0;height:auto;min-height:130px;max-height:170px;padding:14px 16px;font-size:13px;line-height:1.8;margin-top:0;border-top:1px solid rgba(255,255,255,0.06);}
   .pn-title{font-size:13px;margin-bottom:10px;padding-bottom:8px;}
   .pn-dim{font-size:11px;}
   :deep(.t-btn),:deep(.t-btn-sleep){max-width:100%;width:100%;text-align:center;line-height:1.4;}
