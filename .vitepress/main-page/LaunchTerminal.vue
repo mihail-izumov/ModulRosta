@@ -360,7 +360,8 @@ function updateClock() {
 function onResize() { buildPixels() }
 
 onMounted(async () => {
-  localStorage.setItem('rs_launch_num', '0')
+  // Counter: increment on each page load (localStorage per browser)
+  // For cross-device shared counter, replace with: const num = await fetch('/api/launch-counter', {method:'POST'}).then(r=>r.json()).then(d=>d.count)
   let num = parseInt(localStorage.getItem('rs_launch_num') || '0'); num++
   localStorage.setItem('rs_launch_num', String(num))
   if (jNumRef.value) jNumRef.value.textContent = String(num).padStart(3, '0')
@@ -396,7 +397,7 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
     <div class="layout">
       <!-- LEFT PANEL -->
       <div class="panel-left">
-        <div>
+        <div style="flex-shrink:0">
           <div class="journal-header">
             <svg ref="jIconRef" class="journal-icon" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" style="fill-rule:evenodd;clip-rule:evenodd;">
               <rect x="0" y="0" width="1080" height="1080" style="fill:none;" />
@@ -479,12 +480,12 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700;800&family=Fira+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
 
-.lt-root{width:100vw;height:100vh;background:#050608;overflow:hidden;padding:12px;font-family:'Fira Sans',sans-serif;color:#fff;}
+.lt-root{width:100vw;height:calc(100vh - 64px);background:#050608;overflow:hidden;padding:12px;font-family:'Fira Sans',sans-serif;color:#fff;position:relative;z-index:1;}
 .layout{display:flex;width:100%;height:100%;border:1px solid rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
 
 /* LEFT */
-.panel-left{width:30%;min-width:260px;max-width:380px;height:100%;background:#0b0d12;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;padding:28px 24px;flex-shrink:0;z-index:10;}
-.journal-header{margin-bottom:16px;}
+.panel-left{width:30%;min-width:260px;max-width:380px;height:100%;background:#0b0d12;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;padding:28px 24px;flex-shrink:0;z-index:10;overflow:hidden;}
+.journal-header{margin-bottom:16px;flex-shrink:0;}
 .journal-icon{display:block;width:64px;height:64px;margin-bottom:14px;}
 .journal-title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
 .journal-title{font-family:'Inter',sans-serif;font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;color:rgba(255,255,255,0.85);transition:color 1s;}
@@ -494,7 +495,7 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 .journal-badge{font-family:'Inter',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.05em;white-space:nowrap;padding:5px 14px;background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:8px;color:rgba(88,166,255,0.7);box-shadow:0 0 15px rgba(88,166,255,0.06),inset 0 0 15px rgba(88,166,255,0.03);transition:all 1s;}
 .journal-badge.amber{background:rgba(255,136,0,0.06);border-color:rgba(255,136,0,0.25);color:rgba(255,136,0,0.7);box-shadow:0 0 15px rgba(255,136,0,0.08),inset 0 0 15px rgba(255,136,0,0.03);}
 .journal-badge.green{background:rgba(0,255,136,0.06);border-color:rgba(0,255,136,0.2);color:rgba(0,255,136,0.65);box-shadow:0 0 15px rgba(0,255,136,0.06),inset 0 0 15px rgba(0,255,136,0.03);}
-.journal-log{flex:1;min-height:0;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:400;line-height:2;color:rgba(255,255,255,0.25);overflow-y:scroll;padding-right:4px;}
+.journal-log{flex:1 1 0;min-height:0 !important;max-height:none;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:400;line-height:2;color:rgba(255,255,255,0.25);overflow-y:auto !important;overflow-x:hidden;padding-right:4px;}
 .journal-log::-webkit-scrollbar{width:3px;}.journal-log::-webkit-scrollbar-track{background:rgba(255,255,255,0.02);}.journal-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
 :deep(.jl){opacity:0;transform:translateY(4px);animation:jIn 0.4s ease forwards;}
 :deep(.jl.blue){color:rgba(88,166,255,0.6);}:deep(.jl.amber){color:rgba(255,136,0,0.65);}:deep(.jl.green){color:rgba(0,255,136,0.6);}:deep(.jl.dim){color:rgba(255,255,255,0.25);}
@@ -574,16 +575,16 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 
 /* MOBILE */
 @media(max-width:768px){
-  .lt-root{padding:8px;}
+  .lt-root{padding:8px;height:calc(100vh - 64px);}
   .layout{flex-direction:column;}
-  .panel-left{width:100%;max-width:none;height:auto;min-height:auto;padding:16px 20px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);}
+  .panel-left{width:100%;max-width:none;height:auto;min-height:auto;padding:16px 20px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);overflow:visible;}
   .journal-header{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
   .journal-icon{width:36px;height:36px;margin-bottom:0;}
   .journal-title-row{margin-bottom:0;}.journal-title{font-size:14px;}.journal-badge{font-size:14px;padding:4px 12px;}
   .journal-log{max-height:60px;flex:none;font-size:10px;line-height:1.6;}.journal-clock{display:none;}
   .panel-right{flex:1;min-height:70vh;}.canvas-area{flex:1;min-height:65vh;}
   .terminal-wrap{width:92%;}.terminal{height:38vh;}
-  .patch-notes{height:auto;min-height:120px;max-height:220px;padding:14px 16px;font-size:11px;}
+  .patch-notes{height:auto;min-height:160px;max-height:260px;padding:14px 16px;font-size:11px;}
   :deep(.t-btn),:deep(.t-btn-sleep){max-width:100%;width:100%;text-align:center;line-height:1.4;}
   .pn-btn-wrap{margin-bottom:16px !important;padding-bottom:4px !important;}
   .sm-panel{padding:28px 20px;}
