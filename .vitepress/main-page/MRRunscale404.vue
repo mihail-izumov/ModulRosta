@@ -56,7 +56,6 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
   padding: 100px 24px 0;
   overflow: hidden;
   border-top: 1px solid rgba(255, 136, 0, 0.3);
-  border-bottom: 1px solid rgba(255, 136, 0, 0.3);
 }
 
 .mr-rs404-section::before {
@@ -80,7 +79,7 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
 }
 
 .mr-rs404-scanner-top { top: 0; animation: mr-rs404-scan-right 4s linear infinite; }
-.mr-rs404-scanner-bottom { position: relative; margin: 32px 0 16px; animation: mr-rs404-scan-left 4s linear infinite; }
+.mr-rs404-scanner-bottom { position: relative; margin: 48px 0 0; animation: mr-rs404-scan-left 4s linear infinite; }
 
 @keyframes mr-rs404-scan-right { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 @keyframes mr-rs404-scan-left { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
@@ -204,6 +203,9 @@ import MRLaunchPanel from './MRLaunchPanel.vue'
 }
 
 @keyframes mr-rs404-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* Override MRLaunchPanel top padding to center scanner between texts */
+:deep(.mr-sl-root) { padding-top: 48px !important; }
 
 @media (max-width: 700px) {
   .mr-rs404-stats { flex-direction: row; gap: 24px; }

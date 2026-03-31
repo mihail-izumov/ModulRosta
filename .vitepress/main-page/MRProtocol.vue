@@ -227,7 +227,19 @@ function goToStep(step: number) { currentStep.value = step }
 .mr-protocol-details-btn span { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
 
 /* Footer */
-.mr-protocol-footer { display: flex; flex-direction: column; align-items: flex-start; padding: 32px; background: rgba(0, 255, 136, 0.05); border: 2px solid rgb(0, 255, 136); border-radius: 12px; margin-top: 24px; gap: 16px; }
+.mr-protocol-footer {
+  display: flex; flex-direction: column; align-items: flex-start; padding: 32px;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      rgba(0, 255, 136, 0.03) 10px,
+      rgba(0, 255, 136, 0.03) 20px
+    ),
+    rgba(0, 255, 136, 0.05);
+  border: 2px solid rgb(0, 255, 136); border-radius: 12px; margin-top: 24px; gap: 16px;
+}
 .mr-protocol-footer-label { font-size: clamp(28px, 5vw, 42px); font-weight: 500; color: #fff; }
 .mr-protocol-footer-text { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: rgb(0, 255, 136); margin: 0; line-height: 1.7; max-width: 600px; letter-spacing: 0.5px; }
 
