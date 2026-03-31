@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 
 // ═══ REFS ═══
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -17,6 +17,17 @@ const jClockRef = ref<HTMLElement | null>(null)
 const jIconRef = ref<SVGElement | null>(null)
 const pnTitleRef = ref<HTMLElement | null>(null)
 const showModal = ref(false)
+
+// Lock body scroll when modal is open
+watch(showModal, (open) => {
+  if (open) {
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+    document.documentElement.style.overflow = ''
+  }
+})
 
 // ═══ LOGO MASK ═══
 let logoMask: ImageData | null = null
@@ -508,7 +519,7 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700;800&family=Fira+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
 
-.lt-root{width:100%;height:calc(100vh - 120px);background:transparent;overflow:hidden;padding:12px;font-family:'Fira Sans',sans-serif;color:#fff;position:relative;z-index:1;}
+.lt-root{width:100%;height:calc(100vh - 120px);background:transparent;overflow:hidden;padding:12px;margin-bottom:40px;font-family:'Fira Sans',sans-serif;color:#fff;position:relative;z-index:1;}
 .layout{display:flex;width:100%;height:100%;border:1px solid rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
 
 /* LEFT */
@@ -603,15 +614,16 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 
 /* MOBILE */
 @media(max-width:768px){
-  .lt-root{padding:0;height:calc(100vh - 64px);background:transparent;overflow:hidden;}
-  .layout{flex-direction:column;border:none;border-radius:0;gap:0;}
-  .panel-left{width:100%;max-width:none;height:110px;min-height:110px;padding:12px 16px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);overflow:hidden;flex-shrink:0;}
+  .lt-root{padding:0;height:calc(100vh - 64px);background:transparent;overflow:hidden;margin-bottom:30px;max-width:100vw;}
+  .layout{flex-direction:column;border:none;border-radius:0;gap:0;overflow:hidden;}
+  .panel-left{width:100%;max-width:none;min-width:0;height:110px;min-height:110px;padding:12px 16px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);overflow:hidden;flex-shrink:0;}
   .journal-header{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
   .journal-icon{width:32px;height:32px;margin-bottom:0;}
   .journal-title-row{margin-bottom:0;}.journal-title{font-size:14px;}.journal-badge{font-size:14px;padding:4px 12px;}
   .journal-log{max-height:45px;flex:none;font-size:10px;line-height:1.6;}.journal-clock{display:none;}
-  .panel-right{flex:1;min-height:0;}.canvas-area{flex:3;min-height:0;}
-  .terminal-wrap{width:92%;}.terminal{height:42vh;}
+  .panel-right{flex:1;min-height:0;overflow:hidden;}.canvas-area{flex:3;min-height:0;overflow:hidden;}
+  .terminal-wrap{width:90% !important;}
+  .terminal{height:42vh;}
   .patch-notes{flex-shrink:0;height:auto;min-height:130px;max-height:170px;padding:14px 16px;font-size:13px;line-height:1.8;margin-top:0;border-top:1px solid rgba(255,255,255,0.06);}
   .pn-title{font-size:13px;margin-bottom:10px;padding-bottom:8px;}
   .pn-dim{font-size:11px;}
