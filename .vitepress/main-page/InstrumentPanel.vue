@@ -228,14 +228,13 @@ const nX = [20, 90, 160]
 .sh{display:flex;align-items:center;gap:8px;margin-top:12px}
 .sh span{font-family:'Inter',sans-serif;font-size:9px;color:rgba(0,255,136,.5);letter-spacing:2px;text-transform:uppercase}
 
-/* Modal overlay & shell */
-.mr-ip-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:24px 24px 0;overflow-y:auto}
-.mr-ip-modal{position:relative;width:100%;max-width:680px;min-height:calc(100vh - 24px);background:#0a0a0a;border:1px solid rgba(255,255,255,.08);border-bottom:none;border-radius:4px 4px 0 0;overflow:hidden}
-.mr-ip-close{position:sticky;top:24px;float:right;margin-right:24px;width:48px;height:48px;background:transparent !important;border:1px solid rgba(255,255,255,.12) !important;border-radius:2px;color:rgba(255,255,255,.5) !important;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s ease;z-index:10;text-decoration:none !important}
-.mr-ip-close:hover{color:#ff8800 !important;border-color:rgba(255,136,0,.3) !important}
+/* Modal overlay */
+.mr-ip-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:24px 24px 0;overflow-y:auto}
+.mr-ip-modal{position:relative;width:100%;max-width:1100px;min-height:calc(100vh - 24px);background:#111;border:1px solid #222;border-bottom:none;border-radius:24px 24px 0 0;overflow:hidden}
+.mr-ip-close{position:sticky;top:24px;float:right;margin-right:24px;width:56px;height:56px;background:rgba(0,0,0,.5) !important;border:2px solid rgba(255,255,255,.2) !important;border-radius:50%;color:#fff !important;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;z-index:10;text-decoration:none !important;backdrop-filter:blur(10px)}
+.mr-ip-close:hover{background:rgba(255,255,255,.1) !important;border-color:rgba(255,255,255,.4) !important}
 .mr-ip-close::before,.mr-ip-close::after{display:none !important;content:none !important}
-.mr-ip-close svg{width:20px;height:20px}
-.mr-ip-modal-body{padding:32px 48px 80px}
+.mr-ip-modal-body{padding:24px 48px 80px}
 
 /* Modal transitions */
 .mr-ip-fade-enter-active{transition:opacity .2s ease}
@@ -247,10 +246,10 @@ const nX = [20, 90, 160]
 .mr-ip-slide-leave-to{opacity:0;transform:translateY(10px)}
 
 @media(max-width:768px){
-  .mr-ip-overlay{padding:16px 0 0}
-  .mr-ip-modal{max-width:100%;min-height:calc(100vh - 16px);border-radius:4px 4px 0 0;border-left:none;border-right:none}
-  .mr-ip-modal-body{padding:20px 20px 60px}
-  .mr-ip-close{top:16px;margin-right:16px;width:44px;height:44px}
-  .mr-ip-close svg{width:18px;height:18px}
+  .mr-ip-overlay{padding:16px 16px 0}
+  .mr-ip-modal{min-height:calc(100vh - 16px);border-radius:16px 16px 0 0}
+  .mr-ip-modal-body{padding:16px 24px 60px}
+  .mr-ip-close{top:16px;margin-right:16px;width:48px;height:48px}
+  .mr-ip-close svg{width:24px;height:24px}
 }
 </style>
