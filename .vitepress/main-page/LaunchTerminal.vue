@@ -301,7 +301,7 @@ function offerBookingSleep() {
     setPhase('green'); startGreenWave(); startLogoReveal()
     canvasGlowRef.value?.classList.add('active')
     jl('Подтверждение получено', 'green'); jl('Переход к бронированию', 'green')
-    tGap(); await tType('[OK] Сессия подтверждена', 't-green', 20)
+    tGap(); await wait(1000); await tType('[OK] Сессия подтверждена', 't-green', 20)
     tGap(); await tType('[OK] Выполняется переход', 't-green', 20); jl('Сессия открыта', 'green')
     await wait(3000)
     window.location.href = '/book-my-launch'
@@ -369,6 +369,7 @@ async function runPhase0() {
   canvasGlowRef.value?.classList.add('active')
   jl('Идентификация: активна', 'green')
   tGap(); jl('Подтверждение получено', 'green')
+  await wait(1000)
   await tType('[OK] Сессия подтверждена', 't-green', 25); tGap()
   jl('Создание сессии...', 'green'); jl('Redirect > /book-my-launch', 'green')
   await offerBooking()
