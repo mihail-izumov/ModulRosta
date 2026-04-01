@@ -407,7 +407,7 @@ watch(fontSize, () => {
   overflow-x: clip;
   overflow-y: visible;
   font-family: 'Camera Plain Variable', 'Camera Plain', ui-sans-serif, system-ui, sans-serif;
-  padding: 7.5vh 12px 120px;
+  padding: 7.5vh 12px 220px;
   position: relative;
 }
 
@@ -594,7 +594,7 @@ watch(fontSize, () => {
     margin-top: 16px !important;
   }
   .mr-hero-root {
-    padding: 7.5vh 12px 80px !important;
+    padding: 7.5vh 12px 160px !important;
     min-height: auto !important;
     overflow: visible !important;
   }
