@@ -142,28 +142,51 @@ function toggleOther() {
 
 const contactInput = ref<HTMLInputElement | null>(null)
 
+// All digits including country code. Default: just "7"
+const phoneDigits = ref('7')
+
 function formatPhone(digits: string): string {
-  // digits = only the 10 digits after +7
-  let result = '+7'
-  if (digits.length > 0) result += '(' + digits.substring(0, 3)
-  if (digits.length >= 3) result += ')'
-  if (digits.length > 3) result += digits.substring(3, 6)
-  if (digits.length > 6) result += '-' + digits.substring(6, 8)
-  if (digits.length > 8) result += '-' + digits.substring(8, 10)
-  return result
+  if (digits.length === 0) return '+'
+  let r = '+' + digits[0]
+  if (digits.length > 1) r += '(' + digits.substring(1, 4)
+  if (digits.length >= 4) r += ')'
+  if (digits.length > 4) r += digits.substring(4, 7)
+  if (digits.length > 7) r += '-' + digits.substring(7, 9)
+  if (digits.length > 9) r += '-' + digits.substring(9, 11)
+  return r
 }
 
-function getDigitsAfter7(val: string): string {
-  // strip everything non-digit, remove leading 7
-  const all = val.replace(/\D/g, '')
-  return all.startsWith('7') ? all.substring(1) : all
+// Map cursor position in formatted string to digit index
+function cursorToDigitIndex(pos: number, formatted: string): number {
+  let digitIdx = 0
+  for (let i = 0; i < pos && i < formatted.length; i++) {
+    if (/\d/.test(formatted[i])) digitIdx++
+  }
+  return digitIdx
 }
+
+// Map digit index back to cursor position in formatted string
+function digitIndexToCursor(digitIdx: number, formatted: string): number {
+  let count = 0
+  for (let i = 0; i < formatted.length; i++) {
+    if (count === digitIdx) return i
+    if (/\d/.test(formatted[i])) count++
+  }
+  return formatted.length
+}
+
+function syncFormContact() {
+  form.contact = formatPhone(phoneDigits.value)
+}
+syncFormContact()
 
 function onPhoneInput(e: Event) {
   const input = e.target as HTMLInputElement
   const raw = input.value
-  const digits = getDigitsAfter7(raw).substring(0, 10)
-  const formatted = formatPhone(digits)
+  // Extract all digits from whatever user typed/pasted
+  const allDigits = raw.replace(/\D/g, '').substring(0, 11)
+  phoneDigits.value = allDigits
+  const formatted = formatPhone(allDigits)
   form.contact = formatted
   nextTick(() => {
     input.value = formatted
@@ -173,25 +196,74 @@ function onPhoneInput(e: Event) {
 
 function onPhoneKeydown(e: KeyboardEvent) {
   const input = e.target as HTMLInputElement
-  // Prevent erasing the +7 prefix
-  if ((e.key === 'Backspace' || e.key === 'Delete') && getDigitsAfter7(input.value).length === 0) {
+  const pos = input.selectionStart ?? 0
+  const formatted = input.value
+
+  if (e.key === 'Backspace') {
     e.preventDefault()
+    // Find which digit is before cursor
+    const digitIdx = cursorToDigitIndex(pos, formatted)
+    if (digitIdx <= 0) return // nothing to delete
+    // Remove that digit
+    const d = phoneDigits.value
+    phoneDigits.value = d.substring(0, digitIdx - 1) + d.substring(digitIdx)
+    const newFormatted = formatPhone(phoneDigits.value)
+    form.contact = newFormatted
+    const newCursor = digitIndexToCursor(digitIdx - 1, newFormatted)
+    nextTick(() => {
+      input.value = newFormatted
+      input.setSelectionRange(newCursor, newCursor)
+    })
+    return
   }
-  // Allow: backspace, delete, tab, escape, enter, arrows, home, end
-  if (['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','Home','End'].includes(e.key)) return
-  // Allow Ctrl/Cmd combos (copy, paste, select all)
+
+  if (e.key === 'Delete') {
+    e.preventDefault()
+    const digitIdx = cursorToDigitIndex(pos, formatted)
+    const d = phoneDigits.value
+    if (digitIdx >= d.length) return
+    phoneDigits.value = d.substring(0, digitIdx) + d.substring(digitIdx + 1)
+    const newFormatted = formatPhone(phoneDigits.value)
+    form.contact = newFormatted
+    const newCursor = digitIndexToCursor(digitIdx, newFormatted)
+    nextTick(() => {
+      input.value = newFormatted
+      input.setSelectionRange(newCursor, newCursor)
+    })
+    return
+  }
+
+  // Allow navigation & system shortcuts
+  if (['Tab','Escape','Enter','ArrowLeft','ArrowRight','Home','End'].includes(e.key)) return
   if (e.ctrlKey || e.metaKey) return
-  // Block non-digit keys
+
+  // Block non-digits
   if (!/^\d$/.test(e.key)) {
     e.preventDefault()
+    return
   }
-  // Block if already 10 digits
-  if (/^\d$/.test(e.key) && getDigitsAfter7(input.value).length >= 10) {
+
+  // Block if already 11 digits
+  if (phoneDigits.value.length >= 11) {
     e.preventDefault()
+    return
   }
+
+  // Insert digit at correct position
+  e.preventDefault()
+  const digitIdx = cursorToDigitIndex(pos, formatted)
+  const d = phoneDigits.value
+  phoneDigits.value = d.substring(0, digitIdx) + e.key + d.substring(digitIdx)
+  const newFormatted = formatPhone(phoneDigits.value)
+  form.contact = newFormatted
+  const newCursor = digitIndexToCursor(digitIdx + 1, newFormatted)
+  nextTick(() => {
+    input.value = newFormatted
+    input.setSelectionRange(newCursor, newCursor)
+  })
 }
 
-const phoneComplete = computed(() => getDigitsAfter7(form.contact).length === 10)
+const phoneComplete = computed(() => phoneDigits.value.length === 11)
 
 const checks = computed(() => [
   { label: 'Контакт', ready: form.name.length > 0 && phoneComplete.value },
