@@ -189,7 +189,7 @@ function tInput(primaryText: string, ghostText: string, primaryCls = ''): Promis
     const btnG = document.createElement('button'); btnG.className = 't-btn ghost'; btnG.textContent = ghostText.toUpperCase()
     btns.appendChild(btnP); btns.appendChild(btnG); ti().appendChild(btns)
     const kb = document.createElement('div'); kb.className = 't-kb-hint'; kb.textContent = 'Y / N для ввода с клавиатуры'; ti().appendChild(kb)
-    tScroll(); inp.focus()
+    tScroll(); if (!('ontouchstart' in window)) inp.focus()
     function finish(val: string) { inp.disabled = true; inp.value = val; btnP.disabled = true; btnG.disabled = true; btnP.style.opacity = '0.4'; btnG.style.opacity = '0.4'; btnP.style.pointerEvents = 'none'; btnG.style.pointerEvents = 'none'; kb.style.display = 'none'; document.removeEventListener('keydown', handler); resolve(val) }
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') { const v = inp.value.trim().toLowerCase(); if (v) finish(v) } })
     btnP.addEventListener('click', () => finish(primaryText.toLowerCase()))
@@ -589,7 +589,7 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 .pn-details-btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);}
 
 /* DETAILS PANEL — absolute overlay inside lt-root */
-.dp-overlay{position:absolute;inset:0;z-index:99;background:rgba(3,5,10,0.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:flex;align-items:center;justify-content:center;padding:24px;}
+.dp-overlay{position:absolute;inset:0;z-index:99;background:#030510;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;}
 .dp-fade-enter-active,.dp-fade-leave-active{transition:opacity 0.3s ease;}
 .dp-fade-enter-from,.dp-fade-leave-to{opacity:0;}
 .dp-card{width:100%;max-width:480px;background:rgba(8,12,24,0.6);border:1px solid rgba(88,166,255,0.12);border-radius:16px;padding:36px 32px 28px;position:relative;box-shadow:0 0 60px rgba(0,0,0,0.4);}
@@ -632,6 +632,8 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
   .pn-title{font-size:13px;margin-bottom:10px;padding-bottom:8px;}
   .pn-dim{font-size:11px;}
   :deep(.t-btn),:deep(.t-btn-sleep){max-width:100%;width:100%;text-align:center;line-height:1.4;}
+  :deep(.t-input-line){display:none;}
+  :deep(.t-kb-hint){display:none;}
   .pn-btn-wrap{margin-bottom:12px !important;padding-bottom:4px !important;}
   .pn-details-btn{font-size:12px !important;padding:8px 20px !important;}
   .dp-overlay{padding:16px;}
