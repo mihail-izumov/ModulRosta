@@ -92,10 +92,10 @@
       <!-- Success -->
       <div v-else class="bml-success">
         <div class="bml-success-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ff8800" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg width="32" height="32" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g transform="matrix(1,0,0,1,-2871.99,-1.91406)"><g transform="matrix(0.435429,0,0,0.307879,2871.99,1.91406)"><rect x="0" y="0" width="2480.32" height="3507.87" style="fill:none;"/><g><g transform="matrix(1.96888,0,0,2.78456,-1240.14,-5507.65)"><path fill="#00ff88" d="M1259.75,1977.92C1607.39,1977.92 1889.63,2260.16 1889.63,2607.8C1889.63,2955.44 1607.39,3237.68 1259.75,3237.68C912.109,3237.68 629.87,2955.44 629.87,2607.8C629.87,2260.16 912.109,1977.92 1259.75,1977.92ZM1246.99,2040.57C1246.99,2058.13 1246.99,2084.77 1246.97,2111.29C1246.97,2165.52 1239.65,2219.5 1225.2,2271.77C1203.8,2349.26 1179.23,2462.95 1172.85,2592.61C1172.85,2592.61 1012.08,2685.26 947.925,2722.24C931.847,2731.5 921.939,2748.65 921.939,2767.2L921.939,2803C921.939,2811.56 928.341,2818.78 936.845,2819.79C991.788,2826.36 1179.81,2848.85 1179.81,2848.85C1184.4,2898.11 1190.51,2940.24 1197.31,2976.11C1197.31,2976.11 1122.21,3019.39 1091.14,3037.3C1082.96,3042.01 1077.93,3050.73 1077.93,3060.16L1077.93,3077.93L1228.75,3095.07C1229.9,3098.23 1231.04,3101.26 1232.18,3104.16C1240.97,3126.82 1245.92,3150.78 1246.84,3175.04C939.635,3168.15 692.37,2916.63 692.37,2607.8C692.37,2298.92 939.736,2047.35 1246.99,2040.57ZM1272.5,2040.57C1579.76,2047.35 1827.13,2298.92 1827.13,2607.8C1827.13,2916.63 1579.86,3168.15 1272.67,3175.04C1273.58,3150.58 1278.59,3126.43 1287.5,3103.59C1288.49,3101.06 1289.49,3098.43 1290.5,3095.7L1441.57,3077.99L1441.57,3060.22C1441.57,3050.78 1436.53,3042.07 1428.36,3037.36C1397.38,3019.51 1322.66,2976.44 1322.66,2976.44C1329.63,2940.39 1335.85,2898.08 1340.41,2848.76C1340.41,2848.76 1527.81,2826.35 1582.65,2819.79C1591.16,2818.78 1597.56,2811.56 1597.56,2803L1597.56,2767.2C1597.56,2748.65 1587.65,2731.5 1571.57,2722.24C1507.34,2685.22 1346.25,2592.38 1346.25,2592.38C1339.24,2462.86 1314.86,2349.3 1293.74,2271.86C1279.64,2220.19 1272.5,2166.88 1272.5,2113.33L1272.5,2040.57Z"/></g></g></g></g></svg>
         </div>
         <h2 class="bml-success-title">Запрос отправлен</h2>
-        <p class="bml-success-text">Мы свяжемся с вами для предполётной подготовки.</p>
+        <p class="bml-success-text">Свяжемся с вами для подготовки 90 мин. сессии.</p>
       </div>
     </div>
   </div>
@@ -128,15 +128,15 @@ async function submitForm() {
   const otherText = otherActive.value && form.otherText ? `\nДругое: ${form.otherText}` : ''
 
   const text = [
-    '🚀 *Новая заявка — Book My Launch*',
+    '*Новая заявка — Book My Launch*',
     '',
-    `👤 *Имя:* ${form.name}`,
-    `🏢 *Компания/Проект:* ${form.company || '—'}`,
-    `📞 *Телефон:* ${form.contact}`,
+    `*Имя:* ${form.name}`,
+    `*Компания/Проект:* ${form.company || '—'}`,
+    `*Телефон:* ${form.contact}`,
     '',
-    `🔥 *Что тормозит:* ${bottleneckText || '—'}${otherText}`,
-    `💰 *Оборот:* ${form.revenue}`,
-    `⏰ *Когда нужно:* ${form.urgency}`,
+    `*Что тормозит:* ${bottleneckText || '—'}${otherText}`,
+    `*Оборот:* ${form.revenue}`,
+    `*Когда нужно:* ${form.urgency}`,
   ].join('\n')
 
   try {
@@ -463,9 +463,9 @@ const allReady = computed(() => checks.value.every(c => c.ready))
 
 /* Success */
 .bml-success { text-align: center; padding-top: 100px; }
-.bml-success-icon { width: 64px; height: 64px; border-radius: 50%; border: 2px solid #ff8800; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
+.bml-success-icon { width: 64px; height: 64px; border-radius: 50%; border: 2px solid #00ff88; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
 .bml-success-title { font-size: 20px; font-weight: 400; letter-spacing: 8px; text-transform: uppercase; margin-bottom: 20px; }
-.bml-success-text { font-size: 13px; color: rgba(255,255,255,0.5); letter-spacing: 1px; line-height: 1.8; max-width: 400px; margin: 0 auto 40px; }
+.bml-success-text { font-size: 13px; color: rgba(255,255,255,0.5); letter-spacing: 0; line-height: 1.8; max-width: 400px; margin: 0 auto 40px; }
 
 @media (max-width: 640px) {
   .bml-container { padding: 48px 16px 60px; }
