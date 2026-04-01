@@ -443,7 +443,7 @@ function goToForm() {
               @click="closeModal"
               aria-label="Закрыть"
             >
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"/>
                 <line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
@@ -789,21 +789,26 @@ function goToForm() {
    ══════════════════════════════════════ */
 .mr-sl-modal-overlay {
   position: fixed !important;
-  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
   z-index: 9999 !important;
-  background: rgba(0, 0, 0, 0.85) !important;
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
+  background: rgb(0, 0, 0) !important;
 }
 
 .mr-sl-modal-container {
-  position: relative !important;
-  width: 100% !important;
-  min-height: 100vh !important;
-  min-height: 100dvh !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  background: rgb(0, 0, 0) !important;
 }
 
 /* ── Close button ── */
@@ -812,26 +817,23 @@ function goToForm() {
   top: 20px !important;
   right: 20px !important;
   z-index: 10000 !important;
-  width: 88px !important;
-  height: 88px !important;
-  border-radius: 16px !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  background: rgba(6, 6, 10, 0.8) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  color: rgba(255, 255, 255, 0.7) !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgb(50, 50, 55) !important;
+  background: rgb(6, 6, 10) !important;
+  color: rgb(255, 255, 255) !important;
   cursor: pointer !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  transition: all 0.25s ease !important;
+  transition: background 0.25s ease, border-color 0.25s ease !important;
   padding: 0 !important;
   outline: none !important;
 }
 .mr-sl-modal-close:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: #fff !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: rgb(30, 30, 36) !important;
+  border-color: rgb(80, 80, 90) !important;
 }
 
 /* ── Modal transition ── */
@@ -897,9 +899,9 @@ function goToForm() {
   .mr-sl-modal-close {
     top: 12px !important;
     right: 12px !important;
-    width: 72px !important;
-    height: 72px !important;
-    border-radius: 14px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 7px !important;
   }
 }
 </style>
