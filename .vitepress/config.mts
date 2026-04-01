@@ -144,7 +144,7 @@ export default defineConfig({
     .VPMenu .VPMenuLink a:hover span,.VPFlyout .VPMenuLink a:hover span{color:#000!important}
     .VPMenuLink a.active span,.VPLink.link.active span{color:#ff8800!important}
     .VPNavScreen .VPNavScreenMenuLink:hover{color:#ff8800!important}
-    .VPNavScreen .VPNavScreenMenuGroup .button-text{color:#fff!important}
+    .VPNavScreen .VPNavScreenMenuGroup .button-text{color:#fff!important;text-transform:uppercase!important;letter-spacing:1px!important;font-family:'Exo 2','Inter',sans-serif!important}
     .VPNavScreen .VPNavScreenMenuGroup.open .button-text{color:#ff8800!important}
     .VPNavScreen .VPNavScreenMenuGroup .item a:hover{color:#ff8800!important}
     .VPNavScreen .VPNavScreenMenuGroup .bb-chevron-wrap svg{stroke:#ff8800!important}
@@ -362,7 +362,6 @@ function nav(): DefaultTheme.NavItem[] {
       text: 'Компания', items: [
         { text: 'Кто мы', link: '/about/company' },
         { text: 'Метод', link: '/method/overview' },
-        { text: 'Продукты', link: '/products/overview' },
         { text: 'Технологии', link: '/technology/overview' },
         { text: 'Клиенты', link: '/clients/list' }
       ]
