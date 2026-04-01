@@ -13,16 +13,16 @@
           <input ref="nameInput" type="text" :value="form.name" @input="form.name = $event.target.value" @focus="focus.name = true" @blur="focus.name = false" class="bml-field-input" />
         </div>
 
-        <!-- Компания -->
+        <!-- Компания / Проект -->
         <div class="bml-field" :class="{ focused: focus.company }" @click="$refs.companyInput?.focus()">
-          <span class="bml-field-label" :class="{ active: focus.company || form.company.length > 0, focused: focus.company }">Компания</span>
+          <span class="bml-field-label" :class="{ active: focus.company || form.company.length > 0, focused: focus.company }">Компания / Проект</span>
           <input ref="companyInput" type="text" :value="form.company" @input="form.company = $event.target.value" @focus="focus.company = true" @blur="focus.company = false" class="bml-field-input" />
         </div>
 
-        <!-- Telegram -->
+        <!-- Телефон -->
         <div class="bml-field" :class="{ focused: focus.contact }" @click="$refs.contactInput?.focus()">
-          <span class="bml-field-label" :class="{ active: focus.contact || form.contact.length > 0, focused: focus.contact }">Telegram</span>
-          <input ref="contactInput" type="text" :value="form.contact" @input="form.contact = $event.target.value" @focus="focus.contact = true" @blur="focus.contact = false" class="bml-field-input" />
+          <span class="bml-field-label" :class="{ active: focus.contact || form.contact.length > 0, focused: focus.contact }">Телефон</span>
+          <input ref="contactInput" type="tel" :value="form.contact" @input="form.contact = $event.target.value" @focus="focus.contact = true" @blur="focus.contact = false" class="bml-field-input" />
         </div>
 
         <!-- Bottleneck: multi -->
@@ -33,6 +33,19 @@
           </div>
           <div class="bml-toggles">
             <button v-for="opt in bottleneckOptions" :key="opt" :class="['bml-toggle', { active: bottleneckArr.includes(opt) }]" @click="toggleMulti('bottleneck', opt)">{{ opt }}</button>
+            <button :class="['bml-toggle', { active: otherActive }]" @click="toggleOther">Другое</button>
+          </div>
+          <div v-if="otherActive" class="bml-other-wrap">
+            <textarea
+              ref="otherInput"
+              v-model="form.otherText"
+              class="bml-other-textarea"
+              rows="7"
+              placeholder="Опишите подробнее..."
+              @focus="focus.other = true"
+              @blur="focus.other = false"
+              :class="{ focused: focus.other }"
+            ></textarea>
           </div>
         </div>
 
@@ -88,20 +101,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, nextTick } from 'vue'
 
 const form = reactive({
   name: '', company: '', contact: '',
   bottleneck: '', revenue: '', urgency: '',
+  otherText: '',
 })
-const focus = reactive({ name: false, company: false, contact: false })
+const focus = reactive({ name: false, company: false, contact: false, other: false })
 const submitted = ref(false)
+const otherActive = ref(false)
 
 const bottleneckOptions = ['Всё держится на мне', 'Не масштабируется', 'Нет системы', 'Теряю клиентов', 'Конкуренты быстрее']
-const revenueOptions = ['до 10 млн', '10–50 млн', '50–150 млн', '150+ млн']
+const revenueOptions = ['Стартап', 'до 10 млн', '10–50 млн', '50–150 млн', '150+ млн']
 const urgencyOptions = ['Вчера', 'В этом месяце', 'В этом квартале', 'Пока думаю']
 
 const bottleneckArr = computed(() => form.bottleneck ? form.bottleneck.split('|||') : [])
+
+const otherInput = ref<HTMLTextAreaElement | null>(null)
 
 function toggleMulti(key: string, val: string) {
   const arr = form[key] ? form[key].split('|||') : []
@@ -114,9 +131,18 @@ function toggleSingle(key: string, val: string) {
   form[key] = form[key] === val ? '' : val
 }
 
+function toggleOther() {
+  otherActive.value = !otherActive.value
+  if (!otherActive.value) {
+    form.otherText = ''
+  } else {
+    nextTick(() => otherInput.value?.focus())
+  }
+}
+
 const checks = computed(() => [
   { label: 'Контакт', ready: form.name.length > 0 && form.contact.length > 0 },
-  { label: 'Узкое горлышко', ready: form.bottleneck.length > 0 },
+  { label: 'Точка роста', ready: form.bottleneck.length > 0 || (otherActive.value && form.otherText.length > 0) },
   { label: 'Масштаб', ready: form.revenue.length > 0 },
   { label: 'Срочность', ready: form.urgency.length > 0 },
 ])
@@ -164,6 +190,29 @@ const allReady = computed(() => checks.value.every(c => c.ready))
 .bml-toggle::before, .bml-toggle::after { display: none !important; content: none !important; }
 .bml-toggle:hover { border-color: rgba(245,158,11,0.4) !important; color: rgba(255,255,255,0.7) !important; }
 .bml-toggle.active { background: rgba(245,158,11,0.12) !important; border-color: #ff8800 !important; color: #ff8800 !important; font-weight: 600 !important; }
+
+/* Other textarea */
+.bml-other-wrap { margin-top: 12px; width: 100%; }
+.bml-other-textarea {
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid #444;
+  border-radius: 2px;
+  color: #ff8800;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  line-height: 1.6;
+  padding: 14px 16px;
+  outline: none;
+  caret-color: #ff8800;
+  resize: none;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+.bml-other-textarea::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 1px; font-size: 12px; }
+.bml-other-textarea.focused { border-color: #ff8800; }
 
 /* Status */
 .bml-status { margin-top: 48px; border: 1px solid #2a2a2a; background: rgba(255,255,255,0.02); padding: 0 20px; }
