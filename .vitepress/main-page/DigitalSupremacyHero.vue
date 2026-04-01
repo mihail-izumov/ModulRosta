@@ -53,6 +53,8 @@
             ref="tooltipRef"
             class="mr-hero-tooltip"
             :class="{ 'tooltip-visible': tooltipVisible }"
+            @mouseenter="onTooltipHoverIn"
+            @mouseleave="onTooltipHoverOut"
           >
             <div class="mr-tooltip-bold">{{ displayTip.bold }}</div>
             <div class="mr-tooltip-normal" v-html="displayTip.normal"></div>
@@ -187,6 +189,24 @@ function onHoverOut() {
   } else {
     hovered.value = null
   }
+}
+
+function onTooltipHoverIn() {
+  // Pause auto-cycle while hovering the tooltip
+  stopCycle()
+  isPaused = true
+}
+
+function onTooltipHoverOut() {
+  // Resume auto-cycle from current tip
+  isPaused = false
+  // Fade out current, then continue cycle
+  tooltipVisible.value = false
+  hovered.value = null
+  setTimeout(() => {
+    currentTipIndex.value = (currentTipIndex.value + 1) % tips.length
+    startCycle()
+  }, FADE_DUR + PAUSE_DUR)
 }
 
 let pix1 = []
@@ -384,9 +404,10 @@ watch(fontSize, () => {
   justify-content: flex-start;
   align-items: center;
   background: transparent;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
   font-family: 'Camera Plain Variable', 'Camera Plain', ui-sans-serif, system-ui, sans-serif;
-  padding: 7.5vh 12px 40px;
+  padding: 7.5vh 12px 120px;
   position: relative;
 }
 
@@ -573,7 +594,7 @@ watch(fontSize, () => {
     margin-top: 16px !important;
   }
   .mr-hero-root {
-    padding: 7.5vh 12px 24px !important;
+    padding: 7.5vh 12px 80px !important;
     min-height: auto !important;
     overflow: visible !important;
   }
