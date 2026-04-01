@@ -200,7 +200,7 @@ const nX = [20, 90, 160]
 .ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:15px 32px 24px;overflow:visible}
 .tt{font-family:'Inter',sans-serif;font-size:52px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(255,255,255,.2);margin-bottom:16px;margin-top:15px;text-align:center;line-height:1.2}
 /* Subtitle — neutral, not colored */
-.sub{font-family:'Inter',sans-serif;font-size:34px;font-weight:400;color:rgba(255,255,255,0.6);text-align:center;margin:0 0 56px;letter-spacing:1px;line-height:1.3}
+.sub{font-family:'Inter',sans-serif;font-size:34px;font-weight:400;color:#777;text-align:center;margin:0 0 56px;letter-spacing:1px;line-height:1.3}
 @media(max-width:768px){.tt{font-size:24px;letter-spacing:2px;margin-bottom:12px}.sub{font-size:18px;margin-bottom:36px}.ip{padding:39px 16px 16px}}
 .dk{display:flex;align-items:flex-start;justify-content:center;gap:64px;overflow:visible}
 .dc{display:flex;flex-direction:column;align-items:center;overflow:visible}
@@ -263,8 +263,8 @@ const nX = [20, 90, 160]
 
 /* ── Buttons ── */
 /* Default: green fill (ЗАПУСКАЕМ) */
-.mb{display:inline-flex;align-items:center;justify-content:center;padding:8px 24px;margin-top:12px;background:#00ff88 !important;color:#000 !important;border:none !important;border-radius:6px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:all .3s ease;text-decoration:none !important}
-.mb:hover{box-shadow:0 0 20px rgba(0,255,136,.5);transform:translateY(-1px)}
+.mb{display:inline-flex;align-items:center;justify-content:center;padding:8px 24px;margin-top:12px;background:transparent !important;color:#00ff88 !important;border:1.5px solid #00ff88 !important;border-radius:6px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:all .3s ease;text-decoration:none !important}
+.mb:hover{box-shadow:0 0 20px rgba(0,255,136,.4);transform:translateY(-1px);background:rgba(0,255,136,.08) !important}
 .mb::before,.mb::after{display:none !important;content:none !important}
 .mbm{padding:6px 20px;font-size:10px;margin-top:10px}
 /* Button — ВИДИМ: outline blue */
