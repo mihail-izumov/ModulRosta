@@ -509,18 +509,18 @@ function goToForm() {
   text-align: center !important;
 }
 .mr-sl-heading-white {
-  font-size: 28px !important;
+  font-size: 42px !important;
   font-weight: 500 !important;
   color: #fff !important;
   font-family: 'Inter', sans-serif !important;
-  line-height: 1.35 !important;
+  line-height: 24px !important;
   letter-spacing: 0.2px !important;
 }
 .mr-sl-heading-accent {
-  font-size: 28px !important;
+  font-size: 42px !important;
   font-weight: 500 !important;
   font-family: 'Inter', sans-serif !important;
-  line-height: 1.35 !important;
+  line-height: 24px !important;
   letter-spacing: 0.2px !important;
   transition: color 0.6s ease !important;
 }
@@ -575,7 +575,7 @@ function goToForm() {
 .mr-sl-toggles {
   display: flex !important;
   flex-direction: column !important;
-  gap: 6px !important;
+  gap: 22px !important;
 }
 
 /* ── Label ── */
@@ -584,7 +584,7 @@ function goToForm() {
   font-weight: 500 !important;
   color: rgb(255,255,255) !important;
   margin-bottom: 8px !important;
-  margin-top: 14px !important;
+  margin-top: 0px !important;
   padding-left: 4px !important;
   font-family: 'Inter', sans-serif !important;
   letter-spacing: 0.3px !important;
@@ -882,7 +882,7 @@ function goToForm() {
   .mr-sl-root { padding-top: 56px !important; }
   .mr-sl-column { margin-bottom: 85px !important; gap: 16px !important; }
   .mr-sl-heading-white,
-  .mr-sl-heading-accent { font-size: 20px !important; }
+  .mr-sl-heading-accent { font-size: 28px !important; line-height: 20px !important; }
   .mr-sl-heading { padding: 0 8px !important; }
   .mr-sl-panel { border-radius: 16px !important; }
   .mr-sl-header {
@@ -892,11 +892,11 @@ function goToForm() {
   }
   .mr-sl-header-text { font-size: 15px !important; }
   .mr-sl-body { padding: 16px 14px 18px !important; }
-  .mr-sl-toggles { gap: 4px !important; }
+  .mr-sl-toggles { gap: 16px !important; }
   .mr-sl-label {
     font-size: 13px !important;
     margin-bottom: 6px !important;
-    margin-top: 10px !important;
+    margin-top: 0px !important;
   }
   .mr-sl-row { gap: 8px !important; }
   .mr-sl-pill { height: 40px !important; }
