@@ -80,13 +80,23 @@ watch(count, (newVal, oldVal) => {
 })
 
 // ── Modal: lock/unlock scroll ──
+let savedBodyBg = ''
+let savedHtmlBg = ''
+
 function lockScroll() {
   document.body.style.overflow = 'hidden'
   document.documentElement.style.overflow = 'hidden'
+  // Match background so no foreign color peeks through any gap
+  savedBodyBg = document.body.style.background
+  savedHtmlBg = document.documentElement.style.background
+  document.body.style.background = 'rgb(6,6,10)'
+  document.documentElement.style.background = 'rgb(6,6,10)'
 }
 function unlockScroll() {
   document.body.style.overflow = ''
   document.documentElement.style.overflow = ''
+  document.body.style.background = savedBodyBg
+  document.documentElement.style.background = savedHtmlBg
 }
 
 function openModal() {
@@ -795,8 +805,12 @@ function goToForm() {
   bottom: 0 !important;
   width: 100% !important;
   height: 100% !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  height: 100lvh !important;
   z-index: 9999 !important;
-  background: rgb(0, 0, 0) !important;
+  background: rgb(6, 6, 10) !important;
+  box-shadow: 0 0 0 200vmax rgb(6, 6, 10) !important;
 }
 
 .mr-sl-modal-container {
@@ -808,7 +822,22 @@ function goToForm() {
   overflow-y: auto !important;
   overflow-x: hidden !important;
   -webkit-overflow-scrolling: touch !important;
-  background: rgb(0, 0, 0) !important;
+  background: rgb(6, 6, 10) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Force child component to fill full height (no navbar in modal) */
+.mr-sl-modal-container > :deep(*) {
+  flex: 1 0 auto !important;
+}
+.mr-sl-modal-container :deep(.layout) {
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 /* ── Close button ── */
