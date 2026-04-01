@@ -23,7 +23,7 @@
       <div class="mr-protocol-footer">
         <div class="mr-protocol-footer-label">ВСЁ ВКЛЮЧЕНО</div>
         <p class="mr-protocol-footer-text">Стратегия, дизайн-система, интерфейс, код, запуск и&nbsp;сопровождение&nbsp;— одна команда, один процесс, один результат.</p>
-        <button class="mr-protocol-cta" @click="openProtocolModal('scout')">Детали</button>
+        <button class="mr-protocol-cta" @click="openProtocolModal('slot')">Детали</button>
       </div>
     </div>
 
@@ -50,71 +50,69 @@
 
               <!-- Step Content -->
               <div class="mr-protocol-step-content">
-                <!-- Step 0: Scout -->
+                <!-- Step 0: Scout / ВИДИМ -->
                 <div v-if="currentStep === 0" class="mr-step-scout">
                   <div class="mr-modal-header"><span class="mr-protocol-modal-code">ЗАП-01</span><h2 class="mr-modal-title">Разведка</h2></div>
                   <div class="mr-details-meta">
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">НАХОДИМ ЧТО ТОРМОЗИТ РОСТ</span></div>
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">7–10д</span></div>
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">150 000 ₽</span></div>
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Бренд-платформа + GO/NO-GO</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">ВИДИМ ЧТО ТОРМОЗИТ РОСТ</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">~20д</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Карта модулей + Стратегия запуска</span></div>
                   </div>
-                  <div class="mr-protocol-modal-method">Находим что именно тормозит рост. Не симптомы — причину.</div>
+                  <div class="mr-protocol-modal-method">Видим архитектуру бизнеса в цифре до того, как её описал клиент. Не симптомы — причину.</div>
                   <div class="mr-protocol-modal-roadmap">
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">1–3</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Погружение</div><div class="mr-roadmap-step-desc">Интервью с основателем, изучение рынка.</div></div></div>
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">4–6</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Позиционирование</div><div class="mr-roadmap-step-desc">Анализ конкурентов, поиск дифференциации.</div></div></div>
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">7–10</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Стратегия</div><div class="mr-roadmap-step-desc">Бренд-платформа, GO/NO-GO вердикт.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">1–3</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Ранскейл-сессия</div><div class="mr-roadmap-step-desc">Погружение в бизнес. Интервью с основателем, определение узких горлышек.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">4–10</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Чекап</div><div class="mr-roadmap-step-desc">10 направлений, 180 метрик. Карта модулей бизнеса в цифре. Порядок запуска.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">11–17</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Радар</div><div class="mr-roadmap-step-desc">Анализ рынка, конкуренты, проверка гипотез. Карта возможностей.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">18–20</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Стратегия</div><div class="mr-roadmap-step-desc">Какой модуль первым. Что даст максимальный эффект. GO/NO-GO.</div></div></div>
                   </div>
-                  <div class="mr-details-tags"><span class="mr-details-tag">Бренд-платформа</span><span class="mr-details-tag">Позиционирование</span><span class="mr-details-tag">Анализ конкурентов</span><span class="mr-details-tag">GO/NO-GO</span></div>
+                  <div class="mr-details-tags"><span class="mr-details-tag">Ранскейл-сессия</span><span class="mr-details-tag">Чекап 180 метрик</span><span class="mr-details-tag">Радар рынка</span><span class="mr-details-tag">GO/NO-GO</span></div>
                 </div>
 
-                <!-- Step 1: Checkup -->
+                <!-- Step 1: Checkup / ЗАПУСКАЕМ -->
                 <div v-if="currentStep === 1" class="mr-step-checkup">
                   <div class="mr-modal-header"><span class="mr-protocol-modal-code">ЗАП-02</span><h2 class="mr-modal-title">Симуляция</h2></div>
                   <div class="mr-details-meta">
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">ПРОВЕРЯЕМ РЕШЕНИЕ</span></div>
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">30д</span></div>
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">350 000 ₽</span></div>
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Дизайн-система + Прототип</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">ПРОВЕРЯЕМ РЕШЕНИЕ ДО ЗАПУСКА</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">~20д</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Прототип модуля + Проверенные гипотезы</span></div>
                   </div>
-                  <div class="mr-protocol-modal-method">Собираем решение и проверяем на реальных данных. До запуска.</div>
+                  <div class="mr-protocol-modal-method">Собираем решение и проверяем на реальных данных. Маленькая версия → ошибки → корректировка → масштаб.</div>
                   <!-- Artifact Gallery -->
                   <div class="mr-artifact-gallery">
                     <div class="mr-artifact-card">
-                      <div class="mr-artifact-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="0.5"/><circle cx="17.5" cy="10.5" r="0.5"/><circle cx="8.5" cy="7.5" r="0.5"/><circle cx="6.5" cy="12.5" r="0.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"/></svg></div>
-                      <div class="mr-artifact-card-title">Логотип и айдентика</div>
-                      <div class="mr-artifact-card-desc">Основные носители</div>
-                    </div>
-                    <div class="mr-artifact-card">
                       <div class="mr-artifact-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div>
-                      <div class="mr-artifact-card-title">UI-кит</div>
-                      <div class="mr-artifact-card-desc">Компоненты и стили</div>
+                      <div class="mr-artifact-card-title">Архитектура модуля</div>
+                      <div class="mr-artifact-card-desc">Структура, логика, связи</div>
                     </div>
                     <div class="mr-artifact-card">
                       <div class="mr-artifact-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg></div>
-                      <div class="mr-artifact-card-title">Макеты</div>
-                      <div class="mr-artifact-card-desc">Кликабельный прототип</div>
+                      <div class="mr-artifact-card-title">Рабочий прототип</div>
+                      <div class="mr-artifact-card-desc">Кликабельная версия на реальных данных</div>
+                    </div>
+                    <div class="mr-artifact-card">
+                      <div class="mr-artifact-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+                      <div class="mr-artifact-card-title">Данные и метрики</div>
+                      <div class="mr-artifact-card-desc">Проверка гипотез на цифрах</div>
                     </div>
                   </div>
                   <div class="mr-protocol-modal-roadmap">
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">1–7</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Айдентика</div><div class="mr-roadmap-step-desc">Логотип, цвета, типографика.</div></div></div>
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">8–18</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">UI-кит</div><div class="mr-roadmap-step-desc">Компоненты, иконки, формы.</div></div></div>
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">19–26</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Прототип</div><div class="mr-roadmap-step-desc">Кликабельный макет.</div></div></div>
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">27–30</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Финализация</div><div class="mr-roadmap-step-desc">Гайдлайны, исходники.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">1–5</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Архитектура</div><div class="mr-roadmap-step-desc">Структура модуля, бизнес-логика, потоки данных.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">6–12</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Прототип</div><div class="mr-roadmap-step-desc">Рабочая версия на реальных данных. Итерации по обратной связи.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">13–17</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Проверка</div><div class="mr-roadmap-step-desc">Тестирование гипотез. Корректировка на основе данных.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">18–20</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Финализация</div><div class="mr-roadmap-step-desc">Готовность к боевому запуску. Документация.</div></div></div>
                   </div>
-                  <div class="mr-details-tags"><span class="mr-details-tag">Логотип и айдентика</span><span class="mr-details-tag">UI-кит</span><span class="mr-details-tag">Прототип</span><span class="mr-details-tag">Гайдлайны</span></div>
+                  <div class="mr-details-tags"><span class="mr-details-tag">Архитектура модуля</span><span class="mr-details-tag">Рабочий прототип</span><span class="mr-details-tag">Тест на данных</span><span class="mr-details-tag">Готовность к запуску</span></div>
                 </div>
 
-                <!-- Step 2: Execute -->
+                <!-- Step 2: Execute / РАСШИРЯЕМ -->
                 <div v-if="currentStep === 2" class="mr-step-execute">
                   <div class="mr-modal-header"><span class="mr-protocol-modal-code">ЗАП-03</span><h2 class="mr-modal-title">Запуск</h2></div>
                   <div class="mr-details-meta">
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">РЕШЕНИЕ РАБОТАЕТ</span></div>
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">30д</span></div>
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Цена</span><span class="mr-details-meta-value">по запросу</span></div>
-                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Рабочий продукт</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Этап</span><span class="mr-details-meta-value accent">МОДУЛЬ В БОЮ</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Срок</span><span class="mr-details-meta-value">~20д</span></div>
+                    <div class="mr-details-meta-row"><span class="mr-details-meta-label">Результат</span><span class="mr-details-meta-value accent">Рабочий модуль на ваших данных</span></div>
                   </div>
-                  <div class="mr-protocol-modal-method">Решение работает. На ваших данных, в вашем бизнесе.</div>
+                  <div class="mr-protocol-modal-method">Модуль работает. На ваших данных, в вашем бизнесе. Пока конкуренты думают — вы уже запустили.</div>
                   <!-- Assembly Animation -->
                   <div class="mr-module-assembly-visual">
                     <div class="mr-assembly-block header">HEADER</div>
@@ -123,13 +121,13 @@
                     <div class="mr-assembly-scanner"></div>
                   </div>
                   <div class="mr-protocol-modal-roadmap">
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">1–10</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Фронтенд</div><div class="mr-roadmap-step-desc">Pixel-perfect вёрстка.</div></div></div>
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">11–20</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Бэкенд</div><div class="mr-roadmap-step-desc">Бизнес-логика, API.</div></div></div>
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">21–25</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Интеграции</div><div class="mr-roadmap-step-desc">Платежи, аналитика.</div></div></div>
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">26–30</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Релиз</div><div class="mr-roadmap-step-desc">Деплой, документация.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">1–7</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Разработка</div><div class="mr-roadmap-step-desc">Фронтенд, бэкенд, бизнес-логика. Pixel-perfect по прототипу.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">8–13</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Интеграции</div><div class="mr-roadmap-step-desc">Подключение к системам бизнеса. Платежи, аналитика, API.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">14–17</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Боевой тест</div><div class="mr-roadmap-step-desc">Модуль работает на реальных данных. Отладка под нагрузкой.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">18–20</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Деплой</div><div class="mr-roadmap-step-desc">Релиз, документация, передача управления.</div></div></div>
                   </div>
-                  <div class="mr-pixel-perfect-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>ТОЧНОСТЬ ДО ПИКСЕЛЯ: Полное соответствие кода дизайн-макетам</div>
-                  <div class="mr-details-tags"><span class="mr-details-tag">Рабочий продукт</span><span class="mr-details-tag">Исходный код</span><span class="mr-details-tag">Документация</span><span class="mr-details-tag">7д поддержки</span></div>
+                  <div class="mr-pixel-perfect-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>РАБОТАЕТ 24/7: Без зарплаты. Без больничных. Без совещаний.</div>
+                  <div class="mr-details-tags"><span class="mr-details-tag">Рабочий модуль</span><span class="mr-details-tag">Исходный код</span><span class="mr-details-tag">Документация</span><span class="mr-details-tag">7д поддержки</span></div>
                 </div>
 
                 <!-- Step 3: Slot -->
@@ -137,7 +135,7 @@
                   <div class="mr-slot-header"><h2 class="mr-slot-title">Всё включено</h2></div>
                   <div class="mr-slot-offer"><div class="mr-slot-offer-label">ПОЛНЫЙ ЗАПУСК</div><h3 class="mr-slot-offer-title">Стратегия, дизайн, код, запуск — одна команда, один результат.</h3><div class="mr-slot-duration"><span class="mr-slot-duration-label">Срок реализации</span><span class="mr-slot-duration-value mr-slot-duration-small">~60д</span></div></div>
                   <div class="mr-slot-grid"><div class="mr-slot-box"><div class="mr-slot-box-label">ВХОДИТ:</div><ul class="mr-slot-list"><li>→ ЗАП-01  Разведка</li><li>→ ЗАП-02  Симуляция</li><li>→ ЗАП-03  Запуск</li></ul></div><div class="mr-slot-box mr-slot-price-box"><div class="mr-slot-box-label">СТОИМОСТЬ СЛОТА:</div><div class="mr-slot-price">от 800 000 ₽</div><div class="mr-slot-price-note">*оплата поэтапная (3 транша)</div></div></div>
-                  <a href="https://t.me/runScale" target="_blank" class="mr-slot-cta">ЗАБРОНИРОВАТЬ СЛОТ →</a>
+                  <a href="https://runscale.ru/book-my-launch" target="_blank" class="mr-slot-cta">ЗАБРОНИРОВАТЬ СЛОТ →</a>
                 </div>
               </div>
 
@@ -324,7 +322,7 @@ function goToStep(step: number) { currentStep.value = step }
 .mr-details-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
 .mr-details-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 8px 16px; background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); color: rgb(0, 255, 136); border-radius: 6px; }
 
-/* Artifact Gallery for MOD-02 */
+/* Artifact Gallery for ЗАП-02 */
 .mr-artifact-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
 @media (max-width: 600px) { .mr-artifact-gallery { grid-template-columns: 1fr; } }
 .mr-artifact-card { background: rgba(17, 17, 17, 0.8); border: 1px solid #222; border-radius: 8px; padding: 20px; text-align: center; transition: all 0.3s ease; }
@@ -333,7 +331,7 @@ function goToStep(step: number) { currentStep.value = step }
 .mr-artifact-card-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
 .mr-artifact-card-desc { font-size: 11px; color: #555; }
 
-/* Assembly Animation for MOD-03 */
+/* Assembly Animation for ЗАП-03 */
 .mr-module-assembly-visual { position: relative; height: 200px; background: linear-gradient(90deg, #222 1px, transparent 1px) 0 0 / 20px 20px, linear-gradient(#222 1px, transparent 1px) 0 0 / 20px 20px; border: 1px solid #222; border-radius: 8px; margin: 24px 0; overflow: hidden; }
 .mr-assembly-block { position: absolute; background: #111; border: 1px solid rgb(0, 255, 136); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgb(0, 255, 136); animation: mr-assemblyFly 2s ease-out forwards; opacity: 0; }
 .mr-assembly-block.header { width: 80%; height: 30px; top: 10px; left: 10%; animation-delay: 0s; }
