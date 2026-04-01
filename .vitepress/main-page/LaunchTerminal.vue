@@ -16,21 +16,10 @@ const jNumRef = ref<HTMLElement | null>(null)
 const jClockRef = ref<HTMLElement | null>(null)
 const jIconRef = ref<SVGElement | null>(null)
 const pnTitleRef = ref<HTMLElement | null>(null)
-const tipBtnRef = ref<HTMLElement | null>(null)
-const tipRef = ref<HTMLElement | null>(null)
-const showTip = ref(false)
+const showDetails = ref(false)
 
-function toggleTip() {
-  showTip.value = !showTip.value
-}
-
-function onClickOutsideTip(e: MouseEvent) {
-  if (!showTip.value) return
-  const tip = tipRef.value, btn = tipBtnRef.value
-  if (tip && !tip.contains(e.target as Node) && btn && !btn.contains(e.target as Node)) {
-    showTip.value = false
-  }
-}
+function openDetails() { showDetails.value = true }
+function closeDetails() { showDetails.value = false }
 
 // ═══ LOGO MASK ═══
 let logoMask: ImageData | null = null
@@ -428,9 +417,9 @@ onUnmounted(() => {
   window.removeEventListener('resize', onResize)
 })
 
-function onEsc(e: KeyboardEvent) { if (e.key === 'Escape') showTip.value = false }
-onMounted(() => { document.addEventListener('keydown', onEsc); document.addEventListener('click', onClickOutsideTip, true) })
-onUnmounted(() => { document.removeEventListener('keydown', onEsc); document.removeEventListener('click', onClickOutsideTip, true) })
+function onEsc(e: KeyboardEvent) { if (e.key === 'Escape') showDetails.value = false }
+onMounted(() => document.addEventListener('keydown', onEsc))
+onUnmounted(() => document.removeEventListener('keydown', onEsc))
 </script>
 
 <template>
@@ -473,7 +462,7 @@ onUnmounted(() => { document.removeEventListener('keydown', onEsc); document.rem
         </div>
 
         <!-- PATCH NOTES -->
-        <div class="patch-notes" :class="{ 'tip-open': showTip }">
+        <div class="patch-notes">
           <div ref="pnTitleRef" class="pn-title">РЕЖИМ РАНСКЕЙЛ СЕССИИ</div>
           <div class="pn-line" style="color:rgba(255,255,255,0.85);font-weight:500;">90 минут. Одно решение.</div>
           <div style="height:8px" />
@@ -482,34 +471,39 @@ onUnmounted(() => { document.removeEventListener('keydown', onEsc); document.rem
           <div class="pn-line">Вердикт: <span style="color:rgba(0,255,136,0.7);font-weight:500;">GO</span> или <span style="color:rgba(255,255,255,0.6);font-weight:500;">NO GO</span>.</div>
           <div style="height:8px" />
           <div class="pn-dim">Формат: видеозвонок · Результат: вердикт на 1 странице</div>
-          <div class="pn-btn-wrap" style="margin-top:14px;margin-bottom:20px;padding-bottom:8px;position:relative;">
-            <button ref="tipBtnRef" class="pn-details-btn" @click="toggleTip">ДЕТАЛИ СЕССИИ</button>
-            <Transition name="tip-fade">
-              <div v-if="showTip" ref="tipRef" class="sm-tip">
-                <div class="sm-header">РЕЖИМ РАНСКЕЙЛ</div>
-                <div class="sm-stats">
-                  <div class="sm-stat"><span class="sm-stat-val">90</span><span class="sm-stat-label">МИН.</span></div>
-                  <div class="sm-stat-div" />
-                  <div class="sm-stat"><span class="sm-stat-val" style="color:rgba(255,255,255,0.9)">8/10</span><span class="sm-stat-label">NO-GO</span></div>
-                  <div class="sm-stat-div" />
-                  <div class="sm-stat"><span class="sm-stat-val sm-stat-go">GO</span><span class="sm-stat-label">ВЕРДИКТ</span></div>
-                </div>
-                <div class="sm-specs">
-                  <div class="sm-spec-row"><span class="sm-spec-label">Что ищем</span><span class="sm-spec-val">причину, не симптом</span></div>
-                  <div class="sm-spec-row"><span class="sm-spec-label">Как решаем</span><span class="sm-spec-val">сигнал, не шум</span></div>
-                  <div class="sm-spec-row"><span class="sm-spec-label">Что получаете</span><span class="sm-spec-val">вердикт <span class="sm-go">GO</span> / <span class="sm-nogo">NO GO</span></span></div>
-                </div>
-                <div class="sm-format-badge">90 мин · видеозвонок · вердикт на 1 странице</div>
-                <div class="sm-desc">
-                  <p style="color:rgba(255,255,255,0.85)">Находим что тормозит рост прямо сейчас. Выбираем один цифровой продукт, который решает это.</p>
-                  <p><span class="sm-go">GO</span> — запускаем. <span class="sm-nogo">NO GO</span> — документ показывает что устранить, чтобы запуск стал возможным.</p>
-                </div>
-              </div>
-            </Transition>
+          <div class="pn-btn-wrap" style="margin-top:14px;margin-bottom:20px;padding-bottom:8px;">
+            <button class="pn-details-btn" @click="openDetails">ДЕТАЛИ СЕССИИ</button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- DETAILS PANEL — absolute over lt-root -->
+    <Transition name="dp-fade">
+      <div v-if="showDetails" class="dp-overlay" @click.self="closeDetails">
+        <div class="dp-card">
+          <div class="dp-header">РЕЖИМ РАНСКЕЙЛ</div>
+          <div class="dp-stats">
+            <div class="dp-stat"><span class="dp-stat-val">90</span><span class="dp-stat-label">МИН.</span></div>
+            <div class="dp-stat-div" />
+            <div class="dp-stat"><span class="dp-stat-val" style="color:rgba(255,255,255,0.9)">8/10</span><span class="dp-stat-label">NO-GO</span></div>
+            <div class="dp-stat-div" />
+            <div class="dp-stat"><span class="dp-stat-val dp-stat-go">GO</span><span class="dp-stat-label">ВЕРДИКТ</span></div>
+          </div>
+          <div class="dp-specs">
+            <div class="dp-spec-row"><span class="dp-spec-label">Что ищем</span><span class="dp-spec-val">причину, не симптом</span></div>
+            <div class="dp-spec-row"><span class="dp-spec-label">Как решаем</span><span class="dp-spec-val">сигнал, не шум</span></div>
+            <div class="dp-spec-row"><span class="dp-spec-label">Что получаете</span><span class="dp-spec-val">вердикт <span class="dp-go">GO</span> / <span class="dp-nogo">NO GO</span></span></div>
+          </div>
+          <div class="dp-format-badge">90 мин · видеозвонок · вердикт на 1 странице</div>
+          <div class="dp-desc">
+            <p style="color:rgba(255,255,255,0.85)">Находим что тормозит рост прямо сейчас. Выбираем один цифровой продукт, который решает это.</p>
+            <p><span class="dp-go">GO</span> — запускаем. <span class="dp-nogo">NO GO</span> — документ показывает что устранить, чтобы запуск стал возможным.</p>
+          </div>
+          <button class="dp-close-btn" @click="closeDetails">ЗАКРЫТЬ</button>
+        </div>
+      </div>
+    </Transition>
 
   </div>
 </template>
@@ -587,7 +581,6 @@ onUnmounted(() => { document.removeEventListener('keydown', onEsc); document.rem
 
 /* PATCH NOTES */
 .patch-notes{height:24%;min-height:130px;max-height:280px;background:rgba(10,12,16,0.95);border-top:1px solid rgba(255,255,255,0.05);padding:20px 28px 28px;font-family:'Fira Sans',sans-serif;font-size:13px;font-weight:300;line-height:1.9;color:rgba(255,255,255,0.35);overflow-y:auto;z-index:10;}
-.patch-notes.tip-open{overflow:visible;}
 .patch-notes::-webkit-scrollbar{width:3px;}.patch-notes::-webkit-scrollbar-track{background:transparent;}.patch-notes::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);}
 .pn-title{font-size:13px;font-weight:600;letter-spacing:0.08em;color:rgba(255,255,255,0.9);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.15);transition:border-color 1s;}
 .pn-line{color:rgba(255,255,255,0.35);margin-bottom:2px;}
@@ -595,21 +588,33 @@ onUnmounted(() => { document.removeEventListener('keydown', onEsc); document.rem
 .pn-details-btn{font-family:'Fira Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.08em;color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:8px 20px;cursor:pointer;transition:all 0.3s;backdrop-filter:blur(8px);}
 .pn-details-btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);}
 
-/* TOOLTIP — always above the button */
-.sm-tip{position:absolute;bottom:calc(100% + 10px);left:0;right:0;background:rgba(8,12,24,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(88,166,255,0.15);border-radius:12px;padding:16px 20px;z-index:90;box-shadow:0 4px 30px rgba(0,0,0,0.5),0 0 60px rgba(0,0,0,0.2);max-height:320px;overflow-y:auto;}
-.sm-tip::-webkit-scrollbar{width:3px;}.sm-tip::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
-.sm-tip::after{content:'';position:absolute;bottom:-6px;left:24px;width:10px;height:10px;background:rgba(8,12,24,0.92);border-right:1px solid rgba(88,166,255,0.15);border-bottom:1px solid rgba(88,166,255,0.15);transform:rotate(45deg);}
-.tip-fade-enter-active,.tip-fade-leave-active{transition:opacity 0.3s ease,transform 0.3s ease;}
-.tip-fade-enter-from,.tip-fade-leave-to{opacity:0;transform:translateY(6px);}
-.sm-header{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.85);text-transform:uppercase;margin-bottom:12px;text-align:center;}
-.sm-stats{display:flex;justify-content:center;align-items:center;gap:16px;margin-bottom:12px;}
-.sm-stat{text-align:center;}.sm-stat-val{font-family:'Fira Code',monospace;font-size:22px;font-weight:500;color:#fff;display:block;line-height:1;margin-bottom:4px;letter-spacing:1px;}.sm-stat-go{color:rgba(0,255,136,0.9);}.sm-stat-label{font-family:'Fira Code',monospace;font-size:8px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:2px;}.sm-stat-div{width:1px;height:28px;background:rgba(255,255,255,0.08);}
-.sm-specs{margin-bottom:10px;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:6px;}
-.sm-spec-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-family:'Fira Code',monospace;font-size:11px;}.sm-spec-row:first-child{padding-top:2px;}.sm-spec-row:last-child{border-bottom:none;padding-bottom:2px;}
-.sm-spec-label{color:rgba(255,255,255,0.3);font-weight:400;}.sm-spec-val{color:rgba(255,255,255,0.7);font-weight:500;text-align:right;}
-.sm-go{color:rgba(0,255,136,0.85);font-family:'Fira Code',monospace;font-weight:700;}.sm-nogo{color:rgba(255,255,255,0.6);font-family:'Fira Code',monospace;font-weight:700;}
-.sm-format-badge{font-family:'Fira Code',monospace;font-size:11px;color:rgba(255,136,0,0.65);text-align:center;margin-bottom:10px;padding:8px 12px;background:rgba(255,136,0,0.04);border:1px solid rgba(255,136,0,0.1);border-radius:6px;letter-spacing:0.03em;}
-.sm-desc{margin-bottom:2px;}.sm-desc p{font-family:'Fira Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;margin:0 0 6px;text-align:center;}.sm-desc p:last-child{margin-bottom:0;}
+/* DETAILS PANEL — absolute overlay inside lt-root */
+.dp-overlay{position:absolute;inset:0;z-index:99;background:rgba(3,5,10,0.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:flex;align-items:center;justify-content:center;padding:24px;}
+.dp-fade-enter-active,.dp-fade-leave-active{transition:opacity 0.3s ease;}
+.dp-fade-enter-from,.dp-fade-leave-to{opacity:0;}
+.dp-card{width:100%;max-width:480px;background:rgba(8,12,24,0.6);border:1px solid rgba(88,166,255,0.12);border-radius:16px;padding:36px 32px 28px;position:relative;box-shadow:0 0 60px rgba(0,0,0,0.4);}
+.dp-card::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(88,166,255,0.25),transparent);}
+.dp-header{font-family:'Inter',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.9);text-transform:uppercase;margin-bottom:24px;text-align:center;}
+.dp-stats{display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:24px;}
+.dp-stat{text-align:center;}
+.dp-stat-val{font-family:'Fira Code',monospace;font-size:32px;font-weight:500;color:#fff;display:block;line-height:1;margin-bottom:6px;letter-spacing:1px;}
+.dp-stat-go{color:rgba(0,255,136,0.9);}
+.dp-stat-label{font-family:'Fira Code',monospace;font-size:9px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:2px;}
+.dp-stat-div{width:1px;height:44px;background:rgba(255,255,255,0.08);}
+.dp-specs{margin-bottom:18px;padding:14px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:10px;}
+.dp-spec-row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-family:'Fira Code',monospace;font-size:13px;}
+.dp-spec-row:first-child{padding-top:4px;}
+.dp-spec-row:last-child{border-bottom:none;padding-bottom:4px;}
+.dp-spec-label{color:rgba(255,255,255,0.35);font-weight:400;}
+.dp-spec-val{color:rgba(255,255,255,0.8);font-weight:500;text-align:right;}
+.dp-go{color:rgba(0,255,136,0.85);font-family:'Fira Code',monospace;font-weight:700;}
+.dp-nogo{color:rgba(255,255,255,0.6);font-family:'Fira Code',monospace;font-weight:700;}
+.dp-format-badge{font-family:'Fira Code',monospace;font-size:12px;color:rgba(255,136,0,0.7);text-align:center;margin-bottom:18px;padding:10px 16px;background:rgba(255,136,0,0.04);border:1px solid rgba(255,136,0,0.12);border-radius:8px;letter-spacing:0.03em;}
+.dp-desc{margin-bottom:24px;}
+.dp-desc p{font-family:'Fira Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.8;margin:0 0 10px;text-align:center;}
+.dp-desc p:last-child{margin-bottom:0;}
+.dp-close-btn{display:block;width:100%;font-family:'Fira Sans',sans-serif;font-size:15px;font-weight:500;letter-spacing:0.1em;color:rgba(255,255,255,0.9);background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);border-radius:10px;padding:14px 0;cursor:pointer;transition:all 0.3s;box-shadow:0 0 12px rgba(88,166,255,0.05),inset 0 0 12px rgba(88,166,255,0.03);}
+.dp-close-btn:hover{background:rgba(88,166,255,0.18);box-shadow:0 0 25px rgba(88,166,255,0.1),inset 0 0 15px rgba(88,166,255,0.05);}
 
 /* MOBILE */
 @media(max-width:768px){
@@ -629,10 +634,11 @@ onUnmounted(() => { document.removeEventListener('keydown', onEsc); document.rem
   :deep(.t-btn),:deep(.t-btn-sleep){max-width:100%;width:100%;text-align:center;line-height:1.4;}
   .pn-btn-wrap{margin-bottom:12px !important;padding-bottom:4px !important;}
   .pn-details-btn{font-size:12px !important;padding:8px 20px !important;}
-  .sm-tip{left:-12px;right:-12px;max-height:280px;bottom:calc(100% + 8px);}
-  .sm-tip::after{left:20px;}
-  .sm-header{font-size:12px;margin-bottom:10px;}
-  .sm-stats{gap:12px;}.sm-stat-val{font-size:18px;}.sm-stat-div{height:24px;}
-  .sm-spec-row{flex-direction:column;gap:1px;padding:5px 0;}.sm-spec-val{text-align:left;}
+  .dp-overlay{padding:16px;}
+  .dp-card{padding:24px 20px 20px;border-radius:12px;}
+  .dp-header{font-size:15px;margin-bottom:18px;}
+  .dp-stats{gap:16px;margin-bottom:18px;}.dp-stat-val{font-size:26px;}.dp-stat-div{height:36px;}
+  .dp-spec-row{flex-direction:column;gap:2px;padding:8px 0;font-size:12px;}.dp-spec-val{text-align:left;}
+  .dp-close-btn{font-size:14px;padding:12px 0;}
 }
 </style>
