@@ -12,6 +12,7 @@ const isDragging = ref(false)
 const startX = ref(0)
 const translateX = ref(0)
 const activeModal = ref(null)
+const openAccordions = ref(new Set())
 
 const dialWidth = 260
 const gap = 30
@@ -20,12 +21,30 @@ let interval = null
 
 const checkMobile = () => { isMobile.value = window.innerWidth < 768 }
 
-const openModal = (id) => { activeModal.value = id; document.body.style.overflow = 'hidden' }
-const closeModal = () => { activeModal.value = null; document.body.style.overflow = '' }
+const openModal = (id) => {
+  activeModal.value = id
+  document.body.style.overflow = 'hidden'
+  openAccordions.value = new Set()
+}
+const closeModal = () => {
+  activeModal.value = null
+  document.body.style.overflow = ''
+}
+const handleEscape = (e) => {
+  if (e.key === 'Escape' && activeModal.value) closeModal()
+}
+const toggleAccordion = (key) => {
+  const s = new Set(openAccordions.value)
+  if (s.has(key)) s.delete(key)
+  else s.add(key)
+  openAccordions.value = s
+}
+const isOpen = (key) => openAccordions.value.has(key)
 
 onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
+  window.addEventListener('keydown', handleEscape)
   interval = setInterval(() => {
     if (phase.value === 'countdown') {
       const n = snakeProgress.value - (100 / 240)
@@ -42,7 +61,11 @@ onMounted(() => {
   }, 25)
 })
 
-onUnmounted(() => { window.removeEventListener('resize', checkMobile); if (interval) clearInterval(interval) })
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+  window.removeEventListener('keydown', handleEscape)
+  if (interval) clearInterval(interval)
+})
 
 const handleStart = (x) => { if (!isMobile.value) return; isDragging.value = true; startX.value = x - translateX.value }
 const handleMove = (x) => { if (!isDragging.value || !isMobile.value) return; translateX.value = Math.max(-(totalWidth * 2), Math.min(0, x - startX.value)) }
@@ -117,29 +140,337 @@ const nX = [20, 90, 160]
     </div>
   </template>
 
-  <!-- Modal -->
+  <!-- Modals -->
   <Teleport to="body">
+    <Transition name="modal-fade">
     <div v-if="activeModal" class="mr-ip-overlay" @click.self="closeModal">
-      <div class="mr-ip-modal">
-        <button class="mr-ip-close" @click="closeModal">
+      <Transition name="modal-slide" appear>
+      <div class="mr-ip-modal" :key="activeModal">
+        <button class="mr-ip-close" @click="closeModal" aria-label="Закрыть">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
         <div class="mr-ip-modal-body">
-          <!-- Content will be in separate component -->
-          <div class="mr-ip-modal-placeholder">
-            <span v-if="activeModal === 'vidim'">ВИДИМ</span>
-            <span v-else-if="activeModal === 'zapuskaem'">ЗАПУСКАЕМ</span>
-            <span v-else-if="activeModal === 'rasshiryaem'">РАСШИРЯЕМ</span>
-          </div>
+
+          <!-- ═══════════════════════════════════════ -->
+          <!-- ВИДИМ -->
+          <!-- ═══════════════════════════════════════ -->
+          <template v-if="activeModal === 'vidim'">
+            <h1 class="md-h1">ВИДИМ</h1>
+            <div class="md-intro">
+              <p>Архитектуру бизнеса в цифре — до того, как её описал клиент.</p>
+              <p>Куда идут рынки — и как оказаться там первым.</p>
+              <p>Какой модуль запустить первым, чтобы эффект был взрывным.</p>
+            </div>
+
+            <div class="md-divider"></div>
+
+            <h2 class="md-h2"><span class="md-mono">2</span> этапа</h2>
+
+            <!-- Этап 1 -->
+            <h3 class="md-h3"><span class="md-mono">1</span> — Ранскейл-сессия · <span class="md-mono">90</span> минут</h3>
+            <h4 class="md-h4">Не аудит. Не диагностика. Не анкета на <span class="md-mono">50</span> вопросов.</h4>
+            <p class="md-text">Не обязательство. Не контракт на полгода. Один разговор, после которого вы видите свой бизнес иначе.</p>
+            <p class="md-text">Это разговор о будущем вашего рынка с командой, которая видит на <span class="md-mono">2</span> года вперёд. <span class="md-mono">45</span> запусков — от ресторанов до международных саммитов — дают способность видеть паттерны, которые изнутри бизнеса не видны.</p>
+
+            <!-- Аккордион: Что происходит -->
+            <div class="md-accordion" :class="{ open: isOpen('v-1') }">
+              <button class="md-accordion-header" @click="toggleAccordion('v-1')">
+                <span class="md-accordion-icon">{{ isOpen('v-1') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Что происходит</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('v-1') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner">Мы смотрим на бизнес и видим:</p>
+                  <p class="md-text-inner md-dash">Какой цифровой модуль нужен первым</p>
+                  <p class="md-text-inner md-dash">Что даст максимальный эффект при минимальных ресурсах</p>
+                  <p class="md-text-inner md-dash">Какие модули понадобятся дальше и как они соединяются</p>
+                  <p class="md-text-inner md-dash">Где узкое горлышко, которое тормозит рост прямо сейчас</p>
+                </div>
+              </div>
+            </div>
+
+            <p class="md-text">Вам не нужно знать, что именно строить. Владелец бизнеса приходит с направлением: «хочу расти», «хочу как у лидеров», «хочу без штата». Этого достаточно. Мы видим за вас — и сразу запускаем.</p>
+
+            <div class="md-divider"></div>
+
+            <!-- Этап 2 -->
+            <h3 class="md-h3"><span class="md-mono">2</span> — RAG Аналитика</h3>
+            <p class="md-text">Фирменные методологии и технологии бизнес-аналитики Модуля Роста. Внутри: Чекап + анализ рынка Радаром.</p>
+
+            <div class="md-divider-thin"></div>
+
+            <!-- Чекап -->
+            <h4 class="md-h4-section">Чекап</h4>
+            <p class="md-result"><span class="md-result-label">Результат:</span> карта модулей бизнеса в цифре. Порядок запуска. Понимание, что будет через <span class="md-mono">3</span>, <span class="md-mono">6</span>, <span class="md-mono">12</span> месяцев если начать сейчас.</p>
+
+            <div class="md-accordion" :class="{ open: isOpen('v-2') }">
+              <button class="md-accordion-header" @click="toggleAccordion('v-2')">
+                <span class="md-accordion-icon">{{ isOpen('v-2') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Как устроен Чекап</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('v-2') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner">Разбираем бизнес по <span class="md-mono">10</span> направлениям и <span class="md-mono">180</span> взаимосвязанным метрикам. Не ещё один отчёт — системный подход шаг за шагом: все одинаково видят цель, оценивают как работает бизнес, непрерывно его улучшают и действуют в соответствии с точным и гибким планом.</p>
+                  <p class="md-text-inner md-method-label">Методология DMAIC + кросс-анализ:</p>
+                  <p class="md-text-inner md-dash"><strong>Определяем:</strong> проблемы по принципу «есть/нет» и сразу приоритезируем</p>
+                  <p class="md-text-inner md-dash"><strong>Измеряем:</strong> текущее состояние и строим базовую линию</p>
+                  <p class="md-text-inner md-dash"><strong>Анализируем:</strong> причины проблем — ищем взаимосвязи между процессами</p>
+                  <p class="md-text-inner md-dash"><strong>Улучшаем:</strong> точечно, прогнозируя влияние на все соседние области</p>
+                  <p class="md-text-inner md-dash"><strong>Контролируем:</strong> результаты через систему раннего предупреждения и регулярных чекапов</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="md-accordion" :class="{ open: isOpen('v-3') }">
+              <button class="md-accordion-header" @click="toggleAccordion('v-3')">
+                <span class="md-accordion-icon">{{ isOpen('v-3') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Что получает собственник</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('v-3') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner md-dash">Точные метрики — например, «оптимизация графика закупок высвободит X млн ₽» или «изменение мотивации увеличит выручку на <span class="md-mono">Y%</span>»</p>
+                  <p class="md-text-inner md-dash">Приоритизированный план действий — что делать сейчас, а что отложить, с оценкой эффекта и сроков</p>
+                  <p class="md-text-inner md-dash">Пошаговые решения проблем — с учётом взаимосвязей между процессами</p>
+                  <p class="md-text-inner md-dash">Детальный отчёт — анализ ~<span class="md-mono">180</span> ключевых метрик и пошаговый план внедрения с временными рамками</p>
+                  <p class="md-text-inner md-dash">Система контроля — трекинг результатов и регулярные чекапы</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="md-accordion" :class="{ open: isOpen('v-4') }">
+              <button class="md-accordion-header" @click="toggleAccordion('v-4')">
+                <span class="md-accordion-icon">{{ isOpen('v-4') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Обязательство</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('v-4') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner">Платите за движение, а не за презентации. Если за <span class="md-mono">30</span> дней не завершили <span class="md-mono">3</span> основных улучшения — продолжаем бесплатно.</p>
+                  <p class="md-text-inner">Запускаем изменения, пока другие готовят отчёты. Быстро и точно против долго и сложно.</p>
+                </div>
+              </div>
+            </div>
+
+            <a class="md-link" href="https://runscale.ru/checkup/overview.html" target="_blank" rel="noopener">Подробнее о Чекапе <span class="md-link-arrow">→</span></a>
+
+            <div class="md-divider-thin"></div>
+
+            <!-- Радар -->
+            <h4 class="md-h4-section">Радар</h4>
+            <p class="md-result"><span class="md-result-label">Результат:</span> карта рынка. Используется для симуляций, проверки гипотез, быстрой коррекции всех частей стратегии.</p>
+
+            <div class="md-accordion" :class="{ open: isOpen('v-5') }">
+              <button class="md-accordion-header" @click="toggleAccordion('v-5')">
+                <span class="md-accordion-icon">{{ isOpen('v-5') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Как работает Радар</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('v-5') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner">Проприетарная система оценки, созданная для поиска компаний, чей потенциал значительно превышает текущие результаты.</p>
+                  <p class="md-text-inner">Мы не ищем «проблемные» бизнесы. Мы ищем «спящих гигантов».</p>
+                  <p class="md-text-inner">Радар рассчитывает Индекс Роста на основе взвешенного анализа четырёх ключевых областей по десяткам публичных и косвенных признаков. Алгоритм анализирует не столько сами факты, сколько разрывы, противоречия и резонансы между ними.</p>
+                  <p class="md-text-inner md-highlight">Радар не показывает, что в компании «не так».<br/>Он подсвечивает, где скрыт потенциал роста.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="md-accordion" :class="{ open: isOpen('v-6') }">
+              <button class="md-accordion-header" @click="toggleAccordion('v-6')">
+                <span class="md-accordion-icon">{{ isOpen('v-6') ? '−' : '+' }}</span>
+                <span class="md-accordion-title"><span class="md-mono">4</span> области анализа</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('v-6') }">
+                <div class="md-accordion-content">
+                  <div class="md-analysis-block">
+                    <p class="md-analysis-title">Напряжение Роста · <span class="md-mono">35%</span></p>
+                    <p class="md-text-inner">Основной драйвер индекса. Здоровое противоречие между амбициозными целями и операционной реальностью — признак потенциала.</p>
+                  </div>
+                  <div class="md-analysis-block">
+                    <p class="md-analysis-title">Сила Видения Основателя · <span class="md-mono">25%</span></p>
+                    <p class="md-text-inner">Стратегический фундамент. Лидеры, чья мечта больше их текущего бизнеса, способны на кратные прорывы.</p>
+                  </div>
+                  <div class="md-analysis-block">
+                    <p class="md-analysis-title">Квантовый Скачок · <span class="md-mono">20%</span></p>
+                    <p class="md-text-inner">Способность к трансформации. История смелых решений и скорость реакции на кризисы определяют готовность к переменам.</p>
+                  </div>
+                  <div class="md-analysis-block">
+                    <p class="md-analysis-title">Человеческий Фактор · <span class="md-mono">20%</span></p>
+                    <p class="md-text-inner">Культурная основа. Резонанс между ценностями команды и декларациями бренда создаёт устойчивый рост.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="md-accordion" :class="{ open: isOpen('v-7') }">
+              <button class="md-accordion-header" @click="toggleAccordion('v-7')">
+                <span class="md-accordion-icon">{{ isOpen('v-7') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Источники данных</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('v-7') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner">Агрегируем сотни источников для полной картины компании:</p>
+                  <p class="md-text-inner md-dash"><strong>Финансовые данные:</strong> отчётность, СПАРК, динамика выручки, инвестиционные раунды</p>
+                  <p class="md-text-inner md-dash"><strong>Коммуникации руководства:</strong> интервью, конференции, медиа, соцсети CEO</p>
+                  <p class="md-text-inner md-dash"><strong>Обратная связь пользователей:</strong> HeadHunter, Хабр, App Store, Отзовик</p>
+                  <p class="md-text-inner md-dash"><strong>Профессиональные сообщества:</strong> отраслевые медиа, LinkedIn, Telegram, конференции</p>
+                  <p class="md-text-inner" style="margin-top: 12px;">Система оценивает не только <em>что</em> говорится, но и <em>как</em>: эмоциональный фон, повторяющиеся метафоры, скрытые напряжения, лингвистические паттерны.</p>
+                </div>
+              </div>
+            </div>
+
+            <a class="md-link" href="https://runscale.ru/radar/overview.html" target="_blank" rel="noopener">Подробнее о Радаре <span class="md-link-arrow">→</span></a>
+          </template>
+
+          <!-- ═══════════════════════════════════════ -->
+          <!-- ЗАПУСКАЕМ -->
+          <!-- ═══════════════════════════════════════ -->
+          <template v-else-if="activeModal === 'zapuskaem'">
+            <h1 class="md-h1">ЗАПУСКАЕМ</h1>
+            <h2 class="md-h2">Первый цифровой модуль в Ранскейл режиме</h2>
+            <p class="md-text md-bold">Один модуль — один результат. Работает с первого дня.</p>
+            <p class="md-text md-bold">Доминирование — пока конкуренты думают, вы уже запустили.</p>
+            <p class="md-text">Не делаем «сайты», «приложения» или «CRM». Форма определяется в процессе. Запускаем цифровые модули, которые решают конкретное узкое горлышко бизнеса.</p>
+
+            <div class="md-divider"></div>
+
+            <h2 class="md-h2">Ранскейл режим (R&D Циклы)</h2>
+            <p class="md-text">Срезаем всё лишнее: ТЗ, согласования, бюрократию, перфекционизм. Оставляем только то, что работает.</p>
+            <p class="md-text md-cycle">Маленькая версия → ошибки → корректировка → масштаб.<br/>Не «большой план → идеальное исполнение».</p>
+
+            <div class="md-divider"></div>
+
+            <h2 class="md-h2">Каждый модуль — готовый цифровой продукт</h2>
+
+            <div class="md-accordion" :class="{ open: isOpen('z-1') }">
+              <button class="md-accordion-header" @click="toggleAccordion('z-1')">
+                <span class="md-accordion-icon">{{ isOpen('z-1') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Работает без владельца</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('z-1') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner">Система принимает решения. Всё видно с телефона. Не нужно быть на месте, чтобы контролировать.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="md-accordion" :class="{ open: isOpen('z-2') }">
+              <button class="md-accordion-header" @click="toggleAccordion('z-2')">
+                <span class="md-accordion-icon">{{ isOpen('z-2') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Работает без участия сотрудников</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('z-2') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner">Или с минимальным. Модуль берёт на себя то, что раньше делали люди — точнее, быстрее, без выходных.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="md-accordion" :class="{ open: isOpen('z-3') }">
+              <button class="md-accordion-header" @click="toggleAccordion('z-3')">
+                <span class="md-accordion-icon">{{ isOpen('z-3') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Без нового штата</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('z-3') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner">Позволяет масштабироваться без увеличения сложности. Больше рынка — меньше людей.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="md-accordion" :class="{ open: isOpen('z-4') }">
+              <button class="md-accordion-header" @click="toggleAccordion('z-4')">
+                <span class="md-accordion-icon">{{ isOpen('z-4') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Становится лучше сам по себе</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('z-4') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner">Шаг за шагом. Каждое взаимодействие калибрует систему — она учится на реальных данных вашего бизнеса.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="md-divider"></div>
+
+            <div class="md-summary">
+              <p class="md-summary-label">Итого:</p>
+              <p class="md-summary-line">Работает <span class="md-mono">24/7</span>.</p>
+              <p class="md-summary-line">Без зарплаты. Без больничных.</p>
+              <p class="md-summary-line">Без обучения и совещаний.</p>
+            </div>
+          </template>
+
+          <!-- ═══════════════════════════════════════ -->
+          <!-- РАСШИРЯЕМ -->
+          <!-- ═══════════════════════════════════════ -->
+          <template v-else-if="activeModal === 'rasshiryaem'">
+            <h1 class="md-h1">РАСШИРЯЕМ</h1>
+            <h2 class="md-h2">Модуль Роста® — принцип модульной сборки бизнеса</h2>
+            <p class="md-text">Не движок. Не метод. Не платформа. Принцип, по которому цифровые продукты проектируются и стыкуются.</p>
+            <p class="md-text md-bold">Модули стыкуются друг с другом. Бизнес в цифре растёт. Каждый модуль усиливает всю систему.</p>
+
+            <div class="md-divider"></div>
+
+            <h2 class="md-h2">Принцип модульной сборки</h2>
+            <p class="md-text">Каждый модуль автономен — работает сам по себе.<br/>Каждый спроектирован для стыковки — соединяется с другими.<br/>Когда модулей больше — они интегрируются друг с другом и с тем, куда растёт бизнес.<br/>Целое сильнее суммы частей.</p>
+            <p class="md-text">Каждый модуль запускается отдельно, работает автономно, решает конкретное узкое горлышко. Но каждый спроектирован так, чтобы стыковаться с другими. Когда модулей больше — они интегрируются друг с другом и с тем, куда и как растёт компания.</p>
+
+            <div class="md-divider"></div>
+
+            <h2 class="md-h2">Модуль за модулем</h2>
+            <p class="md-text">Не нужно покупать «всё сразу». Один модуль, результат, решение запустить второй. Потом третий. В какой-то момент — полная цифровая система. Но путь к ней — модуль за модулем.</p>
+
+            <div class="md-accordion" :class="{ open: isOpen('r-1') }">
+              <button class="md-accordion-header" @click="toggleAccordion('r-1')">
+                <span class="md-accordion-icon">{{ isOpen('r-1') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Как это работает на практике</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('r-1') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner md-module-line">Модуль бронирования запущен → работает.</p>
+                  <p class="md-text-inner md-module-line">Модуль лояльности запущен → работает + стыкуется с бронированием.</p>
+                  <p class="md-text-inner md-module-line">Модуль аналитики запущен → работает + видит данные из обоих модулей.</p>
+                  <p class="md-text-inner md-module-line">Витрина запущена → работает + связана с бронированием + лояльностью + аналитикой.</p>
+                  <p class="md-text-inner" style="margin-top: 12px;">Каждый модуль — отдельный запуск, отдельный результат. Но вместе — система, которая управляет бизнесом.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="md-accordion" :class="{ open: isOpen('r-2') }">
+              <button class="md-accordion-header" @click="toggleAccordion('r-2')">
+                <span class="md-accordion-icon">{{ isOpen('r-2') ? '−' : '+' }}</span>
+                <span class="md-accordion-title">Что происходит когда система собрана</span>
+              </button>
+              <div class="md-accordion-body" :class="{ expanded: isOpen('r-2') }">
+                <div class="md-accordion-content">
+                  <p class="md-text-inner">Конкуренты реагируют. Вы действуете.</p>
+                  <p class="md-text-inner">Вы масштабируетесь. Они нанимают.</p>
+                  <p class="md-text-inner">Ваша система работает. Их команда совещается.</p>
+                  <p class="md-text-inner">Вы уже запустили. Они ещё обсуждают.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="md-divider"></div>
+
+            <h2 class="md-h2">Единственная метрика</h2>
+            <p class="md-text md-bold">Доминирует ли бизнес на своём рынке после запуска.</p>
+            <p class="md-text">Не «работает ли система». Не «доволен ли клиент». А: стал ли бизнес сильнее?</p>
+            <p class="md-text">Если да — расширяемся. Если нет — чиним.</p>
+            <p class="md-text">Каждое расширение — новый модуль, новый результат. Бизнес не уходит — он достраивает.</p>
+          </template>
+
         </div>
       </div>
+      </Transition>
     </div>
+    </Transition>
   </Teleport>
 </div>
 </template>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600&display=swap');
 @keyframes scw{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 @keyframes sccw{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
 @keyframes dp{0%,100%{opacity:.5}50%{opacity:1}}
@@ -217,21 +548,107 @@ const nX = [20, 90, 160]
 .sh{display:flex;align-items:center;gap:8px;margin-top:12px}
 .sh span{font-family:'Inter',sans-serif;font-size:9px;color:rgba(0,255,136,.5);letter-spacing:2px;text-transform:uppercase}
 
-/* Modal overlay */
-.mr-ip-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:24px 24px 0;overflow-y:auto}
-.mr-ip-modal{position:relative;width:100%;max-width:1100px;min-height:calc(100vh - 24px);background:#111;border:1px solid #222;border-bottom:none;border-radius:24px 24px 0 0;overflow:hidden}
-.mr-ip-close{position:sticky;top:24px;float:right;margin-right:24px;width:56px;height:56px;background:rgba(0,0,0,.5) !important;border:2px solid rgba(255,255,255,.2) !important;border-radius:50%;color:#fff !important;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;z-index:10;text-decoration:none !important;backdrop-filter:blur(10px)}
-.mr-ip-close:hover{background:rgba(255,255,255,.1) !important;border-color:rgba(255,255,255,.4) !important}
+/* ═══════════════════════════════════════════════════════════ */
+/* Modal overlay & shell */
+/* ═══════════════════════════════════════════════════════════ */
+.mr-ip-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:24px 24px 0;overflow-y:auto}
+.mr-ip-modal{position:relative;width:100%;max-width:680px;min-height:calc(100vh - 24px);background:#0a0a0a;border:1px solid rgba(255,255,255,.08);border-bottom:none;border-radius:4px 4px 0 0;overflow:hidden}
+.mr-ip-close{position:sticky;top:24px;float:right;margin-right:24px;width:48px;height:48px;background:transparent !important;border:1px solid rgba(255,255,255,.12) !important;border-radius:2px;color:rgba(255,255,255,.5) !important;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s ease;z-index:10;text-decoration:none !important}
+.mr-ip-close:hover{color:#ff8800 !important;border-color:rgba(255,136,0,.3) !important}
 .mr-ip-close::before,.mr-ip-close::after{display:none !important;content:none !important}
-.mr-ip-modal-body{padding:24px 48px 80px}
-.mr-ip-modal-placeholder{display:flex;align-items:center;justify-content:center;height:60vh;font-family:'Inter',sans-serif;font-size:32px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:4px;opacity:.3}
+.mr-ip-close svg{width:20px;height:20px}
+.mr-ip-modal-body{padding:32px 48px 80px}
 
+/* Modal transitions */
+.modal-fade-enter-active{transition:opacity .2s ease}
+.modal-fade-leave-active{transition:opacity .18s ease}
+.modal-fade-enter-from,.modal-fade-leave-to{opacity:0}
+.modal-slide-enter-active{transition:opacity .25s ease-out,transform .25s ease-out}
+.modal-slide-leave-active{transition:opacity .2s ease,transform .2s ease}
+.modal-slide-enter-from{opacity:0;transform:translateY(20px)}
+.modal-slide-leave-to{opacity:0;transform:translateY(10px)}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* Modal content typography */
+/* ═══════════════════════════════════════════════════════════ */
+.md-h1{font-family:'Inter',sans-serif;font-weight:700;font-size:32px;color:#00ff88;text-transform:uppercase;letter-spacing:4px;margin:0 0 24px;line-height:1.2}
+.md-h2{font-family:'Inter',sans-serif;font-weight:600;font-size:20px;color:#00ff88;margin:0 0 16px;line-height:1.4}
+.md-h3{font-family:'Inter',sans-serif;font-weight:600;font-size:18px;color:#58a6ff;margin:0 0 12px;line-height:1.4}
+.md-h4{font-family:'Inter',sans-serif;font-weight:600;font-size:15px;color:#e0e0e0;margin:0 0 12px;line-height:1.5}
+.md-h4-section{font-family:'Inter',sans-serif;font-weight:700;font-size:18px;color:#00ff88;margin:0 0 10px;line-height:1.4}
+.md-text{font-family:'Inter',sans-serif;font-weight:400;font-size:15px;color:#c0c0c0;line-height:1.7;margin:0 0 14px}
+.md-text.md-bold{color:#e0e0e0;font-weight:500}
+.md-text.md-cycle{color:#58a6ff;font-style:italic}
+.md-mono{font-family:'JetBrains Mono',monospace;font-weight:500;color:#e0e0e0}
+.md-intro{margin-bottom:8px}
+.md-intro p{font-family:'Inter',sans-serif;font-weight:400;font-size:15px;color:#c0c0c0;line-height:1.7;margin:0 0 4px}
+
+/* Dividers */
+.md-divider{height:1px;background:rgba(255,255,255,.06);margin:28px 0}
+.md-divider-thin{height:1px;background:rgba(255,255,255,.04);margin:20px 0}
+
+/* Result blocks */
+.md-result{font-family:'Inter',sans-serif;font-size:14px;color:#a0a0a0;line-height:1.7;margin:0 0 16px;padding-left:12px;border-left:2px solid rgba(0,255,136,.2)}
+.md-result-label{font-weight:600;color:#00ff88}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* Accordions */
+/* ═══════════════════════════════════════════════════════════ */
+.md-accordion{border-top:1px solid rgba(255,255,255,.06);margin-bottom:0}
+.md-accordion:last-of-type{border-bottom:1px solid rgba(255,255,255,.06)}
+.md-accordion-header{display:flex;align-items:center;gap:12px;width:100%;padding:14px 0;background:none !important;border:none !important;cursor:pointer;text-align:left;min-height:44px;text-decoration:none !important;transition:none}
+.md-accordion-header::before,.md-accordion-header::after{display:none !important;content:none !important}
+.md-accordion-header:hover .md-accordion-title{color:#ff8800}
+.md-accordion-header:hover .md-accordion-icon{color:#ff8800}
+.md-accordion-icon{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:500;color:rgba(255,255,255,.35);flex-shrink:0;width:18px;text-align:center;transition:color .2s ease}
+.md-accordion.open .md-accordion-icon{color:#ff8800}
+.md-accordion-title{font-family:'Exo 2','Inter',sans-serif;font-weight:500;font-size:13px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.5px;transition:color .2s ease}
+.md-accordion.open .md-accordion-title{color:#ff8800}
+.md-accordion-body{max-height:0;overflow:hidden;opacity:0;transition:max-height .3s ease,opacity .25s ease}
+.md-accordion-body.expanded{max-height:800px;opacity:1}
+.md-accordion-content{padding:0 0 16px 30px}
+.md-text-inner{font-family:'Inter',sans-serif;font-weight:400;font-size:14px;color:#a0a0a0;line-height:1.7;margin:0 0 6px}
+.md-text-inner strong{font-weight:600;color:#c0c0c0}
+.md-text-inner em{font-style:italic;color:#b0b0b0}
+.md-text-inner.md-dash{padding-left:16px;position:relative}
+.md-text-inner.md-dash::before{content:'—';position:absolute;left:0;color:rgba(255,255,255,.2)}
+.md-text-inner.md-highlight{color:#58a6ff;font-weight:500;margin-top:10px}
+.md-method-label{font-weight:600;color:#c0c0c0;margin-top:10px !important}
+
+/* Analysis blocks (Radar) */
+.md-analysis-block{margin-bottom:14px}
+.md-analysis-block:last-child{margin-bottom:0}
+.md-analysis-title{font-family:'Inter',sans-serif;font-weight:600;font-size:14px;color:#58a6ff;margin:0 0 4px;line-height:1.4}
+
+/* Module lines (Расширяем) */
+.md-module-line{padding-left:16px;position:relative;color:#b0b0b0 !important}
+.md-module-line::before{content:'›';position:absolute;left:0;color:#00ff88;font-weight:700}
+
+/* Links */
+.md-link{display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:#ff8800;text-decoration:none;margin:16px 0 4px;transition:color .2s ease}
+.md-link:hover{color:#ffaa33;text-shadow:0 0 8px rgba(255,136,0,.3)}
+.md-link:hover .md-link-arrow{transform:translateX(3px)}
+.md-link-arrow{display:inline-block;transition:transform .2s ease}
+
+/* Summary (Запускаем) */
+.md-summary{padding:20px 0 0}
+.md-summary-label{font-family:'Inter',sans-serif;font-weight:700;font-size:16px;color:#e0e0e0;margin:0 0 8px}
+.md-summary-line{font-family:'Inter',sans-serif;font-weight:400;font-size:15px;color:#00ff88;line-height:1.8;margin:0}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* Mobile */
+/* ═══════════════════════════════════════════════════════════ */
 @media(max-width:768px){
-  .mr-ip-overlay{padding:16px 16px 0}
-  .mr-ip-modal{min-height:calc(100vh - 16px);border-radius:16px 16px 0 0}
-  .mr-ip-modal-body{padding:16px 24px 60px}
-  .mr-ip-close{top:16px;margin-right:16px;width:48px;height:48px}
-  .mr-ip-close svg{width:24px;height:24px}
-  .mr-ip-modal-placeholder{font-size:24px;height:50vh}
+  .mr-ip-overlay{padding:16px 0 0}
+  .mr-ip-modal{max-width:100%;min-height:calc(100vh - 16px);border-radius:4px 4px 0 0;border-left:none;border-right:none}
+  .mr-ip-modal-body{padding:20px 20px 60px}
+  .mr-ip-close{top:16px;margin-right:16px;width:44px;height:44px}
+  .mr-ip-close svg{width:18px;height:18px}
+  .md-h1{font-size:24px;letter-spacing:3px;margin-bottom:20px}
+  .md-h2{font-size:17px}
+  .md-h3{font-size:16px}
+  .md-text{font-size:14px}
+  .md-accordion-content{padding-left:20px}
+  .md-accordion-header{min-height:48px;padding:16px 0}
 }
 </style>
