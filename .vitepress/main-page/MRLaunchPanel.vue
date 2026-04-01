@@ -246,7 +246,7 @@ function goToForm() {
         <span class="mr-sl-heading-white">Вы знаете, что хотите.</span>
         <br>
         <span class="mr-sl-heading-accent" :style="{ color: accentRgb }">
-          Мы делаем это в цифре.
+          Мы делаем это <span class="mr-sl-nowrap">в&nbsp;цифре.</span>
         </span>
       </div>
 
@@ -513,16 +513,19 @@ function goToForm() {
   font-weight: 500 !important;
   color: #fff !important;
   font-family: 'Inter', sans-serif !important;
-  line-height: 24px !important;
+  line-height: 36px !important;
   letter-spacing: 0.2px !important;
 }
 .mr-sl-heading-accent {
   font-size: 42px !important;
   font-weight: 500 !important;
   font-family: 'Inter', sans-serif !important;
-  line-height: 24px !important;
+  line-height: 36px !important;
   letter-spacing: 0.2px !important;
   transition: color 0.6s ease !important;
+}
+.mr-sl-nowrap {
+  white-space: nowrap !important;
 }
 
 /* ── Panel ── */
@@ -882,7 +885,7 @@ function goToForm() {
   .mr-sl-root { padding-top: 56px !important; }
   .mr-sl-column { margin-bottom: 85px !important; gap: 16px !important; }
   .mr-sl-heading-white,
-  .mr-sl-heading-accent { font-size: 28px !important; line-height: 20px !important; }
+  .mr-sl-heading-accent { font-size: 28px !important; line-height: 24px !important; }
   .mr-sl-heading { padding: 0 8px !important; }
   .mr-sl-panel { border-radius: 16px !important; }
   .mr-sl-header {
