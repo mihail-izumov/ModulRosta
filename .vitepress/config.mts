@@ -54,11 +54,7 @@ export default defineConfig({
           document.body.appendChild(footer);
         }
         footer.innerHTML = createFooterContent();
-        if (window.location.pathname === '/') {
-          footer.style.paddingBottom = '30px';
-        } else {
-          footer.style.paddingBottom = '';
-        }
+        footer.style.paddingBottom = '30px';
       }
       function updateApplyLinkTarget() {
         var applyLinks = document.querySelectorAll('.VPSocialLink[aria-label="login-link"]');
