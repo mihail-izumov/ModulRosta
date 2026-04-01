@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 // ═══ REFS ═══
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -16,18 +16,30 @@ const jNumRef = ref<HTMLElement | null>(null)
 const jClockRef = ref<HTMLElement | null>(null)
 const jIconRef = ref<SVGElement | null>(null)
 const pnTitleRef = ref<HTMLElement | null>(null)
-const showModal = ref(false)
+const tipBtnRef = ref<HTMLElement | null>(null)
+const tipRef = ref<HTMLElement | null>(null)
+const showTip = ref(false)
+const tipAbove = ref(false)
 
-// Lock body scroll when modal is open
-watch(showModal, (open) => {
-  if (open) {
-    document.body.style.overflow = 'hidden'
-    document.documentElement.style.overflow = 'hidden'
-  } else {
-    document.body.style.overflow = ''
-    document.documentElement.style.overflow = ''
+function toggleTip() {
+  if (showTip.value) { showTip.value = false; return }
+  // Determine direction
+  const btn = tipBtnRef.value
+  if (btn) {
+    const rect = btn.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - rect.bottom
+    tipAbove.value = spaceBelow < 340
   }
-})
+  showTip.value = true
+}
+
+function onClickOutsideTip(e: MouseEvent) {
+  if (!showTip.value) return
+  const tip = tipRef.value, btn = tipBtnRef.value
+  if (tip && !tip.contains(e.target as Node) && btn && !btn.contains(e.target as Node)) {
+    showTip.value = false
+  }
+}
 
 // ═══ LOGO MASK ═══
 let logoMask: ImageData | null = null
@@ -425,9 +437,9 @@ onUnmounted(() => {
   window.removeEventListener('resize', onResize)
 })
 
-function onEsc(e: KeyboardEvent) { if (e.key === 'Escape') showModal.value = false }
-onMounted(() => document.addEventListener('keydown', onEsc))
-onUnmounted(() => document.removeEventListener('keydown', onEsc))
+function onEsc(e: KeyboardEvent) { if (e.key === 'Escape') showTip.value = false }
+onMounted(() => { document.addEventListener('keydown', onEsc); document.addEventListener('click', onClickOutsideTip, true) })
+onUnmounted(() => { document.removeEventListener('keydown', onEsc); document.removeEventListener('click', onClickOutsideTip, true) })
 </script>
 
 <template>
@@ -470,7 +482,7 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
         </div>
 
         <!-- PATCH NOTES -->
-        <div class="patch-notes">
+        <div class="patch-notes" :class="{ 'tip-open': showTip }">
           <div ref="pnTitleRef" class="pn-title">РЕЖИМ РАНСКЕЙЛ СЕССИИ</div>
           <div class="pn-line" style="color:rgba(255,255,255,0.85);font-weight:500;">90 минут. Одно решение.</div>
           <div style="height:8px" />
@@ -479,39 +491,35 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
           <div class="pn-line">Вердикт: <span style="color:rgba(0,255,136,0.7);font-weight:500;">GO</span> или <span style="color:rgba(255,255,255,0.6);font-weight:500;">NO GO</span>.</div>
           <div style="height:8px" />
           <div class="pn-dim">Формат: видеозвонок · Результат: вердикт на 1 странице</div>
-          <div class="pn-btn-wrap" style="margin-top:14px;margin-bottom:20px;padding-bottom:8px;">
-            <button class="pn-details-btn" @click="showModal = true">ДЕТАЛИ СЕССИИ</button>
+          <div class="pn-btn-wrap" style="margin-top:14px;margin-bottom:20px;padding-bottom:8px;position:relative;">
+            <button ref="tipBtnRef" class="pn-details-btn" @click="toggleTip">ДЕТАЛИ СЕССИИ</button>
+            <Transition name="tip-fade">
+              <div v-if="showTip" ref="tipRef" class="sm-tip" :class="{ above: tipAbove }">
+                <div class="sm-header">РЕЖИМ РАНСКЕЙЛ</div>
+                <div class="sm-stats">
+                  <div class="sm-stat"><span class="sm-stat-val">90</span><span class="sm-stat-label">МИН.</span></div>
+                  <div class="sm-stat-div" />
+                  <div class="sm-stat"><span class="sm-stat-val" style="color:rgba(255,255,255,0.9)">8/10</span><span class="sm-stat-label">NO-GO</span></div>
+                  <div class="sm-stat-div" />
+                  <div class="sm-stat"><span class="sm-stat-val sm-stat-go">GO</span><span class="sm-stat-label">ВЕРДИКТ</span></div>
+                </div>
+                <div class="sm-specs">
+                  <div class="sm-spec-row"><span class="sm-spec-label">Что ищем</span><span class="sm-spec-val">причину, не симптом</span></div>
+                  <div class="sm-spec-row"><span class="sm-spec-label">Как решаем</span><span class="sm-spec-val">сигнал, не шум</span></div>
+                  <div class="sm-spec-row"><span class="sm-spec-label">Что получаете</span><span class="sm-spec-val">вердикт <span class="sm-go">GO</span> / <span class="sm-nogo">NO GO</span></span></div>
+                </div>
+                <div class="sm-format-badge">90 мин · видеозвонок · вердикт на 1 странице</div>
+                <div class="sm-desc">
+                  <p style="color:rgba(255,255,255,0.85)">Находим что тормозит рост прямо сейчас. Выбираем один цифровой продукт, который решает это.</p>
+                  <p><span class="sm-go">GO</span> — запускаем. <span class="sm-nogo">NO GO</span> — документ показывает что устранить, чтобы запуск стал возможным.</p>
+                </div>
+              </div>
+            </Transition>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SESSION MODAL -->
-    <Teleport to="body">
-      <div v-if="showModal" class="sm-overlay" @click.self="showModal = false">
-        <div class="sm-panel">
-          <button class="sm-close" @click="showModal = false">✕</button>
-          <div class="sm-header">РЕЖИМ РАНСКЕЙЛ</div>
-          <div class="sm-stats">
-            <div class="sm-stat"><span class="sm-stat-val">90</span><span class="sm-stat-label">МИН.</span></div>
-            <div class="sm-stat-div" />
-            <div class="sm-stat"><span class="sm-stat-val" style="color:rgba(255,255,255,0.9)">8/10</span><span class="sm-stat-label">NO-GO</span></div>
-            <div class="sm-stat-div" />
-            <div class="sm-stat"><span class="sm-stat-val sm-stat-go">GO</span><span class="sm-stat-label">ВЕРДИКТ</span></div>
-          </div>
-          <div class="sm-specs">
-            <div class="sm-spec-row"><span class="sm-spec-label">Что ищем</span><span class="sm-spec-val">причину, не симптом</span></div>
-            <div class="sm-spec-row"><span class="sm-spec-label">Как решаем</span><span class="sm-spec-val">сигнал, не шум</span></div>
-            <div class="sm-spec-row"><span class="sm-spec-label">Что получаете</span><span class="sm-spec-val">вердикт <span class="sm-go">GO</span> / <span class="sm-nogo">NO GO</span></span></div>
-          </div>
-          <div class="sm-format-badge">90 мин · видеозвонок · вердикт на 1 странице</div>
-          <div class="sm-desc">
-            <p style="color:rgba(255,255,255,0.85)">Находим что тормозит рост прямо сейчас. Выбираем один цифровой продукт, который решает это.</p>
-            <p><span class="sm-go">GO</span> — запускаем. <span class="sm-nogo">NO GO</span> — документ показывает что устранить,<br>чтобы запуск стал возможным.</p>
-          </div>
-        </div>
-      </div>
-    </Teleport>
   </div>
 </template>
 
@@ -588,6 +596,7 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 
 /* PATCH NOTES */
 .patch-notes{height:24%;min-height:130px;max-height:280px;background:rgba(10,12,16,0.95);border-top:1px solid rgba(255,255,255,0.05);padding:20px 28px 28px;font-family:'Fira Sans',sans-serif;font-size:13px;font-weight:300;line-height:1.9;color:rgba(255,255,255,0.35);overflow-y:auto;z-index:10;}
+.patch-notes.tip-open{overflow:visible;}
 .patch-notes::-webkit-scrollbar{width:3px;}.patch-notes::-webkit-scrollbar-track{background:transparent;}.patch-notes::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);}
 .pn-title{font-size:13px;font-weight:600;letter-spacing:0.08em;color:rgba(255,255,255,0.9);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.15);transition:border-color 1s;}
 .pn-line{color:rgba(255,255,255,0.35);margin-bottom:2px;}
@@ -595,21 +604,25 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 .pn-details-btn{font-family:'Fira Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.08em;color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:8px 20px;cursor:pointer;transition:all 0.3s;backdrop-filter:blur(8px);}
 .pn-details-btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);}
 
-/* MODAL (not scoped — uses Teleport) */
-.sm-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(3,4,8,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
-.sm-panel{position:relative;max-width:560px;width:100%;background:rgba(8,10,16,0.7);backdrop-filter:blur(24px) saturate(1.3);-webkit-backdrop-filter:blur(24px) saturate(1.3);border:1px solid rgba(255,136,0,0.15);border-radius:12px;padding:40px;box-shadow:0 0 40px rgba(255,136,0,0.06),0 0 100px rgba(255,136,0,0.03),inset 0 0 40px rgba(255,136,0,0.02);max-height:90vh;overflow-y:auto;}
-.sm-panel::-webkit-scrollbar{width:3px;}.sm-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);}
-.sm-panel::before{content:'';position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,136,0,0.3),transparent);}
-.sm-close{position:absolute;top:16px;right:20px;font-size:18px;color:rgba(255,255,255,0.3);cursor:pointer;background:none;border:none;font-family:'Fira Sans',sans-serif;transition:color 0.3s;}.sm-close:hover{color:rgba(255,255,255,0.7);}
-.sm-header{font-family:'Inter',sans-serif;font-size:22px;font-weight:700;letter-spacing:0.15em;color:rgba(255,255,255,0.9);text-transform:uppercase;margin-bottom:28px;text-align:center;}
-.sm-stats{display:flex;justify-content:center;align-items:center;gap:28px;margin-bottom:28px;flex-wrap:wrap;}
-.sm-stat{text-align:center;}.sm-stat-val{font-family:'Fira Code',monospace;font-size:36px;font-weight:500;color:#fff;display:block;line-height:1;margin-bottom:6px;letter-spacing:1px;}.sm-stat-go{color:rgba(0,255,136,0.9);}.sm-stat-label{font-family:'Fira Code',monospace;font-size:10px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:2px;}.sm-stat-div{width:1px;height:50px;background:rgba(255,255,255,0.08);}
-.sm-specs{margin-bottom:20px;padding:16px 20px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;}
-.sm-spec-row{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-family:'Fira Code',monospace;font-size:13px;}.sm-spec-row:first-child{padding-top:4px;}.sm-spec-row:last-child{border-bottom:none;padding-bottom:4px;}
-.sm-spec-label{color:rgba(255,255,255,0.4);font-weight:400;}.sm-spec-val{color:rgba(255,255,255,0.8);font-weight:500;text-align:right;}
+/* TOOLTIP */
+.sm-tip{position:absolute;bottom:calc(100% + 10px);left:0;right:0;background:rgba(8,12,24,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(88,166,255,0.15);border-radius:12px;padding:24px 20px 20px;z-index:90;box-shadow:0 0 30px rgba(0,0,0,0.4),0 0 60px rgba(0,0,0,0.2);max-height:60vh;overflow-y:auto;}
+.sm-tip::-webkit-scrollbar{width:3px;}.sm-tip::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);}
+.sm-tip::before{content:'';position:absolute;bottom:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(88,166,255,0.2),transparent);}
+.sm-tip.above{bottom:calc(100% + 10px);top:auto;}
+.sm-tip:not(.above){bottom:auto;top:calc(100% + 10px);}
+.sm-tip:not(.above)::before{bottom:auto;top:0;}
+.tip-fade-enter-active,.tip-fade-leave-active{transition:opacity 0.3s ease,transform 0.3s ease;}
+.tip-fade-enter-from,.tip-fade-leave-to{opacity:0;transform:translateY(6px);}
+.sm-tip.above.tip-fade-enter-from,.sm-tip.above.tip-fade-leave-to{transform:translateY(-6px);}
+.sm-header{font-family:'Inter',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.9);text-transform:uppercase;margin-bottom:18px;text-align:center;}
+.sm-stats{display:flex;justify-content:center;align-items:center;gap:20px;margin-bottom:18px;flex-wrap:wrap;}
+.sm-stat{text-align:center;}.sm-stat-val{font-family:'Fira Code',monospace;font-size:28px;font-weight:500;color:#fff;display:block;line-height:1;margin-bottom:5px;letter-spacing:1px;}.sm-stat-go{color:rgba(0,255,136,0.9);}.sm-stat-label{font-family:'Fira Code',monospace;font-size:9px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:2px;}.sm-stat-div{width:1px;height:36px;background:rgba(255,255,255,0.08);}
+.sm-specs{margin-bottom:14px;padding:12px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;}
+.sm-spec-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-family:'Fira Code',monospace;font-size:12px;}.sm-spec-row:first-child{padding-top:2px;}.sm-spec-row:last-child{border-bottom:none;padding-bottom:2px;}
+.sm-spec-label{color:rgba(255,255,255,0.35);font-weight:400;}.sm-spec-val{color:rgba(255,255,255,0.75);font-weight:500;text-align:right;}
 .sm-go{color:rgba(0,255,136,0.85);font-family:'Fira Code',monospace;font-weight:700;}.sm-nogo{color:rgba(255,255,255,0.6);font-family:'Fira Code',monospace;font-weight:700;}
-.sm-format-badge{font-family:'Fira Code',monospace;font-size:13px;color:rgba(255,136,0,0.75);text-align:center;margin-bottom:20px;padding:12px 20px;background:rgba(255,136,0,0.06);border:1px solid rgba(255,136,0,0.15);border-radius:8px;letter-spacing:0.03em;}
-.sm-desc{margin-bottom:8px;}.sm-desc p{font-family:'Fira Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.8;margin:0 0 10px;text-align:center;}.sm-desc p:last-child{margin-bottom:0;}
+.sm-format-badge{font-family:'Fira Code',monospace;font-size:12px;color:rgba(255,136,0,0.7);text-align:center;margin-bottom:14px;padding:10px 16px;background:rgba(255,136,0,0.04);border:1px solid rgba(255,136,0,0.12);border-radius:8px;letter-spacing:0.03em;}
+.sm-desc{margin-bottom:4px;}.sm-desc p{font-family:'Fira Sans',sans-serif;font-size:12px;color:rgba(255,255,255,0.45);line-height:1.7;margin:0 0 8px;text-align:center;}.sm-desc p:last-child{margin-bottom:0;}
 
 /* MOBILE */
 @media(max-width:768px){
@@ -629,9 +642,11 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
   :deep(.t-btn),:deep(.t-btn-sleep){max-width:100%;width:100%;text-align:center;line-height:1.4;}
   .pn-btn-wrap{margin-bottom:12px !important;padding-bottom:4px !important;}
   .pn-details-btn{font-size:12px !important;padding:8px 20px !important;}
-  .sm-panel{padding:28px 20px;}
-  .sm-close{top:12px;right:14px;font-size:22px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;}
-  .sm-header{margin-top:32px;}.sm-stats{gap:16px;}.sm-stat-val{font-size:28px;}.sm-stat-div{height:40px;}
-  .sm-spec-row{flex-direction:column;gap:2px;padding:10px 0;}.sm-spec-val{text-align:left;}
+  .sm-tip{left:-12px;right:-12px;max-height:50vh;}
+  .sm-tip.above{bottom:calc(100% + 8px);}
+  .sm-tip:not(.above){top:calc(100% + 8px);}
+  .sm-header{font-size:14px;margin-bottom:14px;}
+  .sm-stats{gap:14px;}.sm-stat-val{font-size:22px;}.sm-stat-div{height:30px;}
+  .sm-spec-row{flex-direction:column;gap:2px;padding:8px 0;}.sm-spec-val{text-align:left;}
 }
 </style>
