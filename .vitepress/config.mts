@@ -266,6 +266,19 @@ export default defineConfig({
       transform:translateY(-1px);
     }
     
+    /* ═══ Telegram icon: 2x bigger, white passive → orange active ═══ */
+    .VPSocialLinks .VPSocialLink:not([aria-label="login-link"]) svg {
+      width: 40px !important;
+      height: 40px !important;
+      fill: #fff !important;
+      color: #fff !important;
+      transition: all 0.3s ease !important;
+    }
+    .VPSocialLinks .VPSocialLink:not([aria-label="login-link"]):hover svg {
+      fill: #ff8800 !important;
+      color: #ff8800 !important;
+    }
+    
     .custom-footer-links{display:flex;flex-direction:column;gap:3px;align-items:center}
     .footer-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
     .footer-row a{color:var(--vp-c-text-2);text-decoration:none;transition:color .3s ease}
@@ -337,9 +350,14 @@ export default defineConfig({
 
 function nav(): DefaultTheme.NavItem[] {
   return [
-    { text: 'Чекап', link: '/checkup/overview' },
-    { text: 'Радар', link: '/radar/overview' },
-    { text: 'Сигнал', link: 'https://cffx.ru', target: '_blank' },
+    { text: 'Запуски', link: '/launches' },
+    { 
+      text: 'Продукты', items: [
+        { text: 'Чекап', link: '/checkup/overview' },
+        { text: 'Радар', link: '/radar/overview' },
+        { text: 'Сигнал', link: 'https://cffx.ru', target: '_blank' },
+      ]
+    },
     { 
       text: 'Компания', items: [
         { text: 'Кто мы', link: '/about/company' },
