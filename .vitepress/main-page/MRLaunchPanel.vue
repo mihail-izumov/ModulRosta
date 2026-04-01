@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import LaunchTerminal from './LaunchTerminal.vue'
 
 // ── Data ──
 const PAIRS = [
@@ -32,6 +33,9 @@ const launchPulse = ref(false)
 const isMobile = ref(false)
 const uiBlend = ref(1)
 
+// ── Modal state ──
+const showModal = ref(false)
+
 let wasReset = false
 let pixels: any[] = []
 let time = 0
@@ -63,7 +67,6 @@ watch(count, (newVal, oldVal) => {
   if (newVal < 3) {
     wasReset = true
   } else if (newVal === 3 && oldVal !== undefined && oldVal < 3 && wasReset) {
-    // Wait for v-if to mount the icon in default state, then trigger rotation
     nextTick(() => {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -75,6 +78,32 @@ watch(count, (newVal, oldVal) => {
     })
   }
 })
+
+// ── Modal: lock/unlock scroll ──
+function lockScroll() {
+  document.body.style.overflow = 'hidden'
+  document.documentElement.style.overflow = 'hidden'
+}
+function unlockScroll() {
+  document.body.style.overflow = ''
+  document.documentElement.style.overflow = ''
+}
+
+function openModal() {
+  showModal.value = true
+  lockScroll()
+}
+function closeModal() {
+  showModal.value = false
+  unlockScroll()
+}
+
+// Close on Escape key
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && showModal.value) {
+    closeModal()
+  }
+}
 
 // ── Toggle logic ──
 function handleToggle(i: number, side: 'left' | 'right') {
@@ -173,12 +202,15 @@ onMounted(() => {
     ro = new ResizeObserver(() => buildPixels())
     ro.observe(containerEl.value)
   }
+  document.addEventListener('keydown', onKeydown)
 })
 
 onUnmounted(() => {
   if (rafId) cancelAnimationFrame(rafId)
   if (ro) ro.disconnect()
   if (pulseTimer) clearTimeout(pulseTimer)
+  document.removeEventListener('keydown', onKeydown)
+  unlockScroll()
 })
 
 // ── Mobile touch helpers ──
@@ -188,7 +220,7 @@ function onFormTouchStart() { formHover.value = true }
 function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
 
 function goToLaunch() {
-  if (allSelected.value) window.location.href = '/launch-terminal'
+  if (allSelected.value) openModal()
 }
 function goToForm() {
   window.location.href = '/book-my-launch'
@@ -395,6 +427,35 @@ function goToForm() {
       </div>
 
     </div>
+
+    <!-- ═══ Fullscreen Modal ═══ -->
+    <Teleport to="body">
+      <Transition name="mr-sl-modal">
+        <div
+          v-if="showModal"
+          class="mr-sl-modal-overlay"
+          @click.self="closeModal"
+        >
+          <div class="mr-sl-modal-container">
+            <!-- Close button -->
+            <button
+              class="mr-sl-modal-close"
+              @click="closeModal"
+              aria-label="Закрыть"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+
+            <!-- LaunchTerminal component -->
+            <LaunchTerminal />
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
   </div>
 </template>
 
@@ -723,6 +784,70 @@ function goToForm() {
   transform: translate(3px, -3px) !important;
 }
 
+/* ══════════════════════════════════════
+   Modal overlay & container
+   ══════════════════════════════════════ */
+.mr-sl-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  background: rgba(0, 0, 0, 0.85) !important;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+.mr-sl-modal-container {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* ── Close button ── */
+.mr-sl-modal-close {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  z-index: 10000 !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: rgba(6, 6, 10, 0.8) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.25s ease !important;
+  padding: 0 !important;
+  outline: none !important;
+}
+.mr-sl-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ── Modal transition ── */
+.mr-sl-modal-enter-active {
+  transition: opacity 0.3s ease !important;
+}
+.mr-sl-modal-leave-active {
+  transition: opacity 0.25s ease !important;
+}
+.mr-sl-modal-enter-from,
+.mr-sl-modal-leave-to {
+  opacity: 0 !important;
+}
+
 /* ── Mobile ── */
 @media (max-width: 639px) {
   .mr-sl-root { padding-top: 56px !important; }
@@ -770,5 +895,12 @@ function goToForm() {
   }
   .mr-sl-form-link { padding: 12px 22px !important; }
   .mr-sl-form-text { font-size: 13px !important; }
+
+  .mr-sl-modal-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
 }
 </style>
