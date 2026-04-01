@@ -142,10 +142,13 @@ function toggleOther() {
 
 const contactInput = ref<HTMLInputElement | null>(null)
 
-// All digits including country code. Default: just "7"
 const phoneDigits = ref('7')
+const phoneMode = computed<'mask' | 'free'>(() =>
+  phoneDigits.value.length > 0 && phoneDigits.value[0] === '7' ? 'mask' : 'free'
+)
 
-function formatPhone(digits: string): string {
+// --- Masked mode: +7(XXX)XXX-XX-XX ---
+function formatMask(digits: string): string {
   if (digits.length === 0) return '+'
   let r = '+' + digits[0]
   if (digits.length > 1) r += '(' + digits.substring(1, 4)
@@ -156,16 +159,14 @@ function formatPhone(digits: string): string {
   return r
 }
 
-// Map cursor position in formatted string to digit index
 function cursorToDigitIndex(pos: number, formatted: string): number {
-  let digitIdx = 0
+  let idx = 0
   for (let i = 0; i < pos && i < formatted.length; i++) {
-    if (/\d/.test(formatted[i])) digitIdx++
+    if (/\d/.test(formatted[i])) idx++
   }
-  return digitIdx
+  return idx
 }
 
-// Map digit index back to cursor position in formatted string
 function digitIndexToCursor(digitIdx: number, formatted: string): number {
   let count = 0
   for (let i = 0; i < formatted.length; i++) {
@@ -175,18 +176,32 @@ function digitIndexToCursor(digitIdx: number, formatted: string): number {
   return formatted.length
 }
 
+// --- Free mode: +{digits} ---
+function formatFree(digits: string): string {
+  return digits.length === 0 ? '+' : '+' + digits
+}
+
+// --- Common ---
+function formatCurrent(): string {
+  return phoneMode.value === 'mask'
+    ? formatMask(phoneDigits.value)
+    : formatFree(phoneDigits.value)
+}
+
+const maxDigits = computed(() => phoneMode.value === 'mask' ? 11 : 15)
+
 function syncFormContact() {
-  form.contact = formatPhone(phoneDigits.value)
+  form.contact = formatCurrent()
 }
 syncFormContact()
 
 function onPhoneInput(e: Event) {
   const input = e.target as HTMLInputElement
-  const raw = input.value
-  // Extract all digits from whatever user typed/pasted
-  const allDigits = raw.replace(/\D/g, '').substring(0, 11)
+  const allDigits = input.value.replace(/\D/g, '').substring(0, 15)
   phoneDigits.value = allDigits
-  const formatted = formatPhone(allDigits)
+  const formatted = allDigits.length > 0 && allDigits[0] === '7'
+    ? formatMask(allDigits.substring(0, 11))
+    : formatFree(allDigits)
   form.contact = formatted
   nextTick(() => {
     input.value = formatted
@@ -198,72 +213,100 @@ function onPhoneKeydown(e: KeyboardEvent) {
   const input = e.target as HTMLInputElement
   const pos = input.selectionStart ?? 0
   const formatted = input.value
+  const isMask = phoneMode.value === 'mask'
 
   if (e.key === 'Backspace') {
     e.preventDefault()
-    // Find which digit is before cursor
-    const digitIdx = cursorToDigitIndex(pos, formatted)
-    if (digitIdx <= 0) return // nothing to delete
-    // Remove that digit
-    const d = phoneDigits.value
-    phoneDigits.value = d.substring(0, digitIdx - 1) + d.substring(digitIdx)
-    const newFormatted = formatPhone(phoneDigits.value)
-    form.contact = newFormatted
-    const newCursor = digitIndexToCursor(digitIdx - 1, newFormatted)
-    nextTick(() => {
-      input.value = newFormatted
-      input.setSelectionRange(newCursor, newCursor)
-    })
+    if (isMask) {
+      const digitIdx = cursorToDigitIndex(pos, formatted)
+      if (digitIdx <= 0) return
+      const d = phoneDigits.value
+      phoneDigits.value = d.substring(0, digitIdx - 1) + d.substring(digitIdx)
+      const newFormatted = formatCurrent()
+      form.contact = newFormatted
+      // If mode switched to free (e.g. deleted the 7), place cursor at end
+      const newCursor = phoneMode.value === 'mask'
+        ? digitIndexToCursor(digitIdx - 1, newFormatted)
+        : Math.max(1, newFormatted.length)
+      nextTick(() => { input.value = newFormatted; input.setSelectionRange(newCursor, newCursor) })
+    } else {
+      // Free mode: "+{digits}" — pos 0 is '+', pos 1+ maps to digits
+      if (pos <= 1) return // don't erase '+'
+      const idx = pos - 1 // index in digits
+      const d = phoneDigits.value
+      if (idx <= 0 || idx > d.length) return
+      phoneDigits.value = d.substring(0, idx - 1) + d.substring(idx)
+      const newFormatted = formatCurrent()
+      form.contact = newFormatted
+      const nc = Math.min(pos - 1, newFormatted.length)
+      nextTick(() => { input.value = newFormatted; input.setSelectionRange(nc, nc) })
+    }
     return
   }
 
   if (e.key === 'Delete') {
     e.preventDefault()
-    const digitIdx = cursorToDigitIndex(pos, formatted)
-    const d = phoneDigits.value
-    if (digitIdx >= d.length) return
-    phoneDigits.value = d.substring(0, digitIdx) + d.substring(digitIdx + 1)
-    const newFormatted = formatPhone(phoneDigits.value)
-    form.contact = newFormatted
-    const newCursor = digitIndexToCursor(digitIdx, newFormatted)
-    nextTick(() => {
-      input.value = newFormatted
-      input.setSelectionRange(newCursor, newCursor)
-    })
+    if (isMask) {
+      const digitIdx = cursorToDigitIndex(pos, formatted)
+      const d = phoneDigits.value
+      if (digitIdx >= d.length) return
+      phoneDigits.value = d.substring(0, digitIdx) + d.substring(digitIdx + 1)
+      const newFormatted = formatCurrent()
+      form.contact = newFormatted
+      const nc = digitIndexToCursor(digitIdx, newFormatted)
+      nextTick(() => { input.value = newFormatted; input.setSelectionRange(nc, nc) })
+    } else {
+      const idx = pos - 1
+      const d = phoneDigits.value
+      if (idx < 0 || idx >= d.length) return
+      phoneDigits.value = d.substring(0, idx) + d.substring(idx + 1)
+      const newFormatted = formatCurrent()
+      form.contact = newFormatted
+      nextTick(() => { input.value = newFormatted; input.setSelectionRange(pos, pos) })
+    }
     return
   }
 
-  // Allow navigation & system shortcuts
   if (['Tab','Escape','Enter','ArrowLeft','ArrowRight','Home','End'].includes(e.key)) return
   if (e.ctrlKey || e.metaKey) return
 
-  // Block non-digits
-  if (!/^\d$/.test(e.key)) {
-    e.preventDefault()
-    return
-  }
+  if (!/^\d$/.test(e.key)) { e.preventDefault(); return }
+  if (phoneDigits.value.length >= maxDigits.value) { e.preventDefault(); return }
 
-  // Block if already 11 digits
-  if (phoneDigits.value.length >= 11) {
-    e.preventDefault()
-    return
-  }
-
-  // Insert digit at correct position
   e.preventDefault()
-  const digitIdx = cursorToDigitIndex(pos, formatted)
-  const d = phoneDigits.value
-  phoneDigits.value = d.substring(0, digitIdx) + e.key + d.substring(digitIdx)
-  const newFormatted = formatPhone(phoneDigits.value)
-  form.contact = newFormatted
-  const newCursor = digitIndexToCursor(digitIdx + 1, newFormatted)
-  nextTick(() => {
-    input.value = newFormatted
-    input.setSelectionRange(newCursor, newCursor)
-  })
+
+  if (isMask) {
+    const digitIdx = cursorToDigitIndex(pos, formatted)
+    const d = phoneDigits.value
+    phoneDigits.value = d.substring(0, digitIdx) + e.key + d.substring(digitIdx)
+    // If first digit just changed to non-7, mode will auto-switch via computed
+    const newFormatted = formatCurrent()
+    form.contact = newFormatted
+    const nc = phoneMode.value === 'mask'
+      ? digitIndexToCursor(digitIdx + 1, newFormatted)
+      : newFormatted.length
+    nextTick(() => { input.value = newFormatted; input.setSelectionRange(nc, nc) })
+  } else {
+    const idx = pos - 1 // position in digits
+    const d = phoneDigits.value
+    const insertAt = Math.max(0, Math.min(idx, d.length))
+    phoneDigits.value = d.substring(0, insertAt) + e.key + d.substring(insertAt)
+    // If first digit is now 7, mode switches to mask automatically
+    const newFormatted = formatCurrent()
+    form.contact = newFormatted
+    if (phoneMode.value === 'mask') {
+      const nc = digitIndexToCursor(insertAt + 1, newFormatted)
+      nextTick(() => { input.value = newFormatted; input.setSelectionRange(nc, nc) })
+    } else {
+      const nc = insertAt + 2 // +1 for '+', +1 for new digit
+      nextTick(() => { input.value = newFormatted; input.setSelectionRange(nc, nc) })
+    }
+  }
 }
 
-const phoneComplete = computed(() => phoneDigits.value.length === 11)
+const phoneComplete = computed(() =>
+  phoneMode.value === 'mask' ? phoneDigits.value.length === 11 : phoneDigits.value.length >= 7
+)
 
 const checks = computed(() => [
   { label: 'Контакт', ready: form.name.length > 0 && phoneComplete.value },
