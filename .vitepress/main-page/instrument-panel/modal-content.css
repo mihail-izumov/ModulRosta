@@ -246,7 +246,7 @@
   content: '›';
   position: absolute;
   left: 0;
-  color: #00ff88;
+  color: #ff8800;
   font-weight: 700;
 }
 
@@ -410,6 +410,8 @@
 .md-color-blue { color: #58a6ff; }
 .md-color-green { color: #00ff88; }
 .md-color-amber { color: #ff8800; }
+.md-h1-blue { color: #58a6ff; }
+.md-h2-blue { color: #58a6ff; }
 .md-h2-green { color: #00ff88; }
 .md-h1-amber { color: #ff8800; }
 .md-h2-amber { color: #ff8800; }
@@ -432,28 +434,41 @@
 }
 
 /* ═══════════════════════════════════════════════════════════ */
-/* Decision block — binary instrument readout                 */
+/* Decision block — badge style if/then                       */
 /* ═══════════════════════════════════════════════════════════ */
 .md-decision {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   margin: 20px 0;
 }
-.md-decision-yes,
-.md-decision-no {
+.md-decision-badge {
   flex: 1;
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px;
   border-radius: 3px;
 }
-.md-decision-yes {
-  border-color: rgba(0, 255, 136, 0.15);
+.md-decision-badge-green {
+  background: rgba(0, 255, 136, 0.06);
+  border: 1px solid rgba(0, 255, 136, 0.2);
 }
-.md-decision-no {
-  border-color: rgba(255, 136, 0, 0.15);
+.md-decision-badge-amber {
+  background: rgba(255, 136, 0, 0.06);
+  border: 1px solid rgba(255, 136, 0, 0.2);
+}
+.md-decision-condition {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.35);
+}
+.md-decision-value {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .md-decision-indicator {
   flex-shrink: 0;
@@ -469,20 +484,69 @@
   background: #ff8800;
   box-shadow: 0 0 8px rgba(255, 136, 0, 0.5);
 }
-.md-decision-label {
+.md-decision-answer {
   font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-size: 15px;
-  color: #e0e0e0;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+.md-decision-badge-green .md-decision-answer {
+  color: #00ff88;
+}
+.md-decision-badge-amber .md-decision-answer {
+  color: #ff8800;
+}
 .md-decision-action {
   font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  font-size: 14px;
-  color: #a0a0a0;
+  font-weight: 500;
+  font-size: 18px;
+  color: #e0e0e0;
+  letter-spacing: 0.5px;
 }
+/* Large question (Единственная метрика) */
+.md-question {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: #ff8800;
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* Per-modal color overrides — blue / green / amber accents   */
+/* ═══════════════════════════════════════════════════════════ */
+
+/* ВИДИМ — blue accents */
+.modal-vidim .md-h4-section { color: #58a6ff; }
+.modal-vidim .md-result-label { color: #58a6ff; }
+.modal-vidim .md-result { border-left-color: rgba(88, 166, 255, 0.2); }
+.modal-vidim .md-accordion.open .md-accordion-icon,
+.modal-vidim .md-accordion.open .md-accordion-title { color: #58a6ff; }
+.modal-vidim .md-accordion-header:hover .md-accordion-icon,
+.modal-vidim .md-accordion-header:hover .md-accordion-title { color: #58a6ff; }
+.modal-vidim .md-btn {
+  color: #58a6ff;
+  border-color: rgba(88, 166, 255, 0.4);
+}
+.modal-vidim .md-btn:hover {
+  border-color: #58a6ff;
+  background: rgba(88, 166, 255, 0.06);
+  box-shadow: 0 0 16px rgba(88, 166, 255, 0.15);
+}
+
+/* ЗАПУСКАЕМ — green accents */
+.modal-zapuskaem .md-accordion.open .md-accordion-icon,
+.modal-zapuskaem .md-accordion.open .md-accordion-title { color: #00ff88; }
+.modal-zapuskaem .md-accordion-header:hover .md-accordion-icon,
+.modal-zapuskaem .md-accordion-header:hover .md-accordion-title { color: #00ff88; }
+
+/* РАСШИРЯЕМ — amber accents (default for accordions, explicit here for clarity) */
+.modal-rasshiryaem .md-accordion.open .md-accordion-icon,
+.modal-rasshiryaem .md-accordion.open .md-accordion-title { color: #ff8800; }
+.modal-rasshiryaem .md-accordion-header:hover .md-accordion-icon,
+.modal-rasshiryaem .md-accordion-header:hover .md-accordion-title { color: #ff8800; }
 
 /* Mobile overrides */
 @media (max-width: 768px) {
@@ -494,6 +558,7 @@
   .md-accordion-header { min-height: 48px; padding: 16px 0; }
   .md-checkpoint-text { font-size: 14px; }
   .md-btn { font-size: 12px; padding: 9px 18px; }
-  .md-decision { flex-direction: column; gap: 8px; }
-  .md-decision-yes, .md-decision-no { padding: 14px 16px; }
+  .md-decision { flex-direction: column; gap: 10px; }
+  .md-decision-badge { padding: 14px 16px; }
+  .md-question { font-size: 18px; }
 }

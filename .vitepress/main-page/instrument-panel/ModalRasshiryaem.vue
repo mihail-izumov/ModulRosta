@@ -82,20 +82,26 @@ const isOpen = (key) => openAccordions.value.has(key)
     <div class="md-divider"></div>
 
     <h2 class="md-h2 md-h2-amber">Единственная метрика</h2>
-    <p class="md-text md-bold">Доминирует ли бизнес на своём рынке после запуска.</p>
+    <p class="md-question">Доминирует ли бизнес на своём рынке после запуска?</p>
     <p class="md-text">Не «работает ли система». Не «доволен ли клиент». А: стал ли бизнес сильнее?</p>
 
-    <!-- Decision block — binary instrument readout -->
+    <!-- Decision badges — if/then -->
     <div class="md-decision">
-      <div class="md-decision-yes">
-        <span class="md-decision-indicator md-decision-indicator-green"></span>
-        <span class="md-decision-label">Да</span>
-        <span class="md-decision-action">расширяемся</span>
+      <div class="md-decision-badge md-decision-badge-green">
+        <span class="md-decision-condition">если</span>
+        <div class="md-decision-value">
+          <span class="md-decision-indicator md-decision-indicator-green"></span>
+          <span class="md-decision-answer">Да</span>
+        </div>
+        <span class="md-decision-action">→ расширяемся</span>
       </div>
-      <div class="md-decision-no">
-        <span class="md-decision-indicator md-decision-indicator-amber"></span>
-        <span class="md-decision-label">Нет</span>
-        <span class="md-decision-action">чиним</span>
+      <div class="md-decision-badge md-decision-badge-amber">
+        <span class="md-decision-condition">если</span>
+        <div class="md-decision-value">
+          <span class="md-decision-indicator md-decision-indicator-amber"></span>
+          <span class="md-decision-answer">Нет</span>
+        </div>
+        <span class="md-decision-action">→ чиним</span>
       </div>
     </div>
 

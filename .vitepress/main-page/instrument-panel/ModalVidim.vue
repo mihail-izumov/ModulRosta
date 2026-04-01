@@ -12,7 +12,7 @@ const isOpen = (key) => openAccordions.value.has(key)
 
 <template>
   <div class="modal-vidim">
-    <h1 class="md-h1">ВИДИМ</h1>
+    <h1 class="md-h1 md-h1-blue">ВИДИМ</h1>
 
     <!-- Checkpoints — aviation / Bell & Ross style -->
     <div class="md-checkpoints">
@@ -32,7 +32,7 @@ const isOpen = (key) => openAccordions.value.has(key)
 
     <div class="md-divider"></div>
 
-    <h2 class="md-h2 md-h2-green">2 этапа</h2>
+    <h2 class="md-h2 md-h2-blue">2 этапа</h2>
 
     <!-- Этап 1 -->
     <h3 class="md-h3">1 — Ранскейл-сессия · <span class="md-color-blue">90</span> минут</h3>
