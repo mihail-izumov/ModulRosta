@@ -295,6 +295,114 @@
   margin: 0;
 }
 
+/* ═══════════════════════════════════════════════════════════ */
+/* Checkpoints — aviation / Bell & Ross instrument markers    */
+/* ═══════════════════════════════════════════════════════════ */
+.md-checkpoints {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+.md-checkpoint {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+/* Square bezel (Bell & Ross) with round indicator inside */
+.md-checkpoint-marker {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border: 1.5px solid rgba(88, 166, 255, 0.4);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+/* Tick marks — top/bottom/left/right like instrument dial indices */
+.md-checkpoint-marker::before {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 1px;
+  background: rgba(88, 166, 255, 0.3);
+  top: 50%;
+  left: -1px;
+  transform: translateY(-50%);
+  box-shadow: 17px 0 0 rgba(88, 166, 255, 0.3);
+}
+.md-checkpoint-marker::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 4px;
+  background: rgba(88, 166, 255, 0.3);
+  left: 50%;
+  top: -1px;
+  transform: translateX(-50%);
+  box-shadow: 0 17px 0 rgba(88, 166, 255, 0.3);
+}
+/* Center dot — active indicator */
+.md-checkpoint-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #58a6ff;
+  box-shadow: 0 0 6px rgba(88, 166, 255, 0.5);
+}
+.md-checkpoint-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: #c0c0c0;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* Buttons (Чекап / Радар links as buttons)                   */
+/* ═══════════════════════════════════════════════════════════ */
+.md-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  margin: 18px 0 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ff8800;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border: 1.5px solid rgba(255, 136, 0, 0.4);
+  border-radius: 4px;
+  background: transparent;
+  transition: all 0.25s ease;
+}
+.md-btn:hover {
+  border-color: #ff8800;
+  background: rgba(255, 136, 0, 0.06);
+  box-shadow: 0 0 16px rgba(255, 136, 0, 0.15);
+}
+.md-btn:hover .md-btn-arrow {
+  transform: translateX(3px);
+}
+.md-btn-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* Color utilities                                            */
+/* ═══════════════════════════════════════════════════════════ */
+.md-color-blue { color: #58a6ff; }
+.md-color-green { color: #00ff88; }
+.md-color-amber { color: #ff8800; }
+.md-h2-green { color: #00ff88; }
+
 /* Mobile overrides */
 @media (max-width: 768px) {
   .md-h1 { font-size: 24px; letter-spacing: 3px; margin-bottom: 20px; }
@@ -303,4 +411,6 @@
   .md-text { font-size: 14px; }
   .md-accordion-content { padding-left: 20px; }
   .md-accordion-header { min-height: 48px; padding: 16px 0; }
+  .md-checkpoint-text { font-size: 14px; }
+  .md-btn { font-size: 12px; padding: 9px 18px; }
 }

@@ -13,21 +13,32 @@ const isOpen = (key) => openAccordions.value.has(key)
 <template>
   <div class="modal-vidim">
     <h1 class="md-h1">ВИДИМ</h1>
-    <div class="md-intro">
-      <p>Архитектуру бизнеса в цифре — до того, как её описал клиент.</p>
-      <p>Куда идут рынки — и как оказаться там первым.</p>
-      <p>Какой модуль запустить первым, чтобы эффект был взрывным.</p>
+
+    <!-- Checkpoints — aviation / Bell & Ross style -->
+    <div class="md-checkpoints">
+      <div class="md-checkpoint">
+        <span class="md-checkpoint-marker"><span class="md-checkpoint-dot"></span></span>
+        <span class="md-checkpoint-text">Архитектуру бизнеса в цифре — до того, как её описал клиент.</span>
+      </div>
+      <div class="md-checkpoint">
+        <span class="md-checkpoint-marker"><span class="md-checkpoint-dot"></span></span>
+        <span class="md-checkpoint-text">Куда идут рынки — и как оказаться там первым.</span>
+      </div>
+      <div class="md-checkpoint">
+        <span class="md-checkpoint-marker"><span class="md-checkpoint-dot"></span></span>
+        <span class="md-checkpoint-text">Какой модуль запустить первым, чтобы эффект был взрывным.</span>
+      </div>
     </div>
 
     <div class="md-divider"></div>
 
-    <h2 class="md-h2"><span class="md-mono">2</span> этапа</h2>
+    <h2 class="md-h2 md-h2-green">2 этапа</h2>
 
     <!-- Этап 1 -->
-    <h3 class="md-h3"><span class="md-mono">1</span> — Ранскейл-сессия · <span class="md-mono">90</span> минут</h3>
-    <h4 class="md-h4">Не аудит. Не диагностика. Не анкета на <span class="md-mono">50</span> вопросов.</h4>
+    <h3 class="md-h3">1 — Ранскейл-сессия · <span class="md-color-blue">90</span> минут</h3>
+    <h4 class="md-h4">Не аудит. Не диагностика. Не анкета на 50 вопросов.</h4>
     <p class="md-text">Не обязательство. Не контракт на полгода. Один разговор, после которого вы видите свой бизнес иначе.</p>
-    <p class="md-text">Это разговор о будущем вашего рынка с командой, которая видит на <span class="md-mono">2</span> года вперёд. <span class="md-mono">45</span> запусков — от ресторанов до международных саммитов — дают способность видеть паттерны, которые изнутри бизнеса не видны.</p>
+    <p class="md-text">Это разговор о будущем вашего рынка с командой, которая видит на 2 года вперёд. 45 запусков — от ресторанов до международных саммитов — дают способность видеть паттерны, которые изнутри бизнеса не видны.</p>
 
     <!-- Аккордион: Что происходит -->
     <div class="md-accordion" :class="{ open: isOpen('1') }">
@@ -51,14 +62,14 @@ const isOpen = (key) => openAccordions.value.has(key)
     <div class="md-divider"></div>
 
     <!-- Этап 2 -->
-    <h3 class="md-h3"><span class="md-mono">2</span> — RAG Аналитика</h3>
-    <p class="md-text">Фирменные методологии и технологии бизнес-аналитики Модуля Роста. Внутри: Чекап + анализ рынка Радаром.</p>
+    <h3 class="md-h3">2 — RAG Аналитика</h3>
+    <p class="md-text">Фирменные методологии и технологии бизнес-аналитики Модуля Роста®. Внутри: Чекап + анализ рынка Радаром.</p>
 
     <div class="md-divider-thin"></div>
 
     <!-- Чекап -->
     <h4 class="md-h4-section">Чекап</h4>
-    <p class="md-result"><span class="md-result-label">Результат:</span> карта модулей бизнеса в цифре. Порядок запуска. Понимание, что будет через <span class="md-mono">3</span>, <span class="md-mono">6</span>, <span class="md-mono">12</span> месяцев если начать сейчас.</p>
+    <p class="md-result"><span class="md-result-label">Результат:</span> карта модулей бизнеса в цифре. Порядок запуска. Понимание, что будет через 3, 6, 12 месяцев если начать сейчас.</p>
 
     <div class="md-accordion" :class="{ open: isOpen('2') }">
       <button class="md-accordion-header" @click="toggle('2')">
@@ -67,7 +78,7 @@ const isOpen = (key) => openAccordions.value.has(key)
       </button>
       <div class="md-accordion-body" :class="{ expanded: isOpen('2') }">
         <div class="md-accordion-content">
-          <p class="md-text-inner">Разбираем бизнес по <span class="md-mono">10</span> направлениям и <span class="md-mono">180</span> взаимосвязанным метрикам. Не ещё один отчёт — системный подход шаг за шагом: все одинаково видят цель, оценивают как работает бизнес, непрерывно его улучшают и действуют в соответствии с точным и гибким планом.</p>
+          <p class="md-text-inner">Разбираем бизнес по 10 направлениям и 180 взаимосвязанным метрикам. Не ещё один отчёт — системный подход шаг за шагом: все одинаково видят цель, оценивают как работает бизнес, непрерывно его улучшают и действуют в соответствии с точным и гибким планом.</p>
           <p class="md-text-inner md-method-label">Методология DMAIC + кросс-анализ:</p>
           <p class="md-text-inner md-dash"><strong>Определяем:</strong> проблемы по принципу «есть/нет» и сразу приоритезируем</p>
           <p class="md-text-inner md-dash"><strong>Измеряем:</strong> текущее состояние и строим базовую линию</p>
@@ -85,10 +96,10 @@ const isOpen = (key) => openAccordions.value.has(key)
       </button>
       <div class="md-accordion-body" :class="{ expanded: isOpen('3') }">
         <div class="md-accordion-content">
-          <p class="md-text-inner md-dash">Точные метрики — например, «оптимизация графика закупок высвободит X млн ₽» или «изменение мотивации увеличит выручку на <span class="md-mono">Y%</span>»</p>
+          <p class="md-text-inner md-dash">Точные метрики — например, «оптимизация графика закупок высвободит X млн ₽» или «изменение мотивации увеличит выручку на Y%»</p>
           <p class="md-text-inner md-dash">Приоритизированный план действий — что делать сейчас, а что отложить, с оценкой эффекта и сроков</p>
           <p class="md-text-inner md-dash">Пошаговые решения проблем — с учётом взаимосвязей между процессами</p>
-          <p class="md-text-inner md-dash">Детальный отчёт — анализ ~<span class="md-mono">180</span> ключевых метрик и пошаговый план внедрения с временными рамками</p>
+          <p class="md-text-inner md-dash">Детальный отчёт — анализ ~180 ключевых метрик и пошаговый план внедрения с временными рамками</p>
           <p class="md-text-inner md-dash">Система контроля — трекинг результатов и регулярные чекапы</p>
         </div>
       </div>
@@ -101,13 +112,13 @@ const isOpen = (key) => openAccordions.value.has(key)
       </button>
       <div class="md-accordion-body" :class="{ expanded: isOpen('4') }">
         <div class="md-accordion-content">
-          <p class="md-text-inner">Платите за движение, а не за презентации. Если за <span class="md-mono">30</span> дней не завершили <span class="md-mono">3</span> основных улучшения — продолжаем бесплатно.</p>
+          <p class="md-text-inner">Платите за движение, а не за презентации. Если за 30 дней не завершили 3 основных улучшения — продолжаем бесплатно.</p>
           <p class="md-text-inner">Запускаем изменения, пока другие готовят отчёты. Быстро и точно против долго и сложно.</p>
         </div>
       </div>
     </div>
 
-    <a class="md-link" href="https://runscale.ru/checkup/overview.html" target="_blank" rel="noopener">Подробнее о Чекапе <span class="md-link-arrow">→</span></a>
+    <a class="md-btn" href="https://runscale.ru/checkup/overview.html" target="_blank" rel="noopener">Подробнее о Чекапе <span class="md-btn-arrow">→</span></a>
 
     <div class="md-divider-thin"></div>
 
@@ -133,24 +144,24 @@ const isOpen = (key) => openAccordions.value.has(key)
     <div class="md-accordion" :class="{ open: isOpen('6') }">
       <button class="md-accordion-header" @click="toggle('6')">
         <span class="md-accordion-icon">{{ isOpen('6') ? '−' : '+' }}</span>
-        <span class="md-accordion-title"><span class="md-mono">4</span> области анализа</span>
+        <span class="md-accordion-title">4 области анализа</span>
       </button>
       <div class="md-accordion-body" :class="{ expanded: isOpen('6') }">
         <div class="md-accordion-content">
           <div class="md-analysis-block">
-            <p class="md-analysis-title">Напряжение Роста · <span class="md-mono">35%</span></p>
+            <p class="md-analysis-title">Напряжение Роста · 35%</p>
             <p class="md-text-inner">Основной драйвер индекса. Здоровое противоречие между амбициозными целями и операционной реальностью — признак потенциала.</p>
           </div>
           <div class="md-analysis-block">
-            <p class="md-analysis-title">Сила Видения Основателя · <span class="md-mono">25%</span></p>
+            <p class="md-analysis-title">Сила Видения Основателя · 25%</p>
             <p class="md-text-inner">Стратегический фундамент. Лидеры, чья мечта больше их текущего бизнеса, способны на кратные прорывы.</p>
           </div>
           <div class="md-analysis-block">
-            <p class="md-analysis-title">Квантовый Скачок · <span class="md-mono">20%</span></p>
+            <p class="md-analysis-title">Квантовый Скачок · 20%</p>
             <p class="md-text-inner">Способность к трансформации. История смелых решений и скорость реакции на кризисы определяют готовность к переменам.</p>
           </div>
           <div class="md-analysis-block">
-            <p class="md-analysis-title">Человеческий Фактор · <span class="md-mono">20%</span></p>
+            <p class="md-analysis-title">Человеческий Фактор · 20%</p>
             <p class="md-text-inner">Культурная основа. Резонанс между ценностями команды и декларациями бренда создаёт устойчивый рост.</p>
           </div>
         </div>
@@ -174,6 +185,6 @@ const isOpen = (key) => openAccordions.value.has(key)
       </div>
     </div>
 
-    <a class="md-link" href="https://runscale.ru/radar/overview.html" target="_blank" rel="noopener">Подробнее о Радаре <span class="md-link-arrow">→</span></a>
+    <a class="md-btn" href="https://runscale.ru/radar/overview.html" target="_blank" rel="noopener">Подробнее о Радаре <span class="md-btn-arrow">→</span></a>
   </div>
 </template>
