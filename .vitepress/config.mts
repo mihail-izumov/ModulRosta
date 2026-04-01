@@ -54,16 +54,10 @@ export default defineConfig({
           document.body.appendChild(footer);
         }
         footer.innerHTML = createFooterContent();
-        if (window.location.pathname !== '/') {
-          footer.style.position = 'relative';
-          footer.style.bottom = '70px';
-          footer.style.zIndex = '10';
-          footer.style.marginBottom = '-70px';
-        } else {
-          footer.style.position = '';
-          footer.style.bottom = '';
-          footer.style.zIndex = '';
+        if (window.location.pathname === '/') {
           footer.style.paddingBottom = '30px';
+        } else {
+          footer.style.paddingBottom = '';
         }
       }
       function updateApplyLinkTarget() {
@@ -236,6 +230,19 @@ export default defineConfig({
       }
       .footer-row{flex-direction:column!important;gap:8px!important}
       .dot-separator{display:none!important}
+      /* ═══ Mobile menu +/× icons: orange, 2x bigger ═══ */
+      .VPNavScreen .VPNavScreenMenuGroup button .vpi-plus,
+      .VPNavScreen .VPNavScreenMenuGroup button .vpi-chevron-down,
+      .VPNavScreen .VPNavScreenMenuGroup button .vpi-chevron-right,
+      .VPNavScreen .VPNavScreenMenuGroup .button-icon,
+      .VPNavScreen .VPNavScreenMenuGroup button svg{
+        color:#ff8800!important;
+        fill:#ff8800!important;
+        stroke:#ff8800!important;
+        width:24px!important;
+        height:24px!important;
+        transition:all .3s ease!important;
+      }
     }
     
     .VPSocialLink .vpi-social-github{display:none!important}
