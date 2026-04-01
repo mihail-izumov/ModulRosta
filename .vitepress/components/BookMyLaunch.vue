@@ -21,8 +21,8 @@
 
         <!-- Телефон -->
         <div class="bml-field" :class="{ focused: focus.contact }" @click="$refs.contactInput?.focus()">
-          <span class="bml-field-label" :class="{ active: focus.contact || form.contact.length > 0, focused: focus.contact }">Телефон</span>
-          <input ref="contactInput" type="tel" :value="form.contact" @input="form.contact = $event.target.value" @focus="focus.contact = true" @blur="focus.contact = false" class="bml-field-input" />
+          <span class="bml-field-label" :class="{ active: true, focused: focus.contact }">Телефон</span>
+          <input ref="contactInput" type="tel" :value="form.contact" @input="onPhoneInput" @keydown="onPhoneKeydown" @focus="focus.contact = true" @blur="focus.contact = false" class="bml-field-input" placeholder="+7(___) ___-__-__" />
         </div>
 
         <!-- Bottleneck: multi -->
@@ -104,7 +104,7 @@
 import { ref, reactive, computed, nextTick } from 'vue'
 
 const form = reactive({
-  name: '', company: '', contact: '',
+  name: '', company: '', contact: '+7',
   bottleneck: '', revenue: '', urgency: '',
   otherText: '',
 })
@@ -140,8 +140,61 @@ function toggleOther() {
   }
 }
 
+const contactInput = ref<HTMLInputElement | null>(null)
+
+function formatPhone(digits: string): string {
+  // digits = only the 10 digits after +7
+  let result = '+7'
+  if (digits.length > 0) result += '(' + digits.substring(0, 3)
+  if (digits.length >= 3) result += ')'
+  if (digits.length > 3) result += digits.substring(3, 6)
+  if (digits.length > 6) result += '-' + digits.substring(6, 8)
+  if (digits.length > 8) result += '-' + digits.substring(8, 10)
+  return result
+}
+
+function getDigitsAfter7(val: string): string {
+  // strip everything non-digit, remove leading 7
+  const all = val.replace(/\D/g, '')
+  return all.startsWith('7') ? all.substring(1) : all
+}
+
+function onPhoneInput(e: Event) {
+  const input = e.target as HTMLInputElement
+  const raw = input.value
+  const digits = getDigitsAfter7(raw).substring(0, 10)
+  const formatted = formatPhone(digits)
+  form.contact = formatted
+  nextTick(() => {
+    input.value = formatted
+    input.setSelectionRange(formatted.length, formatted.length)
+  })
+}
+
+function onPhoneKeydown(e: KeyboardEvent) {
+  const input = e.target as HTMLInputElement
+  // Prevent erasing the +7 prefix
+  if ((e.key === 'Backspace' || e.key === 'Delete') && getDigitsAfter7(input.value).length === 0) {
+    e.preventDefault()
+  }
+  // Allow: backspace, delete, tab, escape, enter, arrows, home, end
+  if (['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','Home','End'].includes(e.key)) return
+  // Allow Ctrl/Cmd combos (copy, paste, select all)
+  if (e.ctrlKey || e.metaKey) return
+  // Block non-digit keys
+  if (!/^\d$/.test(e.key)) {
+    e.preventDefault()
+  }
+  // Block if already 10 digits
+  if (/^\d$/.test(e.key) && getDigitsAfter7(input.value).length >= 10) {
+    e.preventDefault()
+  }
+}
+
+const phoneComplete = computed(() => getDigitsAfter7(form.contact).length === 10)
+
 const checks = computed(() => [
-  { label: 'Контакт', ready: form.name.length > 0 && form.contact.length > 0 },
+  { label: 'Контакт', ready: form.name.length > 0 && phoneComplete.value },
   { label: 'Точка роста', ready: form.bottleneck.length > 0 || (otherActive.value && form.otherText.length > 0) },
   { label: 'Масштаб', ready: form.revenue.length > 0 },
   { label: 'Срочность', ready: form.urgency.length > 0 },
@@ -180,6 +233,7 @@ const allReady = computed(() => checks.value.every(c => c.ready))
 .bml-field-label.active { top: 10px; transform: translateY(0); font-size: 9.5px; letter-spacing: 2.5px; }
 .bml-field-label.focused { color: #ff8800; }
 .bml-field-input { position: absolute; left: 0; bottom: 10px; width: 100%; background: transparent; border: none; color: #ff8800; font-size: 14px; font-family: 'Inter', sans-serif; font-weight: 400; letter-spacing: 1px; outline: none; caret-color: #ff8800; padding: 0; }
+.bml-field-input::placeholder { color: rgba(255,255,255,0.15); letter-spacing: 2px; }
 
 /* Toggles */
 .bml-group { margin-bottom: 8px; }
