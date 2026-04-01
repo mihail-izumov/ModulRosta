@@ -19,18 +19,9 @@ const pnTitleRef = ref<HTMLElement | null>(null)
 const tipBtnRef = ref<HTMLElement | null>(null)
 const tipRef = ref<HTMLElement | null>(null)
 const showTip = ref(false)
-const tipAbove = ref(false)
 
 function toggleTip() {
-  if (showTip.value) { showTip.value = false; return }
-  // Determine direction
-  const btn = tipBtnRef.value
-  if (btn) {
-    const rect = btn.getBoundingClientRect()
-    const spaceBelow = window.innerHeight - rect.bottom
-    tipAbove.value = spaceBelow < 340
-  }
-  showTip.value = true
+  showTip.value = !showTip.value
 }
 
 function onClickOutsideTip(e: MouseEvent) {
@@ -494,7 +485,7 @@ onUnmounted(() => { document.removeEventListener('keydown', onEsc); document.rem
           <div class="pn-btn-wrap" style="margin-top:14px;margin-bottom:20px;padding-bottom:8px;position:relative;">
             <button ref="tipBtnRef" class="pn-details-btn" @click="toggleTip">ДЕТАЛИ СЕССИИ</button>
             <Transition name="tip-fade">
-              <div v-if="showTip" ref="tipRef" class="sm-tip" :class="{ above: tipAbove }">
+              <div v-if="showTip" ref="tipRef" class="sm-tip">
                 <div class="sm-header">РЕЖИМ РАНСКЕЙЛ</div>
                 <div class="sm-stats">
                   <div class="sm-stat"><span class="sm-stat-val">90</span><span class="sm-stat-label">МИН.</span></div>
@@ -604,25 +595,21 @@ onUnmounted(() => { document.removeEventListener('keydown', onEsc); document.rem
 .pn-details-btn{font-family:'Fira Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.08em;color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:8px 20px;cursor:pointer;transition:all 0.3s;backdrop-filter:blur(8px);}
 .pn-details-btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);}
 
-/* TOOLTIP */
-.sm-tip{position:absolute;bottom:calc(100% + 10px);left:0;right:0;background:rgba(8,12,24,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(88,166,255,0.15);border-radius:12px;padding:24px 20px 20px;z-index:90;box-shadow:0 0 30px rgba(0,0,0,0.4),0 0 60px rgba(0,0,0,0.2);max-height:60vh;overflow-y:auto;}
-.sm-tip::-webkit-scrollbar{width:3px;}.sm-tip::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);}
-.sm-tip::before{content:'';position:absolute;bottom:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(88,166,255,0.2),transparent);}
-.sm-tip.above{bottom:calc(100% + 10px);top:auto;}
-.sm-tip:not(.above){bottom:auto;top:calc(100% + 10px);}
-.sm-tip:not(.above)::before{bottom:auto;top:0;}
+/* TOOLTIP — always above the button */
+.sm-tip{position:absolute;bottom:calc(100% + 10px);left:0;right:0;background:rgba(8,12,24,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(88,166,255,0.15);border-radius:12px;padding:16px 20px;z-index:90;box-shadow:0 4px 30px rgba(0,0,0,0.5),0 0 60px rgba(0,0,0,0.2);max-height:320px;overflow-y:auto;}
+.sm-tip::-webkit-scrollbar{width:3px;}.sm-tip::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
+.sm-tip::after{content:'';position:absolute;bottom:-6px;left:24px;width:10px;height:10px;background:rgba(8,12,24,0.92);border-right:1px solid rgba(88,166,255,0.15);border-bottom:1px solid rgba(88,166,255,0.15);transform:rotate(45deg);}
 .tip-fade-enter-active,.tip-fade-leave-active{transition:opacity 0.3s ease,transform 0.3s ease;}
 .tip-fade-enter-from,.tip-fade-leave-to{opacity:0;transform:translateY(6px);}
-.sm-tip.above.tip-fade-enter-from,.sm-tip.above.tip-fade-leave-to{transform:translateY(-6px);}
-.sm-header{font-family:'Inter',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.9);text-transform:uppercase;margin-bottom:18px;text-align:center;}
-.sm-stats{display:flex;justify-content:center;align-items:center;gap:20px;margin-bottom:18px;flex-wrap:wrap;}
-.sm-stat{text-align:center;}.sm-stat-val{font-family:'Fira Code',monospace;font-size:28px;font-weight:500;color:#fff;display:block;line-height:1;margin-bottom:5px;letter-spacing:1px;}.sm-stat-go{color:rgba(0,255,136,0.9);}.sm-stat-label{font-family:'Fira Code',monospace;font-size:9px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:2px;}.sm-stat-div{width:1px;height:36px;background:rgba(255,255,255,0.08);}
-.sm-specs{margin-bottom:14px;padding:12px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;}
-.sm-spec-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-family:'Fira Code',monospace;font-size:12px;}.sm-spec-row:first-child{padding-top:2px;}.sm-spec-row:last-child{border-bottom:none;padding-bottom:2px;}
-.sm-spec-label{color:rgba(255,255,255,0.35);font-weight:400;}.sm-spec-val{color:rgba(255,255,255,0.75);font-weight:500;text-align:right;}
+.sm-header{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.85);text-transform:uppercase;margin-bottom:12px;text-align:center;}
+.sm-stats{display:flex;justify-content:center;align-items:center;gap:16px;margin-bottom:12px;}
+.sm-stat{text-align:center;}.sm-stat-val{font-family:'Fira Code',monospace;font-size:22px;font-weight:500;color:#fff;display:block;line-height:1;margin-bottom:4px;letter-spacing:1px;}.sm-stat-go{color:rgba(0,255,136,0.9);}.sm-stat-label{font-family:'Fira Code',monospace;font-size:8px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:2px;}.sm-stat-div{width:1px;height:28px;background:rgba(255,255,255,0.08);}
+.sm-specs{margin-bottom:10px;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:6px;}
+.sm-spec-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-family:'Fira Code',monospace;font-size:11px;}.sm-spec-row:first-child{padding-top:2px;}.sm-spec-row:last-child{border-bottom:none;padding-bottom:2px;}
+.sm-spec-label{color:rgba(255,255,255,0.3);font-weight:400;}.sm-spec-val{color:rgba(255,255,255,0.7);font-weight:500;text-align:right;}
 .sm-go{color:rgba(0,255,136,0.85);font-family:'Fira Code',monospace;font-weight:700;}.sm-nogo{color:rgba(255,255,255,0.6);font-family:'Fira Code',monospace;font-weight:700;}
-.sm-format-badge{font-family:'Fira Code',monospace;font-size:12px;color:rgba(255,136,0,0.7);text-align:center;margin-bottom:14px;padding:10px 16px;background:rgba(255,136,0,0.04);border:1px solid rgba(255,136,0,0.12);border-radius:8px;letter-spacing:0.03em;}
-.sm-desc{margin-bottom:4px;}.sm-desc p{font-family:'Fira Sans',sans-serif;font-size:12px;color:rgba(255,255,255,0.45);line-height:1.7;margin:0 0 8px;text-align:center;}.sm-desc p:last-child{margin-bottom:0;}
+.sm-format-badge{font-family:'Fira Code',monospace;font-size:11px;color:rgba(255,136,0,0.65);text-align:center;margin-bottom:10px;padding:8px 12px;background:rgba(255,136,0,0.04);border:1px solid rgba(255,136,0,0.1);border-radius:6px;letter-spacing:0.03em;}
+.sm-desc{margin-bottom:2px;}.sm-desc p{font-family:'Fira Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;margin:0 0 6px;text-align:center;}.sm-desc p:last-child{margin-bottom:0;}
 
 /* MOBILE */
 @media(max-width:768px){
@@ -642,11 +629,10 @@ onUnmounted(() => { document.removeEventListener('keydown', onEsc); document.rem
   :deep(.t-btn),:deep(.t-btn-sleep){max-width:100%;width:100%;text-align:center;line-height:1.4;}
   .pn-btn-wrap{margin-bottom:12px !important;padding-bottom:4px !important;}
   .pn-details-btn{font-size:12px !important;padding:8px 20px !important;}
-  .sm-tip{left:-12px;right:-12px;max-height:50vh;}
-  .sm-tip.above{bottom:calc(100% + 8px);}
-  .sm-tip:not(.above){top:calc(100% + 8px);}
-  .sm-header{font-size:14px;margin-bottom:14px;}
-  .sm-stats{gap:14px;}.sm-stat-val{font-size:22px;}.sm-stat-div{height:30px;}
-  .sm-spec-row{flex-direction:column;gap:2px;padding:8px 0;}.sm-spec-val{text-align:left;}
+  .sm-tip{left:-12px;right:-12px;max-height:280px;bottom:calc(100% + 8px);}
+  .sm-tip::after{left:20px;}
+  .sm-header{font-size:12px;margin-bottom:10px;}
+  .sm-stats{gap:12px;}.sm-stat-val{font-size:18px;}.sm-stat-div{height:24px;}
+  .sm-spec-row{flex-direction:column;gap:1px;padding:5px 0;}.sm-spec-val{text-align:left;}
 }
 </style>

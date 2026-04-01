@@ -594,7 +594,7 @@ watch(fontSize, () => {
     margin-top: 16px !important;
   }
   .mr-hero-root {
-    padding: 7.5vh 12px 190px !important;
+    padding: 7.5vh 12px 100px !important;
     min-height: auto !important;
     overflow: visible !important;
   }
