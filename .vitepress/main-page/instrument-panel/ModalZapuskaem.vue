@@ -15,14 +15,14 @@ const isOpen = (key) => openAccordions.value.has(key)
     <h1 class="md-h1">ЗАПУСКАЕМ</h1>
     <h2 class="md-h2">Первый цифровой модуль в Ранскейл режиме</h2>
     <p class="md-text md-bold">Один модуль — один результат. Работает с первого дня.</p>
-    <p class="md-text md-bold">Доминирование — пока конкуренты думают, вы уже запустили.</p>
+    <p class="md-text md-bold">Пока конкуренты думают, вы уже запустили.</p>
     <p class="md-text">Не делаем «сайты», «приложения» или «CRM». Форма определяется в процессе. Запускаем цифровые модули, которые решают конкретное узкое горлышко бизнеса.</p>
 
     <div class="md-divider"></div>
 
     <h2 class="md-h2">Ранскейл режим (R&D Циклы)</h2>
     <p class="md-text">Срезаем всё лишнее: ТЗ, согласования, бюрократию, перфекционизм. Оставляем только то, что работает.</p>
-    <p class="md-text md-cycle">Маленькая версия → ошибки → корректировка → масштаб.<br/>Не «большой план → идеальное исполнение».</p>
+    <p class="md-text md-color-green">Маленькая версия → ошибки → корректировка → масштаб.<br/>Не «большой план → идеальное исполнение».</p>
 
     <div class="md-divider"></div>
 
@@ -79,8 +79,8 @@ const isOpen = (key) => openAccordions.value.has(key)
     <div class="md-divider"></div>
 
     <div class="md-summary">
-      <p class="md-summary-label">Итого:</p>
-      <p class="md-summary-line">Работает <span class="md-mono">24/7</span>.</p>
+      <p class="md-summary-heading">Итого:</p>
+      <p class="md-summary-line">Работает 24/7.</p>
       <p class="md-summary-line">Без зарплаты. Без больничных.</p>
       <p class="md-summary-line">Без обучения и совещаний.</p>
     </div>

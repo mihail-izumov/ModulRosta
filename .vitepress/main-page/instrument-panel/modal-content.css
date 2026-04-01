@@ -286,6 +286,15 @@
   color: #e0e0e0;
   margin: 0 0 8px;
 }
+.md-summary-heading {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  color: #00ff88;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0 0 12px;
+}
 .md-summary-line {
   font-family: 'Inter', sans-serif;
   font-weight: 400;
