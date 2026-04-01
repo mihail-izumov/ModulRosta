@@ -23,7 +23,7 @@
       <div class="mr-protocol-footer">
         <div class="mr-protocol-footer-label">ВСЁ ВКЛЮЧЕНО</div>
         <p class="mr-protocol-footer-text">Стратегия, дизайн-система, интерфейс, код, запуск и&nbsp;сопровождение&nbsp;— одна команда, один процесс, один результат.</p>
-        <button class="mr-protocol-cta" @click="openProtocolModal('slot')">Детали</button>
+        <button class="mr-protocol-cta" @click="openProtocolModal('slot')">Сборка</button>
       </div>
     </div>
 
@@ -60,10 +60,10 @@
                   </div>
                   <div class="mr-protocol-modal-method">Видим архитектуру бизнеса в цифре до того, как её описал клиент. Не симптомы — причину.</div>
                   <div class="mr-protocol-modal-roadmap">
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">1–3</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Ранскейл-сессия</div><div class="mr-roadmap-step-desc">Погружение в бизнес. Интервью с основателем, определение узких горлышек.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">1–3</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Ранскейл-сессия</div><div class="mr-roadmap-step-desc">Погружение в бизнес. Интервью с основателем, выявление точек роста. GO/NO-GO.</div></div></div>
                     <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">4–10</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Чекап</div><div class="mr-roadmap-step-desc">10 направлений, 180 метрик. Карта модулей бизнеса в цифре. Порядок запуска.</div></div></div>
                     <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">11–17</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Радар</div><div class="mr-roadmap-step-desc">Анализ рынка, конкуренты, проверка гипотез. Карта возможностей.</div></div></div>
-                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">18–20</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Стратегия</div><div class="mr-roadmap-step-desc">Какой модуль первым. Что даст максимальный эффект. GO/NO-GO.</div></div></div>
+                    <div class="mr-roadmap-step"><div class="mr-roadmap-step-days">18–20</div><div class="mr-roadmap-step-content"><div class="mr-roadmap-step-title">Стратегия</div><div class="mr-roadmap-step-desc">Какой модуль первым. Что даст максимальный эффект. План запуска.</div></div></div>
                   </div>
                   <div class="mr-details-tags"><span class="mr-details-tag">Ранскейл-сессия</span><span class="mr-details-tag">Чекап 180 метрик</span><span class="mr-details-tag">Радар рынка</span><span class="mr-details-tag">GO/NO-GO</span></div>
                 </div>
@@ -115,9 +115,9 @@
                   <div class="mr-protocol-modal-method">Модуль работает. На ваших данных, в вашем бизнесе. Пока конкуренты думают — вы уже запустили.</div>
                   <!-- Assembly Animation -->
                   <div class="mr-module-assembly-visual">
-                    <div class="mr-assembly-block header">HEADER</div>
-                    <div class="mr-assembly-block sidebar">SIDEBAR</div>
-                    <div class="mr-assembly-block content">CONTENT</div>
+                    <div class="mr-assembly-block header">БИЗНЕС-ЛОГИКА</div>
+                    <div class="mr-assembly-block sidebar">ДАННЫЕ</div>
+                    <div class="mr-assembly-block content">ИНТЕРФЕЙС</div>
                     <div class="mr-assembly-scanner"></div>
                   </div>
                   <div class="mr-protocol-modal-roadmap">
