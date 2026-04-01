@@ -209,10 +209,10 @@ export default defineConfig({
         border:1.5px solid #ff8800!important;
         color:#ff8800!important;
         font-size:16px!important;
-        font-weight:700!important;
+        font-weight:500!important;
         font-family:'Exo 2','Inter',sans-serif!important;
-        letter-spacing:3px!important;
-        border-radius:2px!important;
+        letter-spacing:1px!important;
+        border-radius:9999px!important;
         padding:18px!important;
         margin:0!important;
         height:52px!important;
@@ -247,14 +247,14 @@ export default defineConfig({
     /* ═══ БРОНЬ ЗАПУСКА — amber button ═══ */
     .VPSocialLink[aria-label="login-link"]::after{
       content:"БРОНЬ ЗАПУСКА";
-      font-size:12px;
+      font-size:14px;
       font-family:'Exo 2','Inter',sans-serif;
-      font-weight:700;
-      letter-spacing:3px;
+      font-weight:500;
+      letter-spacing:1px;
       text-transform:uppercase;
       color:#ff8800;
       padding:8px 20px;
-      border-radius:2px;
+      border-radius:9999px;
       background:transparent;
       border:1.5px solid #ff8800;
       transition:all 0.3s ease;
