@@ -411,6 +411,78 @@
 .md-color-green { color: #00ff88; }
 .md-color-amber { color: #ff8800; }
 .md-h2-green { color: #00ff88; }
+.md-h1-amber { color: #ff8800; }
+.md-h2-amber { color: #ff8800; }
+
+/* Amber checkpoint variant */
+.md-checkpoints-amber .md-checkpoint-marker {
+  border-color: rgba(255, 136, 0, 0.4);
+}
+.md-checkpoints-amber .md-checkpoint-marker::before {
+  background: rgba(255, 136, 0, 0.3);
+  box-shadow: 17px 0 0 rgba(255, 136, 0, 0.3);
+}
+.md-checkpoints-amber .md-checkpoint-marker::after {
+  background: rgba(255, 136, 0, 0.3);
+  box-shadow: 0 17px 0 rgba(255, 136, 0, 0.3);
+}
+.md-checkpoints-amber .md-checkpoint-dot {
+  background: #ff8800;
+  box-shadow: 0 0 6px rgba(255, 136, 0, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* Decision block — binary instrument readout                 */
+/* ═══════════════════════════════════════════════════════════ */
+.md-decision {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+}
+.md-decision-yes,
+.md-decision-no {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+}
+.md-decision-yes {
+  border-color: rgba(0, 255, 136, 0.15);
+}
+.md-decision-no {
+  border-color: rgba(255, 136, 0, 0.15);
+}
+.md-decision-indicator {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.md-decision-indicator-green {
+  background: #00ff88;
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+}
+.md-decision-indicator-amber {
+  background: #ff8800;
+  box-shadow: 0 0 8px rgba(255, 136, 0, 0.5);
+}
+.md-decision-label {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #e0e0e0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.md-decision-action {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #a0a0a0;
+}
 
 /* Mobile overrides */
 @media (max-width: 768px) {
@@ -422,4 +494,6 @@
   .md-accordion-header { min-height: 48px; padding: 16px 0; }
   .md-checkpoint-text { font-size: 14px; }
   .md-btn { font-size: 12px; padding: 9px 18px; }
+  .md-decision { flex-direction: column; gap: 8px; }
+  .md-decision-yes, .md-decision-no { padding: 14px 16px; }
 }

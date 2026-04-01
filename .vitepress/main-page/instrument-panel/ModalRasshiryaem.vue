@@ -12,20 +12,40 @@ const isOpen = (key) => openAccordions.value.has(key)
 
 <template>
   <div class="modal-rasshiryaem">
-    <h1 class="md-h1">РАСШИРЯЕМ</h1>
-    <h2 class="md-h2">Модуль Роста® — принцип модульной сборки бизнеса</h2>
+    <h1 class="md-h1 md-h1-amber">РАСШИРЯЕМ</h1>
+    <h2 class="md-h2 md-h2-amber">Модуль Роста® — принцип модульной сборки бизнеса</h2>
     <p class="md-text">Не движок. Не метод. Не платформа. Принцип, по которому цифровые продукты проектируются и стыкуются.</p>
     <p class="md-text md-bold">Модули стыкуются друг с другом. Бизнес в цифре растёт. Каждый модуль усиливает всю систему.</p>
 
     <div class="md-divider"></div>
 
-    <h2 class="md-h2">Принцип модульной сборки</h2>
-    <p class="md-text">Каждый модуль автономен — работает сам по себе.<br/>Каждый спроектирован для стыковки — соединяется с другими.<br/>Когда модулей больше — они интегрируются друг с другом и с тем, куда растёт бизнес.<br/>Целое сильнее суммы частей.</p>
+    <h2 class="md-h2 md-h2-amber">Принцип модульной сборки</h2>
+
+    <!-- Checkpoint list — amber variant -->
+    <div class="md-checkpoints md-checkpoints-amber">
+      <div class="md-checkpoint">
+        <span class="md-checkpoint-marker"><span class="md-checkpoint-dot"></span></span>
+        <span class="md-checkpoint-text">Каждый модуль автономен — работает сам по себе.</span>
+      </div>
+      <div class="md-checkpoint">
+        <span class="md-checkpoint-marker"><span class="md-checkpoint-dot"></span></span>
+        <span class="md-checkpoint-text">Каждый спроектирован для стыковки — соединяется с другими.</span>
+      </div>
+      <div class="md-checkpoint">
+        <span class="md-checkpoint-marker"><span class="md-checkpoint-dot"></span></span>
+        <span class="md-checkpoint-text">Когда модулей больше — они интегрируются друг с другом и с тем, куда растёт бизнес.</span>
+      </div>
+      <div class="md-checkpoint">
+        <span class="md-checkpoint-marker"><span class="md-checkpoint-dot"></span></span>
+        <span class="md-checkpoint-text">Целое сильнее суммы частей.</span>
+      </div>
+    </div>
+
     <p class="md-text">Каждый модуль запускается отдельно, работает автономно, решает конкретное узкое горлышко. Но каждый спроектирован так, чтобы стыковаться с другими. Когда модулей больше — они интегрируются друг с другом и с тем, куда и как растёт компания.</p>
 
     <div class="md-divider"></div>
 
-    <h2 class="md-h2">Модуль за модулем</h2>
+    <h2 class="md-h2 md-h2-amber">Модуль за модулем</h2>
     <p class="md-text">Не нужно покупать «всё сразу». Один модуль, результат, решение запустить второй. Потом третий. В какой-то момент — полная цифровая система. Но путь к ней — модуль за модулем.</p>
 
     <div class="md-accordion" :class="{ open: isOpen('1') }">
@@ -61,10 +81,24 @@ const isOpen = (key) => openAccordions.value.has(key)
 
     <div class="md-divider"></div>
 
-    <h2 class="md-h2">Единственная метрика</h2>
+    <h2 class="md-h2 md-h2-amber">Единственная метрика</h2>
     <p class="md-text md-bold">Доминирует ли бизнес на своём рынке после запуска.</p>
     <p class="md-text">Не «работает ли система». Не «доволен ли клиент». А: стал ли бизнес сильнее?</p>
-    <p class="md-text">Если да — расширяемся. Если нет — чиним.</p>
-    <p class="md-text">Каждое расширение — новый модуль, новый результат. Бизнес не уходит — он достраивает.</p>
+
+    <!-- Decision block — binary instrument readout -->
+    <div class="md-decision">
+      <div class="md-decision-yes">
+        <span class="md-decision-indicator md-decision-indicator-green"></span>
+        <span class="md-decision-label">Да</span>
+        <span class="md-decision-action">расширяемся</span>
+      </div>
+      <div class="md-decision-no">
+        <span class="md-decision-indicator md-decision-indicator-amber"></span>
+        <span class="md-decision-label">Нет</span>
+        <span class="md-decision-action">чиним</span>
+      </div>
+    </div>
+
+    <p class="md-text md-bold">Каждое расширение — новый модуль, новый результат.</p>
   </div>
 </template>
