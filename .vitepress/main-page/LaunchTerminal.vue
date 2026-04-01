@@ -354,10 +354,10 @@ async function runPhase0() {
   await tType('[OK] Формат определён', 't-amber', 25)
   jl('Развёртывание завершено', 'amber'); jl('Все системы: работают', 'amber')
   tGap()
-  await tType('Режим Ранскейл доступен', 't-amber', 25)
+  await tType('Запросить доступ на сессию Ранскейл?', 't-amber', 25)
   jl('Ожидание подтверждения...', 'amber')
 
-  const ans2 = await tInput('запуск', 'отмена', 'amber')
+  const ans2 = await tInput('запросить', 'отмена', 'amber')
   if (['отмена', 'нет', 'no', 'n', 'cancel'].includes(ans2)) {
     tGap(); await tType('Модуль остаётся доступным.', 't-dim', 25); tGap()
     await tType('Закрыть сессию?', 't-white', 30); jl('Отказ от запуска', 'dim')
@@ -519,7 +519,7 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700;800&family=Fira+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
 
-.lt-root{width:100%;height:calc(100vh - 120px);background:transparent;overflow:hidden;padding:12px;margin-bottom:40px;font-family:'Fira Sans',sans-serif;color:#fff;position:relative;z-index:1;}
+.lt-root{width:100%;height:calc(100vh - 120px);background:transparent;overflow:hidden;padding:12px;margin-bottom:12px;font-family:'Fira Sans',sans-serif;color:#fff;position:relative;z-index:1;}
 .layout{display:flex;width:100%;height:100%;border:1px solid rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
 
 /* LEFT */
@@ -614,7 +614,7 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 
 /* MOBILE */
 @media(max-width:768px){
-  .lt-root{padding:0;height:auto;min-height:calc(100vh - 64px);background:transparent;overflow:hidden;margin-bottom:80px;max-width:100vw;}
+  .lt-root{padding:0;height:auto;min-height:calc(100vh - 64px);background:transparent;overflow:hidden;margin-bottom:12px;max-width:100vw;}
   .layout{flex-direction:column;border:none;border-radius:0;gap:0;overflow:hidden;height:calc(100vh - 64px);}
   .panel-left{width:100%;max-width:none;min-width:0;height:110px;min-height:110px;padding:12px 16px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);overflow:hidden;flex-shrink:0;}
   .journal-header{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
