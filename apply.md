@@ -216,6 +216,10 @@ title: Запрос на Чекап
 - [Вернуться к 5-дневной подготовке](/checkup/prep/overview)
 - [Проверить готовность по чек-листу](/checkup/prep/checklist)
 
+<br>
+<br>
+<br>
+
 <style>
 /* --- ОБЩИЕ СТИЛИ ФОРМЫ --- */
 .custom-form { 
