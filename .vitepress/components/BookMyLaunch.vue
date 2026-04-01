@@ -84,7 +84,8 @@
 
         <!-- Submit -->
         <div class="bml-submit-wrap">
-          <button class="bml-submit" :disabled="!allReady" :class="{ ready: allReady }" @click="submitted = true">{{ allReady ? 'Отправить запрос' : 'Заполните параметры' }}</button>
+          <button class="bml-submit" :disabled="!allReady || sending" :class="{ ready: allReady && !sending }" @click="submitForm">{{ sending ? 'Отправка...' : allReady ? 'Отправить запрос' : 'Заполните параметры' }}</button>
+          <p v-if="sendError" class="bml-error">{{ sendError }}</p>
         </div>
       </template>
 
@@ -94,7 +95,7 @@
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ff8800" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <h2 class="bml-success-title">Запрос отправлен</h2>
-        <p class="bml-success-text">Мы свяжемся с вами в Telegram для предполётной подготовки.</p>
+        <p class="bml-success-text">Мы свяжемся с вами для предполётной подготовки.</p>
       </div>
     </div>
   </div>
@@ -110,7 +111,58 @@ const form = reactive({
 })
 const focus = reactive({ name: false, company: false, contact: false, other: false })
 const submitted = ref(false)
+const sending = ref(false)
+const sendError = ref('')
 const otherActive = ref(false)
+
+// ⚠️ ВСТАВЬТЕ СВОИ ДАННЫЕ:
+const TG_BOT_TOKEN = '8635306060:AAFLhtb_Dqj_L-adOTR633ozl-YNi70iVVc'
+const TG_CHAT_ID   = '7999126446'
+
+async function submitForm() {
+  if (!allReady.value || sending.value) return
+  sending.value = true
+  sendError.value = ''
+
+  const bottleneckText = bottleneckArr.value.join(', ')
+  const otherText = otherActive.value && form.otherText ? `\nДругое: ${form.otherText}` : ''
+
+  const text = [
+    '🚀 *Новая заявка — Book My Launch*',
+    '',
+    `👤 *Имя:* ${form.name}`,
+    `🏢 *Компания/Проект:* ${form.company || '—'}`,
+    `📞 *Телефон:* ${form.contact}`,
+    '',
+    `🔥 *Что тормозит:* ${bottleneckText || '—'}${otherText}`,
+    `💰 *Оборот:* ${form.revenue}`,
+    `⏰ *Когда нужно:* ${form.urgency}`,
+  ].join('\n')
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TG_CHAT_ID,
+        text,
+        parse_mode: 'Markdown',
+      }),
+    })
+    const data = await res.json()
+    if (data.ok) {
+      submitted.value = true
+    } else {
+      sendError.value = 'Ошибка отправки. Попробуйте ещё раз.'
+      console.error('Telegram API error:', data)
+    }
+  } catch (err) {
+    sendError.value = 'Нет соединения. Попробуйте ещё раз.'
+    console.error('Network error:', err)
+  } finally {
+    sending.value = false
+  }
+}
 
 const bottleneckOptions = ['Всё держится на мне', 'Не масштабируется', 'Нет системы', 'Теряю клиентов', 'Конкуренты быстрее']
 const revenueOptions = ['Стартап', 'до 10 млн', '10–50 млн', '50–150 млн', '150+ млн']
@@ -407,6 +459,7 @@ const allReady = computed(() => checks.value.every(c => c.ready))
 .bml-submit::before, .bml-submit::after { display: none !important; content: none !important; }
 .bml-submit.ready { border-color: #ff8800 !important; color: #ff8800 !important; cursor: pointer !important; }
 .bml-submit.ready:hover { background: #ff8800 !important; color: #000 !important; }
+.bml-error { margin-top: 12px; font-size: 11px; color: #ff4444; letter-spacing: 1px; text-align: center; }
 
 /* Success */
 .bml-success { text-align: center; padding-top: 100px; }
