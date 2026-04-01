@@ -1,0 +1,306 @@
+/* ═══════════════════════════════════════════════════════════ */
+/* modal-content.css — shared styles for modal content       */
+/* ═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600&display=swap');
+
+/* Typography */
+.md-h1 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  color: #00ff88;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  margin: 0 0 24px;
+  line-height: 1.2;
+}
+.md-h2 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: #00ff88;
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+.md-h3 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: #58a6ff;
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+.md-h4 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: #e0e0e0;
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+.md-h4-section {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #00ff88;
+  margin: 0 0 10px;
+  line-height: 1.4;
+}
+.md-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: #c0c0c0;
+  line-height: 1.7;
+  margin: 0 0 14px;
+}
+.md-text.md-bold {
+  color: #e0e0e0;
+  font-weight: 500;
+}
+.md-text.md-cycle {
+  color: #58a6ff;
+  font-style: italic;
+}
+.md-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  color: #e0e0e0;
+}
+.md-intro {
+  margin-bottom: 8px;
+}
+.md-intro p {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: #c0c0c0;
+  line-height: 1.7;
+  margin: 0 0 4px;
+}
+
+/* Dividers */
+.md-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 28px 0;
+}
+.md-divider-thin {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.04);
+  margin: 20px 0;
+}
+
+/* Result blocks */
+.md-result {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #a0a0a0;
+  line-height: 1.7;
+  margin: 0 0 16px;
+  padding-left: 12px;
+  border-left: 2px solid rgba(0, 255, 136, 0.2);
+}
+.md-result-label {
+  font-weight: 600;
+  color: #00ff88;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* Accordions                                                 */
+/* ═══════════════════════════════════════════════════════════ */
+.md-accordion {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 0;
+}
+.md-accordion:last-of-type {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.md-accordion-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 0;
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+  text-align: left;
+  min-height: 44px;
+  text-decoration: none !important;
+  transition: none;
+}
+.md-accordion-header::before,
+.md-accordion-header::after {
+  display: none !important;
+  content: none !important;
+}
+.md-accordion-header:hover .md-accordion-title {
+  color: #ff8800;
+}
+.md-accordion-header:hover .md-accordion-icon {
+  color: #ff8800;
+}
+.md-accordion-icon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+.md-accordion.open .md-accordion-icon {
+  color: #ff8800;
+}
+.md-accordion-title {
+  font-family: 'Exo 2', 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  transition: color 0.2s ease;
+}
+.md-accordion.open .md-accordion-title {
+  color: #ff8800;
+}
+.md-accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
+}
+.md-accordion-body.expanded {
+  max-height: 800px;
+  opacity: 1;
+}
+.md-accordion-content {
+  padding: 0 0 16px 30px;
+}
+
+/* Inner text */
+.md-text-inner {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #a0a0a0;
+  line-height: 1.7;
+  margin: 0 0 6px;
+}
+.md-text-inner strong {
+  font-weight: 600;
+  color: #c0c0c0;
+}
+.md-text-inner em {
+  font-style: italic;
+  color: #b0b0b0;
+}
+.md-text-inner.md-dash {
+  padding-left: 16px;
+  position: relative;
+}
+.md-text-inner.md-dash::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: rgba(255, 255, 255, 0.2);
+}
+.md-text-inner.md-highlight {
+  color: #58a6ff;
+  font-weight: 500;
+  margin-top: 10px;
+}
+.md-method-label {
+  font-weight: 600;
+  color: #c0c0c0;
+  margin-top: 10px !important;
+}
+
+/* Analysis blocks (Radar) */
+.md-analysis-block {
+  margin-bottom: 14px;
+}
+.md-analysis-block:last-child {
+  margin-bottom: 0;
+}
+.md-analysis-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #58a6ff;
+  margin: 0 0 4px;
+  line-height: 1.4;
+}
+
+/* Module lines (Расширяем) */
+.md-module-line {
+  padding-left: 16px;
+  position: relative;
+  color: #b0b0b0 !important;
+}
+.md-module-line::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: #00ff88;
+  font-weight: 700;
+}
+
+/* Links */
+.md-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ff8800;
+  text-decoration: none;
+  margin: 16px 0 4px;
+  transition: color 0.2s ease;
+}
+.md-link:hover {
+  color: #ffaa33;
+  text-shadow: 0 0 8px rgba(255, 136, 0, 0.3);
+}
+.md-link:hover .md-link-arrow {
+  transform: translateX(3px);
+}
+.md-link-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+/* Summary (Запускаем) */
+.md-summary {
+  padding: 20px 0 0;
+}
+.md-summary-label {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #e0e0e0;
+  margin: 0 0 8px;
+}
+.md-summary-line {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: #00ff88;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* Mobile overrides */
+@media (max-width: 768px) {
+  .md-h1 { font-size: 24px; letter-spacing: 3px; margin-bottom: 20px; }
+  .md-h2 { font-size: 17px; }
+  .md-h3 { font-size: 16px; }
+  .md-text { font-size: 14px; }
+  .md-accordion-content { padding-left: 20px; }
+  .md-accordion-header { min-height: 48px; padding: 16px 0; }
+}
