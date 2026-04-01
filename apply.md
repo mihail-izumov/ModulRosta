@@ -1,3 +1,11 @@
+---
+outline: true
+prev: false
+next: false
+pageClass: centered-page
+title: Запрос на Чекап
+---
+
 # Запрос на Чекап
 
 **Прежде чем отправить** <br>
