@@ -30,6 +30,8 @@ const isOpen = (key) => openAccordions.value.has(key)
       </div>
     </div>
 
+    <p class="md-text md-bold md-color-blue">Видим то, что не видят другие.</p>
+
     <div class="md-divider"></div>
 
     <h2 class="md-h2 md-h2-blue">2 этапа</h2>
