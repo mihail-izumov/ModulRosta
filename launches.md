@@ -1,7 +1,7 @@
 ---
 layout: page
 pageClass: fullwidth-page
-Title: Журнал запусков
+title: Журнал запусков
 ---
 
 <LaunchesPage />
