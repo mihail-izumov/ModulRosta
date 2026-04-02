@@ -380,7 +380,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-history-logo.branded::after { animation-delay: 4s; }
 .mr-history-logo.branded.soon::before, .mr-history-logo.branded.soon::after { border-color: #58a6ff; }
 .mr-history-logo.branded.grounded::before, .mr-history-logo.branded.grounded::after { border-color: #7d8590; }
-@keyframes mr-radar { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes mr-radar { 0% { transform: scale(1); opacity: 0; } 10% { transform: scale(1.05); opacity: 0.4; } 100% { transform: scale(1.6); opacity: 0; } }
 
 /* Info */
 .mr-history-info { min-width: 0; flex: 1; }
