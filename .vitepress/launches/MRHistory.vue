@@ -48,7 +48,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v8"/><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z"/><path d="M8 12h8"/></svg>
                 <div class="mr-build-info">
                   <span class="mr-build-label">СБОРКА</span>
-                  <span class="mr-build-time">{{ project.buildTime }}</span>
+                  <span class="mr-build-time">{{ project.buildTime || '--' }}</span>
                 </div>
                 <span class="mr-build-details">ДЕТАЛИ</span>
               </div>
@@ -83,7 +83,7 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v8"/><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z"/><path d="M8 12h8"/></svg>
                   <div class="mr-build-info">
                     <span class="mr-build-label">СБОРКА</span>
-                    <span class="mr-build-time">{{ project.buildTime }}</span>
+                    <span class="mr-build-time">{{ project.buildTime || '--' }}</span>
                   </div>
                   <span class="mr-build-details">ДЕТАЛИ</span>
                 </div>
@@ -295,7 +295,7 @@ const allProjects = ref<Project[]>([
   { id: 'proj23', title: 'Фитнес-экосистема', subtitle: 'FIZ Культура', specialization: 'Сеть фитнес-клубов', website: 'https://fizkultura63.ru', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'CJM', 'Лояльность', 'Продажи'], caseUrl: 'https://runscale.ru/journal/cases/delaem-fitnes-personalnym.html', moduleUrl: null, behanceUrl: null, launchDate: '12.05.2022', buildTime: '110дн', status: 'Отложен', mrBranded: false, details: 'Новый формат «сухой фитнес + SPA», сегментация, CJM, бонусная и реферальная системы, программа адаптации и ТЗ на приложение.', logo: null },
   { id: 'proj24', title: 'Платформа события', subtitle: 'World Plastics Summit 2022', specialization: 'Международный саммит', website: null, images: [{ src: '/gallery/proj24/images/wps-web.jpg' }], videos: [], tags: ['Чекап', 'Стратегия', 'Бренд', 'Веб', 'Анимация', 'Видео'], caseUrl: 'https://runscale.ru/journal/cases/kak-obedinit-nauku-iskusstvo-i-kommunikaciyu-dlya-resheniya-globalnoi-problemy.html', moduleUrl: null, behanceUrl: 'https://www.behance.net/gallery/156308617/World-Plastics-Summit-Brand-Identity-Website', launchDate: '24.03.2022', buildTime: '50дн', status: 'Запущен', mrBranded: true, details: 'Манифест саммита, логотип, айдентика, бренд-видео и сайт-сервис для участников.', logo: '/ars/id-icons/id_icon_24_03_2022.svg' },
   { id: 'proj25', title: 'Крафт-франшиза', subtitle: 'Ермолаевъ', specialization: 'Сеть магазинов пивоварни', website: 'https://ermolaev.beer/', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'Продажи', 'Торговая среда'], caseUrl: 'https://runscale.ru/journal/cases/bolshuyu-svetlyi-lager-khelles.html', moduleUrl: null, behanceUrl: null, launchDate: '27.12.2021', buildTime: '70дн', status: 'Отложен', mrBranded: false, details: 'Новый формат магазинов-баров: зонирование, пивная матрица 25–30 SKU, финмодель с рентабельностью 20%+ и окупаемостью до 1,5 лет.', logo: null },
-  { id: 'proj26', title: 'Образовательный профайл', subtitle: 'Modelex Education', specialization: 'Школа', website: 'https://modelex.mc', images: [{ src: '/gallery/proj26/images/modelex-web-cmrsd.jpg' }], videos: [], tags: ['Стратегия', 'Бренд', 'Веб'], caseUrl: null, moduleUrl: null, behanceUrl: 'https://www.behance.net/gallery/175486955/Modelex-Identity-Website', launchDate: '01.06.2021', buildTime: '90дн', status: 'Запущен', mrBranded: true, details: 'Курсы, преподаватели, расписание, отзывы и айдентика для набора учеников.', logo: '/ars/id-icons/id_icon_01_06_2021.svg' },
+  { id: 'proj26', title: 'Образовательный профайл', subtitle: 'Modelex Education', specialization: 'Школа', website: 'https://modelex.mc', images: [{ src: '/gallery/proj26/images/modelex-web.jpg' }], videos: [], tags: ['Стратегия', 'Бренд', 'Веб'], caseUrl: null, moduleUrl: null, behanceUrl: 'https://www.behance.net/gallery/175486955/Modelex-Identity-Website', launchDate: '01.06.2021', buildTime: '90дн', status: 'Запущен', mrBranded: true, details: 'Курсы, преподаватели, расписание, отзывы и айдентика для набора учеников.', logo: '/ars/id-icons/id_icon_01_06_2021.svg' },
   { id: 'proj27', title: 'Культурный профайл', subtitle: 'GALA RUSSE', specialization: 'Организация культурных событий', website: null, images: [{ src: '/gallery/proj27/images/gala-russe-main-desktop.jpg' }, { src: '/gallery/proj27/images/galarusse-web.jpg' }], videos: [], tags: ['Стратегия', 'Бренд', 'Веб', 'Видео'], caseUrl: null, moduleUrl: null, behanceUrl: 'https://www.behance.net/gallery/175498363/GALA-RUSSE-Identity-website', launchDate: '02.04.2021', buildTime: '60дн', status: 'Запущен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_02_04_2021.svg' },
   { id: 'proj28', title: 'Новый персонаж', subtitle: 'Желток Белток', specialization: 'Аксайская птицефабрика', website: null, images: [], videos: [], tags: ['Бренд', 'Упаковка'], caseUrl: null, moduleUrl: null, behanceUrl: null, launchDate: '18.11.2020', buildTime: '55дн', status: 'Запущен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_18_11_2020.svg' },
   { id: 'proj29', title: 'Сервисный профайл', subtitle: 'EASYBUSY', specialization: 'Консьерж-сервис', website: 'https://easybusy.fr/', images: [{ src: '/gallery/proj29/images/easyhome-main-desktop.jpg' }], videos: [], tags: ['Стратегия', 'Бренд', 'Веб'], caseUrl: null, moduleUrl: null, behanceUrl: 'https://behance.net/orxaos', launchDate: '21.09.2020', buildTime: '60дн', status: 'Запущен', mrBranded: true, details: 'Сайт с описанием сервисов, тарифов, кейсов и контактов для онбординга B2B-клиентов.', logo: '/ars/id-icons/id_icon_21_09_2020.svg' },
@@ -336,7 +336,7 @@ function getUptime(p: Project): string {
     const m = p.launchDate.match(/(\d{2})\.(\d{2})\.(\d{4})/)
     if (m) {
       const launch = new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]))
-      const now = new Date(2026, 2, 2)
+      const now = new Date()
       const diff = Math.max(0, Math.floor((launch.getTime() - now.getTime()) / 1000))
       const d = Math.floor(diff / 86400), h = Math.floor((diff % 86400) / 3600), min = Math.floor((diff % 3600) / 60)
       return `${d}дн:${h}ч:${min}мин`
@@ -347,7 +347,7 @@ function getUptime(p: Project): string {
   const m = p.launchDate.match(/(\d{2})\.(\d{2})\.(\d{4})/)
   if (m) {
     const launch = new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]))
-    const now = new Date(2026, 2, 2)
+    const now = new Date()
     const months = (now.getFullYear() - launch.getFullYear()) * 12 + (now.getMonth() - launch.getMonth())
     const y = Math.floor(months / 12), mo = months % 12
     const yWord = y === 1 ? 'год' : (y >= 2 && y <= 4) ? 'года' : 'лет'
