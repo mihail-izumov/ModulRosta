@@ -408,6 +408,14 @@
 /* Color utilities                                            */
 /* ═══════════════════════════════════════════════════════════ */
 .md-color-blue { color: #58a6ff; }
+.md-tagline {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: #58a6ff;
+  margin: 16px 0 0;
+  line-height: 1.5;
+}
 .md-color-green { color: #00ff88; }
 .md-color-amber { color: #ff8800; }
 .md-h1-blue { color: #58a6ff; }
