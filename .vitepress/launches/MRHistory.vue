@@ -28,7 +28,7 @@
       <div v-show="!identityMode" class="mr-history-table">
         <template v-for="(project, index) in filteredProjects" :key="project.id">
           <div v-if="index < 5" :class="['mr-history-row', { hidden: !isVisible(project) }]">
-            <div :class="['mr-history-logo', getStatusClass(project.status), { branded: project.mrBranded }]" @click="openDetails(project.id)">
+            <div :class="['mr-history-logo', getStatusClass(project.status), { branded: project.logo }]" @click="openDetails(project.id)">
               <div v-if="project.logo" class="mr-logo-mask" :style="{ '-webkit-mask-image': `url(${project.logo})`, 'mask-image': `url(${project.logo})` }"></div>
               <svg v-else xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
             </div>
@@ -63,7 +63,7 @@
         <div :class="['mr-accordion-content', { open: accordionOpen }]">
           <template v-for="project in accordionProjects" :key="project.id">
             <div :class="['mr-history-row', { hidden: !isVisible(project) }]">
-              <div :class="['mr-history-logo', getStatusClass(project.status), { branded: project.mrBranded }]" @click="openDetails(project.id)">
+              <div :class="['mr-history-logo', getStatusClass(project.status), { branded: project.logo }]" @click="openDetails(project.id)">
                 <div v-if="project.logo" class="mr-logo-mask" :style="{ '-webkit-mask-image': `url(${project.logo})`, 'mask-image': `url(${project.logo})` }"></div>
                 <svg v-else xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
               </div>
@@ -212,7 +212,6 @@ const videoEl = ref<HTMLVideoElement | null>(null)
 const expandedImageIndex = ref<number | null>(null)
 
 const allProjects = ref<Project[]>([
-  { id: 'proj0', title: 'Игровая система для кран-машин', subtitle: 'b00m.fun', specialization: 'Аркадные парки', website: 'https://b00m.fun/', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Упаковка', 'Веб', 'Анимация', 'CJM', 'Лояльность', 'Стандарты', 'Продажи', 'Торговая среда'], caseUrl: null, behanceUrl: null, launchDate: '01.05.2026', buildTime: '', status: 'Скоро запуск', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_01_03_2026.svg' },
   { id: 'proj1', title: 'Б00М! призотека', subtitle: 'b00m.fun', specialization: 'Аркадные парки', website: 'https://b00m.fun/', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Веб', 'Анимация', 'Видео', 'CJM', 'Лояльность', 'Стандарты', 'Продажи', 'Торговая среда'], caseUrl: null, behanceUrl: null, launchDate: '30.03.2026', buildTime: '57дн', status: 'Запущен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_01_03_2026.svg' },
   { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', specialization: 'Сервисные офисы', website: 'https://profitrooms.ru/', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Веб', 'Продажи'], caseUrl: 'https://runscale.ru/optima-space/invest', behanceUrl: null, launchDate: '02.03.2026', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
   { id: 'proj3', title: 'Генератор сториз', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['R&D'], caseUrl: 'https://cffx.ru/signal/korzh/gift', behanceUrl: null, launchDate: '25.12.2025', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
