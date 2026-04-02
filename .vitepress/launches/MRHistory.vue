@@ -135,7 +135,7 @@
         <!-- Expanded image overlay -->
         <div v-if="expandedImageIndex !== null" class="mr-expanded-overlay" @click.self="closeExpandedImage">
           <div class="mr-expanded-content">
-            <div class="mr-expanded-image"><span>{{ currentProject?.images[expandedImageIndex] }}</span></div>
+            <div class="mr-expanded-image"><img :src="currentProject?.images[expandedImageIndex]?.src" :alt="currentProject?.title" class="mr-expanded-img" /></div>
             <button class="mr-expanded-back" @click="closeExpandedImage">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
               Назад к галерее
@@ -152,11 +152,13 @@
         <button class="mr-modal-close mr-desktop-only" @click="closeVideosModal"></button>
         <div class="mr-video-container">
           <div class="mr-video-wrapper">
-            <div v-if="!videoLoaded" class="mr-video-poster"><span>{{ currentProject?.videos[0] }}</span></div>
+            <div v-if="!videoLoaded" class="mr-video-poster">
+              <img v-if="currentProject?.videos[0]?.poster" :src="currentProject.videos[0].poster" :alt="currentProject?.title" class="mr-video-poster-img" />
+            </div>
             <div v-if="!videoLoaded" class="mr-play-overlay" @click="initVideo"><div class="mr-play-btn"><svg width="80" height="80" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(255,85,85,0.8)"/><path d="M32 25L57 40L32 55V25Z" fill="#fff"/><circle cx="40" cy="40" r="39" stroke="#ff5555" stroke-width="2"/></svg></div></div>
-            <video v-show="videoLoaded" ref="videoEl" controls class="mr-video-el" @ended="onVideoEnded"><source src="" type="video/mp4" /></video>
+            <video v-show="videoLoaded" ref="videoEl" controls class="mr-video-el" :src="currentProject?.videos[0]?.src" :poster="currentProject?.videos[0]?.poster" @ended="onVideoEnded"></video>
           </div>
-          <div class="mr-video-title">{{ currentProject?.title }} — {{ currentProject?.videos[0] }}</div>
+          <div class="mr-video-title">{{ currentProject?.title }}</div>
         </div>
         <div class="mr-mobile-close"><button class="mr-mobile-close-btn" @click="closeVideosModal">ЗАКРЫТЬ</button></div>
       </div>
@@ -198,7 +200,8 @@
               <div class="mr-details-gallery-grid">
                 <div v-for="(vid, idx) in currentProject?.videos" :key="'v'+idx" :class="['mr-details-gallery-item', 'mr-details-gallery-video', { active: detailsVideoIdx === idx }]" @click="detailsVideoIdx = detailsVideoIdx === idx ? null : idx; detailsExpandedIdx = null">
                   <img v-if="vid.poster" :src="vid.poster" :alt="currentProject?.title" class="mr-details-gallery-thumb" />
-                  <div class="mr-details-gallery-play"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="rgba(255,85,85,0.6)"/><path d="M13 10L22 16L13 22V10Z" fill="#fff"/></svg></div>
+                  <div v-if="detailsVideoIdx !== idx" class="mr-details-gallery-play"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="rgba(255,85,85,0.6)"/><path d="M13 10L22 16L13 22V10Z" fill="#fff"/></svg></div>
+                  <span v-else class="mr-details-gallery-close-label">Закрыть</span>
                 </div>
               </div>
               <div :class="['mr-details-accordion', { open: detailsVideoIdx !== null }]">
@@ -585,6 +588,8 @@ function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedId
 .mr-details-gallery-thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
 .mr-details-gallery-item { position: relative; }
 .mr-details-gallery-item.active { border-color: #ff5555; background: rgba(255, 85, 85, 0.1); }
+.mr-details-gallery-item.active .mr-details-gallery-thumb { opacity: 0.3; }
+.mr-details-gallery-close-label { position: relative; z-index: 2; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #ff5555; text-transform: uppercase; letter-spacing: 1px; }
 .mr-details-gallery.soon .mr-details-gallery-item.active { border-color: #58a6ff; background: rgba(88, 166, 255, 0.1); }
 .mr-details-gallery.grounded .mr-details-gallery-item.active { border-color: #7d8590; background: rgba(125, 133, 144, 0.1); }
 
@@ -612,14 +617,17 @@ function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedId
 .mr-gallery-slider::-webkit-scrollbar { height: 6px; }
 .mr-gallery-slider::-webkit-scrollbar-track { background: rgba(17, 17, 17, 0.5); border-radius: 3px; }
 .mr-gallery-slider::-webkit-scrollbar-thumb { background: #ff5555; border-radius: 3px; }
-.mr-gallery-item { min-width: 400px; height: 260px; background: rgba(17, 17, 17, 0.5); border: 1px solid rgba(255, 85, 85, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.4s ease; flex-shrink: 0; }
+.mr-gallery-item { min-width: 400px; height: 260px; background: rgba(17, 17, 17, 0.5); border: 1px solid rgba(255, 85, 85, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.4s ease; flex-shrink: 0; overflow: hidden; }
 .mr-gallery-item:hover { border-color: #ff5555; box-shadow: 0 10px 30px rgba(255, 85, 85, 0.2); }
+.mr-gallery-img { width: 100%; height: 100%; object-fit: cover; }
+.mr-video-poster-img { width: 100%; height: 100%; object-fit: cover; }
 .mr-gallery-item span { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #ff5555; }
 
 /* Expanded image */
 .mr-expanded-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 1); z-index: 10010; display: flex; align-items: center; justify-content: center; }
 .mr-expanded-content { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 20px; max-width: 90vw; }
-.mr-expanded-image { width: 80vw; height: 70vh; background: rgba(17, 17, 17, 0.8); border: 2px solid #ff5555; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.mr-expanded-image { width: 80vw; height: 70vh; background: rgba(17, 17, 17, 0.8); border: 2px solid #ff5555; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.mr-expanded-img { width: 100%; height: 100%; object-fit: contain; }
 .mr-expanded-image span { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #ff5555; }
 .mr-expanded-back { display: flex; align-items: center; gap: 8px; padding: 12px 24px; background: transparent !important; border: 2px solid #ff5555 !important; color: #ff5555 !important; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 1px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-decoration: none !important; }
 .mr-expanded-back:hover { background: #ff5555 !important; color: #000 !important; }
