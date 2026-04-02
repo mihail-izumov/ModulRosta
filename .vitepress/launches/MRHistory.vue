@@ -197,9 +197,16 @@
             <div v-if="currentProject?.videos.length" class="mr-details-gallery-section">
               <div class="mr-details-gallery-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Видео</div>
               <div class="mr-details-gallery-grid">
-                <div v-for="(vid, idx) in currentProject?.videos" :key="'v'+idx" class="mr-details-gallery-item mr-details-gallery-video">
+                <div v-for="(vid, idx) in currentProject?.videos" :key="'v'+idx" :class="['mr-details-gallery-item', 'mr-details-gallery-video', { active: detailsVideoIdx === idx }]" @click="detailsVideoIdx = detailsVideoIdx === idx ? null : idx; detailsExpandedIdx = null">
                   <div class="mr-details-gallery-play"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="rgba(255,85,85,0.6)"/><path d="M13 10L22 16L13 22V10Z" fill="#fff"/></svg></div>
                   <span>{{ vid }}</span>
+                </div>
+              </div>
+              <div :class="['mr-details-accordion', { open: detailsVideoIdx !== null }]">
+                <div class="mr-details-accordion-inner">
+                  <div class="mr-details-video-player">
+                    <div class="mr-details-video-poster"><span>{{ currentProject?.videos[detailsVideoIdx ?? 0] }}</span></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -207,19 +214,13 @@
             <div v-if="currentProject?.images.length" class="mr-details-gallery-section">
               <div class="mr-details-gallery-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Изображения</div>
               <div class="mr-details-gallery-grid">
-                <div v-for="(img, idx) in currentProject?.images" :key="'i'+idx" class="mr-details-gallery-item" @click="detailsExpandedIdx = idx"><span>{{ img }}</span></div>
+                <div v-for="(img, idx) in currentProject?.images" :key="'i'+idx" :class="['mr-details-gallery-item', { active: detailsExpandedIdx === idx }]" @click="detailsExpandedIdx = detailsExpandedIdx === idx ? null : idx; detailsVideoIdx = null"><span>{{ img }}</span></div>
               </div>
-            </div>
-          </div>
-
-          <!-- Expanded image inside details -->
-          <div v-if="detailsExpandedIdx !== null" class="mr-expanded-overlay" @click.self="detailsExpandedIdx = null">
-            <div class="mr-expanded-content">
-              <div class="mr-expanded-image"><span>{{ currentProject?.images[detailsExpandedIdx] }}</span></div>
-              <button class="mr-expanded-back" @click="detailsExpandedIdx = null">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
-                Назад к деталям
-              </button>
+              <div :class="['mr-details-accordion', { open: detailsExpandedIdx !== null }]">
+                <div class="mr-details-accordion-inner">
+                  <div class="mr-details-expanded-image"><span>{{ currentProject?.images[detailsExpandedIdx ?? 0] }}</span></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -245,6 +246,7 @@ const videoLoaded = ref(false)
 const videoEl = ref<HTMLVideoElement | null>(null)
 const expandedImageIndex = ref<number | null>(null)
 const detailsExpandedIdx = ref<number | null>(null)
+const detailsVideoIdx = ref<number | null>(null)
 
 const allProjects = ref<Project[]>([
   { id: 'proj1', title: 'Б00М! призотека', subtitle: 'b00m.fun', specialization: 'Аркадные парки', website: 'https://b00m.fun/', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Веб', 'Анимация', 'Видео', 'CJM', 'Лояльность', 'Стандарты', 'Продажи', 'Торговая среда'], caseUrl: null, behanceUrl: null, launchDate: '30.03.2026', buildTime: '57дн', status: 'Запущен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_01_03_2026.svg' },
@@ -343,8 +345,8 @@ function closeVideosModal() { videosModalOpen.value = false; videoLoaded.value =
 function initVideo() { videoLoaded.value = true }
 function onVideoEnded() { videoLoaded.value = false }
 
-function openDetails(id: string) { currentProjectId.value = id; detailsExpandedIdx.value = null; detailsModalOpen.value = true; document.body.style.overflow = 'hidden' }
-function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedIdx.value = null; document.body.style.overflow = '' }
+function openDetails(id: string) { currentProjectId.value = id; detailsExpandedIdx.value = null; detailsVideoIdx.value = null; detailsModalOpen.value = true; document.body.style.overflow = 'hidden' }
+function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedIdx.value = null; detailsVideoIdx.value = null; document.body.style.overflow = '' }
 </script>
 
 <style scoped>
@@ -573,6 +575,23 @@ function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedId
 .mr-details-gallery.grounded .mr-details-gallery-item span { color: #7d8590; }
 .mr-details-gallery-video { flex-direction: column; gap: 8px; }
 .mr-details-gallery-play { pointer-events: none; }
+.mr-details-gallery-item.active { border-color: #ff5555; background: rgba(255, 85, 85, 0.1); }
+.mr-details-gallery.soon .mr-details-gallery-item.active { border-color: #58a6ff; background: rgba(88, 166, 255, 0.1); }
+.mr-details-gallery.grounded .mr-details-gallery-item.active { border-color: #7d8590; background: rgba(125, 133, 144, 0.1); }
+
+/* Details Accordion */
+.mr-details-accordion { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.mr-details-accordion.open { max-height: 600px; }
+.mr-details-accordion-inner { padding: 16px 0 8px; }
+.mr-details-expanded-image { width: 100%; aspect-ratio: 16/9; background: rgba(17, 17, 17, 0.8); border: 2px solid rgba(255, 85, 85, 0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.mr-details-expanded-image span { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #ff5555; }
+.mr-details-video-player { width: 100%; aspect-ratio: 16/9; background: rgba(17, 17, 17, 0.8); border: 2px solid rgba(255, 85, 85, 0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.mr-details-video-poster { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.mr-details-video-poster span { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #ff5555; }
+.mr-details-gallery.soon .mr-details-expanded-image, .mr-details-gallery.soon .mr-details-video-player { border-color: rgba(88, 166, 255, 0.4); }
+.mr-details-gallery.soon .mr-details-expanded-image span, .mr-details-gallery.soon .mr-details-video-poster span { color: #58a6ff; }
+.mr-details-gallery.grounded .mr-details-expanded-image, .mr-details-gallery.grounded .mr-details-video-player { border-color: rgba(125, 133, 144, 0.4); }
+.mr-details-gallery.grounded .mr-details-expanded-image span, .mr-details-gallery.grounded .mr-details-video-poster span { color: #7d8590; }
 @media (max-width: 600px) { .mr-details-gallery-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 400px) { .mr-details-gallery-grid { grid-template-columns: 1fr; } }
 
