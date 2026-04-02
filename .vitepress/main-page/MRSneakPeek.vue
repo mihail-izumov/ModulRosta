@@ -87,10 +87,10 @@ interface Project {
 }
 
 const allProjects = ref<Project[]>([
-  { id: 'proj1', title: 'Игровая призотека', subtitle: 'b00m.fun', status: 'Запущен', launchDate: '31.03.2026', buildTime: '45дн', mrBranded: true, icon: 'https://runscale.ru/icons/boombastic_icon.svg' },
+  { id: 'proj1', title: 'Б00М! Призотека', subtitle: 'b00m.fun', status: 'Запущен', launchDate: '31.03.2026', buildTime: '45дн', mrBranded: true, icon: '/ars/id-icons/id_icon_01_03_2026.svg' },
   { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', status: 'Запущен', launchDate: '02.03.2026', buildTime: '10дн', mrBranded: false, icon: 'https://runscale.ru/icons/optima_space_icon.svg' },
   { id: 'proj3', title: 'Генератор сториз', subtitle: 'Корж', status: 'Запущен', launchDate: '25.12.2025', buildTime: '10дн', mrBranded: false, icon: null },
-  { id: 'proj4', title: 'Игровая система для кран-машин', subtitle: 'b00m.fun', status: 'Скоро запуск', launchDate: '01.05.2026', buildTime: '30дн', mrBranded: true, icon: 'https://runscale.ru/icons/boombastic_icon.svg' },
+  { id: 'proj4', title: 'Игровая система для кран-машин', subtitle: 'b00m.fun', status: 'Скоро запуск', launchDate: '01.05.2026', buildTime: '30дн', mrBranded: true, icon: '/ars/id-icons/id_icon_01_03_2026.svg' },
 ])
 
 const isHovered = ref(false)
