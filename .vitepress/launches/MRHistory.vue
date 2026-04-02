@@ -164,10 +164,8 @@
 
     <!-- Details Modal -->
     <Teleport to="body">
-      <div v-if="detailsModalOpen" class="mr-modal-overlay" @click.self="closeDetailsModal">
-        <div class="mr-modal-close-sticky mr-desktop-only">
-          <button :class="['mr-modal-close', currentProjectStatusClass]" @click="closeDetailsModal"></button>
-        </div>
+      <div v-if="detailsModalOpen" class="mr-modal-overlay mr-details-overlay" @click.self="closeDetailsModal">
+        <button :class="['mr-modal-close', 'mr-desktop-only', currentProjectStatusClass]" @click="closeDetailsModal"></button>
         <div class="mr-modal-content">
           <div class="mr-modal-header"><span :class="['mr-modal-title', currentProjectStatusClass]">{{ currentProject?.title }}</span></div>
           <div :class="['mr-details-meta', currentProjectStatusClass]">
@@ -193,7 +191,6 @@
 
           <!-- Inline Gallery -->
           <div v-if="currentProject?.videos.length || currentProject?.images.length" :class="['mr-details-gallery', currentProjectStatusClass]">
-            <div class="mr-details-gallery-divider"></div>
             <div class="mr-details-gallery-title">Галерея</div>
 
             <div v-if="currentProject?.videos.length" class="mr-details-gallery-section">
@@ -522,8 +519,8 @@ function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedId
 /* Modals */
 .mr-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(10px); z-index: 10000; display: flex; align-items: flex-start; justify-content: center; padding: 40px; padding-bottom: 100px; overflow-y: auto; }
 .mr-modal-close { position: fixed; top: 30px; right: 30px; width: 70px; height: 70px; background: transparent !important; border: 2px solid #ff5555 !important; color: #ff5555 !important; cursor: pointer; border-radius: 14px; transition: all 0.3s ease; z-index: 10001; }
-.mr-modal-close-sticky { position: sticky; top: 20px; height: 0; z-index: 10001; display: flex; justify-content: flex-end; }
-.mr-modal-close-sticky .mr-modal-close { position: relative; top: auto; right: auto; }
+.mr-details-overlay { backdrop-filter: none; -webkit-backdrop-filter: none; }
+.mr-details-overlay::before { content: ''; position: fixed; inset: 0; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: -1; }
 .mr-modal-close::before, .mr-modal-close::after { content: ''; position: absolute; top: 50%; left: 50%; width: 36px; height: 2px; background: currentColor; }
 .mr-modal-close::before { transform: translate(-50%, -50%) rotate(45deg); }
 .mr-modal-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
@@ -561,9 +558,8 @@ function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedId
 }
 
 /* Details Inline Gallery */
-.mr-details-gallery { margin-top: 8px; }
-.mr-details-gallery-divider { height: 1px; background: #222; margin-bottom: 24px; }
-.mr-details-gallery-title { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
+.mr-details-gallery { margin-top: 40px; }
+.mr-details-gallery-title { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #ff5555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
 .mr-details-gallery-section { margin-bottom: 24px; }
 .mr-details-gallery-section:last-child { margin-bottom: 0; }
 .mr-details-gallery-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #ff5555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
