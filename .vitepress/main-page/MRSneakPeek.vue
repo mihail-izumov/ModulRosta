@@ -243,8 +243,8 @@ function goToLaunches() {
   position: relative;
 }
 .mr-sneak-icon-img {
-  width: 28px;
-  height: 28px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 .mr-sneak-icon-green {
@@ -414,8 +414,8 @@ function goToLaunches() {
     height: 20px;
   }
   .mr-sneak-icon-img {
-    width: 24px;
-    height: 24px;
+    width: 100%;
+    height: 100%;
   }
   .mr-sneak-title {
     font-size: 12px;
