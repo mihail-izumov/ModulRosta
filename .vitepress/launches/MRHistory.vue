@@ -340,7 +340,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-identity-btn:hover, .mr-identity-btn.active { background: #fff !important; color: #ff5555 !important; box-shadow: 0 0 30px rgba(255, 85, 85, 0.6); }
 .mr-identity-btn::before, .mr-identity-btn::after { display: none !important; content: none !important; }
 .mr-identity-btn svg { flex-shrink: 0; }
-.mr-identity-btn-icon { width: 18px; height: 18px; flex-shrink: 0; background-color: currentColor; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
+.mr-identity-btn-icon { width: 24px; height: 24px; flex-shrink: 0; background-color: currentColor; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
 
 @media (max-width: 900px) {
   .mr-history-filters { flex-direction: column; align-items: stretch; }
@@ -444,13 +444,12 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-identity-section { display: flex; flex-direction: column; gap: 32px; }
 
 /* Glass Banner */
-.mr-glass-banner { position: relative; border-radius: 16px; padding: 2px; overflow: hidden; background: linear-gradient(135deg, rgba(255, 85, 85, 0.4), rgba(255, 85, 85, 0.05) 40%, rgba(255, 85, 85, 0.05) 60%, rgba(255, 85, 85, 0.4)); animation: mr-glass-border 6s ease-in-out infinite; }
-@keyframes mr-glass-border { 0%, 100% { background: linear-gradient(135deg, rgba(255, 85, 85, 0.5), rgba(255, 85, 85, 0.05) 40%, rgba(255, 85, 85, 0.05) 60%, rgba(255, 85, 85, 0.4)); } 25% { background: linear-gradient(225deg, rgba(255, 85, 85, 0.5), rgba(255, 85, 85, 0.05) 40%, rgba(255, 85, 85, 0.05) 60%, rgba(255, 85, 85, 0.4)); } 50% { background: linear-gradient(315deg, rgba(255, 85, 85, 0.5), rgba(255, 85, 85, 0.05) 40%, rgba(255, 85, 85, 0.05) 60%, rgba(255, 85, 85, 0.4)); } 75% { background: linear-gradient(45deg, rgba(255, 85, 85, 0.5), rgba(255, 85, 85, 0.05) 40%, rgba(255, 85, 85, 0.05) 60%, rgba(255, 85, 85, 0.4)); } }
-.mr-glass-glow { position: absolute; inset: -1px; border-radius: 17px; background: conic-gradient(from 0deg, transparent, rgba(255, 85, 85, 0.6), transparent, rgba(255, 85, 85, 0.3), transparent); animation: mr-glow-spin 8s linear infinite; filter: blur(8px); z-index: 0; pointer-events: none; }
-@keyframes mr-glow-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.mr-glass-banner { position: relative; border-radius: 16px; padding: 2px; overflow: hidden; background: rgba(255, 85, 85, 0.15); }
+.mr-glass-glow { position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; transform-origin: center center; background: conic-gradient(from 0deg, transparent 0%, rgba(255, 85, 85, 0.6) 10%, transparent 20%, transparent 45%, rgba(255, 85, 85, 0.35) 55%, transparent 65%, transparent 100%); animation: mr-glow-spin 6s linear infinite; z-index: 0; pointer-events: none; }
+@keyframes mr-glow-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
 .mr-glass-content { position: relative; z-index: 1; background: rgba(17, 17, 17, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 14px; padding: 40px 48px; }
 .mr-glass-title { font-size: clamp(20px, 3vw, 26px); font-weight: 600; color: #fff; margin: 0 0 16px; line-height: 1.3; }
-.mr-glass-text { font-size: 15px; line-height: 1.7; color: rgba(255, 255, 255, 0.6); margin: 0 0 28px; max-width: 640px; }
+.mr-glass-text { font-size: 15px; line-height: 1.7; color: rgba(255, 85, 85, 0.7); margin: 0 0 28px; max-width: 640px; }
 .mr-glass-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; background: #ff5555 !important; border: none !important; border-radius: 10px; color: #000 !important; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; text-decoration: none !important; box-shadow: 0 4px 20px rgba(255, 85, 85, 0.4); }
 .mr-glass-btn:hover { background: #fff !important; color: #ff5555 !important; box-shadow: 0 0 40px rgba(255, 85, 85, 0.6); transform: translateY(-2px); }
 .mr-glass-btn::before, .mr-glass-btn::after { display: none !important; content: none !important; }
