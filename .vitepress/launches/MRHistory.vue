@@ -121,7 +121,7 @@
 
     <!-- Images Modal -->
     <Teleport to="body">
-      <div v-if="imagesModalOpen" class="mr-modal-overlay" @click.self="closeImagesModal">
+      <div v-if="imagesModalOpen" class="mr-modal-overlay mr-details-overlay" @click.self="closeImagesModal">
         <button class="mr-modal-close mr-desktop-only" @click="closeImagesModal"></button>
         <div class="mr-modal-content mr-gallery-modal">
           <div class="mr-modal-header"><span class="mr-modal-title">{{ currentProject?.title }}</span></div>
@@ -154,7 +154,7 @@
 
     <!-- Videos Modal -->
     <Teleport to="body">
-      <div v-if="videosModalOpen" class="mr-modal-overlay" @click.self="closeVideosModal">
+      <div v-if="videosModalOpen" class="mr-modal-overlay mr-details-overlay" @click.self="closeVideosModal">
         <button class="mr-modal-close mr-desktop-only" @click="closeVideosModal"></button>
         <div class="mr-modal-content">
           <div class="mr-modal-header"><span class="mr-modal-title">{{ currentProject?.title }}</span></div>
