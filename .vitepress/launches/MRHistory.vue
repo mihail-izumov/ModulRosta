@@ -19,8 +19,8 @@
         <button :class="['mr-filter-btn', { active: activeFilter === 'orbit' }]" @click="filterStatus('orbit')"><span class="mr-dot green"></span>Запущен <span class="mr-count">({{ countByStatus('Запущен') }})</span></button>
         <button :class="['mr-filter-btn', { active: activeFilter === 'grounded' }]" @click="filterStatus('grounded')"><span class="mr-dot gray"></span>Отложен <span class="mr-count">({{ countByStatus('Отложен') }})</span></button>
         <button :class="['mr-identity-btn', { active: identityMode }]" @click="toggleIdentityMode">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="1"/><path d="M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0"/></svg>
-          Бренды
+          <span class="mr-identity-btn-icon" style="-webkit-mask-image: url(/icons/orxaos-icon.svg); mask-image: url(/icons/orxaos-icon.svg);"></span>
+          ORXAOS
         </button>
       </div>
       
@@ -93,15 +93,28 @@
         </div>
       </div>
 
-      <!-- Identity Grid -->
-      <div v-show="identityMode" class="mr-identity-grid">
-        <div v-for="project in mrBrandedProjects" :key="project.id" class="mr-identity-card" @click="openDetails(project.id)">
-          <div class="mr-identity-logo">
-            <div v-if="project.logo" class="mr-identity-logo-mask" :style="{ '-webkit-mask-image': `url(${project.logo})`, 'mask-image': `url(${project.logo})` }"></div>
-            <svg v-else xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+      <!-- Identity Section -->
+      <div v-show="identityMode" class="mr-identity-section">
+        <!-- Glass Banner -->
+        <div class="mr-glass-banner">
+          <div class="mr-glass-glow"></div>
+          <div class="mr-glass-content">
+            <h3 class="mr-glass-title">ДНК бренда в сайте, вывеске и интерьере.</h3>
+            <p class="mr-glass-text">Меняет не просто восприятие, а саму реальность вашего бизнеса. Помогает притянуть нужных людей и воплотить смелые идеи.</p>
+            <a href="https://orxaos.sbs/ars/" target="_blank" class="mr-glass-btn">Дьявол в деталях</a>
           </div>
-          <div class="mr-identity-name">{{ project.subtitle }}</div>
-          <div class="mr-identity-date">{{ project.launchDate }}</div>
+        </div>
+
+        <!-- Identity Grid -->
+        <div class="mr-identity-grid">
+          <div v-for="project in mrBrandedProjects" :key="project.id" class="mr-identity-card" @click="openDetails(project.id)">
+            <div class="mr-identity-logo">
+              <div v-if="project.logo" class="mr-identity-logo-mask" :style="{ '-webkit-mask-image': `url(${project.logo})`, 'mask-image': `url(${project.logo})` }"></div>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+            </div>
+            <div class="mr-identity-name">{{ project.subtitle }}</div>
+            <div class="mr-identity-date">{{ project.launchDate }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -327,6 +340,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-identity-btn:hover, .mr-identity-btn.active { background: #fff !important; color: #ff5555 !important; box-shadow: 0 0 30px rgba(255, 85, 85, 0.6); }
 .mr-identity-btn::before, .mr-identity-btn::after { display: none !important; content: none !important; }
 .mr-identity-btn svg { flex-shrink: 0; }
+.mr-identity-btn-icon { width: 18px; height: 18px; flex-shrink: 0; background-color: currentColor; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
 
 @media (max-width: 900px) {
   .mr-history-filters { flex-direction: column; align-items: stretch; }
@@ -425,6 +439,27 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-accordion-toggle.open .mr-arrow { transform: rotate(180deg); }
 .mr-accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; }
 .mr-accordion-content.open { max-height: 10000px; }
+
+/* Identity Section */
+.mr-identity-section { display: flex; flex-direction: column; gap: 32px; }
+
+/* Glass Banner */
+.mr-glass-banner { position: relative; border-radius: 16px; padding: 2px; overflow: hidden; background: linear-gradient(135deg, rgba(255, 85, 85, 0.4), rgba(255, 85, 85, 0.05) 40%, rgba(255, 85, 85, 0.05) 60%, rgba(255, 85, 85, 0.4)); animation: mr-glass-border 6s ease-in-out infinite; }
+@keyframes mr-glass-border { 0%, 100% { background: linear-gradient(135deg, rgba(255, 85, 85, 0.5), rgba(255, 85, 85, 0.05) 40%, rgba(255, 85, 85, 0.05) 60%, rgba(255, 85, 85, 0.4)); } 25% { background: linear-gradient(225deg, rgba(255, 85, 85, 0.5), rgba(255, 85, 85, 0.05) 40%, rgba(255, 85, 85, 0.05) 60%, rgba(255, 85, 85, 0.4)); } 50% { background: linear-gradient(315deg, rgba(255, 85, 85, 0.5), rgba(255, 85, 85, 0.05) 40%, rgba(255, 85, 85, 0.05) 60%, rgba(255, 85, 85, 0.4)); } 75% { background: linear-gradient(45deg, rgba(255, 85, 85, 0.5), rgba(255, 85, 85, 0.05) 40%, rgba(255, 85, 85, 0.05) 60%, rgba(255, 85, 85, 0.4)); } }
+.mr-glass-glow { position: absolute; inset: -1px; border-radius: 17px; background: conic-gradient(from 0deg, transparent, rgba(255, 85, 85, 0.6), transparent, rgba(255, 85, 85, 0.3), transparent); animation: mr-glow-spin 8s linear infinite; filter: blur(8px); z-index: 0; pointer-events: none; }
+@keyframes mr-glow-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.mr-glass-content { position: relative; z-index: 1; background: rgba(17, 17, 17, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 14px; padding: 40px 48px; }
+.mr-glass-title { font-size: clamp(20px, 3vw, 26px); font-weight: 600; color: #fff; margin: 0 0 16px; line-height: 1.3; }
+.mr-glass-text { font-size: 15px; line-height: 1.7; color: rgba(255, 255, 255, 0.6); margin: 0 0 28px; max-width: 640px; }
+.mr-glass-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; background: #ff5555 !important; border: none !important; border-radius: 10px; color: #000 !important; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; text-decoration: none !important; box-shadow: 0 4px 20px rgba(255, 85, 85, 0.4); }
+.mr-glass-btn:hover { background: #fff !important; color: #ff5555 !important; box-shadow: 0 0 40px rgba(255, 85, 85, 0.6); transform: translateY(-2px); }
+.mr-glass-btn::before, .mr-glass-btn::after { display: none !important; content: none !important; }
+
+@media (max-width: 600px) {
+  .mr-glass-content { padding: 28px 24px; }
+  .mr-glass-text { font-size: 14px; }
+  .mr-glass-btn { width: 100%; justify-content: center; }
+}
 
 /* Identity Grid */
 .mr-identity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
