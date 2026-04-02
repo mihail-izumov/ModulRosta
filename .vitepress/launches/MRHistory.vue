@@ -366,7 +366,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 }
 
 /* Logo */
-.mr-history-logo { width: 64px; height: 64px; border: 2px solid #222; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; position: relative; cursor: pointer; overflow: hidden; color: rgb(0, 255, 136); }
+.mr-history-logo { width: 64px; height: 64px; border: 2px solid #222; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; position: relative; cursor: pointer; color: rgb(0, 255, 136); }
 .mr-history-logo svg { color: rgb(0, 255, 136); }
 .mr-logo-mask { width: 100%; height: 100%; background-color: currentColor; -webkit-mask-size: 80%; mask-size: 80%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
 .mr-history-row:hover .mr-history-logo { border-color: rgb(0, 255, 136); box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
