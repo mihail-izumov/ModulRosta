@@ -128,7 +128,7 @@
           <div class="mr-gallery-section">
             <div class="mr-gallery-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Изображения</div>
             <div class="mr-gallery-slider">
-              <div v-for="(img, idx) in currentProject?.images" :key="idx" class="mr-gallery-item" @click="expandImage(idx)"><span>{{ img }}</span></div>
+              <div v-for="(img, idx) in currentProject?.images" :key="idx" class="mr-gallery-item" @click="expandImage(idx)"><img :src="img.src" :alt="currentProject?.title" class="mr-gallery-img" /></div>
             </div>
           </div>
         </div>
@@ -197,17 +197,14 @@
               <div class="mr-details-gallery-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Видео</div>
               <div class="mr-details-gallery-grid">
                 <div v-for="(vid, idx) in currentProject?.videos" :key="'v'+idx" :class="['mr-details-gallery-item', 'mr-details-gallery-video', { active: detailsVideoIdx === idx }]" @click="detailsVideoIdx = detailsVideoIdx === idx ? null : idx; detailsExpandedIdx = null">
+                  <img v-if="vid.poster" :src="vid.poster" :alt="currentProject?.title" class="mr-details-gallery-thumb" />
                   <div class="mr-details-gallery-play"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="rgba(255,85,85,0.6)"/><path d="M13 10L22 16L13 22V10Z" fill="#fff"/></svg></div>
-                  <span>{{ vid }}</span>
                 </div>
               </div>
               <div :class="['mr-details-accordion', { open: detailsVideoIdx !== null }]">
                 <div class="mr-details-accordion-inner">
                   <div class="mr-details-video-player">
-                    <div class="mr-details-video-poster"><span>{{ currentProject?.videos[detailsVideoIdx ?? 0] }}</span></div>
-                    <div class="mr-details-video-play-overlay">
-                      <svg width="64" height="64" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(255,85,85,0.8)"/><path d="M32 25L57 40L32 55V25Z" fill="#fff"/><circle cx="40" cy="40" r="39" stroke="#ff5555" stroke-width="2"/></svg>
-                    </div>
+                    <video v-if="detailsVideoIdx !== null" :key="detailsVideoIdx" :src="currentProject?.videos[detailsVideoIdx]?.src" :poster="currentProject?.videos[detailsVideoIdx]?.poster" controls playsinline class="mr-details-video-el"></video>
                   </div>
                 </div>
               </div>
@@ -216,11 +213,15 @@
             <div v-if="currentProject?.images.length" class="mr-details-gallery-section">
               <div class="mr-details-gallery-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Изображения</div>
               <div class="mr-details-gallery-grid">
-                <div v-for="(img, idx) in currentProject?.images" :key="'i'+idx" :class="['mr-details-gallery-item', { active: detailsExpandedIdx === idx }]" @click="detailsExpandedIdx = detailsExpandedIdx === idx ? null : idx; detailsVideoIdx = null"><span>{{ img }}</span></div>
+                <div v-for="(img, idx) in currentProject?.images" :key="'i'+idx" :class="['mr-details-gallery-item', { active: detailsExpandedIdx === idx }]" @click="detailsExpandedIdx = detailsExpandedIdx === idx ? null : idx; detailsVideoIdx = null">
+                  <img :src="img.src" :alt="currentProject?.title" class="mr-details-gallery-thumb" />
+                </div>
               </div>
               <div :class="['mr-details-accordion', { open: detailsExpandedIdx !== null }]">
                 <div class="mr-details-accordion-inner">
-                  <div class="mr-details-expanded-image"><span>{{ currentProject?.images[detailsExpandedIdx ?? 0] }}</span></div>
+                  <div class="mr-details-expanded-image">
+                    <img v-if="detailsExpandedIdx !== null" :key="detailsExpandedIdx" :src="currentProject?.images[detailsExpandedIdx]?.src" :alt="currentProject?.title" class="mr-details-expanded-img" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -235,7 +236,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-interface Project { id: string; title: string; subtitle: string; specialization: string; website: string | null; images: string[]; videos: string[]; tags: string[]; caseUrl: string | null; behanceUrl: string | null; launchDate: string; buildTime: string; status: string; mrBranded: boolean; details: string; logo: string | null }
+interface MediaImage { src: string }
+interface MediaVideo { src: string; poster: string }
+interface Project { id: string; title: string; subtitle: string; specialization: string; website: string | null; images: MediaImage[]; videos: MediaVideo[]; tags: string[]; caseUrl: string | null; behanceUrl: string | null; launchDate: string; buildTime: string; status: string; mrBranded: boolean; details: string; logo: string | null }
 
 const activeFilter = ref('all')
 const identityMode = ref(false)
@@ -251,16 +254,16 @@ const detailsExpandedIdx = ref<number | null>(null)
 const detailsVideoIdx = ref<number | null>(null)
 
 const allProjects = ref<Project[]>([
-  { id: 'proj1', title: 'Б00М! призотека', subtitle: 'b00m.fun', specialization: 'Аркадные парки', website: 'https://b00m.fun/', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Веб', 'Анимация', 'Видео', 'CJM', 'Лояльность', 'Стандарты', 'Продажи', 'Торговая среда'], caseUrl: null, behanceUrl: null, launchDate: '30.03.2026', buildTime: '57дн', status: 'Запущен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_01_03_2026.svg' },
-  { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', specialization: 'Сервисные офисы', website: 'https://profitrooms.ru/', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Веб', 'Продажи'], caseUrl: 'https://runscale.ru/optima-space/invest', behanceUrl: null, launchDate: '02.03.2026', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
-  { id: 'proj3', title: 'Генератор сториз', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['R&D'], caseUrl: 'https://cffx.ru/signal/korzh/gift', behanceUrl: null, launchDate: '25.12.2025', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
-  { id: 'proj4', title: 'Калькулятор инвестора', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['R&D'], caseUrl: 'https://cffx.ru/signal/korzh/invest.html', behanceUrl: null, launchDate: '15.12.2025', buildTime: '5дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
-  { id: 'proj5', title: 'Конструктор Сигнала', subtitle: 'Сигнал', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru/pro/reserve.html', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['R&D'], caseUrl: null, behanceUrl: null, launchDate: '15.11.2025', buildTime: '5дн', status: 'Запущен', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
-  { id: 'proj6', title: 'LTV Калькулятор', subtitle: 'Сигнал', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru/pro/ltvcalc.html', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['R&D'], caseUrl: null, behanceUrl: null, launchDate: '10.11.2025', buildTime: '5дн', status: 'Запущен', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
-  { id: 'proj7', title: 'Диалоги Сигнала', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['ИИ', 'Чекап', 'R&D', 'Автоматизация', 'Веб', 'Видео'], caseUrl: 'https://cffx.ru/korzh.html', behanceUrl: null, launchDate: '15.10.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
-  { id: 'proj8', title: 'ИИ-ассистент Анна', subtitle: 'Сигнал', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru/pro/anna.html', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['ИИ', 'R&D'], caseUrl: null, behanceUrl: null, launchDate: '26.09.2025', buildTime: '25дн', status: 'Запущен', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
-  { id: 'proj9', title: 'Индекс Роста', subtitle: 'Сигнал – Кофейни', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru/invest/smr.html', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['R&D'], caseUrl: null, behanceUrl: null, launchDate: '31.08.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
-  { id: 'proj10', title: 'Тикет-система', subtitle: 'Сигнал', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru', images: ['Главная', 'Функционал', 'Детали'], videos: ['Обзор'], tags: ['ИИ', 'Чекап', 'Автоматизация', 'Бренд', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '30.08.2025', buildTime: '60дн', status: 'Запущен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
+  { id: 'proj1', title: 'Б00М! призотека', subtitle: 'b00m.fun', specialization: 'Аркадные парки', website: 'https://b00m.fun/', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Веб', 'Анимация', 'Видео', 'CJM', 'Лояльность', 'Стандарты', 'Продажи', 'Торговая среда'], caseUrl: null, behanceUrl: null, launchDate: '30.03.2026', buildTime: '57дн', status: 'Запущен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_01_03_2026.svg' },
+  { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', specialization: 'Сервисные офисы', website: 'https://profitrooms.ru/', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Веб', 'Продажи'], caseUrl: 'https://runscale.ru/optima-space/invest', behanceUrl: null, launchDate: '02.03.2026', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
+  { id: 'proj3', title: 'Генератор сториз', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', images: [], videos: [], tags: ['R&D'], caseUrl: 'https://cffx.ru/signal/korzh/gift', behanceUrl: null, launchDate: '25.12.2025', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
+  { id: 'proj4', title: 'Калькулятор инвестора', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', images: [], videos: [], tags: ['R&D'], caseUrl: 'https://cffx.ru/signal/korzh/invest.html', behanceUrl: null, launchDate: '15.12.2025', buildTime: '5дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
+  { id: 'proj5', title: 'Конструктор Сигнала', subtitle: 'Сигнал', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru/pro/reserve.html', images: [], videos: [], tags: ['R&D'], caseUrl: null, behanceUrl: null, launchDate: '15.11.2025', buildTime: '5дн', status: 'Запущен', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
+  { id: 'proj6', title: 'LTV Калькулятор', subtitle: 'Сигнал', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru/pro/ltvcalc.html', images: [], videos: [], tags: ['R&D'], caseUrl: null, behanceUrl: null, launchDate: '10.11.2025', buildTime: '5дн', status: 'Запущен', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
+  { id: 'proj7', title: 'Диалоги Сигнала', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', images: [], videos: [], tags: ['ИИ', 'Чекап', 'R&D', 'Автоматизация', 'Веб', 'Видео'], caseUrl: 'https://cffx.ru/korzh.html', behanceUrl: null, launchDate: '15.10.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
+  { id: 'proj8', title: 'ИИ-ассистент Анна', subtitle: 'Сигнал', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru/pro/anna.html', images: [], videos: [], tags: ['ИИ', 'R&D'], caseUrl: null, behanceUrl: null, launchDate: '26.09.2025', buildTime: '25дн', status: 'Запущен', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
+  { id: 'proj9', title: 'Индекс Роста', subtitle: 'Сигнал – Кофейни', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru/invest/smr.html', images: [], videos: [], tags: ['R&D'], caseUrl: null, behanceUrl: null, launchDate: '31.08.2025', buildTime: '30дн', status: 'Запущен', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
+  { id: 'proj10', title: 'Тикет-система', subtitle: 'Сигнал', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru', images: [], videos: [], tags: ['ИИ', 'Чекап', 'Автоматизация', 'Бренд', 'Веб'], caseUrl: null, behanceUrl: null, launchDate: '30.08.2025', buildTime: '60дн', status: 'Запущен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
   { id: 'proj11', title: 'Прогноз выручки', subtitle: 'Сигнал – Кофейни', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru/invest/calc.html', images: [], videos: [], tags: ['R&D'], caseUrl: null, behanceUrl: null, launchDate: '06.08.2025', buildTime: '5дн', status: 'Запущен', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
   { id: 'proj12', title: 'Симулятор Самары', subtitle: 'Сигнал – Кофейни', specialization: 'Система обратной связи высокого качества', website: 'https://cffx.ru/invest/sim.html', images: [], videos: [], tags: ['R&D'], caseUrl: null, behanceUrl: null, launchDate: '30.07.2025', buildTime: '15дн', status: 'Запущен', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_30_08_2025.svg' },
   { id: 'proj13', title: 'БАД', subtitle: 'Bengal Boost', specialization: 'Корма для диких кошек', website: null, images: [], videos: [], tags: ['Чекап', 'Бренд', 'Упаковка'], caseUrl: null, behanceUrl: null, launchDate: '20.06.2025', buildTime: '15дн', status: 'Отложен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_20_06_2025.svg' },
@@ -271,7 +274,7 @@ const allProjects = ref<Project[]>([
   { id: 'proj18', title: 'Автопилот продаж', subtitle: 'Конкордия-Авто', specialization: 'Импорт автомобилей', website: 'https://konkordia-auto.ru', images: [], videos: [], tags: ['ИИ', 'Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Стандарты', 'Продажи'], caseUrl: 'https://runscale.ru/journal/cases/kak-modul-rosta-avtomatiziroval-prodazhi-dlya-konkordiya-avto.html', behanceUrl: null, launchDate: '31.03.2024', buildTime: '30дн', status: 'Отложен', mrBranded: false, details: 'CRM-воронка с автозадачами, DISC-типирование, скрипты и регламенты по типам клиентов, аналитика сделок и автоматизированные отчёты.', logo: null },
   { id: 'proj19', title: 'Конструктор туров', subtitle: 'Август Глэмпинг', specialization: 'Глэмпинг', website: 'https://augustglamping.ru', images: [], videos: [], tags: ['Чекап', 'R&D', 'Автоматизация', 'Бренд', 'Веб', 'Продажи'], caseUrl: null, behanceUrl: null, launchDate: '30.09.2023', buildTime: '60дн', status: 'Отложен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_30_09_2023.svg' },
   { id: 'proj20', title: 'Архитектурное портфолио', subtitle: 'Tanurkova Arch Design', specialization: 'Архитектурное бюро', website: null, images: [], videos: [], tags: ['Бренд', 'Веб', 'Анимация', 'Видео'], caseUrl: null, behanceUrl: 'https://www.behance.net/gallery/175565499/Tanurkova-Arch-Design-Identity-Website', launchDate: '09.09.2023', buildTime: '70дн', status: 'Отложен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_09_09_2023.svg' },
-  { id: 'proj21', title: 'Цифровое наследие', subtitle: 'Фонд Хворостовского', specialization: 'Благотворительный фонд', website: 'https://hvorostovsky.com', images: [], videos: [], tags: ['Автоматизация', 'Бренд', 'Веб', 'Видео'], caseUrl: 'https://runscale.ru/journal/cases/kak-my-prevratili-nasledie-khvorostovskogo-v-instrument-dlya-pomoshi-detyam.html', behanceUrl: 'https://www.behance.net/gallery/175592297/sajt-fonda-hvorostovskogo', launchDate: '27.06.2023', buildTime: '40дн', status: 'Запущен', mrBranded: true, details: 'Новый сайт с базой событий и историй детей, «Линией времени», медиатекой и приёмом пожертвований через RoboKassa.', logo: '/ars/id-icons/id_icon_27_06_2023.svg' },
+  { id: 'proj21', title: 'Цифровое наследие', subtitle: 'Фонд Хворостовского', specialization: 'Благотворительный фонд', website: 'https://hvorostovsky.com', images: [{ src: '/gallery/proj21/images/dhf_main_desktop.jpg' }], videos: [{ src: '/gallery/proj21/videos/intro_hvorostovsky_foundation.mp4', poster: '/gallery/proj21/videos/intro_hvorostovsky_foundation.jpg' }], tags: ['Автоматизация', 'Бренд', 'Веб', 'Видео'], caseUrl: 'https://runscale.ru/journal/cases/kak-my-prevratili-nasledie-khvorostovskogo-v-instrument-dlya-pomoshi-detyam.html', behanceUrl: 'https://www.behance.net/gallery/175592297/sajt-fonda-hvorostovskogo', launchDate: '27.06.2023', buildTime: '40дн', status: 'Запущен', mrBranded: true, details: 'Новый сайт с базой событий и историй детей, «Линией времени», медиатекой и приёмом пожертвований через RoboKassa.', logo: '/ars/id-icons/id_icon_27_06_2023.svg' },
   { id: 'proj22', title: 'Бассейн мечты', subtitle: 'Блумкидс', specialization: 'Детский бассейн', website: null, images: [], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Веб', 'Анимация', 'Видео', 'CJM', 'Лояльность', 'Продажи', 'Торговая среда'], caseUrl: 'https://runscale.ru/journal/cases/sozdayom-bassein-mechty.html', behanceUrl: 'https://www.behance.net/gallery/175530883/blumkids-ajdentika-i-veb-sajt', launchDate: '10.12.2022', buildTime: '235дн', status: 'Отложен', mrBranded: true, details: 'Воронка продаж абонементов, матрица программ, система лояльности, регламенты персонала и сайт для записи и коммуникаций.', logo: '/ars/id-icons/id_icon_10_12_2022.svg' },
   { id: 'proj23', title: 'Фитнес-экосистема', subtitle: 'FIZ Культура', specialization: 'Сеть фитнес-клубов', website: 'https://fizkultura63.ru', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'CJM', 'Лояльность', 'Продажи'], caseUrl: 'https://runscale.ru/journal/cases/delaem-fitnes-personalnym.html', behanceUrl: null, launchDate: '12.05.2022', buildTime: '110дн', status: 'Отложен', mrBranded: false, details: 'Новый формат «сухой фитнес + SPA», сегментация, CJM, бонусная и реферальная системы, программа адаптации и ТЗ на приложение.', logo: null },
   { id: 'proj24', title: 'Платформа события', subtitle: 'World Plastics Summit 2022', specialization: 'Международный саммит', website: null, images: [], videos: [], tags: ['Чекап', 'Стратегия', 'Бренд', 'Веб', 'Анимация', 'Видео'], caseUrl: 'https://runscale.ru/journal/cases/kak-obedinit-nauku-iskusstvo-i-kommunikaciyu-dlya-resheniya-globalnoi-problemy.html', behanceUrl: 'https://www.behance.net/gallery/156308617/World-Plastics-Summit-Brand-Identity-Website', launchDate: '24.03.2022', buildTime: '50дн', status: 'Запущен', mrBranded: true, details: 'Манифест саммита, логотип, айдентика, бренд-видео и сайт-сервис для участников.', logo: '/ars/id-icons/id_icon_24_03_2022.svg' },
@@ -578,7 +581,9 @@ function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedId
 .mr-details-gallery.grounded .mr-details-gallery-item:hover { border-color: #7d8590; box-shadow: 0 6px 20px rgba(125, 133, 144, 0.2); }
 .mr-details-gallery.grounded .mr-details-gallery-item span { color: #7d8590; }
 .mr-details-gallery-video { flex-direction: column; gap: 8px; }
-.mr-details-gallery-play { pointer-events: none; }
+.mr-details-gallery-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 2; pointer-events: none; }
+.mr-details-gallery-thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
+.mr-details-gallery-item { position: relative; }
 .mr-details-gallery-item.active { border-color: #ff5555; background: rgba(255, 85, 85, 0.1); }
 .mr-details-gallery.soon .mr-details-gallery-item.active { border-color: #58a6ff; background: rgba(88, 166, 255, 0.1); }
 .mr-details-gallery.grounded .mr-details-gallery-item.active { border-color: #7d8590; background: rgba(125, 133, 144, 0.1); }
@@ -587,15 +592,10 @@ function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedId
 .mr-details-accordion { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
 .mr-details-accordion.open { max-height: 600px; }
 .mr-details-accordion-inner { padding: 16px 0 8px; }
-.mr-details-expanded-image { width: 100%; aspect-ratio: 16/9; background: rgba(17, 17, 17, 0.8); border: 2px solid rgba(255, 85, 85, 0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-.mr-details-expanded-image span { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #ff5555; }
-.mr-details-video-player { width: 100%; aspect-ratio: 16/9; background: rgba(17, 17, 17, 0.8); border: 2px solid rgba(255, 85, 85, 0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-.mr-details-video-poster { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
-.mr-details-video-poster span { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #ff5555; }
-.mr-details-video-play-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; transition: background 0.3s ease; }
-.mr-details-video-play-overlay:hover { background: rgba(0, 0, 0, 0.3); }
-.mr-details-video-play-overlay svg { transition: transform 0.3s ease; }
-.mr-details-video-play-overlay:hover svg { transform: scale(1.08); }
+.mr-details-expanded-image { width: 100%; aspect-ratio: 16/9; background: rgba(17, 17, 17, 0.8); border: 2px solid rgba(255, 85, 85, 0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.mr-details-expanded-img { width: 100%; height: 100%; object-fit: contain; }
+.mr-details-video-player { width: 100%; aspect-ratio: 16/9; background: #000; border: 2px solid rgba(255, 85, 85, 0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.mr-details-video-el { width: 100%; height: 100%; object-fit: contain; border-radius: 10px; }
 .mr-details-gallery.soon .mr-details-expanded-image, .mr-details-gallery.soon .mr-details-video-player { border-color: rgba(88, 166, 255, 0.4); }
 .mr-details-gallery.soon .mr-details-expanded-image span, .mr-details-gallery.soon .mr-details-video-poster span { color: #58a6ff; }
 .mr-details-gallery.grounded .mr-details-expanded-image, .mr-details-gallery.grounded .mr-details-video-player { border-color: rgba(125, 133, 144, 0.4); }
