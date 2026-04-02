@@ -165,7 +165,9 @@
     <!-- Details Modal -->
     <Teleport to="body">
       <div v-if="detailsModalOpen" class="mr-modal-overlay" @click.self="closeDetailsModal">
-        <button :class="['mr-modal-close', 'mr-desktop-only', currentProjectStatusClass]" @click="closeDetailsModal"></button>
+        <div class="mr-modal-close-sticky mr-desktop-only">
+          <button :class="['mr-modal-close', currentProjectStatusClass]" @click="closeDetailsModal"></button>
+        </div>
         <div class="mr-modal-content">
           <div class="mr-modal-header"><span :class="['mr-modal-title', currentProjectStatusClass]">{{ currentProject?.title }}</span></div>
           <div :class="['mr-details-meta', currentProjectStatusClass]">
@@ -206,6 +208,9 @@
                 <div class="mr-details-accordion-inner">
                   <div class="mr-details-video-player">
                     <div class="mr-details-video-poster"><span>{{ currentProject?.videos[detailsVideoIdx ?? 0] }}</span></div>
+                    <div class="mr-details-video-play-overlay">
+                      <svg width="64" height="64" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(255,85,85,0.8)"/><path d="M32 25L57 40L32 55V25Z" fill="#fff"/><circle cx="40" cy="40" r="39" stroke="#ff5555" stroke-width="2"/></svg>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -517,6 +522,8 @@ function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedId
 /* Modals */
 .mr-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(10px); z-index: 10000; display: flex; align-items: flex-start; justify-content: center; padding: 40px; padding-bottom: 100px; overflow-y: auto; }
 .mr-modal-close { position: fixed; top: 30px; right: 30px; width: 70px; height: 70px; background: transparent !important; border: 2px solid #ff5555 !important; color: #ff5555 !important; cursor: pointer; border-radius: 14px; transition: all 0.3s ease; z-index: 10001; }
+.mr-modal-close-sticky { position: sticky; top: 20px; height: 0; z-index: 10001; display: flex; justify-content: flex-end; }
+.mr-modal-close-sticky .mr-modal-close { position: relative; top: auto; right: auto; }
 .mr-modal-close::before, .mr-modal-close::after { content: ''; position: absolute; top: 50%; left: 50%; width: 36px; height: 2px; background: currentColor; }
 .mr-modal-close::before { transform: translate(-50%, -50%) rotate(45deg); }
 .mr-modal-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
@@ -588,6 +595,10 @@ function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedId
 .mr-details-video-player { width: 100%; aspect-ratio: 16/9; background: rgba(17, 17, 17, 0.8); border: 2px solid rgba(255, 85, 85, 0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
 .mr-details-video-poster { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
 .mr-details-video-poster span { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #ff5555; }
+.mr-details-video-play-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; transition: background 0.3s ease; }
+.mr-details-video-play-overlay:hover { background: rgba(0, 0, 0, 0.3); }
+.mr-details-video-play-overlay svg { transition: transform 0.3s ease; }
+.mr-details-video-play-overlay:hover svg { transform: scale(1.08); }
 .mr-details-gallery.soon .mr-details-expanded-image, .mr-details-gallery.soon .mr-details-video-player { border-color: rgba(88, 166, 255, 0.4); }
 .mr-details-gallery.soon .mr-details-expanded-image span, .mr-details-gallery.soon .mr-details-video-poster span { color: #58a6ff; }
 .mr-details-gallery.grounded .mr-details-expanded-image, .mr-details-gallery.grounded .mr-details-video-player { border-color: rgba(125, 133, 144, 0.4); }
