@@ -444,8 +444,8 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 .mr-identity-section { display: flex; flex-direction: column; gap: 32px; }
 
 /* Glass Banner */
-.mr-glass-banner { position: relative; border-radius: 16px; padding: 2px; overflow: hidden; background: rgba(255, 85, 85, 0.15); }
-.mr-glass-glow { position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; transform-origin: center center; background: conic-gradient(from 0deg, transparent 0%, rgba(255, 85, 85, 0.6) 10%, transparent 20%, transparent 45%, rgba(255, 85, 85, 0.35) 55%, transparent 65%, transparent 100%); animation: mr-glow-spin 6s linear infinite; z-index: 0; pointer-events: none; }
+.mr-glass-banner { position: relative; border-radius: 16px; padding: 2px; overflow: hidden; background: rgba(255, 85, 85, 0.12); }
+.mr-glass-glow { position: absolute; top: 50%; left: 50%; width: 120vmax; height: 120vmax; background: conic-gradient(from 0deg, transparent 0%, rgba(255, 85, 85, 0.5) 8%, transparent 18%, transparent 48%, rgba(255, 85, 85, 0.3) 55%, transparent 65%, transparent 100%); animation: mr-glow-spin 6s linear infinite; z-index: 0; pointer-events: none; }
 @keyframes mr-glow-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
 .mr-glass-content { position: relative; z-index: 1; background: rgba(17, 17, 17, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 14px; padding: 40px 48px; }
 .mr-glass-title { font-size: clamp(20px, 3vw, 26px); font-weight: 600; color: #fff; margin: 0 0 16px; line-height: 1.3; }
