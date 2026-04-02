@@ -545,6 +545,7 @@ function closeDetailsModal() { detailsModalOpen.value = false; detailsExpandedId
   .mr-desktop-only { display: none !important; }
   .mr-modal-overlay { padding: 20px; padding-bottom: 80px; }
   .mr-modal-content { margin-top: 20px; }
+  .mr-details-gallery { padding-bottom: 60px; }
   .mr-mobile-close { display: block; position: fixed; bottom: 0; left: 0; right: 0; padding: 16px; background: #000; z-index: 10002; }
   .mr-mobile-close-btn { width: 100%; padding: 16px; background: #000 !important; border: 2px solid #ff5555 !important; color: #ff5555 !important; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; letter-spacing: 2px; border-radius: 8px; cursor: pointer; text-decoration: none !important; }
   .mr-mobile-close-btn:hover { background: #ff5555 !important; color: #000 !important; }
