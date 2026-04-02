@@ -115,9 +115,8 @@ const sending = ref(false)
 const sendError = ref('')
 const otherActive = ref(false)
 
-// ⚠️ ВСТАВЬТЕ СВОИ ДАННЫЕ:
-const TG_BOT_TOKEN = '8635306060:AAFLhtb_Dqj_L-adOTR633ozl-YNi70iVVc'
-const TG_CHAT_ID   = '7999126446'
+const TG_BOT_TOKEN = import.meta.env.VITE_TG_BOT_TOKEN
+const TG_CHAT_ID   = import.meta.env.VITE_TG_CHAT_ID
 
 async function submitForm() {
   if (!allReady.value || sending.value) return
