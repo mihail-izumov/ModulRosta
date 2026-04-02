@@ -154,18 +154,28 @@
 
     <!-- Videos Modal -->
     <Teleport to="body">
-      <div v-if="videosModalOpen" class="mr-modal-overlay mr-video-overlay" @click.self="closeVideosModal">
+      <div v-if="videosModalOpen" class="mr-modal-overlay" @click.self="closeVideosModal">
         <button class="mr-modal-close mr-desktop-only" @click="closeVideosModal"></button>
-        <div class="mr-video-container">
-          <div class="mr-video-wrapper">
-            <div v-if="!videoLoaded" class="mr-video-poster">
-              <span v-if="currentProject?.videos[0]?.poster && !isMediaLoaded(currentProject.videos[0].poster)" class="mr-media-loading">Загрузка...</span>
-              <img v-if="currentProject?.videos[0]?.poster" :src="currentProject.videos[0].poster" :alt="currentProject?.title" :class="['mr-video-poster-img', { loaded: isMediaLoaded(currentProject.videos[0].poster) }]" @load="onMediaLoad(currentProject.videos[0].poster)" />
+        <div class="mr-modal-content">
+          <div class="mr-modal-header"><span class="mr-modal-title">{{ currentProject?.title }}</span></div>
+          <div class="mr-details-gallery">
+            <div class="mr-details-gallery-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Видео</div>
+            <div class="mr-details-gallery-grid">
+              <div v-for="(vid, idx) in currentProject?.videos" :key="'mv'+idx" :class="['mr-details-gallery-item', 'mr-details-gallery-video', { active: modalVideoIdx === idx }]" @click="modalVideoIdx = modalVideoIdx === idx ? null : idx">
+                <span v-if="vid.poster && !isMediaLoaded('mv_' + vid.poster)" class="mr-media-loading">Загрузка...</span>
+                <img v-if="vid.poster" :src="vid.poster" :alt="currentProject?.title" :class="['mr-details-gallery-thumb', { loaded: isMediaLoaded('mv_' + vid.poster) }]" @load="onMediaLoad('mv_' + vid.poster)" />
+                <div v-if="modalVideoIdx !== idx" class="mr-details-gallery-play"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="rgba(255,85,85,0.6)"/><path d="M13 10L22 16L13 22V10Z" fill="#fff"/></svg></div>
+                <span v-else class="mr-details-gallery-close-label">Закрыть</span>
+              </div>
             </div>
-            <div v-if="!videoLoaded" class="mr-play-overlay" @click="initVideo"><div class="mr-play-btn"><svg width="80" height="80" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(255,85,85,0.8)"/><path d="M32 25L57 40L32 55V25Z" fill="#fff"/><circle cx="40" cy="40" r="39" stroke="#ff5555" stroke-width="2"/></svg></div></div>
-            <video v-show="videoLoaded" ref="videoEl" controls class="mr-video-el" :src="currentProject?.videos[0]?.src" :poster="currentProject?.videos[0]?.poster" @ended="onVideoEnded"></video>
+            <div :class="['mr-details-accordion', { open: modalVideoIdx !== null }]">
+              <div class="mr-details-accordion-inner">
+                <div class="mr-details-video-player">
+                  <video v-if="modalVideoIdx !== null" :key="modalVideoIdx" :src="currentProject?.videos[modalVideoIdx]?.src" :poster="currentProject?.videos[modalVideoIdx]?.poster" controls playsinline class="mr-details-video-el"></video>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="mr-video-title">{{ currentProject?.title }}</div>
         </div>
         <div class="mr-mobile-close"><button class="mr-mobile-close-btn" @click="closeVideosModal">ЗАКРЫТЬ</button></div>
       </div>
@@ -267,6 +277,7 @@ const videoEl = ref<HTMLVideoElement | null>(null)
 const expandedImageIndex = ref<number | null>(null)
 const detailsExpandedIdx = ref<number | null>(null)
 const detailsVideoIdx = ref<number | null>(null)
+const modalVideoIdx = ref<number | null>(null)
 
 const allProjects = ref<Project[]>([
   { id: 'proj40', title: 'Игровая система для кран-машин', subtitle: 'b00m.fun', specialization: 'Аркадные парки', website: 'https://b00m.fun/', images: [], videos: [], tags: ['Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Упаковка', 'Веб', 'Анимация', 'CJM', 'Лояльность', 'Стандарты', 'Продажи', 'Торговая среда'], caseUrl: null, moduleUrl: null, behanceUrl: null, launchDate: '01.05.2026', buildTime: '', status: 'Скоро запуск', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_01_03_2026.svg' },
@@ -348,7 +359,8 @@ function getUptime(p: Project): string {
   if (m) {
     const launch = new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]))
     const now = new Date()
-    const months = (now.getFullYear() - launch.getFullYear()) * 12 + (now.getMonth() - launch.getMonth())
+    let months = (now.getFullYear() - launch.getFullYear()) * 12 + (now.getMonth() - launch.getMonth())
+    if (now.getDate() < parseInt(m[1])) months--
     const y = Math.floor(months / 12), mo = months % 12
     const yWord = y === 1 ? 'год' : (y >= 2 && y <= 4) ? 'года' : 'лет'
     if (y >= 1) return mo > 0 ? `${y} ${yWord} ${mo} мес` : `${y}+ ${yWord}`
@@ -364,8 +376,8 @@ function closeImagesModal() { imagesModalOpen.value = false; expandedImageIndex.
 function expandImage(idx: number) { expandedImageIndex.value = idx }
 function closeExpandedImage() { expandedImageIndex.value = null }
 
-function openVideos(id: string) { currentProjectId.value = id; videoLoaded.value = false; videosModalOpen.value = true; document.body.style.overflow = 'hidden' }
-function closeVideosModal() { videosModalOpen.value = false; videoLoaded.value = false; document.body.style.overflow = ''; if (videoEl.value) videoEl.value.pause() }
+function openVideos(id: string) { currentProjectId.value = id; videoLoaded.value = false; modalVideoIdx.value = null; videosModalOpen.value = true; document.body.style.overflow = 'hidden' }
+function closeVideosModal() { videosModalOpen.value = false; videoLoaded.value = false; modalVideoIdx.value = null; document.body.style.overflow = ''; if (videoEl.value) videoEl.value.pause() }
 function initVideo() { videoLoaded.value = true }
 function onVideoEnded() { videoLoaded.value = false }
 
