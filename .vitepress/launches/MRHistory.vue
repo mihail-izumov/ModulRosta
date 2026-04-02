@@ -57,7 +57,7 @@
         </template>
 
         <button v-if="accordionProjects.length > 0" :class="['mr-accordion-toggle', { open: accordionOpen }]" @click="toggleAccordion">
-          <span>{{ accordionOpen ? 'Свернуть' : `Ещё ${accordionProjects.length} модулей` }}</span><span class="mr-arrow">↓</span>
+          <span>{{ accordionOpen ? 'Свернуть' : `Ещё ${accordionProjects.length} ${pluralize(accordionProjects.length, 'модуль', 'модуля', 'модулей')}` }}</span><span class="mr-arrow">↓</span>
         </button>
 
         <div :class="['mr-accordion-content', { open: accordionOpen }]">
@@ -269,6 +269,7 @@ const detailsExpandedIdx = ref<number | null>(null)
 const detailsVideoIdx = ref<number | null>(null)
 
 const allProjects = ref<Project[]>([
+  { id: 'proj40', title: 'Игровая система для кран-машин', subtitle: 'b00m.fun', specialization: 'Аркадные парки', website: 'https://b00m.fun/', images: [], videos: [], tags: ['Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Упаковка', 'Веб', 'Анимация', 'CJM', 'Лояльность', 'Стандарты', 'Продажи', 'Торговая среда'], caseUrl: null, moduleUrl: null, behanceUrl: null, launchDate: '01.05.2026', buildTime: '', status: 'Скоро запуск', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_01_03_2026.svg' },
   { id: 'proj1', title: 'Б00М! призотека', subtitle: 'b00m.fun', specialization: 'Аркадные парки', website: 'https://b00m.fun/', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Веб', 'Анимация', 'Видео', 'CJM', 'Лояльность', 'Стандарты', 'Продажи', 'Торговая среда'], caseUrl: '/journal/cases/cifrovaya-prizoteka-dlya-bumastic', moduleUrl: null, behanceUrl: null, launchDate: '30.03.2026', buildTime: '57дн', status: 'Запущен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_01_03_2026.svg' },
   { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', specialization: 'Сервисные офисы', website: 'https://profitrooms.ru/', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Веб', 'Продажи'], caseUrl: '/journal/cases/kalkulyator-investiciy-dlya-optima-space', moduleUrl: 'https://runscale.ru/optima-space/invest', moduleUrl: null, behanceUrl: null, launchDate: '02.03.2026', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
   { id: 'proj3', title: 'Генератор сториз', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', images: [], videos: [], tags: ['R&D'], caseUrl: 'https://cffx.ru/signal/korzh/gift', moduleUrl: null, behanceUrl: null, launchDate: '25.12.2025', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
@@ -327,6 +328,7 @@ function toggleIdentityMode() { identityMode.value = !identityMode.value; if (id
 function toggleAccordion() { accordionOpen.value = !accordionOpen.value }
 function isVisible(p: Project) { if (activeFilter.value === 'all') return true; const m: Record<string, string> = { soon: 'Скоро запуск', orbit: 'Запущен', grounded: 'Отложен' }; return p.status === m[activeFilter.value] }
 function getStatusClass(s: string) { if (s === 'Скоро запуск') return 'soon'; if (s === 'Запущен') return 'orbit'; return 'grounded' }
+function pluralize(n: number, one: string, few: string, many: string) { const mod100 = Math.abs(n) % 100; const mod10 = mod100 % 10; if (mod100 >= 11 && mod100 <= 19) return many; if (mod10 === 1) return one; if (mod10 >= 2 && mod10 <= 4) return few; return many }
 function getUptimeClass(s: string) { if (s === 'Скоро запуск') return 'soon'; if (s === 'Отложен') return 'grounded'; return '' }
 
 function getUptime(p: Project): string {
