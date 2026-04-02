@@ -474,6 +474,8 @@ function sidebarJournal(): DefaultTheme.SidebarItem[] {
 function sidebarClients(): DefaultTheme.SidebarItem[] {
   return [{ text: 'Клиенты', collapsed: false, items: [
     { text: 'Обзор', link: '/clients/list' },
+    { text: 'БумБастик', link: '/clients/boombastic' },
+    { text: 'Optima Space', link: '/clients/optima-space' },
     { text: 'Конкордия-Авто', link: '/clients/konkordiya-auto' },
     { text: 'Блумкидс', link: '/clients/bloomkids' },
     { text: 'Чишминский Молочный Завод', link: '/clients/chishminskiy' },
