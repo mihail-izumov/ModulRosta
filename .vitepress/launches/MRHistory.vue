@@ -29,7 +29,7 @@
         <template v-for="(project, index) in filteredProjects" :key="project.id">
           <div v-if="index < 5" :class="['mr-history-row', { hidden: !isVisible(project) }]">
             <div :class="['mr-history-logo', getStatusClass(project.status), { branded: project.mrBranded }]" @click="openDetails(project.id)">
-              <img v-if="project.logo" :src="project.logo" :alt="project.subtitle" class="mr-logo-img" />
+              <div v-if="project.logo" class="mr-logo-mask" :style="{ '-webkit-mask-image': `url(${project.logo})`, 'mask-image': `url(${project.logo})` }"></div>
               <svg v-else xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
             </div>
             <div class="mr-history-info">
@@ -64,7 +64,7 @@
           <template v-for="project in accordionProjects" :key="project.id">
             <div :class="['mr-history-row', { hidden: !isVisible(project) }]">
               <div :class="['mr-history-logo', getStatusClass(project.status), { branded: project.mrBranded }]" @click="openDetails(project.id)">
-                <img v-if="project.logo" :src="project.logo" :alt="project.subtitle" class="mr-logo-img" />
+                <div v-if="project.logo" class="mr-logo-mask" :style="{ '-webkit-mask-image': `url(${project.logo})`, 'mask-image': `url(${project.logo})` }"></div>
                 <svg v-else xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
               </div>
               <div class="mr-history-info">
@@ -97,7 +97,7 @@
       <div v-show="identityMode" class="mr-identity-grid">
         <div v-for="project in mrBrandedProjects" :key="project.id" class="mr-identity-card" @click="openDetails(project.id)">
           <div class="mr-identity-logo">
-            <img v-if="project.logo" :src="project.logo" :alt="project.subtitle" class="mr-identity-logo-img" />
+            <div v-if="project.logo" class="mr-identity-logo-mask" :style="{ '-webkit-mask-image': `url(${project.logo})`, 'mask-image': `url(${project.logo})` }"></div>
             <svg v-else xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
           </div>
           <div class="mr-identity-name">{{ project.subtitle }}</div>
@@ -352,15 +352,15 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 }
 
 /* Logo */
-.mr-history-logo { width: 64px; height: 64px; border: 2px solid #222; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; position: relative; cursor: pointer; overflow: hidden; }
+.mr-history-logo { width: 64px; height: 64px; border: 2px solid #222; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; position: relative; cursor: pointer; overflow: hidden; color: rgb(0, 255, 136); }
 .mr-history-logo svg { color: rgb(0, 255, 136); }
-.mr-logo-img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+.mr-logo-mask { width: 100%; height: 100%; background-color: currentColor; -webkit-mask-size: 80%; mask-size: 80%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
 .mr-history-row:hover .mr-history-logo { border-color: rgb(0, 255, 136); box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
+.mr-history-logo.soon { border-color: rgba(88, 166, 255, 0.3); color: #58a6ff; }
 .mr-history-logo.soon svg { color: #58a6ff; }
-.mr-history-logo.soon { border-color: rgba(88, 166, 255, 0.3); }
 .mr-history-row:hover .mr-history-logo.soon { border-color: #58a6ff; box-shadow: 0 0 30px rgba(88, 166, 255, 0.3); }
+.mr-history-logo.grounded { border-color: rgba(125, 133, 144, 0.3); color: #7d8590; }
 .mr-history-logo.grounded svg { color: #7d8590; }
-.mr-history-logo.grounded { border-color: rgba(125, 133, 144, 0.3); }
 .mr-history-row:hover .mr-history-logo.grounded { border-color: #7d8590; box-shadow: 0 0 30px rgba(125, 133, 144, 0.3); }
 .mr-history-logo.branded::before, .mr-history-logo.branded::after { content: ''; position: absolute; inset: -2px; border: 2px solid rgb(0, 255, 136); border-radius: 14px; opacity: 0; animation: mr-radar 8s ease-out infinite; pointer-events: none; }
 .mr-history-logo.branded::after { animation-delay: 4s; }
@@ -432,10 +432,11 @@ function closeDetailsModal() { detailsModalOpen.value = false; document.body.sty
 @media (max-width: 500px) { .mr-identity-grid { grid-template-columns: 1fr; } }
 .mr-identity-card { background: linear-gradient(180deg, rgba(255, 85, 85, 0.15), transparent); border: 2px solid rgba(255, 85, 85, 0.3); border-radius: 16px; padding: 32px 24px; text-align: center; transition: all 0.4s ease; cursor: pointer; }
 .mr-identity-card:hover { background: #ff5555; border-color: #ff5555; transform: translateY(-4px); box-shadow: 0 20px 40px rgba(255, 85, 85, 0.3); }
-.mr-identity-logo { width: 120px; height: 120px; border: 3px solid rgba(255, 85, 85, 0.3); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; transition: all 0.3s ease; overflow: hidden; }
+.mr-identity-logo { width: 120px; height: 120px; border: 3px solid rgba(255, 85, 85, 0.3); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; transition: all 0.3s ease; overflow: hidden; color: #ff5555; }
 .mr-identity-logo svg { color: #ff5555; transition: color 0.3s ease; }
-.mr-identity-logo-img { width: 100%; height: 100%; object-fit: contain; padding: 12px; }
-.mr-identity-card:hover .mr-identity-logo { border-color: rgba(0, 0, 0, 0.2); }
+.mr-identity-logo-mask { width: 100%; height: 100%; background-color: currentColor; -webkit-mask-size: 96%; mask-size: 96%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; transition: background-color 0.3s ease; }
+.mr-identity-card:hover .mr-identity-logo-mask { background-color: #000; }
+.mr-identity-card:hover .mr-identity-logo { border-color: rgba(0, 0, 0, 0.2); color: #000; }
 .mr-identity-card:hover .mr-identity-logo svg { color: #000; }
 .mr-identity-name { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 8px; transition: color 0.3s ease; }
 .mr-identity-card:hover .mr-identity-name { color: #000; }
