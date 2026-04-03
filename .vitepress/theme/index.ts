@@ -46,6 +46,8 @@ import RadarTestDrive2Cards from '../components/RadarTestDrive2Cards.vue'
 import BumbastikABC from '../components/BumbastikABC.vue'
 import OptimaSpaceCalculator from '../optima-calculator/OptimaSpaceCalculator.vue'
 import BookMyLaunch from '../components/BookMyLaunch.vue'
+import AktivLanding from '../aktiv/AktivLanding.vue'
+import AktivLaunches from '../aktiv/AktivLaunches.vue'
 
 // Main Page компоненты
 import MRHero from '../main-page/MRHero.vue'
@@ -113,6 +115,8 @@ export default {
     app.component('BumbastikABC', BumbastikABC)
     app.component('OptimaSpaceCalculator', OptimaSpaceCalculator)
     app.component('BookMyLaunch', BookMyLaunch)
+    app.component('AktivLanding', AktivLanding)
+    app.component('AktivLaunches', AktivLaunches)
     
     
     // Модуль Роста — Main Page
