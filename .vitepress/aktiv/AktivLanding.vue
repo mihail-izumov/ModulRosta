@@ -201,10 +201,10 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
   </section>
 
   <!-- ═══ LAUNCHES ═══ -->
-  <section class="sec" style="padding-bottom:0"><div class="container">
+  <section class="sec launches-sec"><div class="container">
     <div class="reveal"><div class="mono sec-label" style="color:#00ff88">Запуски</div></div>
     <div class="reveal" style="--d:0.1s"><h2 class="sec-title">Модули на Активе</h2></div>
-    <AktivLaunches />
+    <div class="launches-wrap"><AktivLaunches /></div>
   </div></section>
 
   <!-- ═══ PROBLEM ═══ -->
@@ -585,6 +585,13 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
 
 /* Scale */
 .scale-item { padding: 16px 20px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); font-size: 13px; color: rgba(255,255,255,0.55); }
+
+/* Launches — compress child component spacing */
+.launches-sec { padding-top: 48px !important; padding-bottom: 0 !important; }
+.launches-wrap { margin-bottom: -32px; }
+.launches-wrap :deep(section),
+.launches-wrap :deep(.sec),
+.launches-wrap :deep(> div) { padding-top: 0 !important; padding-bottom: 0 !important; margin-top: 0 !important; margin-bottom: 0 !important; }
 
 /* ═══ BUTTONS — override VitePress with high specificity ═══ */
 .cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
