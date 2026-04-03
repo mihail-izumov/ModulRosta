@@ -182,7 +182,7 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
       </svg>
     </div>
     <div class="reveal" style="--d:0.2s"><img src="/icons/aktiv-icon.svg" alt="Актив" class="hero-aktiv-icon" /></div>
-    <div class="reveal" style="--d:0.4s"><div class="exo hero-sub">Инвестиционная система Модуля Роста®</div></div>
+    <div class="reveal" style="--d:0.4s"><div class="exo hero-sub">Инвестиционная система <span class="hero-sub-break">Модуля Роста®</span></div></div>
 
     <!-- Glass morphism stat tiles -->
     <div class="reveal" style="--d:0.55s">
@@ -668,5 +668,6 @@ a.aktiv-btn-ghost:hover {
   .hero-origami { width: 120px; height: 120px; }
   .hero-aktiv-icon { width: 70vw; }
   .hero { padding: 60px 16px 40px; }
+  .hero-sub-break { display: block; }
 }
 </style>
