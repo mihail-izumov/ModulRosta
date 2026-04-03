@@ -127,7 +127,7 @@
           </div>
           <div :class="['mr-details-tags', currentProjectStatusClass]"><span v-for="tag in currentProject?.tags" :key="tag" class="mr-tag">{{ tag }}</span></div>
           <div :class="['mr-details-links', currentProjectStatusClass]">
-            <a v-if="currentProject?.website" :href="currentProject.website" target="_blank" class="mr-link primary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>Открыть сайт</a>
+            <a v-if="currentProject?.website" :href="currentProject.website" target="_blank" class="mr-link primary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>{{ currentProject.websiteLabel || 'Открыть сайт' }}</a>
             <a v-if="currentProject?.moduleUrl" :href="currentProject.moduleUrl" target="_blank" class="mr-link secondary">Модуль</a>
             <a v-if="currentProject?.caseUrl" :href="currentProject.caseUrl" target="_blank" class="mr-link secondary">Кейс</a>
             <a v-if="currentProject?.behanceUrl" :href="currentProject.behanceUrl" target="_blank" class="mr-link secondary">Behance</a>
@@ -186,7 +186,7 @@ import { ref, computed, reactive } from 'vue'
 
 interface MediaImage { src: string }
 interface MediaVideo { src: string; poster: string }
-interface Project { id: string; title: string; subtitle: string; specialization: string; website: string | null; images: MediaImage[]; videos: MediaVideo[]; tags: string[]; caseUrl: string | null; moduleUrl: string | null; behanceUrl: string | null; launchDate: string; buildTime: string; status: string; mrBranded: boolean; details: string; logo: string | null }
+interface Project { id: string; title: string; subtitle: string; specialization: string; website: string | null; websiteLabel: string; images: MediaImage[]; videos: MediaVideo[]; tags: string[]; caseUrl: string | null; moduleUrl: string | null; behanceUrl: string | null; launchDate: string; buildTime: string; status: string; mrBranded: boolean; details: string; logo: string | null }
 
 const loadedMedia = reactive(new Set<string>())
 function onMediaLoad(src: string) { loadedMedia.add(src) }
@@ -205,9 +205,9 @@ const modalVideoIdx = ref<number | null>(null)
 
 const allProjects = ref<Project[]>([
   // Калькулятор инвестора — Optima Space
-  { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', specialization: 'Сервисные офисы', website: 'https://profitrooms.ru/', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Веб', 'Продажи'], caseUrl: '/journal/cases/kalkulyator-investiciy-dlya-optima-space', moduleUrl: null, behanceUrl: null, launchDate: '02.03.2026', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
+  { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', specialization: 'Сервисные офисы', website: '/optima-space/invest', websiteLabel: 'Смотреть модуль', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Веб', 'Продажи'], caseUrl: '/journal/cases/kalkulyator-investiciy-dlya-optima-space', moduleUrl: null, behanceUrl: null, launchDate: '02.03.2026', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
   // Калькулятор инвестора — Корж
-  { id: 'proj4', title: 'Калькулятор инвестора', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', images: [], videos: [], tags: ['R&D'], caseUrl: 'https://cffx.ru/signal/korzh/invest.html', moduleUrl: null, behanceUrl: null, launchDate: '15.12.2025', buildTime: '5дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
+  { id: 'proj4', title: 'Калькулятор инвестора', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', websiteLabel: 'Открыть сайт', images: [], videos: [], tags: ['R&D'], caseUrl: 'https://cffx.ru/signal/korzh/invest.html', moduleUrl: null, behanceUrl: null, launchDate: '15.12.2025', buildTime: '5дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
   // ↓ Новые проекты добавлять сюда ↓
 ])
 
