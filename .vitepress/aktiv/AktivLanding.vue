@@ -200,6 +200,13 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
     </div>
   </section>
 
+  <!-- ═══ LAUNCHES ═══ -->
+  <section class="sec"><div class="container">
+    <div class="reveal"><div class="mono sec-label" style="color:#00ff88">Запуски</div></div>
+    <div class="reveal" style="--d:0.1s"><h2 class="sec-title">Модули на Активе</h2></div>
+    <AktivLaunches />
+  </div></section>
+
   <!-- ═══ PROBLEM ═══ -->
   <section class="sec"><div class="container">
     <div class="reveal"><div class="mono sec-label" style="color:#58a6ff">Проблема</div></div>
@@ -372,13 +379,6 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
       <a href="/book-my-launch" class="aktiv-btn-primary">Заявка</a>
       <a href="/launches" class="aktiv-btn-ghost">Запуски</a>
     </div>
-  </div></section>
-
-  <!-- ═══ LAUNCHES ═══ -->
-  <section class="sec" style="padding:48px 0 100px"><div class="container">
-    <div class="reveal"><div class="mono sec-label" style="color:#00ff88">Запуски</div></div>
-    <div class="reveal" style="--d:0.1s"><h2 class="sec-title">Модули на Активе</h2></div>
-    <AktivLaunches />
   </div></section>
 
 </div>
