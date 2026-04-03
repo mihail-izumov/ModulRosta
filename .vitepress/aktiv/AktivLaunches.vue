@@ -205,7 +205,7 @@ const modalVideoIdx = ref<number | null>(null)
 
 const allProjects = ref<Project[]>([
   // Калькулятор инвестора — Optima Space
-  { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', specialization: 'Сервисные офисы', website: '/optima-space/invest', websiteLabel: 'Смотреть модуль', images: [], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Веб', 'Продажи'], caseUrl: '/journal/cases/kalkulyator-investiciy-dlya-optima-space', moduleUrl: null, behanceUrl: null, launchDate: '02.03.2026', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
+  { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', specialization: 'Сервисные офисы', website: '/optima-space/invest', websiteLabel: 'Смотреть модуль', images: [{ src: '/gallery/proj2/images/run_optima_ban_1.jpg' }], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Веб', 'Продажи'], caseUrl: '/journal/cases/kalkulyator-investiciy-dlya-optima-space', moduleUrl: null, behanceUrl: null, launchDate: '02.03.2026', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
   // Калькулятор инвестора — Корж
   { id: 'proj4', title: 'Калькулятор инвестора', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', websiteLabel: 'Открыть сайт', images: [], videos: [], tags: ['R&D'], caseUrl: 'https://cffx.ru/signal/korzh/invest.html', moduleUrl: null, behanceUrl: null, launchDate: '15.12.2025', buildTime: '5дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
   // ↓ Новые проекты добавлять сюда ↓
