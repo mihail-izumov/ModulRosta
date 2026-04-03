@@ -1,6 +1,9 @@
 ---
 layout: page
-title: Актив
+pageClass: fullwidth-page
+title: Актив — Инвестиционная система
+sidebar: false
+aside: false
 ---
 
 <AktivLanding />
