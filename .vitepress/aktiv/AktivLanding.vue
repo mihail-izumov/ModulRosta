@@ -201,7 +201,7 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
   </section>
 
   <!-- ═══ LAUNCHES ═══ -->
-  <section class="sec"><div class="container">
+  <section class="sec" style="padding-bottom:0"><div class="container">
     <div class="reveal"><div class="mono sec-label" style="color:#00ff88">Запуски</div></div>
     <div class="reveal" style="--d:0.1s"><h2 class="sec-title">Модули на Активе</h2></div>
     <AktivLaunches />
