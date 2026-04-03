@@ -587,8 +587,7 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
 .scale-item { padding: 16px 20px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); font-size: 13px; color: rgba(255,255,255,0.55); }
 
 /* Launches — compress child component spacing */
-.launches-sec { padding-top: 48px !important; padding-bottom: 0 !important; }
-.launches-wrap { margin-bottom: -32px; }
+.launches-sec { padding-top: 48px !important; padding-bottom: 16px !important; }
 .launches-wrap :deep(section),
 .launches-wrap :deep(.sec),
 .launches-wrap :deep(> div) { padding-top: 0 !important; padding-bottom: 0 !important; margin-top: 0 !important; margin-bottom: 0 !important; }
