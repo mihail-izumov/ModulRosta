@@ -537,11 +537,10 @@ function goToLaunches() { window.location.href = '/launches' }
 
 @media (max-width: 640px) {
   .mr-gallery-slider { gap: 12px; padding: 12px 0; }
-  .mr-gallery-item { min-width: calc(100vw - 80px); height: auto; aspect-ratio: 16/9; }
+  .mr-gallery-item { min-width: calc(100vw - 80px); height: 220px; }
   .mr-gallery-img { object-fit: contain; }
   .mr-expanded-content { padding: 12px; max-width: 100vw; }
-  .mr-expanded-image { width: 92vw; height: auto; max-height: 70vh; border-width: 1px; border-radius: 8px; }
-  .mr-expanded-img { width: 100%; height: auto; max-height: 70vh; object-fit: contain; }
+  .mr-expanded-image { width: 92vw; height: 60vh; border-width: 1px; border-radius: 8px; }
   .mr-expanded-back { padding: 10px 20px; font-size: 11px; }
 }
 
