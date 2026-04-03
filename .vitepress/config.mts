@@ -358,7 +358,8 @@ function nav(): DefaultTheme.NavItem[] {
       text: 'Модульные системы', items: [
         { text: 'Чекап', link: '/checkup/overview' },
         { text: 'Радар', link: '/radar/overview' },
-        { text: 'Сигнал', link: 'https://cffx.ru', target: '_blank' },
+        { text: 'Актив', link: '/aktiv/index' },
+        { text: 'Сигнал', link: 'https://cffx.ru', target: '_blank' }
       ]
     },
     { 
