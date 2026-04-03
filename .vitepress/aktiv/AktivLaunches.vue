@@ -537,7 +537,7 @@ function goToLaunches() { window.location.href = '/launches' }
 
 @media (max-width: 640px) {
   .mr-gallery-slider { gap: 12px; padding: 12px 0; }
-  .mr-gallery-item { min-width: calc(100vw - 80px); height: 220px; }
+  .mr-gallery-item { min-width: 200px; max-width: 70vw; height: 180px; }
   .mr-gallery-img { object-fit: contain; }
   .mr-expanded-content { padding: 12px; max-width: 100vw; }
   .mr-expanded-image { width: 92vw; height: 60vh; border-width: 1px; border-radius: 8px; }
