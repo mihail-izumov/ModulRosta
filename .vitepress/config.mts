@@ -355,7 +355,7 @@ function nav(): DefaultTheme.NavItem[] {
   return [
     { text: 'Запуски', link: '/launches' },
     { 
-      text: 'Продукты', items: [
+      text: 'Модульные системы', items: [
         { text: 'Чекап', link: '/checkup/overview' },
         { text: 'Радар', link: '/radar/overview' },
         { text: 'Сигнал', link: 'https://cffx.ru', target: '_blank' },
