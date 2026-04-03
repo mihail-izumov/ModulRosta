@@ -5,6 +5,13 @@ import AktivLaunches from './AktivLaunches.vue'
 // ─── Scroll Reveal ───
 let observer = null
 onMounted(() => {
+  // Load Orbitron font
+  if (!document.querySelector('link[href*="Orbitron"]')) {
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap'
+    document.head.appendChild(link)
+  }
   observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('revealed') })
   }, { threshold: 0.1 })
@@ -169,13 +176,12 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
   <!-- ═══ HERO ═══ -->
   <section class="hero">
     <div class="hero-glow" />
-    <div class="reveal" style="--d:0s"><span class="exo label-brand">модуль роста®</span></div>
-    <div class="reveal" style="--d:0.15s">
-      <svg class="hero-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+    <div class="reveal" style="--d:0s">
+      <svg class="hero-origami" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 12V4a1 1 0 0 1 1-1h6.297a1 1 0 0 1 .651 1.759l-4.696 4.025"/><path d="m12 21-7.414-7.414A2 2 0 0 1 4 12.172V6.415a1.002 1.002 0 0 1 1.707-.707L20 20.009"/><path d="m12.214 3.381 8.414 14.966a1 1 0 0 1-.167 1.199l-1.168 1.163a1 1 0 0 1-.706.291H6.351a1 1 0 0 1-.625-.219L3.25 18.8a1 1 0 0 1 .631-1.781l4.165.027"/>
       </svg>
     </div>
-    <div class="reveal" style="--d:0.3s"><h1 class="exo hero-title">Актив</h1></div>
+    <div class="reveal" style="--d:0.2s"><img src="/icons/aktiv-icon.svg" alt="Актив" class="hero-aktiv-icon" /></div>
     <div class="reveal" style="--d:0.4s"><div class="exo hero-sub">Инвестиционная система Модуля Роста®</div></div>
 
     <!-- Glass morphism stat tiles -->
@@ -186,8 +192,8 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
           <div class="glass-shine" />
           <div class="glass-border" />
           <div class="glass-content">
-            <div class="mono glass-val" :style="{ color: s.color }"><span :ref="el => setCounterRef(el, s.val)">0</span></div>
-            <div class="mono glass-label">{{ s.label }}</div>
+            <div class="orbitron glass-val" :style="{ color: s.color }"><span :ref="el => setCounterRef(el, s.val)">0</span></div>
+            <div class="glass-label">{{ s.label }}</div>
           </div>
         </div>
       </div>
@@ -382,6 +388,7 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
 .aktiv-landing { color: #fff; font-family: 'Inter', -apple-system, sans-serif; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 .exo { font-family: 'Exo 2', sans-serif; }
+.orbitron { font-family: 'Orbitron', sans-serif; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 .narrow { max-width: 900px; }
 .dim { color: rgba(255,255,255,0.2); }
@@ -400,26 +407,25 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
 .stat-label-sm { font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; }
 
 /* ═══ HERO ═══ */
-.hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 80px 24px 60px; position: relative; }
+.hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 60px 24px; position: relative; }
 .hero-glow { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, rgba(255,136,0,0.04) 0%, transparent 60%); pointer-events: none; }
-.label-brand { font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 48px; display: block; }
-.hero-icon { width: clamp(100px, 20vw, 160px); height: clamp(100px, 20vw, 160px); margin-bottom: 32px; }
-.hero-title { font-size: clamp(56px, 14vw, 180px); font-weight: 800; line-height: 0.85; margin: 0 0 20px; letter-spacing: 0.05em; text-transform: uppercase; }
-.hero-sub { font-size: clamp(10px, 1.4vw, 15px); letter-spacing: 0.35em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 64px; }
+.hero-origami { width: clamp(160px, 30vw, 320px); height: clamp(160px, 30vw, 320px); margin-bottom: 24px; opacity: 0.9; }
+.hero-aktiv-icon { width: clamp(200px, 50vw, 600px); height: auto; margin-bottom: 8px; }
+.hero-sub { font-size: clamp(12px, 1.8vw, 18px); letter-spacing: 0.3em; text-transform: uppercase; color: #fff; margin-top: 24px; margin-bottom: 64px; opacity: 0.7; }
 
 /* ═══ GLASS MORPHISM STAT TILES ═══ */
-.glass-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; width: 100%; max-width: 800px; }
+.glass-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; width: 100%; max-width: 960px; }
 
 .glass-tile {
   position: relative; text-align: center; padding: 32px 16px; overflow: hidden;
-  animation: glassAppear 0.8s ease both;
+  animation: glassAppear 0.8s ease both; cursor: default;
 }
 
 .glass-bg {
   position: absolute; inset: 0; z-index: 0;
   background: rgba(255,255,255,0.03);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .glass-shine {
@@ -432,11 +438,12 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
 
 .glass-border {
   position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  border: 1px solid transparent;
-  transition: border-color 0.4s;
+  border: 1px solid var(--accent);
+  opacity: 0.15;
+  transition: opacity 0.4s;
 }
 
-.glass-tile:hover .glass-border { border-color: var(--accent); }
+.glass-tile:hover .glass-border { opacity: 0.5; }
 
 .glass-tile:hover {
   transform: translateY(-2px);
@@ -444,15 +451,15 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
 }
 
 .glass-tile::after {
-  content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 1px;
-  background: var(--accent); transform: translateX(-50%);
-  transition: width 0.5s cubic-bezier(.16,1,.3,1);
+  content: ''; position: absolute; bottom: 0; left: 50%; width: 40%; height: 1px;
+  background: var(--accent); transform: translateX(-50%); opacity: 0.3;
+  transition: width 0.5s cubic-bezier(.16,1,.3,1), opacity 0.5s;
 }
-.glass-tile:hover::after { width: 80%; }
+.glass-tile:hover::after { width: 80%; opacity: 0.7; }
 
-.glass-content { position: relative; z-index: 2; }
-.glass-val { font-size: 32px; font-weight: 700; line-height: 1; }
-.glass-label { font-size: 10px; letter-spacing: 1.5px; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-top: 8px; white-space: nowrap; }
+.glass-content { position: relative; z-index: 2; cursor: default; }
+.glass-val { font-size: 36px; font-weight: 700; line-height: 1; cursor: default; }
+.glass-label { font-family: 'Inter', -apple-system, sans-serif; font-size: 10px; letter-spacing: 1.5px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-top: 10px; white-space: nowrap; cursor: default; }
 
 @keyframes glassAppear {
   from { opacity: 0; transform: translateY(20px) scale(0.95); }
@@ -652,7 +659,10 @@ a.aktiv-btn-ghost:hover {
   .tl-dot { margin: 0; flex-shrink: 0; }
   .guarantee-grid { grid-template-columns: 1fr; }
   .case-metrics { grid-template-columns: 1fr 1fr; }
-  .glass-val { font-size: 26px; }
-  .glass-label { font-size: 9px; }
+  .glass-val { font-size: 28px; }
+  .glass-label { font-size: 8px; }
+  .hero-origami { width: 120px; height: 120px; }
+  .hero-aktiv-icon { width: 70vw; }
+  .hero { padding: 60px 16px 40px; }
 }
 </style>
