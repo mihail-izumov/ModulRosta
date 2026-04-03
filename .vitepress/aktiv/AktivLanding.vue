@@ -372,7 +372,7 @@ const riskWidth = (r) => (parseInt(r)/10)*100+'%'
   </div></section>
 
   <!-- ═══ CTA ═══ -->
-  <section class="sec" style="padding:80px 0 48px"><div class="container" style="text-align:center">
+  <section class="sec" style="padding:80px 0 160px"><div class="container" style="text-align:center">
     <div class="reveal"><div class="mono sec-label">Актив</div></div>
     <div class="reveal" style="--d:0.1s"><h2 class="sec-title" style="text-align:center">Соберём такой же модуль<br><span style="color:#ff8800">под ваши цифры</span></h2></div>
     <div class="reveal cta-buttons" style="--d:0.2s">
