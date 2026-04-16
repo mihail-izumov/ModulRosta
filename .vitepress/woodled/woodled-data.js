@@ -37,8 +37,8 @@ export const WNAME = { oak: 'Дуб', walnut: 'Орех', black: 'Чёрный �
 
 // Image paths (served from /public/woodled/onboarding/)
 export const IMG = {
-  oak: '/woodled/onboarding/oak.png',
-  rotor: '/woodled/onboarding/rotor.jpg',
+  oak: '/woodled/onboarding/oak.svg',
+  rotor: '/woodled/onboarding/rotor.png',
   wood: '/woodled/onboarding/wood.jpg',
   interior: '/woodled/onboarding/interior.jpg',
   bird: '/woodled/onboarding/bird.png',
@@ -152,3 +152,7 @@ export const SOUND_ICONS = {
 
 // Leaf icon for the Ch4 preloader (lucide:leaf)
 export const LEAF_ICON = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.2 2.96a1 1 0 0 1 1.8.5c0 4.7 0 12.7-1 16.7-1 4-3 5-5 5"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>'
+
+// Bird icon (large) for the Ch2 switch button — v-html avoids the same
+// SVG-render quirk we hit with NAV_ICONS.
+export const BIRD_ICON_LG = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h.01"/><path d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20"/><path d="m20 7 2 .5-2 .5"/><path d="M10 18v3"/><path d="M14 17.75V21"/><path d="M7 18a6 6 0 0 0 3.84-10.61"/></svg>'

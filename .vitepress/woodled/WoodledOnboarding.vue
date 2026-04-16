@@ -337,32 +337,20 @@ onUnmounted(() => {
 }
 .rt-loader.hide { opacity: 0; }
 .rt-loader-leaf {
-  position: relative;
   width: 90px; height: 90px;
   color: var(--gold);
   animation: leafSway 3.4s ease-in-out infinite;
   transform-origin: 50% 90%;
+  display: flex; align-items: center; justify-content: center;
 }
-.rt-leaf-bg, .rt-leaf-fg {
-  position: absolute; inset: 0;
-}
-.rt-leaf-bg svg, .rt-leaf-fg svg {
+.rt-loader-leaf svg {
   width: 100%; height: 100%; display: block;
 }
-.rt-leaf-bg svg path {
+.rt-loader-leaf svg path {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.4;
-  opacity: .25;
-}
-.rt-leaf-fg {
-  transition: clip-path .35s ease-out;
-  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--gold) 50%, transparent));
-}
-.rt-leaf-fg svg path {
-  fill: currentColor;
-  stroke: currentColor;
-  stroke-width: 1.4;
+  opacity: .5;
 }
 @keyframes leafSway {
   0%, 100% { transform: rotate(-6deg) translateY(0); }
@@ -425,10 +413,13 @@ onUnmounted(() => {
   border: 2px solid color-mix(in srgb, var(--gold) 33%, transparent);
   background: color-mix(in srgb, var(--bg) 80%, transparent);
   cursor: pointer;
+  color: var(--goldB);
   display: flex; align-items: center; justify-content: center;
   animation: breathe 2.5s ease-in-out infinite;
   box-shadow: 0 0 30px color-mix(in srgb, var(--gold) 13%, transparent);
 }
+.swb-icon { display: flex; align-items: center; justify-content: center; }
+.swb-icon svg { display: block; }
 
 /* Shadow stage with animals (Ch2 after switch) */
 .sh-stage {
