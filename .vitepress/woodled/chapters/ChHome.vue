@@ -92,19 +92,19 @@ watch([playing, done], ([play, isDone]) => {
       cycleTimers.push(setTimeout(() => {
         fade.value = false
         done.value = true
-      }, 1400))
+      }, 1600))
       return
     }
-    // Crossfade to next room
+    // Crossfade to next room (longer durations for smoother mobile rendering)
     fade.value = true; gaugeAnim.value = false
     cycleTimers.push(setTimeout(() => {
       if (stopped) return
       curIdx = nextIdx
       idx.value = nextIdx
       fade.value = false
-      cycleTimers.push(setTimeout(() => { gaugeAnim.value = true }, 600))
-    }, 800))
-  }, 4500)
+      cycleTimers.push(setTimeout(() => { gaugeAnim.value = true }, 700))
+    }, 1200))
+  }, 5200)
 })
 
 onUnmounted(clearAll)
@@ -153,7 +153,7 @@ const C_REF = C
           </div>
         </div>
 
-        <div class="d5-c" :style="{ opacity: fade ? 0 : 1, transition: 'opacity .8s ease' }">
+        <div class="d5-c" :style="{ opacity: fade ? 0 : 1, transition: 'opacity 1.2s ease' }">
           <div class="d5m" :style="{ color: d.mc }">{{ d.mood }}</div>
           <div class="d5desc">{{ d.desc }}</div>
 
@@ -168,10 +168,14 @@ const C_REF = C
           <div class="d5z">
             <div class="d5zg" :style="{ borderColor: `${d.mc}22`, background: `${d.mc}08` }">
               <div
-                v-for="z in d.zones.filter(z => z.pct > 0)"
+                v-for="z in d.zones"
                 :key="z.id"
                 class="d5gw"
-                :style="{ background: zoneGradient(z, d.mc), transition: 'all 1.5s' }"
+                :style="{
+                  background: zoneGradient(z, d.mc),
+                  opacity: z.pct > 0 ? 1 : 0,
+                  transition: 'opacity 1.5s ease, background 1.5s ease'
+                }"
               />
               <div class="d5zgr">
                 <div
