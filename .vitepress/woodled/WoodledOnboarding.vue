@@ -203,11 +203,11 @@ onUnmounted(() => {
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   border: 1px solid color-mix(in srgb, var(--dim) 20%, transparent);
-  background: var(--card);
+  background: transparent;
   transition: all .4s;
 }
-.ni.ac .nib { border-color: color-mix(in srgb, var(--gold) 40%, transparent); background: color-mix(in srgb, var(--gold) 5%, transparent); }
-.ni.dn .nib { border-color: color-mix(in srgb, var(--gold) 20%, transparent); }
+.ni.ac .nib { border-color: color-mix(in srgb, var(--gold) 40%, transparent); background: color-mix(in srgb, var(--gold) 8%, transparent); }
+.ni.dn .nib { border-color: color-mix(in srgb, var(--gold) 20%, transparent); background: transparent; }
 .nic { color: var(--dim); transition: color .4s; display: flex; }
 .ni.ac .nic { color: var(--gold); }
 .ni.dn .nic { color: var(--text2); }
@@ -286,14 +286,14 @@ onUnmounted(() => {
 .ember { position: absolute; left: 50%; top: 50%; margin-left: -16px; margin-top: -16px; opacity: 0; pointer-events: none; z-index: 4; }
 
 /* Lamel (Ch1 final reveal) */
-.l2-stage { position: relative; width: 340px; height: 380px; display: flex; align-items: center; justify-content: center; margin-bottom: -30px; }
+.l2-stage { position: relative; width: 280px; height: 320px; display: flex; align-items: center; justify-content: center; margin-bottom: -30px; }
 .ch1 .l2-stage { opacity: 0; transform: scale(.9); transition: all 1.2s ease; height: 0; margin-bottom: 0; }
-.ch1 .l2-stage.vis { opacity: 1; transform: scale(1); height: 300px; margin-bottom: 0; }
-.ch1 .txt-ch1 { margin-top: -20px; }
+.ch1 .l2-stage.vis { opacity: 1; transform: scale(1); height: 240px; margin-bottom: 0; }
+.ch1 .txt-ch1 { margin-top: 16px; }
 .l2-lamel { position: absolute; z-index: 2; opacity: 0; transform: scale(2); transition: all 1.5s ease; }
 .l2-lamel.vis { opacity: 1; transform: scale(1); }
 .l2-body {
-  width: 200px; height: 340px; position: relative; overflow: hidden;
+  width: 160px; height: 270px; position: relative; overflow: hidden;
   background: linear-gradient(175deg,
     color-mix(in srgb, var(--oakL) 60%, transparent),
     color-mix(in srgb, var(--oak) 47%, transparent),
@@ -325,6 +325,50 @@ onUnmounted(() => {
 /* ═══ CH4 (step 3): Interior + CTA ═══ */
 .ch-rt { padding-top: 50px; justify-content: flex-start; }
 .rt-stage { position: relative; width: 100%; max-width: 340px; height: 340px; display: flex; align-items: center; justify-content: center; margin-top: 30px; }
+
+/* Leaf preloader — shows until interior image is fully loaded */
+.rt-loader {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 5;
+  opacity: 1;
+  transition: opacity .8s ease;
+  pointer-events: none;
+}
+.rt-loader.hide { opacity: 0; }
+.rt-loader-leaf {
+  position: relative;
+  width: 90px; height: 90px;
+  color: var(--gold);
+  animation: leafSway 3.4s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+.rt-leaf-bg, .rt-leaf-fg {
+  position: absolute; inset: 0;
+}
+.rt-leaf-bg svg, .rt-leaf-fg svg {
+  width: 100%; height: 100%; display: block;
+}
+.rt-leaf-bg svg path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  opacity: .25;
+}
+.rt-leaf-fg {
+  transition: clip-path .35s ease-out;
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--gold) 50%, transparent));
+}
+.rt-leaf-fg svg path {
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+@keyframes leafSway {
+  0%, 100% { transform: rotate(-6deg) translateY(0); }
+  50%      { transform: rotate(6deg) translateY(-3px); }
+}
+
 .rt-interior { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; overflow: hidden; border-radius: 16px; }
 .rt-interior.v { opacity: 1; }
 .rt-int-img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
@@ -533,7 +577,8 @@ onUnmounted(() => {
   .sl    { font-size: 14px; }
   .d5gn  { font-size: 38px; }
   .d5m   { font-size: 20px; }
-  .l2-body  { width: 140px; height: 240px; }
-  .l2-stage { width: 280px; height: 320px; }
+  .l2-body  { width: 130px; height: 220px; }
+  .l2-stage { width: 240px; height: 280px; }
+  .ch1 .l2-stage.vis { height: 200px; }
 }
 </style>
