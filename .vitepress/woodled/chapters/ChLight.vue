@@ -1,0 +1,143 @@
+<script setup>
+import { ref, watch, onUnmounted } from 'vue'
+import { C, FIG, IMG } from '../woodled-data.js'
+
+const props = defineProps({
+  active: { type: Boolean, required: true }
+})
+const emit = defineEmits(['ready'])
+
+// p: phase (-1..4), sw: switched to shadow-stage, fi: figure index
+const p = ref(-1)
+const sw = ref(false)
+const fi = ref(0)
+let timers = []
+
+function clearTimers() {
+  timers.forEach(clearTimeout)
+  timers = []
+}
+
+watch(() => props.active, (active) => {
+  clearTimers()
+  if (!active) {
+    p.value = -1; sw.value = false; fi.value = 0
+    emit('ready', true)
+    return
+  }
+  emit('ready', true)
+  const schedule = [
+    [300, 0], [1400, 1], [5500, 2], [7500, 3], [9000, 4]
+  ]
+  schedule.forEach(([ms, val]) => {
+    timers.push(setTimeout(() => { p.value = val }, ms))
+  })
+}, { immediate: true })
+
+onUnmounted(clearTimers)
+
+function doSwitch() {
+  if (sw.value) return
+  sw.value = true
+}
+
+const N = 20      // number of lamels in the assembly
+const R = 80      // assembly radius
+
+const goldB = C.goldB
+</script>
+
+<template>
+  <div class="ci ch-l4">
+    <div class="ctl">
+      <span :class="['cs', { v: p >= 0 }]">Глава вторая</span>
+      <span :class="['cn', { v: p >= 0 }]">WOODLED Rotor</span>
+    </div>
+
+    <!-- Rotor product photo + assembly (before switch) -->
+    <div v-if="!sw" class="l4-stage">
+      <div :class="['l4-photo', { v: p >= 0, fade: p >= 2 }]">
+        <div class="rt-glow" />
+        <img :src="IMG.rotor" alt="WOODLED Rotor" class="rt-img">
+        <div class="rt-fade-top" />
+      </div>
+      <div :class="['r-stage', { v: p >= 2 }]">
+        <div :class="['r-asm', { spin: p >= 3 }]">
+          <div
+            v-for="i in N" :key="`rs${i}`"
+            class="rs"
+            :class="{ in: p >= 2 }"
+            :style="{
+              transform: p >= 2
+                ? `rotate(${((i-1)/N)*360}deg) translateY(-${R}px)`
+                : `rotate(${((i-1)/N)*360}deg) translateY(-${R+90}px)`,
+              transitionDelay: `${(i-1)*50}ms`
+            }"
+          />
+          <template v-if="p >= 3">
+            <div
+              v-for="i in N" :key="`rsg${i}`"
+              class="rsg"
+              :style="{
+                transform: `rotate(${((i-1)/N)*360}deg) translateY(-${R*0.55}px)`,
+                animationDelay: `${(i-1)*0.15}s`
+              }"
+            />
+          </template>
+        </div>
+        <div :class="['sww', { vis: p >= 4 }]">
+          <button class="swb" @click="doSwitch" aria-label="Включить">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" :stroke="goldB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 7h.01"/>
+              <path d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20"/>
+              <path d="m20 7 2 .5-2 .5"/>
+              <path d="M10 18v3"/>
+              <path d="M14 17.75V21"/>
+              <path d="M7 18a6 6 0 0 0 3.84-10.61"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shadow stage (after switch) -->
+    <template v-else>
+      <div class="sh-stage on">
+        <div class="sh-light" />
+        <div class="sh-fig" :key="fi">
+          <img :src="IMG[FIG[fi].img]" :alt="FIG[fi].label">
+        </div>
+        <div class="sh-bars">
+          <div
+            v-for="i in 10" :key="i"
+            class="sh-bar"
+            :style="{ left: `${((i-1)/10)*100}%` }"
+          />
+        </div>
+      </div>
+      <div class="sh-title">Лес вернулся домой</div>
+      <div class="figr sh-figr">
+        <button
+          v-for="(f, i) in FIG"
+          :key="f.id"
+          :class="['fb', { ac: i === fi }]"
+          @click="fi = i"
+        >{{ f.label }}</button>
+      </div>
+    </template>
+
+    <!-- Caption (only before switch) -->
+    <div v-if="!sw" :class="['txt', { v: p >= 1 }]">
+      <div class="txt-stack">
+        <div :class="['txt-layer', { v: p < 2 }]">
+          <div class="txth">Дом с WOODLED Rotor</div>
+          <div class="txtp">Настоящее дерево становится живым светом в доме.</div>
+        </div>
+        <div :class="['txt-layer', { v: p >= 2 }]">
+          <div class="txth">Ламели встают в круг</div>
+          <div class="txtp">Простота. Природа. Ничего лишнего. Только дерево, свет и воздух между ними.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
