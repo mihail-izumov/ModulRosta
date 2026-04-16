@@ -41,8 +41,8 @@ export const IMG = {
   rotor: '/woodled/onboarding/rotor.png',
   wood: '/woodled/onboarding/wood.jpg',
   interior: '/woodled/onboarding/interior.jpg',
-  bird: '/woodled/onboarding/bird.png',
-  rabbit: '/woodled/onboarding/rabbit.png',
+  bird: '/woodled/onboarding/bird.svg',
+  rabbit: '/woodled/onboarding/rabbit.svg',
   squirrel: '/woodled/onboarding/squirell.svg'
 }
 
@@ -150,8 +150,11 @@ export const SOUND_ICONS = {
   unmuted: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>'
 }
 
-// Leaf icon for the Ch4 preloader (lucide:leaf)
-export const LEAF_ICON = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.2 2.96a1 1 0 0 1 1.8.5c0 4.7 0 12.7-1 16.7-1 4-3 5-5 5"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>'
+// Leaf icon for the Ch4 preloader (lucide:leafy-green — leaf with diagonal vein)
+export const LEAF_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22c1.25-.987 2.27-1.975 3.9-2.2a5.56 5.56 0 0 1 3.8 1.5 4 4 0 0 0 6.187-2.353 3.5 3.5 0 0 0 3.69-5.116A3.5 3.5 0 0 0 20.95 8 3.5 3.5 0 1 0 16 3.05a3.5 3.5 0 0 0-5.831 1.373 3.5 3.5 0 0 0-5.116 3.69 4 4 0 0 0-2.348 6.155C3.499 15.42 4.409 16.712 4.2 18.1 3.926 19.743 3.014 20.732 2 22"/><path d="M2 22 17 7"/></svg>'
+
+// Final destination after onboarding (used by both "Пропустить" and CTA)
+export const CUSTOMIZER_URL = 'https://runscale.ru/woodled/customizer'
 
 // Bird icon (large) for the Ch2 switch button — v-html avoids the same
 // SVG-render quirk we hit with NAV_ICONS.

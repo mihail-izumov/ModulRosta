@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
-import { cssVars, BTN_LABELS, AUDIO_SRC, NAV_ICONS, SOUND_ICONS } from './woodled-data.js'
+import { cssVars, BTN_LABELS, AUDIO_SRC, NAV_ICONS, SOUND_ICONS, CUSTOMIZER_URL } from './woodled-data.js'
 import ChForest from './chapters/ChForest.vue'
 import ChLight from './chapters/ChLight.vue'
 import ChHome from './chapters/ChHome.vue'
@@ -49,6 +49,12 @@ function toggleSound() {
 
 function onCtaStart() {
   emit('finish')
+}
+
+function skipToCustomizer() {
+  if (typeof window !== 'undefined') {
+    window.location.href = CUSTOMIZER_URL
+  }
 }
 
 // Auto-hide hint after 8s
@@ -133,7 +139,7 @@ onUnmounted(() => {
 
     <div v-if="step < 3" class="bb">
       <button class="bn" @click="goTo(step + 1)">{{ BTN_LABELS[step] || 'Далее' }}</button>
-      <button class="sk" @click="goTo(3)">Пропустить</button>
+      <button class="sk" @click="skipToCustomizer">Пропустить</button>
     </div>
   </div>
 </template>
@@ -337,24 +343,36 @@ onUnmounted(() => {
 }
 .rt-loader.hide { opacity: 0; }
 .rt-loader-leaf {
-  width: 90px; height: 90px;
+  position: relative;
+  width: 64px; height: 64px;
   color: var(--gold);
-  animation: leafSway 3.4s ease-in-out infinite;
-  transform-origin: 50% 90%;
-  display: flex; align-items: center; justify-content: center;
+  animation: leafSway 3.6s ease-in-out infinite;
+  transform-origin: 50% 50%;
 }
-.rt-loader-leaf svg {
-  width: 100%; height: 100%; display: block;
+.rt-leaf-bg, .rt-leaf-fg {
+  position: absolute; inset: 0;
 }
-.rt-loader-leaf svg path {
+.rt-leaf-bg svg, .rt-leaf-fg svg {
+  width: 100%; height: 100%; display: block; overflow: visible;
+}
+.rt-leaf-bg svg path {
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.4;
-  opacity: .5;
+  stroke-width: 1.6;
+  opacity: .45;
+}
+.rt-leaf-fg {
+  transition: clip-path .35s ease-out;
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--gold) 55%, transparent));
+}
+.rt-leaf-fg svg path {
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.6;
 }
 @keyframes leafSway {
-  0%, 100% { transform: rotate(-6deg) translateY(0); }
-  50%      { transform: rotate(6deg) translateY(-3px); }
+  0%, 100% { transform: rotate(-4deg); }
+  50%      { transform: rotate(4deg); }
 }
 
 .rt-interior { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; overflow: hidden; border-radius: 16px; }
@@ -425,15 +443,12 @@ onUnmounted(() => {
 .sh-stage {
   width: 100%; max-width: 400px;
   height: 40vh; min-height: 320px; max-height: 400px;
-  position: relative; overflow: hidden;
-  border-radius: 24px; background: #060503;
+  position: relative; overflow: visible;
+  background: transparent;
   display: flex; align-items: flex-end; justify-content: center;
   margin-top: 10px;
 }
-.sh-stage::after {
-  content: ''; position: absolute; inset: 0; z-index: 4; pointer-events: none;
-  box-shadow: inset 0 0 60px 30px #060503; border-radius: 24px;
-}
+/* No ::after vignette — stage now blends straight into the page background */
 .sh-light {
   position: absolute; inset: 0;
   background: radial-gradient(ellipse 65% 55% at 50% 40%,
