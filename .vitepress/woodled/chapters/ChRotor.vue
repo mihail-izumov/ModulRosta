@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onUnmounted } from 'vue'
-import { C, IMG, LEAF_ICON } from '../woodled-data.js'
+import { C, IMG, LEAF_ICON, CUSTOMIZER_URL } from '../woodled-data.js'
 
 const props = defineProps({
   active: { type: Boolean, required: true }
@@ -149,6 +149,13 @@ onUnmounted(() => {
 })
 
 const C_REF = C
+
+function goCustomizer() {
+  emit('start') // keep emit for backward compat
+  if (typeof window !== 'undefined') {
+    window.location.href = CUSTOMIZER_URL
+  }
+}
 </script>
 
 <template>
@@ -161,7 +168,14 @@ const C_REF = C
     <div class="rt-stage">
       <!-- Leaf preloader (shows until image fully loaded) -->
       <div :class="['rt-loader', { hide: imageReady }]">
-        <div class="rt-loader-leaf" v-html="LEAF_ICON" />
+        <div class="rt-loader-leaf">
+          <div class="rt-leaf-bg" v-html="LEAF_ICON" />
+          <div
+            class="rt-leaf-fg"
+            v-html="LEAF_ICON"
+            :style="{ clipPath: `inset(${(1 - progress) * 100}% 0 0 0)` }"
+          />
+        </div>
       </div>
 
       <!-- Interior image (revealed once both phase>=1 AND image ready) -->
@@ -180,7 +194,7 @@ const C_REF = C
       <button
         class="d5btn"
         :style="{ background: '#fff', color: C_REF.bg, boxShadow: '0 4px 24px rgba(255,255,255,.15)' }"
-        @click="emit('start')"
+        @click="goCustomizer"
       >Оживить Мой Дом</button>
     </div>
   </div>
