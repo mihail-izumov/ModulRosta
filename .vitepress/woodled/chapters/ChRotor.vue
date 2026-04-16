@@ -169,12 +169,14 @@ function goCustomizer() {
       <!-- Leaf preloader (shows until image fully loaded) -->
       <div :class="['rt-loader', { hide: imageReady }]">
         <div class="rt-loader-leaf">
-          <div class="rt-leaf-bg" v-html="LEAF_ICON" />
-          <div
-            class="rt-leaf-fg"
-            v-html="LEAF_ICON"
-            :style="{ clipPath: `inset(${(1 - progress) * 100}% 0 0 0)` }"
-          />
+          <div class="rt-leaf-inner">
+            <div class="rt-leaf-bg" v-html="LEAF_ICON" />
+            <div
+              class="rt-leaf-fg"
+              v-html="LEAF_ICON"
+              :style="{ clipPath: `inset(${(1 - progress) * 100}% 0 0 0)` }"
+            />
+          </div>
         </div>
       </div>
 

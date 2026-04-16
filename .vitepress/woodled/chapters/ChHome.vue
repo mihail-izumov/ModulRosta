@@ -65,7 +65,7 @@ watch([gaugeAnim, idx], ([anim, currentIdx]) => {
   if (counterRAF) cancelAnimationFrame(counterRAF)
   if (!anim) { displayPct.value = 0; return }
   const target = DEMO[currentIdx].pct
-  const duration = 2200
+  const duration = 2500
   const start = Date.now()
   const tick = () => {
     const t = Math.min(1, (Date.now() - start) / duration)
@@ -85,7 +85,7 @@ watch([playing, done], ([play, isDone]) => {
     if (stopped) return
     const nextIdx = curIdx + 1
     if (nextIdx >= DEMO.length) {
-      // Last room shown → fade to summary
+      // Last room shown → fade to summary (still uses fade ref for summary swap)
       stopped = true
       clearInterval(cycleInterval); cycleInterval = null
       fade.value = true; gaugeAnim.value = false
@@ -95,16 +95,17 @@ watch([playing, done], ([play, isDone]) => {
       }, 1600))
       return
     }
-    // Crossfade to next room (longer durations for smoother mobile rendering)
-    fade.value = true; gaugeAnim.value = false
+    // Reset gauge first, then swap idx — <Transition mode="out-in"> animates
+    // the fade (1s leave + 1s enter = 2s total). Old DOM is fully removed
+    // before new one appears, so numbers can never show twice.
+    gaugeAnim.value = false
+    curIdx = nextIdx
+    idx.value = nextIdx
+    // Start gauge/counter after new DOM is mounted (2s + small buffer)
     cycleTimers.push(setTimeout(() => {
-      if (stopped) return
-      curIdx = nextIdx
-      idx.value = nextIdx
-      fade.value = false
-      cycleTimers.push(setTimeout(() => { gaugeAnim.value = true }, 700))
-    }, 1200))
-  }, 5200)
+      if (!stopped) gaugeAnim.value = true
+    }, 2200))
+  }, 5500)
 })
 
 onUnmounted(clearAll)
@@ -153,51 +154,53 @@ const C_REF = C
           </div>
         </div>
 
-        <div class="d5-c" :style="{ opacity: fade ? 0 : 1, transition: 'opacity 1.2s ease' }">
-          <div class="d5m" :style="{ color: d.mc }">{{ d.mood }}</div>
-          <div class="d5desc">{{ d.desc }}</div>
+        <Transition name="room-fade" mode="out-in">
+          <div class="d5-c" :key="idx">
+            <div class="d5m" :style="{ color: d.mc }">{{ d.mood }}</div>
+            <div class="d5desc">{{ d.desc }}</div>
 
-          <div class="d5g">
-            <Gauge :pct="d.pct" :color="d.mc" :size="200" :animate="gaugeAnim"/>
-            <div class="d5gv">
-              <span class="d5gn">{{ displayPct }}</span>
-              <span class="d5gp">%</span>
+            <div class="d5g">
+              <Gauge :pct="d.pct" :color="d.mc" :size="200" :animate="gaugeAnim"/>
+              <div class="d5gv">
+                <span class="d5gn">{{ displayPct }}</span>
+                <span class="d5gp">%</span>
+              </div>
             </div>
-          </div>
 
-          <div class="d5z">
-            <div class="d5zg" :style="{ borderColor: `${d.mc}22`, background: `${d.mc}08` }">
-              <div
-                v-for="z in d.zones"
-                :key="z.id"
-                class="d5gw"
-                :style="{
-                  background: zoneGradient(z, d.mc),
-                  opacity: z.pct > 0 ? 1 : 0,
-                  transition: 'opacity 1.5s ease, background 1.5s ease'
-                }"
-              />
-              <div class="d5zgr">
+            <div class="d5z">
+              <div class="d5zg" :style="{ borderColor: `${d.mc}22`, background: `${d.mc}08` }">
                 <div
                   v-for="z in d.zones"
                   :key="z.id"
-                  class="d5zc"
-                  :style="{ opacity: z.pct > 0 ? 1 : .2, transition: 'all .8s' }"
-                >
-                  <div class="d5zh">
-                    <span class="d5zn">{{ z.n }}</span>
-                    <span
-                      v-if="z.pct > 0"
-                      class="d5zp"
-                      :style="{ color: d.mc, background: `${d.mc}20` }"
-                    >{{ z.pct }}%</span>
+                  class="d5gw"
+                  :style="{
+                    background: zoneGradient(z, d.mc),
+                    opacity: z.pct > 0 ? 1 : 0,
+                    transition: 'opacity 1.5s ease, background 1.5s ease'
+                  }"
+                />
+                <div class="d5zgr">
+                  <div
+                    v-for="z in d.zones"
+                    :key="z.id"
+                    class="d5zc"
+                    :style="{ opacity: z.pct > 0 ? 1 : .2, transition: 'all .8s' }"
+                  >
+                    <div class="d5zh">
+                      <span class="d5zn">{{ z.n }}</span>
+                      <span
+                        v-if="z.pct > 0"
+                        class="d5zp"
+                        :style="{ color: d.mc, background: `${d.mc}20` }"
+                      >{{ z.pct }}%</span>
+                    </div>
+                    <div v-if="z.pct > 0" class="d5zm">{{ z.m }}</div>
                   </div>
-                  <div v-if="z.pct > 0" class="d5zm">{{ z.m }}</div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </Transition>
       </template>
 
       <!-- Summary -->
