@@ -1,5 +1,10 @@
 ---
 layout: page
+sidebar: false
+navbar: false
+footer: false
+aside: false
+pageClass: woodled-fullscreen
 ---
 
 <script setup>
