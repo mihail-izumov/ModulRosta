@@ -3,7 +3,7 @@ layout: page
 ---
 
 <script setup>
-import WoodledOnboarding from '../components/woodled/WoodledOnboarding.vue'
+import WoodledOnboarding from '../.vitepress/woodled/WoodledOnboarding.vue'
 
 function goNext() {
   window.location.href = '/customizer'
