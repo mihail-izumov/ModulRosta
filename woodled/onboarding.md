@@ -5,6 +5,7 @@ navbar: false
 footer: false
 aside: false
 pageClass: woodled-fullscreen
+title: WOODLED Rotor - Онбординг
 ---
 
 <script setup>
