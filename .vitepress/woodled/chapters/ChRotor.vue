@@ -161,14 +161,7 @@ const C_REF = C
     <div class="rt-stage">
       <!-- Leaf preloader (shows until image fully loaded) -->
       <div :class="['rt-loader', { hide: imageReady }]">
-        <div class="rt-loader-leaf">
-          <div class="rt-leaf-bg" v-html="LEAF_ICON" />
-          <div
-            class="rt-leaf-fg"
-            v-html="LEAF_ICON"
-            :style="{ clipPath: `inset(${(1 - progress) * 100}% 0 0 0)` }"
-          />
-        </div>
+        <div class="rt-loader-leaf" v-html="LEAF_ICON" />
       </div>
 
       <!-- Interior image (revealed once both phase>=1 AND image ready) -->

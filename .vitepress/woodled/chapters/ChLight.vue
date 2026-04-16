@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onUnmounted } from 'vue'
-import { C, FIG, IMG } from '../woodled-data.js'
+import { C, FIG, IMG, BIRD_ICON_LG } from '../woodled-data.js'
 
 const props = defineProps({
   active: { type: Boolean, required: true }
@@ -43,8 +43,6 @@ function doSwitch() {
 
 const N = 20      // number of lamels in the assembly
 const R = 80      // assembly radius
-
-const goldB = C.goldB
 </script>
 
 <template>
@@ -87,14 +85,7 @@ const goldB = C.goldB
         </div>
         <div :class="['sww', { vis: p >= 4 }]">
           <button class="swb" @click="doSwitch" aria-label="Включить">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" :stroke="goldB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 7h.01"/>
-              <path d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20"/>
-              <path d="m20 7 2 .5-2 .5"/>
-              <path d="M10 18v3"/>
-              <path d="M14 17.75V21"/>
-              <path d="M7 18a6 6 0 0 0 3.84-10.61"/>
-            </svg>
+            <span class="swb-icon" v-html="BIRD_ICON_LG" />
           </button>
         </div>
       </div>
