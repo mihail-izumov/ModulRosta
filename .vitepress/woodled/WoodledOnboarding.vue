@@ -349,6 +349,10 @@ onUnmounted(() => {
   animation: leafSway 3.6s ease-in-out infinite;
   transform-origin: 50% 50%;
 }
+/* Inner wrapper never rotates — clip-path stays aligned with the SVG */
+.rt-leaf-inner {
+  position: absolute; inset: 0;
+}
 .rt-leaf-bg, .rt-leaf-fg {
   position: absolute; inset: 0;
 }
@@ -442,36 +446,50 @@ onUnmounted(() => {
 /* Shadow stage with animals (Ch2 after switch) */
 .sh-stage {
   width: 100%; max-width: 400px;
-  height: 40vh; min-height: 320px; max-height: 400px;
-  position: relative; overflow: visible;
+  height: 40vh; min-height: 280px; max-height: 380px;
+  position: relative; overflow: hidden;
   background: transparent;
   display: flex; align-items: flex-end; justify-content: center;
   margin-top: 10px;
+  /* Soft radial mask = no visible rectangle edges, light beam fades naturally */
+  -webkit-mask-image: radial-gradient(ellipse 85% 85% at 50% 55%, #000 45%, transparent 95%);
+          mask-image: radial-gradient(ellipse 85% 85% at 50% 55%, #000 45%, transparent 95%);
 }
-/* No ::after vignette — stage now blends straight into the page background */
 .sh-light {
   position: absolute; inset: 0;
-  background: radial-gradient(ellipse 65% 55% at 50% 40%,
+  background: radial-gradient(ellipse 60% 50% at 50% 40%,
     color-mix(in srgb, var(--warm) 21%, transparent),
     color-mix(in srgb, var(--warm) 7%, transparent),
-    transparent);
+    transparent 75%);
   transition: all 1.5s;
 }
 .sh-stage.on .sh-light {
-  background: radial-gradient(ellipse 65% 55% at 50% 40%,
+  background: radial-gradient(ellipse 60% 50% at 50% 40%,
     color-mix(in srgb, var(--warm) 38%, transparent),
     color-mix(in srgb, var(--warm) 15%, transparent),
-    transparent);
+    transparent 75%);
 }
-.sh-fig { height: 90%; width: auto; max-height: 340px; position: relative; z-index: 2; opacity: 0; transition: opacity 2s ease; margin-bottom: -50px; display: flex; align-items: flex-end; justify-content: center; }
+.sh-fig {
+  position: absolute;
+  left: 50%; bottom: 0;
+  transform: translateX(-50%);
+  width: 240px; height: 240px;
+  z-index: 2;
+  opacity: 0; transition: opacity 2s ease;
+  display: flex; align-items: flex-end; justify-content: center;
+  pointer-events: none;
+}
 .sh-stage.on .sh-fig { opacity: 1; }
 .sh-fig svg, .sh-fig img {
-  height: 100%; width: auto; display: block; object-fit: contain;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  display: block;
   filter: drop-shadow(0 -8px 20px color-mix(in srgb, var(--warm) 13%, transparent));
 }
-.sh-fig img[alt="Белка"] { height: 67%; align-self: flex-end; }
+.sh-fig img[alt="Белка"] { height: 70%; align-self: flex-end; }
 .sh-figr { margin-top: 14px; animation: fu .6s .4s both; }
-.sh-title { font-size: 20px; font-weight: 700; color: var(--text); text-align: center; margin-top: 16px; animation: fu .6s .2s both; }
+.sh-title { font-size: 20px; font-weight: 700; color: var(--text); text-align: center; margin-top: 28px; animation: fu .6s .2s both; }
 .sh-bars {
   position: absolute; inset: -10% 0;
   z-index: 3; opacity: .4; pointer-events: none;
@@ -506,6 +524,11 @@ onUnmounted(() => {
 .rmb { display: flex; gap: 6px; justify-content: center; margin-bottom: 32px; }
 .rb { padding: 4px 14px; border-radius: 12px; border: 1px solid; font-size: 12px; font-weight: 600; transition: all .8s; }
 .d5-c { transition: all .8s ease; }
+/* Room crossfade — guarantees old+new are never in DOM simultaneously */
+.room-fade-enter-active,
+.room-fade-leave-active { transition: opacity 1s ease; }
+.room-fade-enter-from,
+.room-fade-leave-to { opacity: 0; }
 .d5m { text-align: center; font-size: 24px; font-weight: 700; margin-bottom: 8px; transition: all .8s; }
 .d5g { position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 4px; }
 .d5gv { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: baseline; line-height: 1; }
