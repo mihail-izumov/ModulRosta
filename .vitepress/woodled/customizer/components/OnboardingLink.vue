@@ -44,7 +44,7 @@ const ONBOARDING_URL = 'https://runscale.ru/woodled/onboarding'
     >
       <Icon name="mirror" :color="T.neutral" :size="22" />
     </div>
-    <div :style="{ flex: 1, lineHeight: 1.25 }">
+    <div :style="{ flex: 1, lineHeight: 1.75 }">
       <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
         Дерево продолжает светить
       </div>
@@ -52,14 +52,13 @@ const ONBOARDING_URL = 'https://runscale.ru/woodled/onboarding'
         Как работает свет WOODLED
       </div>
     </div>
-    <span
-      :style="{
-        fontSize: '60px',
-        lineHeight: 1,
-        fontWeight: 500,
-        color: T.neutral,
-        flexShrink: 0,
-      }"
-    >›</span>
+    <svg
+      width="22" height="22" viewBox="0 0 24 24" fill="none"
+      :stroke="T.neutral" stroke-width="1.5"
+      stroke-linecap="round" stroke-linejoin="round"
+      :style="{ flexShrink: 0, display: 'block' }"
+    >
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
   </a>
 </template>

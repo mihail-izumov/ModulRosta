@@ -41,21 +41,21 @@ const emit = defineEmits<{ click: [] }>()
     >
       <Icon name="gift" :color="T.text" :size="22" />
     </div>
-    <div :style="{ flex: 1 }">
+    <div :style="{ flex: 1, lineHeight: 1.75 }">
       <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
         3 000 ₽ на первый светильник
       </div>
-      <div
-        :style="{
-          fontSize: '11px',
-          color: T.text,
-          marginTop: '2px',
-          opacity: 0.7,
-        }"
-      >
+      <div :style="{ fontSize: '11px', color: T.textSec }">
         Соберите лес WOODLED Rotor и получите скидку
       </div>
     </div>
-    <span :style="{ fontSize: '20px', color: T.textSec }">›</span>
+    <svg
+      width="22" height="22" viewBox="0 0 24 24" fill="none"
+      :stroke="T.textSec" stroke-width="1.5"
+      stroke-linecap="round" stroke-linejoin="round"
+      :style="{ flexShrink: 0, display: 'block' }"
+    >
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
   </div>
 </template>
