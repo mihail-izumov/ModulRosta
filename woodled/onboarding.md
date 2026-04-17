@@ -2,7 +2,51 @@
 layout: page
 sidebar: false
 aside: false
-title: WOODLED Rotor - Онбординг
+title: WOODLED Rotor — Онбординг
+description: Как работает свет WOODLED — познакомьтесь с философией и соберите свой лес света
+head:
+  - - meta
+    - name: description
+      content: Как работает свет WOODLED — познакомьтесь с философией и соберите свой лес света
+  - - meta
+    - property: og:type
+      content: website
+  - - meta
+    - property: og:site_name
+      content: WOODLED
+  - - meta
+    - property: og:title
+      content: WOODLED Rotor — Онбординг
+  - - meta
+    - property: og:description
+      content: Как работает свет WOODLED — познакомьтесь с философией и соберите свой лес света
+  - - meta
+    - property: og:url
+      content: https://runscale.ru/woodled/onboarding
+  - - meta
+    - property: og:image
+      content: https://runscale.ru/woodled/og-cover.jpg
+  - - meta
+    - property: og:image:width
+      content: "1200"
+  - - meta
+    - property: og:image:height
+      content: "630"
+  - - meta
+    - property: og:image:alt
+      content: WOODLED Rotor
+  - - meta
+    - name: twitter:card
+      content: summary_large_image
+  - - meta
+    - name: twitter:title
+      content: WOODLED Rotor — Онбординг
+  - - meta
+    - name: twitter:description
+      content: Как работает свет WOODLED — познакомьтесь с философией и соберите свой лес света
+  - - meta
+    - name: twitter:image
+      content: https://runscale.ru/woodled/og-cover.jpg
 ---
 
 <script setup>
