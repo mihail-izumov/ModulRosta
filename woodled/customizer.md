@@ -40,7 +40,7 @@ head:
       content: summary_large_image
   - - meta
     - name: twitter:title
-      content: WOODLED Rotor — Конфигуратор
+      content: Конфигуратор домашнего света
   - - meta
     - name: twitter:description
       content: Соберите свой лес света WOODLED — дизайнерские светильники из дерева для каждой комнаты
