@@ -2,7 +2,7 @@
 layout: page
 sidebar: false
 aside: false
-title: WOODLED Rotor — Онбординг
+title: Дом с WOODLED Rotor
 description: Как работает свет WOODLED — познакомьтесь с философией и соберите свой лес света
 head:
   - - meta
@@ -16,7 +16,7 @@ head:
       content: WOODLED
   - - meta
     - property: og:title
-      content: WOODLED Rotor — Онбординг
+      content: Дом с WOODLED Rotor
   - - meta
     - property: og:description
       content: Как работает свет WOODLED — познакомьтесь с философией и соберите свой лес света
@@ -40,7 +40,7 @@ head:
       content: summary_large_image
   - - meta
     - name: twitter:title
-      content: WOODLED Rotor — Онбординг
+      content: Дом с WOODLED Rotor
   - - meta
     - name: twitter:description
       content: Как работает свет WOODLED — познакомьтесь с философией и соберите свой лес света
