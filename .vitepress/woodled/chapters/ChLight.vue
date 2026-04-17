@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { C, FIG, IMG, BIRD_ICON_LG } from '../woodled-data.js'
 
 const props = defineProps({
@@ -7,10 +7,11 @@ const props = defineProps({
 })
 const emit = defineEmits(['ready'])
 
-// p: phase (-1..4), sw: switched to shadow-stage, fi: figure index
 const p = ref(-1)
 const sw = ref(false)
 const fi = ref(0)
+const rotorLoaded = ref(false)
+const animalsLoaded = ref(false)
 let timers = []
 
 function clearTimers() {
@@ -18,7 +19,39 @@ function clearTimers() {
   timers = []
 }
 
-watch(() => props.active, (active) => {
+// Preload a single image, resolve when ready
+function preloadImg(src) {
+  return new Promise(resolve => {
+    const img = new Image()
+    img.onload = () => resolve(true)
+    img.onerror = () => resolve(false) // don't block on error
+    img.src = src
+  })
+}
+
+// Preload rotor + animals in parallel on mount
+onMounted(async () => {
+  // Rotor is critical — wait for it
+  preloadImg(IMG.rotor).then(() => { rotorLoaded.value = true })
+  // Animals are nice-to-have — preload in background
+  Promise.all(FIG.map(f => preloadImg(IMG[f.img]))).then(() => {
+    animalsLoaded.value = true
+  })
+})
+
+function startTimeline() {
+  clearTimers()
+  p.value = -1
+  const schedule = [
+    [300, 0], [1400, 1], [5500, 2], [7500, 3], [9000, 4]
+  ]
+  schedule.forEach(([ms, val]) => {
+    timers.push(setTimeout(() => { p.value = val }, ms))
+  })
+}
+
+// Only start animation when BOTH active AND rotor image loaded
+watch([() => props.active, rotorLoaded], ([active, loaded]) => {
   clearTimers()
   if (!active) {
     p.value = -1; sw.value = false; fi.value = 0
@@ -26,23 +59,21 @@ watch(() => props.active, (active) => {
     return
   }
   emit('ready', true)
-  const schedule = [
-    [300, 0], [1400, 1], [5500, 2], [7500, 3], [9000, 4]
-  ]
-  schedule.forEach(([ms, val]) => {
-    timers.push(setTimeout(() => { p.value = val }, ms))
-  })
+  if (loaded) {
+    startTimeline()
+  }
+  // If not loaded yet, the watch will fire again when rotorLoaded flips true
 }, { immediate: true })
 
 onUnmounted(clearTimers)
 
 function doSwitch() {
-  if (sw.value) return
+  if (sw.value || !animalsLoaded.value) return
   sw.value = true
 }
 
-const N = 20      // number of lamels in the assembly
-const R = 80      // assembly radius
+const N = 20
+const R = 80
 </script>
 
 <template>
@@ -54,9 +85,9 @@ const R = 80      // assembly radius
 
     <!-- Rotor product photo + assembly (before switch) -->
     <div v-if="!sw" class="l4-stage">
-      <div :class="['l4-photo', { v: p >= 0, fade: p >= 2 }]">
+      <div :class="['l4-photo', { v: p >= 0 && rotorLoaded, fade: p >= 2 }]">
         <div class="rt-glow" />
-        <img :src="IMG.rotor" alt="WOODLED Rotor" class="rt-img">
+        <img v-if="rotorLoaded" :src="IMG.rotor" alt="WOODLED Rotor" class="rt-img">
         <div class="rt-fade-top" />
       </div>
       <div :class="['r-stage', { v: p >= 2 }]">
@@ -83,7 +114,7 @@ const R = 80      // assembly radius
             />
           </template>
         </div>
-        <div :class="['sww', { vis: p >= 4 }]">
+        <div :class="['sww', { vis: p >= 4 && animalsLoaded }]">
           <button class="swb" @click="doSwitch" aria-label="Включить">
             <span class="swb-icon" v-html="BIRD_ICON_LG" />
           </button>
@@ -122,7 +153,7 @@ const R = 80      // assembly radius
       <div class="txt-stack">
         <div :class="['txt-layer', { v: p < 2 }]">
           <div class="txth">Дом с WOODLED Rotor</div>
-          <div class="txtp">Настоящее дерево становится живым светом в доме.</div>
+          <div class="txtp">Настоящее дерево становится<br>живым светом в доме.</div>
         </div>
         <div :class="['txt-layer', { v: p >= 2 }]">
           <div class="txth">Ламели встают в круг</div>
