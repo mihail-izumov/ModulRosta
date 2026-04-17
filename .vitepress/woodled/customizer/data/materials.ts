@@ -5,11 +5,14 @@
  * Справочные тексты: materials.md.
  */
 
-import { WCOL, type Wood } from '../theme/tokens'
+import { WCOL as _WCOL, type Wood } from '../theme/tokens'
+
+/* Локальный реэкспорт WCOL — компоненты ожидают его рядом с MATS.
+   Конструкция через переименование надёжнее, чем `export { WCOL } from '...'`
+   при одновременном локальном импорте — Rollup иначе теряет привязку. */
+export const WCOL = _WCOL
 
 export type { Wood } from '../theme/tokens'
-// Реэкспорт WCOL: компоненты импортируют его вместе с MATS из одного файла.
-export { WCOL } from '../theme/tokens'
 
 /* ──────────────── Дерево ──────────────── */
 
@@ -21,9 +24,9 @@ export interface Material {
 }
 
 export const MATS: readonly Material[] = [
-  { id: 'oak', name: 'Дуб', color: WCOL.oak },
-  { id: 'walnut', name: 'Орех', color: WCOL.walnut },
-  { id: 'black', name: 'Чёрный дуб', color: WCOL.black },
+  { id: 'oak', name: 'Дуб', color: _WCOL.oak },
+  { id: 'walnut', name: 'Орех', color: _WCOL.walnut },
+  { id: 'black', name: 'Чёрный дуб', color: _WCOL.black },
 ] as const
 
 /* ──────────────── Чаши, крепления ──────────────── */
