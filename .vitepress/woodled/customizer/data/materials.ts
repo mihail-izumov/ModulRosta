@@ -8,6 +8,8 @@
 import { WCOL, type Wood } from '../theme/tokens'
 
 export type { Wood } from '../theme/tokens'
+// Реэкспорт WCOL: компоненты импортируют его вместе с MATS из одного файла.
+export { WCOL } from '../theme/tokens'
 
 /* ──────────────── Дерево ──────────────── */
 
