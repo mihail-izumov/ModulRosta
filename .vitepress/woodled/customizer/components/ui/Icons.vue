@@ -1,0 +1,352 @@
+<script lang="ts">
+/**
+ * Icons.vue — Все 23 Lucide-иконки как единый компонент-обёртка.
+ *
+ * Источник: woodled-v42.jsx (объект IC).
+ * Использование:
+ *   <Icon name="ceiling" :color="T.text" :size="20" />
+ *
+ * Также экспортирует:
+ *   - ICON_NAMES — список всех имён
+ *   - fxIcName(type) — маппинг FxType → имя иконки
+ */
+
+import type { FxType } from '../../data/catalog'
+
+export type IconName =
+  | 'ceiling'
+  | 'table'
+  | 'floor'
+  | 'spot'
+  | 'bra'
+  | 'bulb'
+  | 'up'
+  | 'pen'
+  | 'leaf'
+  | 'mirror'
+  | 'trees'
+  | 'gift'
+  | 'leafy'
+  | 'house'
+  | 'sun'
+  | 'thermo'
+  | 'grid'
+  | 'wind'
+  | 'dotDashed'
+  | 'fileSliders'
+  | 'fan'
+  | 'clockFading'
+  | 'gitCompare'
+
+export const ICON_NAMES: readonly IconName[] = [
+  'ceiling', 'table', 'floor', 'spot', 'bra', 'bulb', 'up', 'pen', 'leaf',
+  'mirror', 'trees', 'gift', 'leafy', 'house', 'sun', 'thermo', 'grid',
+  'wind', 'dotDashed', 'fileSliders', 'fan', 'clockFading', 'gitCompare',
+] as const
+
+/** Маппинг типа светильника на имя иконки. */
+export function fxIcName(type: FxType): IconName {
+  switch (type) {
+    case 'люстра': return 'ceiling'
+    case 'спот': return 'spot'
+    case 'бра': return 'bra'
+    case 'настольная': return 'table'
+    case 'торшер': return 'floor'
+    default: return 'ceiling'
+  }
+}
+</script>
+
+<script setup lang="ts">
+interface Props {
+  name: IconName
+  color?: string
+  size?: number
+}
+const props = withDefaults(defineProps<Props>(), {
+  color: 'currentColor',
+  size: 20,
+})
+</script>
+
+<template>
+  <!-- Каждая иконка — отдельный SVG, переключаемый через v-if.
+       Альтернатива (таблица paths) проиграла в читаемости. -->
+  <svg
+    v-if="props.name === 'ceiling'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M12 2v5" />
+    <path d="M14.829 15.998a3 3 0 1 1-5.658 0" />
+    <path d="M20.92 14.606A1 1 0 0 1 20 16H4a1 1 0 0 1-.92-1.394l3-7A1 1 0 0 1 7 7h10a1 1 0 0 1 .92.606z" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'table'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M12 12v6" />
+    <path d="M4.077 10.615A1 1 0 0 0 5 12h14a1 1 0 0 0 .923-1.385l-3.077-7.384A2 2 0 0 0 15 2H9a2 2 0 0 0-1.846 1.23Z" />
+    <path d="M8 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'floor'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M12 10v12" />
+    <path d="M17.929 7.629A1 1 0 0 1 17 9H7a1 1 0 0 1-.928-1.371l2-5A1 1 0 0 1 9 2h6a1 1 0 0 1 .928.629z" />
+    <path d="M9 22h6" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'spot'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M15.295 19.562 16 22" />
+    <path d="m17 16 3.758 2.098" />
+    <path d="m19 12.5 3.026-.598" />
+    <path d="M7.61 6.3a3 3 0 0 0-3.92 1.3l-1.38 2.79a3 3 0 0 0 1.3 3.91l6.89 3.597a1 1 0 0 0 1.342-.447l3.106-6.211a1 1 0 0 0-.447-1.341z" />
+    <path d="M8 9V2" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'bra'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M19.929 9.629A1 1 0 0 1 19 11H9a1 1 0 0 1-.928-1.371l2-5A1 1 0 0 1 11 4h6a1 1 0 0 1 .928.629z" />
+    <path d="M6 15a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z" />
+    <path d="M8 18h4a2 2 0 0 0 2-2v-5" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'bulb'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+    <path d="M9 18h6" />
+    <path d="M10 22h4" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'up'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M12 2a10 10 0 0 1 7.38 16.75" />
+    <path d="m16 12-4-4-4 4" />
+    <path d="M12 16V8" />
+    <path d="M2.5 8.875a10 10 0 0 0-.5 3" />
+    <path d="M2.83 16a10 10 0 0 0 2.43 3.4" />
+    <path d="M4.636 5.235a10 10 0 0 1 .891-.857" />
+    <path d="M8.644 21.42a10 10 0 0 0 7.631-.38" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'pen'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+    <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'leaf'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="1.5"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10Z" />
+    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'mirror'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M11 6 8 9" />
+    <path d="m16 7-8 8" />
+    <rect x="4" y="2" width="16" height="20" rx="2" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'trees'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z" />
+    <path d="M7 16v6" />
+    <path d="M13 19v3" />
+    <path d="M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'gift'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M12 7v14" />
+    <path d="M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" />
+    <path d="M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5" />
+    <rect x="3" y="7" width="18" height="4" rx="1" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'leafy'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M2 22c1.25-.987 2.27-1.975 3.9-2.2a5.56 5.56 0 0 1 3.8 1.5 4 4 0 0 0 6.187-2.353 3.5 3.5 0 0 0 3.69-5.116A3.5 3.5 0 0 0 20.95 8 3.5 3.5 0 1 0 16 3.05a3.5 3.5 0 0 0-5.831 1.373 3.5 3.5 0 0 0-5.116 3.69 4 4 0 0 0-2.348 6.155C3.499 15.42 4.409 16.712 4.2 18.1 3.926 19.743 3.014 20.732 2 22" />
+    <path d="M2 22 17 7" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'house'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+    <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'sun'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2" />
+    <path d="M12 20v2" />
+    <path d="m4.93 4.93 1.41 1.41" />
+    <path d="m17.66 17.66 1.41 1.41" />
+    <path d="M2 12h2" />
+    <path d="M20 12h2" />
+    <path d="m6.34 17.66-1.41 1.41" />
+    <path d="m19.07 4.93-1.41 1.41" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'thermo'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M12 2v2" />
+    <path d="M12 8a4 4 0 0 0-1.645 7.647" />
+    <path d="M2 12h2" />
+    <path d="M20 14.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z" />
+    <path d="m4.93 4.93 1.41 1.41" />
+    <path d="m6.34 17.66-1.41 1.41" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'grid'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M12 3v18" />
+    <path d="M3 12h18" />
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'wind'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M12.8 19.6A2 2 0 1 0 14 16H2" />
+    <path d="M17.5 8a2.5 2.5 0 1 1 2 4H2" />
+    <path d="M9.8 4.4A2 2 0 1 1 11 8H2" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'dotDashed'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+    <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+    <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+    <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+    <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+    <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+    <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+    <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+    <circle cx="12" cy="12" r="1" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'fileSliders'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
+    <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+    <path d="M8 12h8" />
+    <path d="M10 11v2" />
+    <path d="M8 17h8" />
+    <path d="M14 16v2" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'fan'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z" />
+    <path d="M12 12v.01" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'clockFading'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <path d="M12 2a10 10 0 0 1 7.38 16.75" />
+    <path d="M12 6v6l4 2" />
+    <path d="M2.5 8.875a10 10 0 0 0-.5 3" />
+    <path d="M2.83 16a10 10 0 0 0 2.43 3.4" />
+    <path d="M4.636 5.235a10 10 0 0 1 .891-.857" />
+    <path d="M8.644 21.42a10 10 0 0 0 7.631-.38" />
+  </svg>
+
+  <svg
+    v-else-if="props.name === 'gitCompare'"
+    :width="props.size" :height="props.size" viewBox="0 0 24 24"
+    fill="none" :stroke="props.color" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+  >
+    <circle cx="18" cy="18" r="3" />
+    <circle cx="6" cy="6" r="3" />
+    <path d="M13 6h3a2 2 0 0 1 2 2v7" />
+    <path d="M11 18H8a2 2 0 0 1-2-2V9" />
+  </svg>
+</template>
