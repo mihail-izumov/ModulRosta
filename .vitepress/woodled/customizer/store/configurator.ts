@@ -14,6 +14,7 @@
 import { ref, computed, reactive } from 'vue'
 import { getRT, STARTER_ROOM_TYPES, type Room, type RoomTypeId } from '../data/rooms'
 import type { Fixture } from '../data/catalog'
+import { decodeState, readHashState } from '../engine/share'
 
 /* ──────────────── Счётчик ID ──────────────── */
 
@@ -168,6 +169,22 @@ function clearFB() {
   fb.value = null
 }
 
+/* ──────────────── Загрузка из URL hash ──────────────── */
+
+/**
+ * Читает #s=... из URL и подменяет state, если ссылка валидна.
+ * Должно вызываться из App.vue в onMounted — только на клиенте.
+ */
+function loadFromHash(): boolean {
+  const encoded = readHashState()
+  if (!encoded) return false
+  const decoded = decodeState(encoded, nextId)
+  if (!decoded) return false
+  if (decoded.name) name.value = decoded.name
+  rooms.splice(0, rooms.length, ...decoded.rooms)
+  return true
+}
+
 /* ──────────────── Экспорт singleton ──────────────── */
 
 /**
@@ -207,5 +224,8 @@ export function useConfigurator() {
     /* toast */
     showFB,
     clearFB,
+
+    /* url state */
+    loadFromHash,
   }
 }
