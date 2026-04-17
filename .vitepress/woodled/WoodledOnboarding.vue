@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
-import { cssVars, BTN_LABELS, AUDIO_SRC, NAV_ICONS, SOUND_ICONS, CUSTOMIZER_URL } from './woodled-data.js'
+import { cssVars, BTN_LABELS, AUDIO_SRC, NAV_ICONS, SOUND_ICONS, CUSTOMIZER_URL, LEAF_ICON } from './woodled-data.js'
 import ChForest from './chapters/ChForest.vue'
 import ChLight from './chapters/ChLight.vue'
 import ChHome from './chapters/ChHome.vue'
@@ -14,6 +14,7 @@ const lightReady = ref(false)
 const muted = ref(true)
 const showSoundHint = ref(true)
 const audioRef = ref(null)
+const splash = ref(true)
 
 let goToTimeout = null
 let hintTimer = null
@@ -72,13 +73,18 @@ onMounted(() => {
     l.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap'
     document.head.appendChild(l)
   }
-  // Lock page scroll while onboarding is active — prevents the whole page
-  // from drifting when the user swipes inside the onboarding.
+  // Lock page scroll
   if (typeof document !== 'undefined') {
     document.documentElement.style.overflow = 'hidden'
     document.body.style.overflow = 'hidden'
     document.body.style.overscrollBehavior = 'none'
   }
+  // Dismiss splash after layout settles (VitePress nav is already hidden by z-index)
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => { splash.value = false }, 400)
+    })
+  })
 })
 
 onUnmounted(() => {
@@ -95,6 +101,13 @@ onUnmounted(() => {
 
 <template>
   <div class="ob" :style="cssVars">
+    <!-- Splash: covers everything (incl VitePress nav) until component settles -->
+    <Transition name="splash-fade">
+      <div v-if="splash" class="ob-splash">
+        <div class="ob-splash-leaf" v-html="LEAF_ICON" />
+      </div>
+    </Transition>
+
     <audio ref="audioRef" :src="AUDIO_SRC" loop preload="auto" />
 
     <nav class="nav">
@@ -152,6 +165,7 @@ onUnmounted(() => {
 
 .ob {
   position: fixed; inset: 0;
+  z-index: 9999;
   background: var(--bg);
   font-family: 'Inter', sans-serif;
   color: var(--text);
@@ -367,7 +381,6 @@ onUnmounted(() => {
 }
 .rt-leaf-fg {
   transition: clip-path .35s ease-out;
-  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--gold) 55%, transparent));
 }
 .rt-leaf-fg svg path {
   fill: currentColor;
@@ -378,6 +391,30 @@ onUnmounted(() => {
   0%, 100% { transform: rotate(-4deg); }
   50%      { transform: rotate(4deg); }
 }
+
+/* ─── Page splash (covers VitePress nav flash) ─── */
+.ob-splash {
+  position: fixed; inset: 0;
+  z-index: 10000;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+}
+.ob-splash-leaf {
+  width: 56px; height: 56px;
+  color: var(--gold);
+  opacity: .6;
+  animation: leafSway 3.6s ease-in-out infinite;
+}
+.ob-splash-leaf svg {
+  width: 100%; height: 100%; display: block; overflow: visible;
+}
+.ob-splash-leaf svg path {
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.6;
+}
+.splash-fade-leave-active { transition: opacity .6s ease; }
+.splash-fade-leave-to { opacity: 0; }
 
 .rt-interior { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; overflow: hidden; border-radius: 16px; }
 .rt-interior.v { opacity: 1; }
@@ -548,13 +585,13 @@ onUnmounted(() => {
 .d5sum { text-align: center; animation: fu 1.6s ease both; }
 .sgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 16px; }
 .scard { border-radius: 14px; padding: 14px; text-align: center; border: 1px solid; transition: all .3s; }
-.acard { border-style: dashed; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--card); }
+.acard { border-style: dashed; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: var(--card); line-height: 1.2; }
 .scb { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
 .scm { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
 .scfx { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .scf { text-align: center; width: 38px; }
 .scfc { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-.scfw { font-size: 8px; color: var(--dim); margin-top: 3px; }
+.scfw { font-size: 8px; color: var(--dim); margin-top: 3px; line-height: 1.2; }
 .rpl {
   display: flex; align-items: center; gap: 6px;
   margin: 0 auto 24px;
