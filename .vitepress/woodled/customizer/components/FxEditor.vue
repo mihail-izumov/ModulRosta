@@ -71,6 +71,16 @@ const fType = computed(() => {
   return t.charAt(0).toUpperCase() + t.slice(1)
 })
 
+/**
+ * Computed-обёртка для v-model слайдера патронов.
+ * Прямой `:value` + `@input` не триггерит обновление thumb'а при быстром drag'e
+ * в некоторых браузерах — v-model работает надёжно.
+ */
+const lampsValue = computed<number>({
+  get: () => s.value.l ?? m.value.lamps,
+  set: (v) => setLamps(v),
+})
+
 /* ──────────────── Мутации ──────────────── */
 
 function setWood(w: Wood) {
@@ -307,9 +317,8 @@ const lostLm = computed(() => (s.value.l ?? m.value.lamps) * m.value.lmPer)
           type="range"
           :min="m.minL"
           :max="m.maxL"
-          :value="s.l"
+          v-model.number="lampsValue"
           :style="{ width: '100%', accentColor: T.neutral, cursor: 'pointer' }"
-          @input="setLamps(+($event.target as HTMLInputElement).value)"
         />
         <div
           :style="{

@@ -1,14 +1,16 @@
 <script setup lang="ts">
 /**
- * ShareModal.vue — Поделиться ссылкой.
+ * ShareModal.vue — Поделиться ссылкой c текущим состоянием.
  *
  * Источник: woodled-v42.jsx (ShareModal inline).
- * Две кнопки: Скопировать + Web Share API (где доступен).
+ * Состояние конфигуратора пакуется в URL hash (#s=...) —
+ * получатель ссылки видит ту же самую сборку без бэкенда.
  */
 
 import { T } from '../theme/tokens'
 import type { Room } from '../data/rooms'
 import { fxLamps } from '../engine/brightness'
+import { buildShareUrl } from '../engine/share'
 import Modal from './ui/Modal.vue'
 
 interface Props {
@@ -21,25 +23,32 @@ const emit = defineEmits<{
   feedback: [msg: string]
 }>()
 
+function makeUrl(): string {
+  return buildShareUrl(props.name, props.rooms)
+}
+
 async function copyLink() {
+  const url = makeUrl()
   try {
-    await navigator.clipboard.writeText(window.location.href)
+    await navigator.clipboard.writeText(url)
     emit('feedback', 'Ссылка скопирована')
     emit('close')
   } catch {
-    emit('feedback', window.location.href)
+    /* iOS/Safari в некоторых контекстах возвращают ошибку — покажем URL в тосте. */
+    emit('feedback', url)
   }
 }
 
 async function webShare() {
+  const url = makeUrl()
   const totalLamps = props.rooms.reduce((s, r) => s + fxLamps(r.fixtures), 0)
   const text = `${props.name} — ${totalLamps} ламп`
   if (navigator.share) {
     try {
-      await navigator.share({ title: props.name, text, url: window.location.href })
+      await navigator.share({ title: props.name, text, url })
       emit('close')
     } catch {
-      /* Отмена пользователем — не ошибка, просто закрыли sheet. */
+      /* Отмена пользователем — тост не нужен. */
     }
   } else {
     emit('feedback', 'Шаринг недоступен')

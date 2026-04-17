@@ -10,7 +10,7 @@
  *   - Toast внизу
  */
 
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { T } from '../theme/tokens'
 import { useConfigurator } from '../store/configurator'
 import type { Room } from '../data/rooms'
@@ -34,7 +34,26 @@ import RoomDetail from './RoomDetail.vue'
 
 const cfg = useConfigurator()
 
+/* Подхватываем shared-ссылку при загрузке. Только на клиенте. */
+onMounted(() => {
+  cfg.loadFromHash()
+})
+
 const rooms = computed<Room[]>(() => cfg.rooms as Room[])
+
+/**
+ * Отсортированный список для главной сетки: заполненные сверху.
+ * Относительный порядок внутри каждой группы сохраняется.
+ * Сам массив в store не переставляется — иначе IDs путаются при навигации.
+ */
+const sortedRooms = computed<Room[]>(() => {
+  return [...rooms.value].sort((a, b) => {
+    const aFilled = a.fixtures.length > 0 ? 0 : 1
+    const bFilled = b.fixtures.length > 0 ? 0 : 1
+    return aFilled - bFilled
+  })
+})
+
 const activeRoom = computed(() => cfg.activeRoom.value)
 
 /* ──────────────── Обработчики ──────────────── */
@@ -143,7 +162,7 @@ const subtitle = computed(() => {
         }"
       >
         <RoomCard
-          v-for="r in rooms"
+          v-for="r in sortedRooms"
           :key="r.id"
           :room="r"
           @click="cfg.active.value = r.id"

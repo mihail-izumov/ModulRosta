@@ -9,7 +9,7 @@
 import { T } from '../theme/tokens'
 import Icon from './ui/Icons.vue'
 
-const ONBOARDING_URL = 'https://runscale.ru/woodled/customizer'
+const ONBOARDING_URL = 'https://runscale.ru/woodled/onboarding'
 </script>
 
 <template>
