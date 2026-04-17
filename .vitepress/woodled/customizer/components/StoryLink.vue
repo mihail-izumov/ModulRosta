@@ -41,14 +41,22 @@ const emit = defineEmits<{ click: [] }>()
     >
       <Icon name="trees" :color="T.neutral" :size="22" />
     </div>
-    <div :style="{ flex: 1 }">
+    <div :style="{ flex: 1, lineHeight: 1.25 }">
       <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
         Посмотрите на свой лес
       </div>
-      <div :style="{ fontSize: '11px', color: T.textSec, marginTop: '2px' }">
+      <div :style="{ fontSize: '11px', color: T.textSec }">
         Узнайте, какой свет вы создали
       </div>
     </div>
-    <span :style="{ fontSize: '20px', color: T.neutral }">›</span>
+    <span
+      :style="{
+        fontSize: '60px',
+        lineHeight: 1,
+        fontWeight: 500,
+        color: T.neutral,
+        flexShrink: 0,
+      }"
+    >›</span>
   </div>
 </template>
