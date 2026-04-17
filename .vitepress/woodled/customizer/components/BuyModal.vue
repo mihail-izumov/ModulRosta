@@ -10,9 +10,9 @@
  */
 
 import { computed, ref } from 'vue'
-import { T, Z } from '../theme/tokens'
+import { T, Z, WCOL } from '../theme/tokens'
 import { MD, type Fixture } from '../data/catalog'
-import { MATS, WCOL } from '../data/materials'
+import { MATS } from '../data/materials'
 import { autoMood } from '../data/moods'
 import { baseLm, fxLm } from '../engine/brightness'
 import { fxPrice, itemPrice } from '../engine/price-engine'

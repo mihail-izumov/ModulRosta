@@ -8,12 +8,12 @@
  */
 
 import { computed, ref } from 'vue'
-import { T } from '../theme/tokens'
+import { T, WCOL } from '../theme/tokens'
 import {
   MD, ALL_ZONES, FAMILIES,
   type ZoneId, type ModelId, type FamilyId, type Fixture,
 } from '../data/catalog'
-import { WCOL, type Wood } from '../data/materials'
+import { type Wood } from '../data/materials'
 import { lw } from '../engine/i18n'
 import Modal from './ui/Modal.vue'
 import Icon, { fxIcName } from './ui/Icons.vue'

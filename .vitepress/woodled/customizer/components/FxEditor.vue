@@ -8,7 +8,7 @@
  */
 
 import { computed, ref, watch } from 'vue'
-import { T, Z } from '../theme/tokens'
+import { T, Z, WCOL } from '../theme/tokens'
 import {
   MD, FAMILIES,
   type Fixture, type ModelId,
@@ -16,7 +16,7 @@ import {
 import {
   MATS, BOWLS, MOUNTS, BTEMPS, DEF_OPT,
   WOOD_TIPS, BOWL_TIPS, MOUNT_TIPS, BTEMP_TIPS, OPT_TIPS,
-  WCOL, type Wood, type Bowl, type Mount,
+  type Wood, type Bowl, type Mount,
 } from '../data/materials'
 import { itemPrice } from '../engine/price-engine'
 import { lw } from '../engine/i18n'

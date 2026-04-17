@@ -9,9 +9,9 @@
  */
 
 import { computed } from 'vue'
-import { T } from '../theme/tokens'
+import { T, WCOL } from '../theme/tokens'
 import { MD } from '../data/catalog'
-import { MATS, WCOL } from '../data/materials'
+import { MATS } from '../data/materials'
 import { autoMood } from '../data/moods'
 import { baseLm, fxLm } from '../engine/brightness'
 import { getRT, type Room, ROOM_HINTS } from '../data/rooms'
