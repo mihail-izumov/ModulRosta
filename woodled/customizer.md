@@ -2,7 +2,7 @@
 layout: page
 sidebar: false
 aside: false
-title: WOODLED Rotor — Конфигуратор
+title: Конфигуратор домашнего света WOODLED Rotor
 description: Соберите свой лес света WOODLED — дизайнерские светильники из дерева для каждой комнаты
 head:
   - - meta
