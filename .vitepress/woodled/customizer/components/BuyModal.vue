@@ -13,8 +13,6 @@ import { computed, ref } from 'vue'
 import { T, Z, WCOL } from '../theme/tokens'
 import { MD, type Fixture } from '../data/catalog'
 import { MATS } from '../data/materials'
-import { autoMood } from '../data/moods'
-import { baseLm, fxLm } from '../engine/brightness'
 import { fxPrice, itemPrice } from '../data/price-engine'
 import { lw } from '../engine/i18n'
 import { getRT, type Room } from '../data/rooms'
@@ -393,18 +391,7 @@ const editItemData = computed(() => {
             :style="{
               fontSize: '13px',
               fontWeight: 600,
-              color:
-                autoMood(
-                  baseLm(getRT(r.typeId), r) > 0
-                    ? fxLm(r.fixtures) / baseLm(getRT(r.typeId), r)
-                    : 0,
-                ).id !== 'empty'
-                  ? autoMood(
-                      baseLm(getRT(r.typeId), r) > 0
-                        ? fxLm(r.fixtures) / baseLm(getRT(r.typeId), r)
-                        : 0,
-                    ).color
-                  : T.text,
+              color: T.text,
             }"
           >
             {{ r.customName || getRT(r.typeId).name }}

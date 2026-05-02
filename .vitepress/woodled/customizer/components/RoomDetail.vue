@@ -188,13 +188,13 @@ function confirmDelete() {
           background: 'none',
           border: 'none',
           color: T.textSec,
-          fontSize: '20px',
+          fontSize: '14px',
           cursor: 'pointer',
           padding: '0 4px',
         }"
         @click="emit('close')"
       >
-        ←
+        ← Домой
       </button>
       <span :style="{ flex: 1, fontWeight: 700, fontSize: '18px', color: T.text }">
         {{ props.room.customName || rt.name }}
@@ -217,13 +217,6 @@ function confirmDelete() {
     </div>
 
     <div :style="{ padding: '16px', maxWidth: '480px', margin: '0 auto' }">
-      <!-- Настроение -->
-      <MoodBlock
-        v-if="props.room.fixtures.length > 0"
-        :mood="mood"
-        @show-detail="showMoodDetail = mood"
-      />
-
       <!-- Дашборд люмен -->
       <LumenDashboard
         :mood="mood"
@@ -282,6 +275,13 @@ function confirmDelete() {
           />
         </div>
       </div>
+
+      <!-- Настроение -->
+      <MoodBlock
+        v-if="props.room.fixtures.length > 0"
+        :mood="mood"
+        @show-detail="showMoodDetail = mood"
+      />
 
       <!-- Мебель -->
       <FurnitureBlock

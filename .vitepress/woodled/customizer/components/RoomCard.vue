@@ -119,16 +119,6 @@ const circles = computed<Circle[]>(() => {
     <template v-else>
       <div
         :style="{
-          fontWeight: 700,
-          fontSize: '18px',
-          color: mood.color,
-          marginTop: '6px',
-        }"
-      >
-        {{ mood.name }}
-      </div>
-      <div
-        :style="{
           display: 'flex',
           gap: '8px',
           marginTop: '12px',
