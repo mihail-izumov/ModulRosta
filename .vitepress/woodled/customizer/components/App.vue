@@ -88,8 +88,8 @@ function onPickColor(room: Room) {
 function onColorPicked(color: string | undefined) {
   if (colorPickRoom.value) {
     cfg.updateRoom({ ...colorPickRoom.value, cardColor: color })
+    colorPickRoom.value = { ...colorPickRoom.value, cardColor: color }
   }
-  colorPickRoom.value = null
 }
 
 /* Тексты в заголовке. */
