@@ -201,30 +201,59 @@ function confirmDelete() {
       <span :style="{ flex: 1, fontWeight: 700, fontSize: '18px', color: T.text, textAlign: 'center' }">
         {{ props.room.customName || rt.name }}
       </span>
-      <button
-        :style="{
-          background: T.card,
-          border: `1px solid ${T.neutral}44`,
-          borderRadius: '8px',
-          padding: '8px 10px',
-          cursor: 'pointer',
-          fontSize: '13px',
-          fontWeight: 600,
-          color: T.text,
-          whiteSpace: 'nowrap',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          flexShrink: 0,
-        }"
-        @click="showSettings = true"
-      >
-        {{ props.room.sizeIndex === 3 ? (props.room.customArea ?? '') + ' м²' : rt.ranges[props.room.sizeIndex] + ' м²' }}
-        <Icon name="pen" :color="T.textSec" :size="14" :style="{ opacity: 0.6 }" />
-      </button>
+      <!-- Spacer for centering (matches ← Домой width) -->
+      <span :style="{ width: '70px' }" />
     </div>
 
     <div :style="{ padding: '16px', maxWidth: '480px', margin: '0 auto' }">
+      <!-- Параметры комнаты -->
+      <div
+        :style="{
+          background: `linear-gradient(135deg, ${tint}12, ${tint}06)`,
+          border: `1px solid ${tint}22`,
+          borderRadius: '12px',
+          padding: '12px 16px',
+          marginBottom: '16px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+        }"
+        @click="showSettings = true"
+      >
+        <div
+          :style="{
+            width: '36px',
+            height: '36px',
+            borderRadius: '8px',
+            background: tint + '18',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }"
+        >
+          <Icon name="fileSliders" :color="tint" :size="20" />
+        </div>
+        <div :style="{ flex: 1 }">
+          <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
+            {{ props.room.sizeIndex === 3 ? (props.room.customArea ?? '') + ' м²' : rt.ranges[props.room.sizeIndex] + ' м²' }}
+            · потолок {{ props.room.ceilingH }} м
+          </div>
+          <div :style="{ fontSize: '11px', color: T.textSec }">
+            Размер, потолок, точки для света
+          </div>
+        </div>
+        <svg
+          width="20" height="20" viewBox="0 0 24 24" fill="none"
+          :stroke="T.textSec" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round"
+          :style="{ flexShrink: 0 }"
+        >
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </div>
+
       <!-- Дашборд люмен -->
       <LumenDashboard
         :mood="tintedMood"
