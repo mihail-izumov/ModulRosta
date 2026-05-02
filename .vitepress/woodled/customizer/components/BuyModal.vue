@@ -12,7 +12,7 @@
 import { computed, ref } from 'vue'
 import { T, Z, WCOL } from '../theme/tokens'
 import { MD, type Fixture } from '../data/catalog'
-import { MATS } from '../data/materials'
+import { MATS, BOWLS } from '../data/materials'
 import { fxPrice, itemPrice } from '../data/price-engine'
 import { lw } from '../engine/i18n'
 import { getRT, type Room } from '../data/rooms'
@@ -484,6 +484,60 @@ const editItemData = computed(() => {
                 {{ (fx.l ?? MD[fx.m].lamps) * (fx.q ?? 1) }}
                 {{ lw((fx.l ?? MD[fx.m].lamps) * (fx.q ?? 1)) }}
               </div>
+              <!-- 6.1 — Бейджи кастомизации -->
+              <div
+                v-if="fx.opts && (fx.opts.btemp || (fx.opts.bowl && fx.opts.bowl !== 'black_8') || fx.opts.diffuser || fx.opts.mount === 'flush')"
+                :style="{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }"
+              >
+                <span
+                  v-if="fx.opts?.btemp"
+                  :style="{
+                    fontSize: '9px',
+                    padding: '1px 6px',
+                    borderRadius: '4px',
+                    background: T.neutral + '15',
+                    color: T.textSec,
+                  }"
+                >
+                  {{ fx.opts.btemp === '2700' ? '2700К' : fx.opts.btemp === '3000' ? '3000К' : '4000К' }}
+                </span>
+                <span
+                  v-if="fx.opts?.bowl && fx.opts.bowl !== 'black_8'"
+                  :style="{
+                    fontSize: '9px',
+                    padding: '1px 6px',
+                    borderRadius: '4px',
+                    background: T.neutral + '15',
+                    color: T.textSec,
+                  }"
+                >
+                  {{ BOWLS.find(b => b.id === fx.opts?.bowl)?.name || '' }}
+                </span>
+                <span
+                  v-if="fx.opts?.diffuser"
+                  :style="{
+                    fontSize: '9px',
+                    padding: '1px 6px',
+                    borderRadius: '4px',
+                    background: T.neutral + '15',
+                    color: T.textSec,
+                  }"
+                >
+                  Рассеив.
+                </span>
+                <span
+                  v-if="fx.opts?.mount === 'flush'"
+                  :style="{
+                    fontSize: '9px',
+                    padding: '1px 6px',
+                    borderRadius: '4px',
+                    background: T.neutral + '15',
+                    color: T.textSec,
+                  }"
+                >
+                  Вплотную
+                </span>
+              </div>
             </div>
             <div :style="{ textAlign: 'right', flexShrink: 0 }">
               <div
@@ -522,10 +576,22 @@ const editItemData = computed(() => {
                 {{ itemPrice(fx).toLocaleString('ru-RU') }} ₽
               </div>
             </div>
+            <!-- 6.2 — Кнопка редактирования -->
+            <button
+              :style="{
+                background: T.neutral + '15',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '6px',
+                cursor: 'pointer',
+                flexShrink: 0,
+                marginLeft: '6px',
+              }"
+              @click.stop="openEdit(r.id, i)"
+            >
+              <Icon name="pen" :color="T.textSec" :size="14" />
+            </button>
           </button>
-
-          <!-- Кнопка перейти в редактор (скрытая, в оригинале только через тап на карточку — но там
-               нужно не сбить скидку. Делаем через длительное нажатие в будущем, пока не добавляем.) -->
         </div>
       </div>
 
@@ -583,9 +649,6 @@ const editItemData = computed(() => {
       @feedback="(msg) => emit('feedback', msg)"
     />
   </div>
-
-  <!-- reference to silence linter -->
-  <span v-show="false">{{ openEdit }}</span>
 </template>
 
 <style>
