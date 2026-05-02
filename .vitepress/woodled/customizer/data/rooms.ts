@@ -75,6 +75,8 @@ export interface Room {
   furniture: FurnId[]
   /** Копия rt.limits — может быть изменена пользователем. */
   limits: ZoneLimits
+  /** Цвет фона карточки (Hue-style). */
+  cardColor?: string
 }
 
 /* ──────────────── Размеры ──────────────── */
