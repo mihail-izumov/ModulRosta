@@ -225,7 +225,7 @@ function spw(n: number) { const a = Math.abs(n), l = a % 10, t = a % 100; if (t 
 function slw(n: number) { const a = Math.abs(n), l = a % 10, t = a % 100; if (t >= 11 && t <= 19) return 'лампочек'; if (l === 1) return 'лампочка'; if (l >= 2 && l <= 4) return 'лампочки'; return 'лампочек' }
 function bowlName() { return ALL_BOWLS.find(x => x.id === build.value.bowl)?.name ?? '—' }
 function btempK() { const bt = BTEMPS.find(x => x.id === build.value.btemp); return bt ? bt.kelvin + 'К' : '—' }
-function bulbTotal() { return (model.value.bulbPrice ?? OPT_PRICE.bulbsPerLamp) * build.value.lamps }
+function bulbTotal() { const bp = model.value.bulbPrice ?? (OPT_PRICE.bulbsPerLamp * model.value.lamps); return Math.round(bp * build.value.lamps / model.value.lamps) }
 function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbPrice / model.value.lamps) : OPT_PRICE.bulbsPerLamp }
 </script>
 
@@ -293,6 +293,7 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
             <div v-else-if="curStep === 'mount'" :style="{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }">
               <button v-for="mt in SIM_MOUNTS" :key="mt.id" @click="upBuild({ mount: mt.id })"
                 :style="{ padding: '18px 12px', borderRadius: '8px', cursor: 'pointer', textAlign: 'center', border: build.mount === mt.id ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`, background: build.mount === mt.id ? T.neutral + '18' : T.card, color: build.mount === mt.id ? T.text : T.textSec }">
+                <div :style="{ marginBottom: '8px', display: 'flex', justifyContent: 'center' }"><Icon :name="mt.id === 'pendant' ? 'fxPendant' : 'fxFlush'" :size="28" :color="build.mount === mt.id ? T.neutral : T.textDim" /></div>
                 <div :style="{ fontSize: '13px', fontWeight: 600 }">{{ mt.name }}</div>
                 <div :style="{ fontSize: '10px', color: T.textDim, marginTop: '6px' }">{{ mt.tip }}</div>
               </button>
@@ -335,11 +336,11 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
             <div v-else-if="curStep === 'patrons'">
               <div :style="{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(lampOpts().length, 5)}, 1fr)`, gap: '8px' }">
                 <button v-for="v in lampOpts()" :key="v" @click="upBuild({ lamps: v })"
-                  :style="{ padding: '14px 4px', borderRadius: '10px', cursor: 'pointer', textAlign: 'center', border: build.lamps === v ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`, background: build.lamps === v ? T.neutral + '18' : T.card }">
-                  <div :style="{ display: 'inline-block', padding: '2px 6px', borderRadius: '4px', background: T.neutral + '22', fontSize: '10px', fontWeight: 700, color: T.neutral, marginBottom: '6px' }">{{ v }}</div>
-                  <div :style="{ fontSize: '16px', fontWeight: 800, color: build.lamps === v ? T.yellow : T.text }">{{ fmt(Math.round(v * model.lmPer * diffMult())) }}</div>
-                  <div :style="{ fontSize: '10px', color: T.textDim }">лм</div>
-                  <div v-if="v === model.lamps" :style="{ fontSize: '10px', color: T.neutral, marginTop: '4px' }">станд.</div>
+                  :style="{ padding: '14px 6px', borderRadius: '10px', cursor: 'pointer', textAlign: 'center', border: build.lamps === v ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`, background: build.lamps === v ? T.neutral + '18' : T.card, transition: 'all .15s' }">
+                  <div :style="{ display: 'inline-block', padding: '2px 8px', borderRadius: '4px', background: T.neutral + '22', fontSize: '11px', fontWeight: 700, color: T.neutral, marginBottom: '8px' }">{{ v }} {{ spw(v) }}</div>
+                  <div :style="{ fontSize: '20px', fontWeight: 800, color: build.lamps === v ? T.yellow : T.text }">{{ fmt(Math.round(v * model.lmPer * diffMult())) }} <span :style="{ fontSize: '12px', fontWeight: 400, color: T.textDim }">лм</span></div>
+                  <div v-if="Math.round(v * model.lmPer * diffMult()) - Math.round(model.lamps * model.lmPer * diffMult()) > 0" :style="{ display: 'inline-flex', alignItems: 'center', gap: '2px', padding: '2px 6px', borderRadius: '4px', border: `1px solid ${T.green}44`, background: T.green + '15', fontSize: '11px', fontWeight: 700, color: T.green, marginTop: '6px' }"><Icon name="fxMoveUp" :size="10" :color="T.green" /><Icon name="fxSunMed" :size="10" :color="T.green" />{{ fmt(Math.round(v * model.lmPer * diffMult()) - Math.round(model.lamps * model.lmPer * diffMult())) }}</div>
+                  <div v-if="v === model.lamps" :style="{ fontSize: '10px', color: T.neutral, marginTop: '6px' }">стандарт</div>
                   <div v-if="(v - model.lamps) * model.sur > 0" :style="{ fontSize: '11px', color: T.yellow, marginTop: '4px', fontWeight: 700 }">+{{ fmt((v - model.lamps) * model.sur) }} ₽</div>
                 </button>
               </div>
@@ -386,7 +387,7 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
             <!-- bulbs (стандартные) -->
             <div v-else-if="curStep === 'bulbs'" :style="{ display: 'flex', flexDirection: 'column', gap: '8px' }">
               <button @click="upBuild({ bulbs: true })" :style="{ width: '100%', padding: '14px 16px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', border: build.bulbs ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`, background: build.bulbs ? T.neutral + '12' : T.cardAlt, color: T.text, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }">
-                <div><div :style="{ fontSize: '14px', fontWeight: 700 }">Да, {{ build.lamps }} {{ slw(build.lamps) }}</div><div :style="{ fontSize: '11px', color: T.textDim, marginTop: '4px' }">{{ build.lamps }} × {{ fmt(bulbPer()) }} ₽</div></div>
+                <div><div :style="{ fontSize: '14px', fontWeight: 700 }">Да, {{ build.lamps }} {{ slw(build.lamps) }} в комплекте</div><div :style="{ fontSize: '11px', color: T.textDim, marginTop: '4px' }">{{ build.lamps }} {{ spw(build.lamps) }} × {{ fmt(bulbPer()) }} ₽</div></div>
                 <span :style="{ fontSize: '14px', fontWeight: 700, color: T.yellow, flexShrink: 0 }">+{{ fmt(bulbTotal()) }} ₽</span>
               </button>
               <button @click="upBuild({ bulbs: false })" :style="{ width: '100%', padding: '14px 16px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', border: !build.bulbs ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`, background: !build.bulbs ? T.neutral + '12' : T.cardAlt, color: T.textSec, fontSize: '13px' }">Подберу свои лампочки</button>
