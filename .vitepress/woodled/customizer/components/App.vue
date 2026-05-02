@@ -283,7 +283,7 @@ const subtitle = computed(() => {
   <div
     :style="{
       position: 'fixed',
-      top: '14px',
+      top: '10px',
       right: '16px',
       zIndex: 45,
     }"
