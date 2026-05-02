@@ -63,6 +63,8 @@ const actual = computed(() => fxLm(props.room.fixtures))
 const lamps = computed(() => fxLamps(props.room.fixtures))
 const ratio = computed(() => (base.value > 0 ? actual.value / base.value : 0))
 const mood = computed<Mood>(() => autoMood(ratio.value))
+const tint = computed(() => props.room.cardColor ?? T.neutral)
+const tintedMood = computed<Mood>(() => ({ ...mood.value, color: tint.value }))
 const bright = computed(() => getBright(ratio.value))
 const rW = computed(() => roomWood(props.room.fixtures))
 const furnPct = computed(() => furnPctFn(props.room.furniture))
@@ -225,7 +227,7 @@ function confirmDelete() {
     <div :style="{ padding: '16px', maxWidth: '480px', margin: '0 auto' }">
       <!-- Дашборд люмен -->
       <LumenDashboard
-        :mood="mood"
+        :mood="tintedMood"
         :bright="bright"
         :lamps="lamps"
         :actual="actual"
@@ -238,9 +240,9 @@ function confirmDelete() {
         :style="{
           position: 'relative',
           marginBottom: 0,
-          background: mood.color + '06',
+          background: tintedMood.color + '06',
           borderRadius: '16px',
-          border: `1px solid ${mood.color}15`,
+          border: `1px solid ${tintedMood.color}15`,
           padding: '8px',
         }"
       >
@@ -253,7 +255,7 @@ function confirmDelete() {
             borderRadius: '16px',
             pointerEvents: 'none',
             zIndex: 1,
-            background: `radial-gradient(ellipse 55% 55% at ${gl.pos}, ${mood.color}${glowHex(gl.opacity)}, transparent 65%)`,
+            background: `radial-gradient(ellipse 55% 55% at ${gl.pos}, ${tintedMood.color}${glowHex(gl.opacity)}, transparent 65%)`,
             transition: 'background 1s ease',
           }"
         />
@@ -272,7 +274,7 @@ function confirmDelete() {
             :key="zone.id"
             :zone="zone"
             :fixtures="props.room.fixtures"
-            :mood="mood"
+            :mood="tintedMood"
             :total-lm="actual"
             :limit="(props.room.limits ?? rt.limits)?.[zone.id] ?? 99"
             @add="addZone = zone.id"
@@ -285,7 +287,7 @@ function confirmDelete() {
       <!-- Настроение -->
       <MoodBlock
         v-if="props.room.fixtures.length > 0"
-        :mood="mood"
+        :mood="tintedMood"
         @show-detail="showMoodDetail = mood"
       />
 
@@ -295,6 +297,7 @@ function confirmDelete() {
         :rt="rt"
         :room="props.room"
         :furn-pct="furnPct"
+        :tint="tint"
         @toggle="onFurnToggle"
       />
 

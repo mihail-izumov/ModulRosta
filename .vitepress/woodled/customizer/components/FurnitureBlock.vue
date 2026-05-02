@@ -17,8 +17,9 @@ interface Props {
   rt: RoomType
   room: Room
   furnPct: number
+  tint?: string
 }
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), { tint: '#A89878' })
 const emit = defineEmits<{
   toggle: [nextFurn: FurnId[], toast: string]
 }>()
@@ -52,11 +53,12 @@ function handleToggle(id: FurnId) {
 <template>
   <div
     :style="{
-      background: T.card,
+      background: props.tint + '08',
       borderRadius: '10px',
       padding: '12px',
       marginTop: '16px',
       textAlign: 'center',
+      border: `1px solid ${props.tint}18`,
     }"
   >
     <div

@@ -32,7 +32,7 @@ const mood = computed(() => autoMood(ratio.value))
 const cardStyle = computed(() => {
   const isEmpty = mood.value.id === 'empty'
   const cc = props.room.cardColor
-  const tint = cc ?? (isEmpty ? null : mood.value.color)
+  const tint = cc ?? (isEmpty ? null : T.neutral)
   return {
     background: tint
       ? `linear-gradient(135deg, ${tint}22, ${tint}08)`
@@ -50,15 +50,18 @@ const cardStyle = computed(() => {
   }
 })
 
-const badgeStyle = computed(() => ({
-  display: 'inline-block',
-  padding: '3px 12px',
-  borderRadius: '12px',
-  background: mood.value.id === 'empty' ? T.border : mood.value.color + '30',
-  fontSize: '11px',
-  fontWeight: 600,
-  color: T.text,
-}))
+const badgeStyle = computed(() => {
+  const tint = props.room.cardColor ?? (mood.value.id === 'empty' ? null : T.neutral)
+  return {
+    display: 'inline-block',
+    padding: '3px 12px',
+    borderRadius: '12px',
+    background: tint ? tint + '30' : T.border,
+    fontSize: '11px',
+    fontWeight: 600,
+    color: T.text,
+  }
+})
 
 /**
  * Разворачиваем каждую единицу светильника (учитывая q > 1) в отдельный круг.
