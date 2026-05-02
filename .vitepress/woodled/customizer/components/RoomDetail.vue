@@ -210,11 +210,15 @@ function confirmDelete() {
           fontWeight: 600,
           color: T.text,
           whiteSpace: 'nowrap',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          flexShrink: 0,
         }"
         @click="showSettings = true"
       >
         {{ getArea(rt, props.room) }} м²
-        <Icon name="pen" :color="T.textSec" :size="14" style="margin-left: 4px; vertical-align: middle; opacity: 0.6;" />
+        <Icon name="pen" :color="T.textSec" :size="14" :style="{ opacity: 0.6 }" />
       </button>
     </div>
 
