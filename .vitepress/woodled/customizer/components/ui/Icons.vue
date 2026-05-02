@@ -14,12 +14,16 @@ export type IconName =
   | 'leafy' | 'house' | 'sun' | 'thermo' | 'grid' | 'wind'
   | 'dotDashed' | 'fileSliders' | 'fan' | 'clockFading' | 'gitCompare'
   | 'fxSize' | 'fxMount' | 'fxBowl' | 'fxDiffuser' | 'fxWire'
+  | 'fxPendant' | 'fxFlush'
+  | 'fxMoveUp' | 'fxSunMed'
 
 export const ICON_NAMES: readonly IconName[] = [
   'ceiling', 'table', 'floor', 'spot', 'bra', 'bulb', 'up', 'pen', 'leaf',
   'mirror', 'trees', 'gift', 'leafy', 'house', 'sun', 'thermo', 'grid',
   'wind', 'dotDashed', 'fileSliders', 'fan', 'clockFading', 'gitCompare',
   'fxSize', 'fxMount', 'fxBowl', 'fxDiffuser', 'fxWire',
+  'fxPendant', 'fxFlush',
+  'fxMoveUp', 'fxSunMed',
 ] as const
 
 /** Маппинг типа светильника на имя иконки. */
@@ -245,6 +249,35 @@ export const ICONS: Record<IconName, IconData> = {
       '<path d="M3 5V3"/>' +
       '<path d="M4 10a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2a2 2 0 0 1-2 2z"/>' +
       '<path d="M7 5V3"/>',
+  },
+  fxPendant: {
+    paths:
+      '<path d="M12 2q2 2.5 0 5t0 5 0 5 0 5"/>' +
+      '<path d="M19 2q2 2.5 0 5t0 5 0 5 0 5"/>' +
+      '<path d="M5 2q2 2.5 0 5t0 5 0 5 0 5"/>',
+  },
+  fxFlush: {
+    paths:
+      '<path d="M5 3h14"/>' +
+      '<path d="m18 13-6-6-6 6"/>' +
+      '<path d="M12 7v14"/>',
+  },
+  fxMoveUp: {
+    paths:
+      '<path d="M8 6L12 2L16 6"/>' +
+      '<path d="M12 2V22"/>',
+  },
+  fxSunMed: {
+    paths:
+      '<circle cx="12" cy="12" r="4"/>' +
+      '<path d="M12 3v1"/>' +
+      '<path d="M12 20v1"/>' +
+      '<path d="M3 12h1"/>' +
+      '<path d="M20 12h1"/>' +
+      '<path d="m18.364 5.636-.707.707"/>' +
+      '<path d="m6.343 17.657-.707.707"/>' +
+      '<path d="m5.636 5.636.707.707"/>' +
+      '<path d="m17.657 17.657.707.707"/>',
   },
 }
 </script>
