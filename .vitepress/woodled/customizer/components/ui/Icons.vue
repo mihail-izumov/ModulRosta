@@ -17,6 +17,7 @@ export type IconName =
   | 'fxPendant' | 'fxFlush'
   | 'fxMoveUp' | 'fxSunMed'
   | 'palette'
+  | 'slidersH'
 
 export const ICON_NAMES: readonly IconName[] = [
   'ceiling', 'table', 'floor', 'spot', 'bra', 'bulb', 'up', 'pen', 'leaf',
@@ -26,6 +27,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'fxPendant', 'fxFlush',
   'fxMoveUp', 'fxSunMed',
   'palette',
+  'slidersH',
 ] as const
 
 /** Маппинг типа светильника на имя иконки. */
@@ -288,6 +290,11 @@ export const ICONS: Record<IconName, IconData> = {
       '<circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>' +
       '<circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>' +
       '<circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>',
+  },
+  slidersH: {
+    paths:
+      '<path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/>' +
+      '<path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/>',
   },
 }
 </script>
