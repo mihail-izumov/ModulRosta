@@ -1,13 +1,9 @@
 <script lang="ts">
 /**
- * Icons.vue — Все 23 Lucide-иконки как единый компонент-обёртка.
+ * Icons.vue — Все 28 Lucide-иконки как единый компонент-обёртка.
  *
  * Реализация: один <svg> + v-html с путями из таблицы ICONS.
- * Длинная цепочка v-if/v-else-if (23 ветки) неустойчиво работает
- * на некоторых билдах Vue-компилятора — отсюда пропадающие иконки.
- * Через v-html все иконки рендерятся гарантированно.
- *
- * Источник: woodled-v42.jsx (объект IC).
+ * Источник: woodled-v42.jsx (объект IC) + SuperApp ICP (fxSize, fxMount, fxBowl, fxDiffuser, fxWire).
  */
 
 import type { FxType } from '../../data/catalog'
@@ -17,11 +13,13 @@ export type IconName =
   | 'up' | 'pen' | 'leaf' | 'mirror' | 'trees' | 'gift'
   | 'leafy' | 'house' | 'sun' | 'thermo' | 'grid' | 'wind'
   | 'dotDashed' | 'fileSliders' | 'fan' | 'clockFading' | 'gitCompare'
+  | 'fxSize' | 'fxMount' | 'fxBowl' | 'fxDiffuser' | 'fxWire'
 
 export const ICON_NAMES: readonly IconName[] = [
   'ceiling', 'table', 'floor', 'spot', 'bra', 'bulb', 'up', 'pen', 'leaf',
   'mirror', 'trees', 'gift', 'leafy', 'house', 'sun', 'thermo', 'grid',
   'wind', 'dotDashed', 'fileSliders', 'fan', 'clockFading', 'gitCompare',
+  'fxSize', 'fxMount', 'fxBowl', 'fxDiffuser', 'fxWire',
 ] as const
 
 /** Маппинг типа светильника на имя иконки. */
@@ -211,6 +209,42 @@ export const ICONS: Record<IconName, IconData> = {
       '<circle cx="6" cy="6" r="3"/>' +
       '<path d="M13 6h3a2 2 0 0 1 2 2v7"/>' +
       '<path d="M11 18H8a2 2 0 0 1-2-2V9"/>',
+  },
+
+  /* ── SuperApp ICP (FxEditor шаги) ── */
+
+  fxSize: {
+    paths:
+      '<circle cx="19" cy="19" r="2"/>' +
+      '<circle cx="5" cy="5" r="2"/>' +
+      '<path d="M6.48 3.66a10 10 0 0 1 13.86 13.86"/>' +
+      '<path d="m6.41 6.41 11.18 11.18"/>' +
+      '<path d="M3.66 6.48a10 10 0 0 0 13.86 13.86"/>',
+  },
+  fxMount: {
+    paths:
+      '<path d="M13 13.74a2 2 0 0 1-2 0L2.5 8.87a1 1 0 0 1 0-1.74L11 2.26a2 2 0 0 1 2 0l8.5 4.87a1 1 0 0 1 0 1.74z"/>' +
+      '<path d="m20 14.285 1.5.845a1 1 0 0 1 0 1.74L13 21.74a2 2 0 0 1-2 0l-8.5-4.87a1 1 0 0 1 0-1.74l1.5-.845"/>',
+  },
+  fxBowl: {
+    paths:
+      '<circle cx="12" cy="12" r="10"/>' +
+      '<circle cx="12" cy="12" r="2"/>',
+  },
+  fxDiffuser: {
+    paths:
+      '<circle cx="12" cy="12" r="10"/>' +
+      '<path d="M12 18a6 6 0 0 0 0-12v12z"/>',
+  },
+  fxWire: {
+    paths:
+      '<path d="M17 19a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1z"/>' +
+      '<path d="M17 21v-2"/>' +
+      '<path d="M19 14V6.5a1 1 0 0 0-7 0v11a1 1 0 0 1-7 0V10"/>' +
+      '<path d="M21 21v-2"/>' +
+      '<path d="M3 5V3"/>' +
+      '<path d="M4 10a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2a2 2 0 0 1-2 2z"/>' +
+      '<path d="M7 5V3"/>',
   },
 }
 </script>
