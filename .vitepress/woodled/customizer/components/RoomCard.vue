@@ -21,7 +21,7 @@ interface Props {
   room: Room
 }
 const props = defineProps<Props>()
-const emit = defineEmits<{ click: [] }>()
+const emit = defineEmits<{ click: []; pickColor: [] }>()
 
 const rt = computed(() => getRT(props.room.typeId))
 const base = computed(() => baseLm(rt.value, props.room))
@@ -31,11 +31,13 @@ const mood = computed(() => autoMood(ratio.value))
 
 const cardStyle = computed(() => {
   const isEmpty = mood.value.id === 'empty'
+  const cc = props.room.cardColor
+  const tint = cc ?? (isEmpty ? null : mood.value.color)
   return {
-    background: isEmpty
-      ? T.card
-      : `linear-gradient(135deg, ${mood.value.color}22, ${mood.value.color}08)`,
-    border: `1px solid ${isEmpty ? T.border : mood.value.color + '44'}`,
+    background: tint
+      ? `linear-gradient(135deg, ${tint}22, ${tint}08)`
+      : T.card,
+    border: `1px solid ${tint ? tint + '44' : T.border}`,
     borderRadius: '12px',
     padding: '14px',
     cursor: 'pointer',
@@ -44,6 +46,7 @@ const cardStyle = computed(() => {
     alignItems: 'center',
     minHeight: '140px',
     textAlign: 'center' as const,
+    position: 'relative' as const,
   }
 })
 
@@ -95,6 +98,35 @@ const circles = computed<Circle[]>(() => {
 
 <template>
   <div :style="cardStyle" @click="emit('click')">
+    <!-- Palette icon -->
+    <button
+      :style="{
+        position: 'absolute',
+        top: '8px',
+        left: '8px',
+        width: '24px',
+        height: '24px',
+        borderRadius: '50%',
+        background: props.room.cardColor ? props.room.cardColor + '33' : T.border + '88',
+        border: 'none',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0,
+        opacity: 0.7,
+        transition: 'opacity .2s',
+      }"
+      @click.stop="emit('pickColor')"
+    >
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" :stroke="props.room.cardColor ?? T.textSec" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="13.5" cy="6.5" r="0.5" fill="currentColor" />
+        <circle cx="17.5" cy="10.5" r="0.5" fill="currentColor" />
+        <circle cx="8.5" cy="7.5" r="0.5" fill="currentColor" />
+        <circle cx="6.5" cy="12.5" r="0.5" fill="currentColor" />
+        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+      </svg>
+    </button>
     <div :style="badgeStyle">
       {{ props.room.customName || rt.name }}
     </div>

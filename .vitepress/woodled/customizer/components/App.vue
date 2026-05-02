@@ -10,10 +10,11 @@
  *   - Toast внизу
  */
 
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { T } from '../theme/tokens'
 import { useConfigurator } from '../store/configurator'
 import type { Room } from '../data/rooms'
+import { getRT } from '../data/rooms'
 import { rw } from '../engine/i18n'
 import Icon from './ui/Icons.vue'
 import Toast from './ui/Toast.vue'
@@ -30,6 +31,7 @@ import FirstModal from './FirstModal.vue'
 import StoryModal from './StoryModal.vue'
 import BuyModal from './BuyModal.vue'
 import ShareModal from './ShareModal.vue'
+import ColorPickerModal from './ColorPickerModal.vue'
 import RoomDetail from './RoomDetail.vue'
 
 const cfg = useConfigurator()
@@ -73,6 +75,21 @@ function onDeleteRoom() {
 
 function onCloseRoom() {
   cfg.active.value = null
+}
+
+/* ──────────────── Цвет карточки ──────────────── */
+
+const colorPickRoom = ref<Room | null>(null)
+
+function onPickColor(room: Room) {
+  colorPickRoom.value = room
+}
+
+function onColorPicked(color: string | undefined) {
+  if (colorPickRoom.value) {
+    cfg.updateRoom({ ...colorPickRoom.value, cardColor: color })
+  }
+  colorPickRoom.value = null
 }
 
 /* Тексты в заголовке. */
@@ -154,6 +171,7 @@ const subtitle = computed(() => {
           :key="r.id"
           :room="r"
           @click="cfg.active.value = r.id"
+          @pick-color="onPickColor(r)"
         />
         <div
           :style="{
@@ -246,6 +264,14 @@ const subtitle = computed(() => {
         :rooms="rooms"
         @close="cfg.showShare.value = false"
         @feedback="cfg.showFB"
+      />
+
+      <ColorPickerModal
+        v-if="colorPickRoom"
+        :current="colorPickRoom.cardColor"
+        :room-name="colorPickRoom.customName || getRT(colorPickRoom.typeId).name"
+        @pick="onColorPicked"
+        @close="colorPickRoom = null"
       />
 
       <Toast :msg="cfg.fb.value" @done="cfg.clearFB" />
