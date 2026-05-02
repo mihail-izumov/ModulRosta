@@ -334,7 +334,7 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
 
             <!-- patrons -->
             <div v-else-if="curStep === 'patrons'">
-              <div :style="{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(lampOpts().length, 5)}, 1fr)`, gap: '8px' }">
+              <div :style="{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))', gap: '8px' }">
                 <button v-for="v in lampOpts()" :key="v" @click="upBuild({ lamps: v })"
                   :style="{ padding: '14px 6px', borderRadius: '10px', cursor: 'pointer', textAlign: 'center', border: build.lamps === v ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`, background: build.lamps === v ? T.neutral + '18' : T.card, transition: 'all .15s' }">
                   <div :style="{ display: 'inline-block', padding: '2px 8px', borderRadius: '4px', background: T.neutral + '22', fontSize: '11px', fontWeight: 700, color: T.neutral, marginBottom: '8px' }">{{ v }} {{ spw(v) }}</div>
@@ -438,7 +438,7 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
             model.hasDiffuser ? ['Рассеиватель', build.diffuser ? `Да (+${fmt(OPT_PRICE.diffuser)} ₽)` : 'Нет'] : null,
             model.wireOpts ? ['Подключение', model.wireOpts.find(x => x.id === build.wire)?.label || '—'] : null,
             model.baseColors ? ['Основание', BASE_COLORS[build.baseColor as keyof typeof BASE_COLORS]?.name || '—'] : null,
-            (model.bulbPrice || model.bulbOpts) ? ['Лампочки', model.bulbOpts ? (model.bulbOpts.find(x => x.id === build.bulbOpt)?.label ?? '—') : (build.bulbs ? `${build.lamps} шт` : 'Свои')] : null,
+            (model.bulbPrice || model.bulbOpts) ? ['Лампочки', model.bulbOpts ? (model.bulbOpts.find(x => x.id === build.bulbOpt)?.label ?? '—') : (build.bulbs ? `${build.lamps} шт × ${fmt(bulbPer())} ₽` : 'Свои')] : null,
           ].filter(Boolean) as [string, string][])" :key="i"
             :style="{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: '12px' }">
             <span :style="{ color: T.textSec }">{{ k }}</span>
