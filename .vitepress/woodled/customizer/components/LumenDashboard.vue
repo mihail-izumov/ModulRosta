@@ -70,10 +70,10 @@ const props = defineProps<Props>()
               display: 'inline-block',
               padding: '2px 8px',
               borderRadius: '8px',
-              background: props.bright.color + '20',
+              background: props.mood.color + '20',
               fontSize: '10px',
               fontWeight: 600,
-              color: props.bright.color,
+              color: props.mood.color,
               flexShrink: 0,
             }"
           >

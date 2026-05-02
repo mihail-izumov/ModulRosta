@@ -143,10 +143,10 @@ const circles = computed<Circle[]>(() => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          opacity: 0.35,
+          opacity: props.room.cardColor ? 0.5 : 0.35,
         }"
       >
-        <Icon name="leafy" :color="T.textSec" :size="40" />
+        <Icon name="leafy" :color="props.room.cardColor ?? T.textSec" :size="40" />
       </div>
       <div :style="{ fontSize: '12px', color: T.textSec }">
         {{ ROOM_HINTS[props.room.typeId] ?? 'Добавьте свет' }}

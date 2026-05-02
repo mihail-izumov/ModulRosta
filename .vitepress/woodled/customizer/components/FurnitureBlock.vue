@@ -84,6 +84,7 @@ function handleToggle(id: FurnId) {
         v-for="id in props.rt.furn"
         :key="id"
         :active="props.room.furniture.includes(id)"
+        :tint="props.tint"
         @click="handleToggle(id)"
       >
         {{ FURN[id]?.name }}
@@ -96,10 +97,10 @@ function handleToggle(id: FurnId) {
           display: 'inline-block',
           padding: '3px 10px',
           borderRadius: '10px',
-          background: props.furnPct > 0 ? T.red + '18' : T.green + '18',
+          background: props.tint + '18',
           fontSize: '11px',
           fontWeight: 600,
-          color: props.furnPct > 0 ? T.red : T.green,
+          color: props.tint,
         }"
       >
         <template v-if="props.furnPct > 0">−{{ props.furnPct }}% меньше света</template>
