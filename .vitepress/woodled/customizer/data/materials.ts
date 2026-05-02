@@ -40,6 +40,7 @@ export const BOWLS: readonly Bowl[] = [
   { id: 'nickel',    name: 'Никель',         price: 0 },
   { id: 'hook_10',   name: 'Хром крюк Ø10', price: 1200 },
   { id: 'chrome_14', name: 'Хром Ø14',       price: 1200 },
+  { id: 'none',      name: 'Нет',            price: 0 },
 ] as const
 
 /* ──────────────── Крепления ──────────────── */
@@ -119,6 +120,7 @@ export const BOWL_TIPS: Record<string, string> = {
   nickel:    'Никель — мягкий металлический блеск',
   hook_10:   'Хром под крюк — для подвесного монтажа',
   chrome_14: 'Увеличенная хромированная чаша',
+  none:      'Без чаши — чистый потолок',
 }
 
 export const MOUNT_TIPS: Record<string, string> = {

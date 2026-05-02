@@ -62,6 +62,7 @@ export interface Model {
 /* ──────────────── Чаши: наборы по моделям ──────────────── */
 
 const BWL_ALL = ['chrome_8', 'black_8', 'white_8', 'wood_8', 'nickel', 'hook_10', 'chrome_14']
+const BWL_X   = [...BWL_ALL, 'none']
 const BWL_6   = ['chrome_8', 'black_8', 'white_8', 'wood_8', 'hook_10', 'chrome_14']
 const BWL_4   = ['chrome_8', 'black_8', 'white_8', 'wood_8']
 
@@ -84,28 +85,28 @@ export const MD: Record<ModelId, Model> = {
     name: 'Rotor S', letter: 'S', type: 'люстра', family: 'rotor',
     lamps: 4, minL: 4, maxL: 4, lmPer: 1070, sur: 1000,
     sqMin: 6, sqMax: 7, p: { oak: 14900, walnut: 17900, black: 15900 },
-    avBowls: BWL_ALL, hasMount: true, diffLoss: 0.25, bulbsIn: false,
+    avBowls: BWL_ALL, hasMount: true, diffLoss: 0, bulbsIn: false,
     bulbPrice: 1000, dimD: 'Ø45', dimH: '12', ltName: 'Шар малый E27', ltWatt: 13,
   },
   rotor_m: {
     name: 'Rotor M', letter: 'M', type: 'люстра', family: 'rotor',
     lamps: 4, minL: 4, maxL: 6, lmPer: 1500, sur: 1000,
     sqMin: 10, sqMax: 12, p: { oak: 19900, walnut: 22900, black: 20900 },
-    avBowls: BWL_ALL, hasMount: true, diffLoss: 0.25, bulbsIn: false,
+    avBowls: BWL_ALL, hasMount: true, diffLoss: 0, bulbsIn: false,
     bulbPrice: 1000, dimD: 'Ø54', dimH: '12', ltName: 'Груша E27', ltWatt: 15,
   },
   rotor_l: {
     name: 'Rotor L', letter: 'L', type: 'люстра', family: 'rotor',
     lamps: 4, minL: 4, maxL: 8, lmPer: 1500, sur: 1000,
     sqMin: 12, sqMax: 15, p: { oak: 26900, walnut: 30900, black: 27900 },
-    avBowls: BWL_ALL, hasMount: true, diffLoss: 0.25, bulbsIn: false,
+    avBowls: BWL_ALL, hasMount: true, diffLoss: 0, bulbsIn: false,
     bulbPrice: 1000, dimD: 'Ø66', dimH: '12', ltName: 'Груша E27', ltWatt: 15,
   },
   rotor_1000: {
     name: 'Rotor 1000', letter: '1000', type: 'люстра', family: 'rotor',
     lamps: 6, minL: 6, maxL: 12, lmPer: 1500, sur: 1000,
     sqMin: 15, sqMax: 20, p: { oak: 39900, walnut: 45900, black: 41900 },
-    avBowls: [], hasMount: true, diffLoss: 0.25, bulbsIn: false,
+    avBowls: [], hasMount: true, diffLoss: 0, bulbsIn: false,
     bulbPrice: 1500, dimD: 'Ø100', dimH: '12', ltName: 'Груша E27', ltWatt: 15,
   },
 
@@ -114,7 +115,7 @@ export const MD: Record<ModelId, Model> = {
     name: 'Rotor X M', letter: 'M', type: 'люстра', family: 'rotor_x',
     lamps: 3, minL: 3, maxL: 6, lmPer: 800, sur: 1000,
     sqMin: 4, sqMax: 6, p: { oak: 27900, walnut: 30900, black: 28900 },
-    avBowls: BWL_ALL, hasMount: false, hasDiffuser: true,
+    avBowls: BWL_X, hasMount: false, hasDiffuser: true,
     diffLoss: 0.25, bulbsIn: false,
     bulbOpts: [
       { id: 'none',  label: 'Нет',              price: 0,    tip: 'Чисто, без проводов' },
@@ -127,7 +128,7 @@ export const MD: Record<ModelId, Model> = {
     name: 'Rotor X L', letter: 'L', type: 'люстра', family: 'rotor_x',
     lamps: 3, minL: 3, maxL: 8, lmPer: 800, sur: 1000,
     sqMin: 6, sqMax: 7, p: { oak: 34900, walnut: 36900, black: 35900 },
-    avBowls: BWL_ALL, hasMount: false, hasDiffuser: true,
+    avBowls: BWL_X, hasMount: false, hasDiffuser: true,
     diffLoss: 0.25, bulbsIn: false,
     bulbOpts: [
       { id: 'none',  label: 'Нет',              price: 0,    tip: 'Чисто, без проводов' },
