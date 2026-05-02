@@ -88,8 +88,8 @@ const emit = defineEmits<{ share: []; buy: [] }>()
           }"
           @click="emit('buy')"
         >
-          <Icon name="gift" :color="T.neutral" :size="16" />
-          Получить подарок
+          <Icon name="trees" :color="T.neutral" :size="16" />
+          Мой свет
         </button>
       </div>
     </div>

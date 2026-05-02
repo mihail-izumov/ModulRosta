@@ -140,18 +140,6 @@ const subtitle = computed(() => {
         </div>
       </div>
 
-      <!-- Онбординг (всегда) -->
-      <OnboardingLink />
-
-      <!-- Сториз (если есть светильники) -->
-      <StoryLink
-        v-if="cfg.hasFixtures.value"
-        @click="cfg.showStory.value = true"
-      />
-
-      <!-- Промо (если светильников нет) -->
-      <PromoBlock v-if="!cfg.hasFixtures.value" @click="onPromoClick" />
-
       <!-- Сетка комнат -->
       <div
         :style="{
@@ -186,6 +174,18 @@ const subtitle = computed(() => {
           <div :style="{ fontSize: '11px' }">Добавить комнату</div>
         </div>
       </div>
+
+      <!-- Промо (всегда) -->
+      <PromoBlock @click="onPromoClick" />
+
+      <!-- Сториз (если есть светильники) -->
+      <StoryLink
+        v-if="cfg.hasFixtures.value"
+        @click="cfg.showStory.value = true"
+      />
+
+      <!-- Онбординг (всегда) -->
+      <OnboardingLink />
 
       <!-- Sticky bar (если есть светильники) -->
       <StickyBar

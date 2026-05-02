@@ -196,7 +196,7 @@ function confirmDelete() {
       >
         ← Домой
       </button>
-      <span :style="{ flex: 1, fontWeight: 700, fontSize: '18px', color: T.text }">
+      <span :style="{ flex: 1, fontWeight: 700, fontSize: '18px', color: T.text, textAlign: 'center' }">
         {{ props.room.customName || rt.name }}
       </span>
       <button
@@ -213,6 +213,7 @@ function confirmDelete() {
         @click="showSettings = true"
       >
         {{ getArea(rt, props.room) }} м² · {{ props.room.ceilingH }} м
+        <Icon name="pen" :color="T.textSec" :size="12" style="margin-left: 6px; vertical-align: middle; opacity: 0.6;" />
       </button>
     </div>
 
