@@ -2,11 +2,8 @@
 /**
  * ColorPickerModal.vue — Полноэкранный Hue-style цветовой пикер.
  *
- * Два режима:
- *   1. Пресеты — 12 цветов в сетке (по умолчанию)
- *   2. Колесо — conic gradient + drag по кругу
- *
- * Закрытие только по «Готово».
+ * Два режима: пресеты (по умолчанию) и цветовое колесо.
+ * Закрытие только по «Готово» или «← Назад».
  */
 
 import { ref, computed, nextTick } from 'vue'
@@ -27,7 +24,7 @@ const emit = defineEmits<{
 const picked = ref<string | undefined>(props.current)
 const mode = ref<'presets' | 'wheel'>('presets')
 const wheelCanvas = ref<HTMLCanvasElement | null>(null)
-const wheelSize = 240
+const wheelSize = 260
 
 /* ──── Пресеты ──── */
 
@@ -46,45 +43,15 @@ const PRESETS: { color: string; name: string }[] = [
   { color: '#8B6242', name: 'Орех' },
 ]
 
-/* ──── Имя цвета ──── */
-
-const colorName = computed(() => {
-  if (!picked.value) return 'Нет цвета'
-  const preset = PRESETS.find(p => p.color === picked.value)
-  if (preset) return preset.name
-  return hueToName(picked.value)
-})
-
-function hueToName(hex: string): string {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  const max = Math.max(r, g, b), min = Math.min(r, g, b)
-  const l = (max + min) / 2 / 255
-  if (max - min < 20) return l > 0.6 ? 'Светлый' : 'Тёмный'
-  let h = 0
-  const d = max - min
-  if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60
-  else if (max === g) h = ((b - r) / d + 2) * 60
-  else h = ((r - g) / d + 4) * 60
-  if (h < 15 || h >= 345) return 'Красный'
-  if (h < 40) return 'Оранжевый'
-  if (h < 70) return 'Золотой'
-  if (h < 150) return 'Зелёный'
-  if (h < 195) return 'Бирюзовый'
-  if (h < 260) return 'Синий'
-  if (h < 310) return 'Фиолетовый'
-  return 'Розовый'
-}
-
-/* ──── Колесо ──── */
+/* ──── Колесо (Hue-style: широкое кольцо, яркие цвета) ──── */
 
 function drawWheel() {
   const cvs = wheelCanvas.value
   if (!cvs) return
   const ctx = cvs.getContext('2d')
   if (!ctx) return
-  const cx = wheelSize / 2, cy = wheelSize / 2, radius = wheelSize / 2 - 4
+  const cx = wheelSize / 2, cy = wheelSize / 2, radius = wheelSize / 2 - 2
+  const innerR = radius * 0.32
 
   const img = ctx.createImageData(wheelSize, wheelSize)
   for (let y = 0; y < wheelSize; y++) {
@@ -92,10 +59,13 @@ function drawWheel() {
       const dx = x - cx, dy = y - cy
       const dist = Math.sqrt(dx * dx + dy * dy)
       const idx = (y * wheelSize + x) * 4
-      if (dist <= radius && dist >= radius * 0.45) {
+      if (dist <= radius && dist >= innerR) {
         const angle = (Math.atan2(dy, dx) * 180 / Math.PI + 360) % 360
-        const sat = 75 + ((dist - radius * 0.45) / (radius * 0.55)) * 20
-        const rgb = hslToRgb(angle, sat, 55)
+        // Saturation decreases toward inner edge, lightness varies
+        const t = (dist - innerR) / (radius - innerR) // 0=inner, 1=outer
+        const sat = 60 + t * 35
+        const lit = 40 + (1 - t) * 20
+        const rgb = hslToRgb(angle, sat, lit)
         img.data[idx] = rgb[0]
         img.data[idx + 1] = rgb[1]
         img.data[idx + 2] = rgb[2]
@@ -143,15 +113,8 @@ function pickFromWheel(e: MouseEvent | TouchEvent) {
 }
 
 let dragging = false
-function onWheelDown(e: MouseEvent | TouchEvent) {
-  dragging = true
-  pickFromWheel(e)
-}
-function onWheelMove(e: MouseEvent | TouchEvent) {
-  if (!dragging) return
-  e.preventDefault()
-  pickFromWheel(e)
-}
+function onWheelDown(e: MouseEvent | TouchEvent) { dragging = true; pickFromWheel(e) }
+function onWheelMove(e: MouseEvent | TouchEvent) { if (!dragging) return; e.preventDefault(); pickFromWheel(e) }
 function onWheelUp() { dragging = false }
 
 function switchToWheel() {
@@ -161,14 +124,8 @@ function switchToWheel() {
 
 /* ──── Actions ──── */
 
-function done() {
-  emit('pick', picked.value)
-  emit('close')
-}
-
-function reset() {
-  picked.value = undefined
-}
+function done() { emit('pick', picked.value); emit('close') }
+function reset() { picked.value = undefined }
 </script>
 
 <template>
@@ -184,14 +141,7 @@ function reset() {
     }"
   >
     <!-- Header -->
-    <div
-      :style="{
-        padding: '16px 20px 0',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-      }"
-    >
+    <div :style="{ padding: '16px 20px 0' }">
       <button
         :style="{
           background: 'none',
@@ -219,44 +169,40 @@ function reset() {
       }"
     >
       <!-- Title -->
-      <div :style="{ fontSize: '22px', fontWeight: 700, color: T.text, marginBottom: '4px' }">
+      <div :style="{ fontSize: '22px', fontWeight: 700, color: T.text, marginBottom: '24px' }">
         Цвет комнаты
       </div>
-      <div :style="{ fontSize: '13px', color: T.textSec, marginBottom: '24px' }">
-        {{ props.roomName }}
-      </div>
 
-      <!-- Preview block -->
+      <!-- Preview: lamp icon + room name, one line -->
       <div
         :style="{
           width: '100%',
           maxWidth: '340px',
-          height: '80px',
+          padding: '16px 20px',
           borderRadius: '14px',
           background: picked
             ? `linear-gradient(135deg, ${picked}55, ${picked}22)`
             : T.card,
           border: `1px solid ${picked ? picked + '66' : T.border}`,
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          gap: '10px',
           marginBottom: '28px',
           transition: 'all .3s',
         }"
       >
         <svg
-          width="28" height="28" viewBox="0 0 24 24" fill="none"
+          width="22" height="22" viewBox="0 0 24 24" fill="none"
           :stroke="picked ?? T.textDim" stroke-width="1.5"
           stroke-linecap="round" stroke-linejoin="round"
-          :style="{ opacity: 0.8, marginBottom: '4px' }"
         >
           <path d="M12 2v5"/>
           <path d="M14.829 15.998a3 3 0 1 1-5.658 0"/>
           <path d="M20.92 14.606A1 1 0 0 1 20 16H4a1 1 0 0 1-.92-1.394l3-7A1 1 0 0 1 7 7h10a1 1 0 0 1 .92.606z"/>
         </svg>
-        <div :style="{ fontSize: '12px', fontWeight: 600, color: picked ?? T.textDim }">
-          {{ colorName }}
+        <div :style="{ fontSize: '15px', fontWeight: 600, color: picked ?? T.textDim }">
+          {{ props.roomName }}
         </div>
       </div>
 
@@ -330,29 +276,27 @@ function reset() {
             @touchmove="onWheelMove"
             @touchend="onWheelUp"
           />
-          <!-- Center lamp -->
+          <!-- Center: lamp icon with selected color -->
           <div
             :style="{
               position: 'absolute',
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              width: (wheelSize * 0.38) + 'px',
-              height: (wheelSize * 0.38) + 'px',
+              width: (wheelSize * 0.28) + 'px',
+              height: (wheelSize * 0.28) + 'px',
               borderRadius: '50%',
-              background: picked
-                ? `linear-gradient(135deg, ${picked}44, ${picked}18)`
-                : T.card,
-              border: `1px solid ${picked ? picked + '44' : T.border}`,
+              background: T.bg,
+              border: `3px solid ${picked ? picked + '66' : T.border}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               pointerEvents: 'none',
-              transition: 'all .15s',
+              transition: 'border-color .15s',
             }"
           >
             <svg
-              width="32" height="32" viewBox="0 0 24 24" fill="none"
+              width="28" height="28" viewBox="0 0 24 24" fill="none"
               :stroke="picked ?? T.textDim" stroke-width="1.5"
               stroke-linecap="round" stroke-linejoin="round"
             >
