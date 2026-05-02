@@ -1,12 +1,10 @@
 <script setup lang="ts">
 /**
  * ColorPickerModal.vue — Hue-style color picker.
- *
- * Full-screen, two tabs (Tesla toggle): presets / wheel.
- * Smooth anti-aliased color wheel with draggable picker cursor.
+ * Fixed top layout, default cursor on wheel, touch-friendly.
  */
 
-import { ref, computed, nextTick, onMounted } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { T, Z } from '../theme/tokens'
 
 interface Props {
@@ -18,8 +16,6 @@ const emit = defineEmits<{
   pick: [color: string | undefined]
   close: []
 }>()
-
-/* ──── State ──── */
 
 const picked = ref<string | undefined>(props.current)
 const tab = ref<'presets' | 'wheel'>('presets')
@@ -44,25 +40,22 @@ const PRESETS: { color: string; name: string }[] = [
   { color: '#8B6242', name: 'Орех' },
 ]
 
-/* ──── Color wheel (smooth arcs, anti-aliased) ──── */
+/* ──── Color wheel ──── */
 
 function drawWheel() {
   const cvs = wheelCanvas.value
   if (!cvs) return
   const ctx = cvs.getContext('2d')
   if (!ctx) return
-
-  const cx = wheelSize / 2, cy = wheelSize / 2
-  const radius = wheelSize / 2 - 1
+  const cx = wheelSize / 2, cy = wheelSize / 2, radius = wheelSize / 2 - 1
 
   ctx.clearRect(0, 0, wheelSize, wheelSize)
 
-  // Draw concentric rings from outside in
   const steps = 100
   for (let ring = steps; ring >= 0; ring--) {
     const r = (ring / steps) * radius
-    const sat = 30 + (ring / steps) * 70         // 30% center → 100% edge
-    const lit = 85 - (ring / steps) * 35          // 85% center → 50% edge
+    const sat = 30 + (ring / steps) * 70
+    const lit = 85 - (ring / steps) * 35
 
     for (let deg = 0; deg < 360; deg++) {
       const startAngle = (deg - 0.5) * Math.PI / 180
@@ -77,12 +70,23 @@ function drawWheel() {
     }
   }
 
-  // Smooth circular mask (clip to perfect circle)
   ctx.globalCompositeOperation = 'destination-in'
   ctx.beginPath()
   ctx.arc(cx, cy, radius, 0, Math.PI * 2)
   ctx.fill()
   ctx.globalCompositeOperation = 'source-over'
+
+  // Set default cursor if none yet
+  if (!pickerPos.value) {
+    if (!picked.value) picked.value = T.neutral
+    // Default position: warm area (~40°), 65% from center
+    const angle = 40 * Math.PI / 180
+    const dist = 0.65
+    pickerPos.value = {
+      x: (50 + dist * 50 * Math.cos(angle)),
+      y: (50 + dist * 50 * Math.sin(angle)),
+    }
+  }
 }
 
 function hslToRgb(h: number, s: number, l: number): [number, number, number] {
@@ -110,24 +114,20 @@ function pickFromWheel(e: MouseEvent | TouchEvent) {
   const rect = cvs.getBoundingClientRect()
   const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
   const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-  const px_x = (clientX - rect.left) * (wheelSize / rect.width)
-  const px_y = (clientY - rect.top) * (wheelSize / rect.height)
+  const relX = (clientX - rect.left) / rect.width
+  const relY = (clientY - rect.top) / rect.height
+  const dx = relX - 0.5, dy = relY - 0.5
+  if (Math.sqrt(dx * dx + dy * dy) > 0.49) return
 
-  // Check within circle
-  const dx = px_x - wheelSize / 2, dy = px_y - wheelSize / 2
-  if (Math.sqrt(dx * dx + dy * dy) > wheelSize / 2 - 2) return
-
+  const px_x = Math.round(relX * wheelSize)
+  const px_y = Math.round(relY * wheelSize)
   const ctx = cvs.getContext('2d')
   if (!ctx) return
-  const px = ctx.getImageData(Math.round(px_x), Math.round(px_y), 1, 1).data
+  const px = ctx.getImageData(px_x, px_y, 1, 1).data
   if (px[3] < 128) return
 
   picked.value = rgbToHex(px[0], px[1], px[2])
-  // Position in % for the picker cursor overlay
-  pickerPos.value = {
-    x: (clientX - rect.left) / rect.width * 100,
-    y: (clientY - rect.top) / rect.height * 100,
-  }
+  pickerPos.value = { x: relX * 100, y: relY * 100 }
 }
 
 let dragging = false
@@ -140,8 +140,6 @@ function switchTab(t: 'presets' | 'wheel') {
   if (t === 'wheel') nextTick(() => drawWheel())
 }
 
-/* ──── Actions ──── */
-
 function done() { emit('pick', picked.value); emit('close') }
 function reset() { picked.value = undefined; pickerPos.value = null }
 </script>
@@ -149,49 +147,39 @@ function reset() { picked.value = undefined; pickerPos.value = null }
 <template>
   <div
     :style="{
-      position: 'fixed',
-      inset: 0,
-      background: T.bg,
-      zIndex: Z.fullscreenModal,
-      display: 'flex',
-      flexDirection: 'column',
+      position: 'fixed', inset: 0, background: T.bg,
+      zIndex: Z.fullscreenModal, display: 'flex', flexDirection: 'column',
       overflow: 'auto',
     }"
   >
-    <!-- Header -->
-    <div :style="{ padding: '16px 20px 0' }">
+    <!-- Fixed top: back + title + preview + toggle -->
+    <div :style="{ padding: '16px 24px 0', flexShrink: 0 }">
+      <!-- Back -->
       <button
         :style="{
           background: 'none', border: 'none', color: T.textSec,
           fontSize: '14px', cursor: 'pointer', padding: '0 4px',
+          marginBottom: '16px',
         }"
         @click="emit('close')"
       >
         ← Назад
       </button>
-    </div>
 
-    <!-- Content -->
-    <div
-      :style="{
-        flex: 1, display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', padding: '0 24px',
-      }"
-    >
       <!-- Title -->
-      <div :style="{ fontSize: '22px', fontWeight: 700, color: T.text, marginBottom: '20px' }">
+      <div :style="{ fontSize: '22px', fontWeight: 700, color: T.text, textAlign: 'center', marginBottom: '16px' }">
         Цвет комнаты
       </div>
 
-      <!-- Preview: lamp + room name, one line -->
+      <!-- Preview -->
       <div
         :style="{
-          width: '100%', maxWidth: '340px', padding: '14px 20px',
-          borderRadius: '14px',
+          width: '100%', maxWidth: '340px', margin: '0 auto',
+          padding: '14px 20px', borderRadius: '14px',
           background: picked ? `linear-gradient(135deg, ${picked}55, ${picked}22)` : T.card,
           border: `1px solid ${picked ? picked + '66' : T.border}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-          marginBottom: '20px', transition: 'all .3s',
+          marginBottom: '16px', transition: 'all .3s',
         }"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -205,31 +193,37 @@ function reset() { picked.value = undefined; pickerPos.value = null }
         </div>
       </div>
 
-      <!-- Tesla-style segmented toggle -->
+      <!-- Tesla toggle -->
       <div
         :style="{
-          display: 'flex', width: '100%', maxWidth: '340px',
+          display: 'flex', width: '100%', maxWidth: '340px', margin: '0 auto',
           background: T.card, borderRadius: '10px', padding: '3px',
-          marginBottom: '24px', border: `1px solid ${T.border}`,
+          marginBottom: '20px', border: `1px solid ${T.border}`,
         }"
       >
         <button
-          v-for="t in (['presets', 'wheel'] as const)"
-          :key="t"
+          v-for="t in (['presets', 'wheel'] as const)" :key="t"
           :style="{
             flex: 1, padding: '8px 0', borderRadius: '8px', border: 'none',
             cursor: 'pointer', fontSize: '12px', fontWeight: 600,
             background: tab === t ? T.neutral + '33' : 'transparent',
-            color: tab === t ? T.text : T.textSec,
-            transition: 'all .2s',
+            color: tab === t ? T.text : T.textSec, transition: 'all .2s',
           }"
           @click="switchTab(t)"
         >
           {{ t === 'presets' ? 'Готовые цвета' : 'Свой цвет' }}
         </button>
       </div>
+    </div>
 
-      <!-- ═══ PRESETS ═══ -->
+    <!-- Content area -->
+    <div
+      :style="{
+        flex: 1, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', padding: '0 24px',
+      }"
+    >
+      <!-- PRESETS -->
       <template v-if="tab === 'presets'">
         <div
           :style="{
@@ -238,8 +232,7 @@ function reset() { picked.value = undefined; pickerPos.value = null }
           }"
         >
           <button
-            v-for="p in PRESETS"
-            :key="p.color"
+            v-for="p in PRESETS" :key="p.color"
             :style="{
               width: '42px', height: '42px', borderRadius: '50%',
               background: `linear-gradient(135deg, ${p.color}, ${p.color}cc)`,
@@ -254,50 +247,38 @@ function reset() { picked.value = undefined; pickerPos.value = null }
         </div>
       </template>
 
-      <!-- ═══ WHEEL ═══ -->
+      <!-- WHEEL -->
       <template v-if="tab === 'wheel'">
         <div
           :style="{
             position: 'relative',
             width: wheelSize + 'px', height: wheelSize + 'px',
-            borderRadius: '50%',
-            overflow: 'hidden',
+            borderRadius: '50%', overflow: 'hidden',
           }"
         >
           <canvas
             ref="wheelCanvas"
-            :width="wheelSize"
-            :height="wheelSize"
+            :width="wheelSize" :height="wheelSize"
             :style="{
-              width: '100%', height: '100%',
-              borderRadius: '50%',
-              touchAction: 'none',
-              display: 'block',
+              width: '100%', height: '100%', borderRadius: '50%',
+              touchAction: 'none', display: 'block',
             }"
-            @mousedown="onDown"
-            @mousemove="onMove"
-            @mouseup="onUp"
-            @mouseleave="onUp"
-            @touchstart.prevent="onDown"
-            @touchmove="onMove"
-            @touchend="onUp"
+            @mousedown="onDown" @mousemove="onMove"
+            @mouseup="onUp" @mouseleave="onUp"
+            @touchstart.prevent="onDown" @touchmove="onMove" @touchend="onUp"
           />
-          <!-- Picker cursor: filled circle with lamp icon -->
+          <!-- Picker cursor -->
           <div
             v-if="pickerPos && picked"
             :style="{
               position: 'absolute',
-              left: pickerPos.x + '%',
-              top: pickerPos.y + '%',
+              left: pickerPos.x + '%', top: pickerPos.y + '%',
               transform: 'translate(-50%, -50%)',
-              width: '44px', height: '44px',
-              borderRadius: '50%',
-              background: picked,
-              border: '3px solid #fff',
-              boxShadow: `0 2px 12px rgba(0,0,0,.5)`,
+              width: '44px', height: '44px', borderRadius: '50%',
+              background: picked, border: '3px solid #fff',
+              boxShadow: '0 2px 12px rgba(0,0,0,.5)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              pointerEvents: 'none',
-              transition: 'background .1s',
+              pointerEvents: 'none', transition: 'background .1s',
             }"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -312,7 +293,7 @@ function reset() { picked.value = undefined; pickerPos.value = null }
     </div>
 
     <!-- Footer -->
-    <div :style="{ padding: '0 24px 28px', maxWidth: '400px', width: '100%', margin: '0 auto' }">
+    <div :style="{ padding: '16px 24px 28px', maxWidth: '400px', width: '100%', margin: '0 auto', flexShrink: 0 }">
       <button
         :style="{
           width: '100%', padding: '14px',
