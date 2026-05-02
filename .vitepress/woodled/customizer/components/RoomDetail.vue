@@ -174,7 +174,7 @@ function confirmDelete() {
     <!-- Sticky header -->
     <div
       :style="{
-        padding: '10px 16px',
+        padding: '12px 16px',
         borderBottom: `1px solid ${T.border}`,
         display: 'flex',
         alignItems: 'center',
@@ -192,7 +192,7 @@ function confirmDelete() {
           color: T.textSec,
           fontSize: '14px',
           cursor: 'pointer',
-          padding: '0 4px',
+          padding: '2px 4px',
         }"
         @click="emit('close')"
       >
@@ -201,7 +201,6 @@ function confirmDelete() {
       <span :style="{ flex: 1, fontWeight: 700, fontSize: '18px', color: T.text, textAlign: 'center' }">
         {{ props.room.customName || rt.name }}
       </span>
-      <!-- Spacer for centering (matches ← Домой width) -->
       <span :style="{ width: '70px' }" />
     </div>
 
@@ -209,10 +208,10 @@ function confirmDelete() {
       <!-- Параметры комнаты -->
       <div
         :style="{
-          background: `linear-gradient(135deg, ${tint}12, ${tint}06)`,
-          border: `1px solid ${tint}22`,
+          background: `linear-gradient(135deg, ${tint}28, ${tint}10)`,
+          border: `1px solid ${tint}33`,
           borderRadius: '12px',
-          padding: '12px 16px',
+          padding: '14px 16px',
           marginBottom: '16px',
           cursor: 'pointer',
           display: 'flex',
@@ -223,32 +222,32 @@ function confirmDelete() {
       >
         <div
           :style="{
-            width: '36px',
-            height: '36px',
-            borderRadius: '8px',
-            background: tint + '18',
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
+            background: tint + '22',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
           }"
         >
-          <Icon name="fileSliders" :color="tint" :size="20" />
+          <Icon name="slidersH" :color="tint" :size="20" />
         </div>
         <div :style="{ flex: 1 }">
           <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
+            Параметры комнаты
+          </div>
+          <div :style="{ fontSize: '11px', color: tint, marginTop: '2px' }">
             {{ props.room.sizeIndex === 3 ? (props.room.customArea ?? '') + ' м²' : rt.ranges[props.room.sizeIndex] + ' м²' }}
             · потолок {{ props.room.ceilingH }} м
-          </div>
-          <div :style="{ fontSize: '11px', color: T.textSec }">
-            Размер, потолок, точки для света
           </div>
         </div>
         <svg
           width="20" height="20" viewBox="0 0 24 24" fill="none"
-          :stroke="T.textSec" stroke-width="1.5"
+          :stroke="tint" stroke-width="1.5"
           stroke-linecap="round" stroke-linejoin="round"
-          :style="{ flexShrink: 0 }"
+          :style="{ flexShrink: 0, opacity: 0.6 }"
         >
           <polyline points="9 18 15 12 9 6" />
         </svg>

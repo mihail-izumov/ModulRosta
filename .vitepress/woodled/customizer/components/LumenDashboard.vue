@@ -28,7 +28,7 @@ const props = defineProps<Props>()
       borderRadius: '10px',
       padding: '12px 14px',
       marginBottom: '16px',
-      border: `1px solid ${T.border}`,
+      border: `1px solid ${props.mood.color}22`,
     }"
   >
     <div :style="{ display: 'flex', alignItems: 'flex-start', gap: '10px' }">
@@ -61,9 +61,9 @@ const props = defineProps<Props>()
         <div :style="{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }">
           <div :style="{ fontSize: '14px', color: T.text }">
             <span :style="{ fontWeight: 700 }">{{ props.actual.toLocaleString('ru-RU') }}</span>
-            <span :style="{ color: T.textSec }"> из </span>
+            <span :style="{ color: props.mood.color, opacity: 0.6 }"> из </span>
             <span :style="{ fontWeight: 600, color: T.text + 'cc' }">{{ props.base.toLocaleString('ru-RU') }}</span>
-            <span :style="{ color: T.textSec }"> лм</span>
+            <span :style="{ color: props.mood.color, opacity: 0.6 }"> лм</span>
           </div>
           <span
             :style="{
