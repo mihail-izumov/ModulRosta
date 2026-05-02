@@ -8,7 +8,7 @@
 
 import { T } from '../theme/tokens'
 import { getRT, type Room } from '../data/rooms'
-import { fxPrice } from '../engine/price-engine'
+import { fxPrice } from '../data/price-engine'
 import Modal from './ui/Modal.vue'
 
 interface Props {
