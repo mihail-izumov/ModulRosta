@@ -217,7 +217,7 @@ function confirmDelete() {
         }"
         @click="showSettings = true"
       >
-        {{ getArea(rt, props.room) }} м²
+        {{ props.room.sizeIndex === 3 ? (props.room.customArea ?? '') + ' м²' : rt.ranges[props.room.sizeIndex] + ' м²' }}
         <Icon name="pen" :color="T.textSec" :size="14" :style="{ opacity: 0.6 }" />
       </button>
     </div>
