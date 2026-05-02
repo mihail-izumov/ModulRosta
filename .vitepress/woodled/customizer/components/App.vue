@@ -152,7 +152,6 @@ const subtitle = computed(() => {
           >
             <Icon name="pen" :color="T.textSec" :size="18" />
           </button>
-          <SoundButton />
         </div>
         <div :style="{ fontSize: '11px', color: T.textDim, marginTop: '2px' }">
           {{ subtitle }}
@@ -279,6 +278,18 @@ const subtitle = computed(() => {
       <Toast :msg="cfg.fb.value" @done="cfg.clearFB" />
     </div>
   </template>
+
+  <!-- Глобальная кнопка звука — поверх всех экранов -->
+  <div
+    :style="{
+      position: 'fixed',
+      top: '14px',
+      right: '16px',
+      zIndex: 45,
+    }"
+  >
+    <SoundButton />
+  </div>
 </template>
 
 <!-- Глобальные стили — не scoped, применяются ко всему документу.
