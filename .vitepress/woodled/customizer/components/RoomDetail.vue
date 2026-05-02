@@ -204,16 +204,17 @@ function confirmDelete() {
           background: T.card,
           border: `1px solid ${T.neutral}44`,
           borderRadius: '8px',
-          padding: '8px 14px',
+          padding: '8px 10px',
           cursor: 'pointer',
           fontSize: '13px',
           fontWeight: 600,
           color: T.text,
+          whiteSpace: 'nowrap',
         }"
         @click="showSettings = true"
       >
-        {{ getArea(rt, props.room) }} м² · {{ props.room.ceilingH }} м
-        <Icon name="pen" :color="T.textSec" :size="12" style="margin-left: 6px; vertical-align: middle; opacity: 0.6;" />
+        {{ getArea(rt, props.room) }} м²
+        <Icon name="pen" :color="T.textSec" :size="14" style="margin-left: 4px; vertical-align: middle; opacity: 0.6;" />
       </button>
     </div>
 
