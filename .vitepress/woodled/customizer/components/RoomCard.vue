@@ -51,15 +51,18 @@ const cardStyle = computed(() => {
 })
 
 const badgeStyle = computed(() => {
-  const tint = props.room.cardColor ?? (mood.value.id === 'empty' ? null : T.neutral)
+  const cc = props.room.cardColor
+  const tint = cc ?? (mood.value.id === 'empty' ? null : T.neutral)
   return {
     display: 'inline-block',
-    padding: '3px 12px',
+    padding: '4px 14px',
     borderRadius: '12px',
-    background: tint ? tint + '30' : T.border,
+    background: cc
+      ? `linear-gradient(135deg, ${cc}cc, ${cc}88)`
+      : tint ? tint + '30' : T.border,
     fontSize: '11px',
     fontWeight: 600,
-    color: T.text,
+    color: '#fff',
   }
 })
 
@@ -121,12 +124,12 @@ const circles = computed<Circle[]>(() => {
       }"
       @click.stop="emit('pickColor')"
     >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" :stroke="props.room.cardColor ?? T.textSec" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" :stroke="props.room.cardColor ?? T.textSec" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/>
-        <circle cx="13.5" cy="6.5" r="1.5" :fill="props.room.cardColor ?? T.textSec"/>
-        <circle cx="17.5" cy="10.5" r="1.5" :fill="props.room.cardColor ?? T.textSec"/>
-        <circle cx="6.5" cy="12.5" r="1.5" :fill="props.room.cardColor ?? T.textSec"/>
-        <circle cx="8.5" cy="7.5" r="1.5" :fill="props.room.cardColor ?? T.textSec"/>
+        <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+        <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+        <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+        <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
       </svg>
     </button>
     <div :style="badgeStyle">
