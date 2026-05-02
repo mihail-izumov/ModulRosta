@@ -17,6 +17,7 @@ import {
   WOOD_TIPS, BTEMP_TIPS, OPT_TIPS,
   type Wood, type Bowl,
 } from '../data/materials'
+import Icon, { type IconName } from './ui/Icons.vue'
 
 /* ═══ PROPS & EMITS ═══ */
 
@@ -38,17 +39,17 @@ const emit = defineEmits<{
 type StepId = 'size' | 'wood' | 'mount' | 'bowl' | 'temp' | 'patrons' | 'diffuser' | 'wire' | 'base' | 'bulbs'
 type StepStatus = 'default' | 'chosen'
 
-const SM: Record<StepId, { name: string; desc: string }> = {
-  size:     { name: 'Размер',       desc: 'Подберите размер под комнату' },
-  wood:     { name: 'Дерево',       desc: 'Три породы — три характера' },
-  mount:    { name: 'Крепление',    desc: 'Как светильник крепится к потолку' },
-  bowl:     { name: 'Чаша',         desc: 'Декоративная накладка на потолке' },
-  temp:     { name: 'Температура',  desc: 'Оттенок света' },
-  patrons:  { name: 'Патроны',      desc: 'Больше патронов — ярче свет' },
-  diffuser: { name: 'Рассеиватель', desc: 'Мягкий свет без бликов' },
-  wire:     { name: 'Подключение',  desc: 'Как подать электричество' },
-  base:     { name: 'Основание',    desc: 'Цвет ножки торшера' },
-  bulbs:    { name: 'Лампочки',     desc: 'Включить в комплект?' },
+const SM: Record<StepId, { name: string; desc: string; icon: IconName }> = {
+  size:     { name: 'Размер',       desc: 'Подберите размер под комнату',     icon: 'fxSize' },
+  wood:     { name: 'Дерево',       desc: 'Три породы — три характера',       icon: 'leafy' },
+  mount:    { name: 'Крепление',    desc: 'Как светильник крепится к потолку', icon: 'fxMount' },
+  bowl:     { name: 'Чаша',         desc: 'Декоративная накладка на потолке',  icon: 'fxBowl' },
+  temp:     { name: 'Температура',  desc: 'Оттенок света',                   icon: 'thermo' },
+  patrons:  { name: 'Патроны',      desc: 'Больше патронов — ярче свет',      icon: 'sun' },
+  diffuser: { name: 'Рассеиватель', desc: 'Мягкий свет без бликов',           icon: 'fxDiffuser' },
+  wire:     { name: 'Подключение',  desc: 'Как подать электричество',         icon: 'fxWire' },
+  base:     { name: 'Основание',    desc: 'Цвет ножки торшера',              icon: 'dotDashed' },
+  bulbs:    { name: 'Лампочки',     desc: 'Включить в комплект?',             icon: 'bulb' },
 }
 
 const SIM_MOUNTS = [
@@ -256,7 +257,10 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
         <div :style="{ flex: 1 }">
           <div :style="{ background: T.card, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '20px' }">
             <div :style="{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }">
-              <span :style="{ fontSize: '16px', fontWeight: 700 }">{{ meta.name }}</span>
+              <div :style="{ display: 'flex', alignItems: 'center', gap: '6px' }">
+                <Icon :name="meta.icon" :color="T.neutral" :size="18" />
+                <span :style="{ fontSize: '16px', fontWeight: 700 }">{{ meta.name }}</span>
+              </div>
               <span :style="{ fontSize: '11px', color: T.textDim }">{{ stepIdx + 1 }} из {{ steps.length }}</span>
             </div>
             <div :style="{ fontSize: '12px', color: T.textSec, marginBottom: '16px' }">{{ curStep === 'bulbs' ? `${build.lamps} ${spw(build.lamps)}` : meta.desc }}</div>
@@ -399,6 +403,9 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
       <!-- ═══ SUMMARY ═══ -->
       <template v-if="view === 'summary'">
         <div :style="{ textAlign: 'center', marginBottom: '20px', paddingTop: '20px' }">
+          <div :style="{ width: '60px', height: '60px', borderRadius: '14px', background: sc + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" :stroke="sc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+          </div>
           <div :style="{ fontSize: '20px', fontWeight: 700 }">{{ model.name }}</div>
           <div :style="{ fontSize: '24px', fontWeight: 800, color: isDone ? sc : T.neutral, marginTop: '4px' }">{{ fmt(price) }} ₽</div>
           <div :style="{ display: 'inline-block', marginTop: '8px', padding: '4px 14px', borderRadius: '6px', background: sc + '22', fontSize: '13px', fontWeight: 700, color: sc }">{{ status }}</div>
@@ -414,7 +421,7 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
           </div>
           <button v-for="(s, i) in steps" :key="s" @click="goToStep(i)"
             :style="{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 0', background: 'none', border: 'none', cursor: 'pointer', borderBottom: i < steps.length - 1 ? `1px solid ${T.border}` : 'none', textAlign: 'left' }">
-            <span :style="{ fontSize: '14px', color: build.steps[s] === 'chosen' ? T.green : T.textDim }">{{ build.steps[s] === 'chosen' ? '✓' : '○' }}</span>
+            <Icon :name="SM[s]?.icon ?? 'sun'" :size="16" :color="build.steps[s] === 'chosen' ? T.green : T.textDim" />
             <span :style="{ flex: 1, fontSize: '13px', color: T.text }">{{ SM[s]?.name }}</span>
             <span :style="{ fontSize: '10px', padding: '3px 10px', borderRadius: '5px', fontWeight: 600, background: build.steps[s] === 'chosen' ? T.green + '22' : T.neutral + '15', color: build.steps[s] === 'chosen' ? T.green : T.neutral }">{{ build.steps[s] === 'chosen' ? 'Готово' : 'Выбрать' }}</span>
           </button>
