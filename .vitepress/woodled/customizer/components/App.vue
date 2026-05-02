@@ -23,6 +23,7 @@ import OnboardingLink from './OnboardingLink.vue'
 import StoryLink from './StoryLink.vue'
 import PromoBlock from './PromoBlock.vue'
 import RoomCard from './RoomCard.vue'
+import SoundButton from './SoundButton.vue'
 import StickyBar from './StickyBar.vue'
 import Footer from './Footer.vue'
 import TypePicker from './TypePicker.vue'
@@ -151,6 +152,7 @@ const subtitle = computed(() => {
           >
             <Icon name="pen" :color="T.textSec" :size="18" />
           </button>
+          <SoundButton />
         </div>
         <div :style="{ fontSize: '11px', color: T.textDim, marginTop: '2px' }">
           {{ subtitle }}
@@ -291,5 +293,9 @@ input::placeholder,
 textarea::placeholder {
   color: #5C544A !important;
   opacity: 0.7 !important;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 </style>
