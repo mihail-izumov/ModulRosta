@@ -12,7 +12,9 @@
  *   - «Удалить комнату»
  *   - Footer
  *
- * Плюс модалки: RoomSettings, FxEditor, AddFxModal, RemoveFxModal, MoodDetailModal, Confirm.
+ * Плюс модалки: RoomSettings, AddFxModal, Confirm.
+ * (FxEditor и MoodDetailModal — на корневом уровне App.vue, чтобы избежать
+ *  stacking-context конфликта со StickyBar.)
  */
 
 import { computed, ref } from 'vue'
@@ -40,7 +42,6 @@ import FurnitureBlock from './FurnitureBlock.vue'
 import Footer from './Footer.vue'
 import RoomSettings from './RoomSettings.vue'
 import AddFxModal from './AddFxModal.vue'
-import MoodDetailModal from './MoodDetailModal.vue'
 
 interface Props {
   room: Room
@@ -52,6 +53,7 @@ const emit = defineEmits<{
   close: []
   feedback: [msg: string]
   openFx: [roomId: string, fxIdx: number]
+  showMoodDetail: [mood: Mood]
 }>()
 
 /* ──────────────── Производные ──────────────── */
@@ -120,7 +122,6 @@ function handleSettingsPatch(key: keyof Room, value: unknown, toast?: string) {
 const addZone = ref<ZoneId | null>(null)
 const showSettings = ref(false)
 const confirmDel = ref(false)
-const showMoodDetail = ref<Mood | null>(null)
 
 /* Hit-limit toast для ZoneCard. */
 function onLimitHit(zId: ZoneId) {
@@ -143,6 +144,12 @@ function confirmDelete() {
   confirmDel.value = false
   emit('delete')
   emit('close')
+}
+
+/* Открыть полноэкранный онбординг настроения — поднимаем в App.vue
+ * через emit, чтобы StickyBar мог скрыться (см. cfg.showMoodDetail). */
+function onShowMoodDetail() {
+  emit('showMoodDetail', tintedMood.value)
 }
 </script>
 
@@ -301,7 +308,7 @@ function confirmDelete() {
       <MoodBlock
         v-if="props.room.fixtures.length > 0"
         :mood="tintedMood"
-        @show-detail="showMoodDetail = mood"
+        @show-detail="onShowMoodDetail"
       />
 
       <!-- Мебель -->
@@ -373,12 +380,6 @@ function confirmDelete() {
       :def-wood="rW"
       @add="(fx) => { addFx(fx); addZone = null }"
       @close="addZone = null"
-    />
-
-    <MoodDetailModal
-      v-if="showMoodDetail"
-      :mood="showMoodDetail"
-      @close="showMoodDetail = null"
     />
 
     <Modal v-if="confirmDel" @close="confirmDel = false">
