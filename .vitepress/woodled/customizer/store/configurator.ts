@@ -15,6 +15,7 @@ import { ref, computed, reactive } from 'vue'
 import { getRT, STARTER_ROOM_TYPES, type Room, type RoomTypeId } from '../data/rooms'
 import type { Fixture } from '../data/catalog'
 import type { Mood } from '../data/moods'
+import { TEMPLATES, type TemplateRoom } from '../data/templates'
 import { decodeState, readHashState } from '../engine/share'
 
 /* ──────────────── Счётчик ID ──────────────── */
@@ -215,6 +216,58 @@ function loadFromHash(): boolean {
   return true
 }
 
+/* ──────────────── Welcome screen ──────────────── */
+
+const WELCOME_KEY = 'woodled.welcomeSeen'
+
+const welcomeSeen = ref<boolean>(
+  typeof window !== 'undefined' && localStorage.getItem(WELCOME_KEY) === 'true',
+)
+
+function dismissWelcome(): void {
+  welcomeSeen.value = true
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(WELCOME_KEY, 'true')
+    } catch {
+      /* private mode / quota exceeded — не критично */
+    }
+  }
+}
+
+/**
+ * Заменяет все комнаты на шаблон.
+ * Генерирует новые id, копирует limits из RTS.
+ * Также закрывает welcome screen (welcomeSeen=true).
+ */
+function loadTemplate(templateId: string): void {
+  const tpl = TEMPLATES.find((t) => t.id === templateId)
+  if (!tpl) return
+
+  const newRooms: Room[] = tpl.rooms.map((tr: TemplateRoom) => {
+    const rt = getRT(tr.typeId)
+    return {
+      id: nextId(),
+      typeId: tr.typeId,
+      customName: '',
+      sizeIndex: tr.sizeIndex,
+      customArea: null,
+      ceilingH: tr.ceilingH,
+      fixtures: tr.fixtures.map((f) => ({
+        m: f.m,
+        q: f.q,
+        wood: f.wood,
+        zone: f.zone,
+      })),
+      furniture: [...tr.furniture],
+      limits: { ...rt.limits },
+    }
+  })
+
+  rooms.splice(0, rooms.length, ...newRooms)
+  dismissWelcome()
+}
+
 /* ──────────────── Экспорт singleton ──────────────── */
 
 /**
@@ -261,5 +314,10 @@ export function useConfigurator() {
 
     /* url state */
     loadFromHash,
+
+    /* welcome / templates */
+    welcomeSeen,
+    dismissWelcome,
+    loadTemplate,
   }
 }
