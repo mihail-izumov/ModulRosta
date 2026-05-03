@@ -276,4 +276,6 @@ export interface Fixture {
   zone: ZoneId
   l?: number
   opts?: Partial<FxOpts>
+  /** Список ID шагов чек-листа, которые юзер подтвердил («Готово»). */
+  done?: string[]
 }
