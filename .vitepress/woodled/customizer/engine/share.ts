@@ -31,6 +31,7 @@ interface PackedFixture {
     moisture: boolean
     bulbs: boolean
   }>
+  d?: string[]   // done — выполненные шаги чек-листа
 }
 
 interface PackedRoom {
@@ -56,6 +57,7 @@ function packFixture(fx: Fixture): PackedFixture {
   if (fx.zone && fx.zone !== 'ceiling') out.z = fx.zone
   if (fx.l != null) out.l = fx.l
   if (fx.opts && Object.keys(fx.opts).length > 0) out.o = fx.opts
+  if (fx.done && fx.done.length > 0) out.d = fx.done
   return out
 }
 
@@ -67,6 +69,7 @@ function unpackFixture(p: PackedFixture): Fixture {
     zone: (p.z ?? 'ceiling') as Fixture['zone'],
     l: p.l,
     opts: p.o,
+    done: p.d,
   }
 }
 
