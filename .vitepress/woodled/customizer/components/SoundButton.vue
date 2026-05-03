@@ -22,6 +22,10 @@ import { T } from '../theme/tokens'
 
 const AUDIO_SRC = 'https://runscale.ru/woodled/onboarding/forest-soundscape.mp3'
 
+/* Минимальная длительность loading-состояния — даёт юзеру время заметить
+ * иконку эквалайзера, даже если файл уже в кэше и play() резолвится мгновенно. */
+const MIN_LOADING_MS = 1000
+
 const muted = ref(true)
 const playing = ref(false)
 const showHint = ref(true)
@@ -36,6 +40,20 @@ const iconColor = computed(() => {
 })
 
 let hintTimer: ReturnType<typeof setTimeout> | null = null
+let toggleStartTs = 0
+let pendingPlayingTimer: ReturnType<typeof setTimeout> | null = null
+
+/* Запланировать переход в playing с учётом минимума MIN_LOADING_MS. */
+function scheduleTransitionToPlaying() {
+  if (muted.value) return
+  const elapsed = Date.now() - toggleStartTs
+  const remaining = Math.max(0, MIN_LOADING_MS - elapsed)
+  if (pendingPlayingTimer) clearTimeout(pendingPlayingTimer)
+  pendingPlayingTimer = setTimeout(() => {
+    if (!muted.value) playing.value = true
+    pendingPlayingTimer = null
+  }, remaining)
+}
 
 function toggleSound() {
   showHint.value = false
@@ -43,14 +61,19 @@ function toggleSound() {
   if (!a) return
 
   if (muted.value) {
-    // Включаем — переход в loading, потом в playing когда Promise резолвится.
+    // Включаем — переход в loading, потом в playing с минимумом 1с.
+    if (pendingPlayingTimer) {
+      clearTimeout(pendingPlayingTimer)
+      pendingPlayingTimer = null
+    }
+    toggleStartTs = Date.now()
     muted.value = false
     a.muted = false
     a.volume = 0.6
     const p = a.play()
     if (p && typeof p.then === 'function') {
       p.then(() => {
-        if (!muted.value) playing.value = true
+        scheduleTransitionToPlaying()
       }).catch(() => {
         // Autoplay policy / file error — откатываемся.
         muted.value = true
@@ -58,10 +81,15 @@ function toggleSound() {
         playing.value = false
       })
     } else {
-      // Старые браузеры без Promise-возврата — считаем, что играет.
-      playing.value = true
+      // Старые браузеры без Promise-возврата.
+      scheduleTransitionToPlaying()
     }
   } else {
+    // Выключаем — мгновенно сбрасываем всё.
+    if (pendingPlayingTimer) {
+      clearTimeout(pendingPlayingTimer)
+      pendingPlayingTimer = null
+    }
     muted.value = true
     a.muted = true
     a.pause()
@@ -69,13 +97,17 @@ function toggleSound() {
   }
 }
 
-/* Страховка: если по какой-то причине Promise не резолвится, ловим
- * стандартное событие playing. */
+/* Страховка: если Promise по какой-то причине не резолвится, ловим
+ * стандартное событие playing (тоже с минимумом MIN_LOADING_MS). */
 function onPlaying() {
-  if (!muted.value) playing.value = true
+  if (!muted.value) scheduleTransitionToPlaying()
 }
 
 function onError() {
+  if (pendingPlayingTimer) {
+    clearTimeout(pendingPlayingTimer)
+    pendingPlayingTimer = null
+  }
   playing.value = false
   muted.value = true
 }
@@ -86,6 +118,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (hintTimer) clearTimeout(hintTimer)
+  if (pendingPlayingTimer) clearTimeout(pendingPlayingTimer)
   if (audioRef.value) {
     audioRef.value.pause()
     audioRef.value.currentTime = 0
