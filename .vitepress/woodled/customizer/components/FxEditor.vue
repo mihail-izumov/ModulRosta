@@ -26,8 +26,9 @@ interface Props {
   item: Fixture
   defWood?: Wood
   skipSize?: boolean
+  backLabel?: string
 }
-const props = withDefaults(defineProps<Props>(), { skipSize: false })
+const props = withDefaults(defineProps<Props>(), { skipSize: false, backLabel: '← Назад' })
 const emit = defineEmits<{
   (e: 'save', fx: Fixture): void
   (e: 'delete'): void
@@ -67,7 +68,10 @@ const BASE_COLORS = {
 
 const mid = ref<ModelId>(props.item.m)
 const stepIdx = ref(0)
-const view = ref<'steps' | 'summary'>('steps')
+
+/* Определяем, был ли светильник уже настроен */
+const hasExistingOpts = props.item.opts && Object.keys(props.item.opts).length > 0
+const view = ref<'steps' | 'summary'>(hasExistingOpts ? 'summary' : 'steps')
 const touched = ref(new Set<StepId>())
 
 interface Build {
@@ -111,7 +115,7 @@ const build = ref<Build>((() => {
     wire: o.wire ?? DEF_OPT.wire,
     baseColor: o.baseColor ?? 'white',
     bulbOpt: o.bulbOpt ?? 'none',
-    steps: Object.fromEntries(stps.map(s => [s, 'default' as StepStatus])),
+    steps: Object.fromEntries(stps.map(s => [s, hasExistingOpts ? 'chosen' as StepStatus : 'default' as StepStatus])),
   }
 })())
 
@@ -276,7 +280,7 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
       <template v-if="view === 'steps'">
         <!-- Header -->
         <div :style="{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }">
-          <button @click="prev" :style="{ background: 'none', border: 'none', color: T.textSec, cursor: 'pointer', padding: 0, fontSize: '20px' }">←</button>
+          <button @click="prev" :style="{ background: 'none', border: 'none', color: T.textSec, cursor: 'pointer', padding: '2px 4px', fontSize: '14px' }">{{ props.backLabel }}</button>
           <div :style="{ flex: 1 }">
             <div :style="{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: T.neutral }">{{ model.type }}</div>
             <div :style="{ fontSize: '18px', fontWeight: 700 }">{{ model.name }}</div>
@@ -452,7 +456,11 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
 
       <!-- ═══ SUMMARY ═══ -->
       <template v-if="view === 'summary'">
-        <div :style="{ textAlign: 'center', marginBottom: '20px', paddingTop: '20px' }">
+        <!-- Summary header -->
+        <div :style="{ display: 'flex', alignItems: 'center', marginBottom: '8px' }">
+          <button @click="emit('close')" :style="{ background: 'none', border: 'none', color: T.textSec, cursor: 'pointer', padding: '2px 4px', fontSize: '14px' }">{{ props.backLabel }}</button>
+        </div>
+        <div :style="{ textAlign: 'center', marginBottom: '20px' }">
           <div :style="{ width: '60px', height: '60px', borderRadius: '14px', background: sc + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" :stroke="sc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
           </div>

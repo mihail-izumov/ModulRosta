@@ -9,7 +9,7 @@
  *   3. done  — «План отправлен» + имя выбранной модели
  */
 
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { T, Z, WCOL } from '../theme/tokens'
 import { MD, type Fixture } from '../data/catalog'
 import { MATS } from '../data/materials'
@@ -18,15 +18,18 @@ import { lw } from '../engine/i18n'
 import { getRT, type Room } from '../data/rooms'
 import Icon, { fxIcName } from './ui/Icons.vue'
 import FxEditor from './FxEditor.vue'
+import StoryLink from './StoryLink.vue'
 
 interface Props {
   rooms: Room[]
+  initialEdit?: { roomId: string; fxIdx: number } | null
 }
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), { initialEdit: null })
 const emit = defineEmits<{
   editFx: [roomId: string, fxIdx: number, next: Fixture | null]
   close: []
   feedback: [msg: string]
+  story: []
 }>()
 
 type Step = 'list' | 'form' | 'done'
@@ -36,6 +39,13 @@ const discountFx = ref<{ roomId: string; fxIdx: number } | null>(null)
 const editItem = ref<{ roomId: string; fxIdx: number } | null>(null)
 
 const contact = ref({ name: '', phone: '', comment: '' })
+
+/* Auto-open editor if initialEdit is set */
+onMounted(() => {
+  if (props.initialEdit) {
+    editItem.value = { ...props.initialEdit }
+  }
+})
 
 const filledRooms = computed(() => props.rooms.filter((r) => r.fixtures.length > 0))
 
@@ -368,6 +378,12 @@ const editItemData = computed(() => {
     </div>
 
     <div :style="{ padding: '16px', maxWidth: '480px', margin: '0 auto' }">
+      <!-- Посмотрите на свой лес -->
+      <StoryLink
+        v-if="filledRooms.length > 0"
+        @click="emit('story')"
+      />
+
       <div :style="{ textAlign: 'center', marginBottom: '16px' }">
         <div :style="{ fontSize: '16px', fontWeight: 700, color: T.text }">
           3 000 ₽ на любой светильник
@@ -525,8 +541,27 @@ const editItemData = computed(() => {
             </div>
           </button>
 
-          <!-- Кнопка перейти в редактор (скрытая, в оригинале только через тап на карточку — но там
-               нужно не сбить скидку. Делаем через длительное нажатие в будущем, пока не добавляем.) -->
+          <!-- Кнопка редактирования -->
+          <div :style="{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }">
+            <button
+              :style="{
+                background: 'none',
+                border: `1px solid ${T.border}`,
+                borderRadius: '6px',
+                padding: '4px 10px',
+                cursor: 'pointer',
+                fontSize: '11px',
+                color: T.textSec,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }"
+              @click="openEdit(r.id, i)"
+            >
+              <Icon name="pen" :color="T.textSec" :size="10" />
+              Настроить
+            </button>
+          </div>
         </div>
       </div>
 
@@ -578,6 +613,7 @@ const editItemData = computed(() => {
       v-if="editItemData"
       :item="editItemData.fx"
       :def-wood="editItemData.fx.wood ?? 'oak'"
+      back-label="← Мой лес"
       @save="(n) => emit('editFx', editItem!.roomId, editItem!.fxIdx, n)"
       @delete="emit('editFx', editItem!.roomId, editItem!.fxIdx, null)"
       @close="editItem = null"

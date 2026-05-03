@@ -56,7 +56,9 @@ onMounted(() => {
       }
       if (targetRoom) {
         cfg.addFixture(targetRoom.id, fx)
-        cfg.active.value = targetRoom.id
+        const fxIdx = targetRoom.fixtures.length - 1
+        buyInitialEdit.value = { roomId: targetRoom.id, fxIdx }
+        cfg.showBuy.value = true
       }
     }
     window.history.replaceState({}, '', window.location.pathname)
@@ -74,7 +76,9 @@ onMounted(() => {
     if (targetRoom) {
       const fx = { m: link.modelId, q: 1, wood: 'oak' as const, zone: link.zone }
       cfg.addFixture(targetRoom.id, fx)
-      cfg.active.value = targetRoom.id
+      const fxIdx = targetRoom.fixtures.length - 1
+      buyInitialEdit.value = { roomId: targetRoom.id, fxIdx }
+      cfg.showBuy.value = true
     }
     clearModelLink()
   }
@@ -118,6 +122,7 @@ function onCloseRoom() {
 /* ──────────────── Цвет карточки ──────────────── */
 
 const colorPickRoom = ref<Room | null>(null)
+const buyInitialEdit = ref<{ roomId: string; fxIdx: number } | null>(null)
 
 function onPickColor(room: Room) {
   colorPickRoom.value = room
@@ -299,12 +304,14 @@ const subtitle = computed(() => {
       <BuyModal
         v-if="cfg.showBuy.value"
         :rooms="rooms"
+        :initial-edit="buyInitialEdit"
         @edit-fx="(roomId, fxIdx, next) => {
           if (next === null) cfg.removeFixture(roomId, fxIdx)
           else cfg.updateFixture(roomId, fxIdx, next)
         }"
-        @close="cfg.showBuy.value = false"
+        @close="cfg.showBuy.value = false; buyInitialEdit = null"
         @feedback="cfg.showFB"
+        @story="cfg.showStory.value = true"
       />
 
       <ShareModal

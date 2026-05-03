@@ -386,6 +386,7 @@ function confirmDelete() {
       v-if="editFx !== null && props.room.fixtures[editFx]"
       :item="props.room.fixtures[editFx]"
       :def-wood="rW"
+      back-label="← Комната"
       @save="(n) => editFx !== null && updateFxAt(editFx, n)"
       @delete="() => { removeFxIdx = editFx; editFx = null }"
       @close="editFx = null"
