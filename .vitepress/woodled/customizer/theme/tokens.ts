@@ -88,9 +88,11 @@ export const RGBA = {
  */
 export const Z = {
   stickyHeader: 10,
-  stickyBar: 20,
+  stickyBar: 41,         // выше roomDetail чтобы виден на странице комнаты
   roomDetail: 40,
   modalOverlay: 50,
   fullscreenModal: 55,
+  fxPage: 60,            // выше всего — отдельная страница светильника
+  storyOverlay: 65,      // ещё выше — story поверх buy
   toast: 100,
 } as const
