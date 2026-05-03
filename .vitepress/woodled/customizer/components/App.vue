@@ -43,6 +43,7 @@ import ShareModal from './ShareModal.vue'
 import ColorPickerModal from './ColorPickerModal.vue'
 import RoomDetail from './RoomDetail.vue'
 import FxEditor from './FxEditor.vue'
+import MoodDetailModal from './MoodDetailModal.vue'
 import { readModelLink, clearModelLink } from '../engine/useModelLink'
 import { decodeFixture, readHashFixture } from '../engine/share'
 
@@ -128,7 +129,11 @@ const fxBackLabel = computed(() => {
 })
 
 const stickyVisible = computed(
-  () => cfg.hasFixtures.value && !cfg.showBuy.value && !cfg.activeFx.value,
+  () =>
+    cfg.hasFixtures.value &&
+    !cfg.showBuy.value &&
+    !cfg.activeFx.value &&
+    !cfg.showMoodDetail.value,
 )
 
 /* ────────── Handlers ────────── */
@@ -387,6 +392,12 @@ function onColorPicked(color: string | undefined) {
       :room-name="colorPickRoom.customName || getRT(colorPickRoom.typeId).name"
       @pick="onColorPicked"
       @close="colorPickRoom = null"
+    />
+
+    <MoodDetailModal
+      v-if="cfg.showMoodDetail.value"
+      :mood="cfg.showMoodDetail.value"
+      @close="cfg.showMoodDetail.value = null"
     />
 
     <StickyBar

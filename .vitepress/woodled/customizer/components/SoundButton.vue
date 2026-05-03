@@ -2,14 +2,19 @@
 /**
  * SoundButton.vue — Кнопка звука леса.
  *
- * Три состояния:
- *   muted    — иконка volume-x (звук выключен, default).
- *   loading  — пользователь нажал, но playing event ещё не пришёл
- *              (буферизация): иконка audio-lines с быстрой пульсацией.
- *   playing  — звук реально воспроизводится: audio-lines с плавной пульсацией.
+ * ТРИ состояния, ТРИ разные иконки:
+ *   1. muted   — volume-x       (звук выключен; клик включает).
+ *   2. loading — audio-lines    (включено, но playback ещё не стартовал;
+ *                               анимированная SMIL-пульсация эквалайзера).
+ *   3. playing — volume-2       (играет; клик выключает).
  *
- * Анимация audio-lines — SMIL (animate attributeName="d") у каждой палочки
- * со своим dur и begin, чтобы получился неровный «эквалайзер».
+ * Переход loading → playing происходит когда Promise от audio.play()
+ * резолвится (это надёжнее, чем event 'playing' — у Safari/iOS event
+ * не всегда срабатывает при loop=true). Дублируем event 'playing' как
+ * страховку.
+ *
+ * НЕ слушаем waiting/pause/stalled — они могут сбрасывать playing в false
+ * во время штатной перемотки loop'а в некоторых браузерах.
  */
 
 import { computed, ref, onMounted, onUnmounted } from 'vue'
@@ -30,9 +35,6 @@ const iconColor = computed(() => {
   return T.neutral
 })
 
-/* dur палочек: быстрее в loading (~bouncing спиннер), плавнее в playing. */
-const dur = computed(() => (loading.value ? 0.5 : 1.4))
-
 let hintTimer: ReturnType<typeof setTimeout> | null = null
 
 function toggleSound() {
@@ -41,17 +43,23 @@ function toggleSound() {
   if (!a) return
 
   if (muted.value) {
+    // Включаем — переход в loading, потом в playing когда Promise резолвится.
     muted.value = false
     a.muted = false
     a.volume = 0.6
     const p = a.play()
-    if (p && p.catch) {
-      p.catch(() => {
-        // play отказан (например, autoplay policy) — откатываемся в muted.
+    if (p && typeof p.then === 'function') {
+      p.then(() => {
+        if (!muted.value) playing.value = true
+      }).catch(() => {
+        // Autoplay policy / file error — откатываемся.
         muted.value = true
         a.muted = true
         playing.value = false
       })
+    } else {
+      // Старые браузеры без Promise-возврата — считаем, что играет.
+      playing.value = true
     }
   } else {
     muted.value = true
@@ -61,17 +69,15 @@ function toggleSound() {
   }
 }
 
+/* Страховка: если по какой-то причине Promise не резолвится, ловим
+ * стандартное событие playing. */
 function onPlaying() {
   if (!muted.value) playing.value = true
 }
-function onWaiting() {
+
+function onError() {
   playing.value = false
-}
-function onPauseEvt() {
-  playing.value = false
-}
-function onStalled() {
-  playing.value = false
+  muted.value = true
 }
 
 onMounted(() => {
@@ -95,9 +101,7 @@ onUnmounted(() => {
       loop
       preload="auto"
       @playing="onPlaying"
-      @waiting="onWaiting"
-      @pause="onPauseEvt"
-      @stalled="onStalled"
+      @error="onError"
     />
 
     <button
@@ -116,7 +120,7 @@ onUnmounted(() => {
       :aria-label="muted ? 'Включить звук' : 'Выключить звук'"
       @click="toggleSound"
     >
-      <!-- Muted: volume-x -->
+      <!-- 1. Muted: volume-x -->
       <svg v-if="muted" width="18" height="18" viewBox="0 0 24 24" fill="none"
         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/>
@@ -124,35 +128,41 @@ onUnmounted(() => {
         <line x1="16" y1="9" x2="22" y2="15"/>
       </svg>
 
-      <!-- Loading или Playing: audio-lines с пульсирующей анимацией.
-           dur зависит от состояния; key пересоздаёт SMIL animate, чтобы
-           длительности применились мгновенно при смене loading→playing. -->
-      <svg v-else :key="dur" width="18" height="18" viewBox="0 0 24 24" fill="none"
+      <!-- 2. Loading: audio-lines с пульсирующей SMIL-анимацией -->
+      <svg v-else-if="loading" width="18" height="18" viewBox="0 0 24 24" fill="none"
         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M2 10v3">
-          <animate attributeName="d" :dur="dur + 's'" repeatCount="indefinite"
+          <animate attributeName="d" dur="0.6s" repeatCount="indefinite"
             values="M2 10v3;M2 11v1;M2 10v3" />
         </path>
         <path d="M6 6v11">
-          <animate attributeName="d" :dur="(dur * 1.15) + 's'" begin="0.08s" repeatCount="indefinite"
+          <animate attributeName="d" dur="0.7s" begin="0.08s" repeatCount="indefinite"
             values="M6 6v11;M6 9v5;M6 6v11" />
         </path>
         <path d="M10 3v18">
-          <animate attributeName="d" :dur="(dur * 1.3) + 's'" begin="0.16s" repeatCount="indefinite"
+          <animate attributeName="d" dur="0.8s" begin="0.16s" repeatCount="indefinite"
             values="M10 3v18;M10 8v8;M10 3v18" />
         </path>
         <path d="M14 8v7">
-          <animate attributeName="d" :dur="(dur * 1.05) + 's'" begin="0.24s" repeatCount="indefinite"
+          <animate attributeName="d" dur="0.65s" begin="0.24s" repeatCount="indefinite"
             values="M14 8v7;M14 10v3;M14 8v7" />
         </path>
         <path d="M18 5v13">
-          <animate attributeName="d" :dur="(dur * 0.95) + 's'" begin="0.04s" repeatCount="indefinite"
+          <animate attributeName="d" dur="0.55s" begin="0.04s" repeatCount="indefinite"
             values="M18 5v13;M18 9v5;M18 5v13" />
         </path>
         <path d="M22 10v3">
-          <animate attributeName="d" :dur="(dur * 1.2) + 's'" begin="0.12s" repeatCount="indefinite"
+          <animate attributeName="d" dur="0.75s" begin="0.12s" repeatCount="indefinite"
             values="M22 10v3;M22 11v1;M22 10v3" />
         </path>
+      </svg>
+
+      <!-- 3. Playing: volume-2 -->
+      <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/>
+        <path d="M16 9a5 5 0 0 1 0 6"/>
+        <path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>
       </svg>
     </button>
 

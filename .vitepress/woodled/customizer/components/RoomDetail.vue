@@ -32,6 +32,7 @@ import {
 import { pw, woodNames } from '../engine/i18n'
 import { MD } from '../data/catalog'
 import { getBright } from '../data/moods'
+import { useConfigurator } from '../store/configurator'
 
 import Icon from './ui/Icons.vue'
 import Modal from './ui/Modal.vue'
@@ -53,8 +54,9 @@ const emit = defineEmits<{
   close: []
   feedback: [msg: string]
   openFx: [roomId: string, fxIdx: number]
-  showMoodDetail: [mood: Mood]
 }>()
+
+const cfg = useConfigurator()
 
 /* ──────────────── Производные ──────────────── */
 
@@ -146,10 +148,10 @@ function confirmDelete() {
   emit('close')
 }
 
-/* Открыть полноэкранный онбординг настроения — поднимаем в App.vue
- * через emit, чтобы StickyBar мог скрыться (см. cfg.showMoodDetail). */
+/* Открыть полноэкранный онбординг настроения — пишем в store напрямую,
+ * чтобы App.vue (который рендерит модалку) увидел и мог скрыть StickyBar. */
 function onShowMoodDetail() {
-  emit('showMoodDetail', tintedMood.value)
+  cfg.showMoodDetail.value = tintedMood.value
 }
 </script>
 
