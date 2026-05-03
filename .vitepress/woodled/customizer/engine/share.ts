@@ -184,3 +184,47 @@ export function readHashState(): string | null {
   const match = hash.match(/[#&]s=([^&]+)/)
   return match ? match[1] : null
 }
+
+/* ──────────────── Fixture sharing (#fx=...) ──────────────── */
+
+/**
+ * Кодирует один светильник в строку для URL.
+ */
+export function encodeFixture(fx: Fixture): string {
+  const packed = packFixture(fx)
+  const json = JSON.stringify(packed)
+  return toUrlSafe(utf8ToBase64(json))
+}
+
+/**
+ * Декодирует строку обратно в Fixture.
+ */
+export function decodeFixture(encoded: string): Fixture | null {
+  try {
+    const json = base64ToUtf8(fromUrlSafe(encoded))
+    const packed = JSON.parse(json)
+    return unpackFixture(packed)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Формирует ссылку на один светильник.
+ */
+export function buildFixtureShareUrl(fx: Fixture): string {
+  const enc = encodeFixture(fx)
+  const base = window.location.origin + window.location.pathname
+  return `${base}#fx=${enc}`
+}
+
+/**
+ * Читает #fx=... из URL.
+ */
+export function readHashFixture(): string | null {
+  if (typeof window === 'undefined') return null
+  const hash = window.location.hash
+  if (!hash) return null
+  const match = hash.match(/[#&]fx=([^&]+)/)
+  return match ? match[1] : null
+}
