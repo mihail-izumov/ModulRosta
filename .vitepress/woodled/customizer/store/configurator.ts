@@ -53,7 +53,12 @@ function starterRooms(): Room[] {
    так мутации (push/splice) сразу реактивны без особых правил. */
 
 const name = ref('Живой Дом')
-const rooms = reactive<Room[]>(starterRooms())
+/* rooms стартует пустым. Заполняется одним из:
+ *   - loadTemplate (при выборе шаблона в WelcomeScreen)
+ *   - ensureStarterRooms (при «Начать с пустого дома» / возврате после dismiss)
+ *   - loadFromHash / deeplinks (shared-сценарии)
+ */
+const rooms = reactive<Room[]>([])
 
 const picker = ref(false)
 const active = ref<string | null>(null)
@@ -241,6 +246,22 @@ function dismissWelcome(): void {
       /* private mode / quota exceeded — не критично */
     }
   }
+  // «Начать с пустого дома» / ✕ — заполняем стандартными 4 пустыми комнатами,
+  // если ничего другого ещё не загружено (loadTemplate сам вызывает dismissWelcome
+  // уже после splice — там rooms.length > 0, поэтому ensureStarterRooms ничего
+  // не делает).
+  ensureStarterRooms()
+}
+
+/**
+ * Если массив комнат пустой — заполняет стандартным starter-набором.
+ * Используется после dismissWelcome и при возврате юзера, который раньше
+ * уже видел welcome (welcomeSeen=true в localStorage), но state не сохранился.
+ */
+function ensureStarterRooms(): void {
+  if (rooms.length === 0) {
+    rooms.push(...starterRooms())
+  }
 }
 
 /**
@@ -327,5 +348,6 @@ export function useConfigurator() {
     welcomeSeen,
     dismissWelcome,
     loadTemplate,
+    ensureStarterRooms,
   }
 }
