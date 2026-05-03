@@ -286,10 +286,21 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
           </div>
         </div>
         <!-- Dots -->
-        <div :style="{ display: 'flex', justifyContent: 'center', gap: '4px', marginBottom: '20px' }">
+        <div :style="{ display: 'flex', justifyContent: 'center', gap: '4px', marginBottom: '8px' }">
           <button v-for="(s, i) in steps" :key="s" @click="stepIdx = i" :style="{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }">
             <div :style="{ width: i === stepIdx ? '14px' : '8px', height: i === stepIdx ? '14px' : '8px', borderRadius: '50%', background: build.steps[s] === 'chosen' ? T.green : T.border, border: i === stepIdx ? `2px solid ${T.text}` : 'none', transition: 'all .2s' }" />
           </button>
+        </div>
+        <!-- Price bar -->
+        <div :style="{ textAlign: 'center', marginBottom: '16px', padding: '8px 0', borderBottom: `1px solid ${T.border}` }">
+          <div v-if="hasExtras" :style="{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '4px', justifyContent: 'center' }">
+            <span v-for="(line, i) in priceBreakdown" :key="i" :style="{ fontSize: '11px', color: i === 0 ? T.textSec : T.yellow, whiteSpace: 'nowrap' }">
+              {{ i > 0 ? '+ ' : '' }}{{ line.label }} {{ fmt(line.amount) }} ₽
+            </span>
+          </div>
+          <div :style="{ fontSize: '20px', fontWeight: 800, color: T.neutral }">
+            {{ fmt(price) }} ₽
+          </div>
         </div>
         <!-- Card -->
         <div :style="{ flex: 1 }">
@@ -433,24 +444,9 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
           </div>
         </div>
         <!-- Nav -->
-        <div :style="{ display: 'flex', gap: '8px', marginTop: '16px', paddingBottom: '80px' }">
+        <div :style="{ display: 'flex', gap: '8px', marginTop: '16px', paddingBottom: '16px' }">
           <button v-if="stepIdx > 0" @click="prev" :style="{ padding: '12px 16px', background: 'none', border: `1px solid ${T.border}`, borderRadius: '8px', color: T.textSec, cursor: 'pointer', fontSize: '18px' }">←</button>
           <button @click="doCommit(isTouched)" :style="{ flex: 1, padding: '12px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '14px', background: isTouched ? T.text : T.neutral + '33', color: isTouched ? T.bg : T.neutral }">{{ isTouched ? '✓ Выбрать' : 'Пропустить →' }}</button>
-        </div>
-
-        <!-- Sticky price -->
-        <div :style="{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 10 }">
-          <div :style="{ height: '20px', background: `linear-gradient(to bottom, transparent, ${T.bg})` }" />
-          <div :style="{ background: T.bg, padding: '10px 20px 16px', maxWidth: '480px', margin: '0 auto' }">
-            <div v-if="hasExtras" :style="{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '6px', justifyContent: 'center' }">
-              <span v-for="(line, i) in priceBreakdown" :key="i" :style="{ fontSize: '11px', color: i === 0 ? T.textSec : T.yellow, whiteSpace: 'nowrap' }">
-                {{ i > 0 ? '+ ' : '' }}{{ line.label }} {{ fmt(line.amount) }} ₽
-              </span>
-            </div>
-            <div :style="{ textAlign: 'center', fontSize: '20px', fontWeight: 800, color: T.neutral }">
-              {{ fmt(price) }} ₽
-            </div>
-          </div>
         </div>
       </template>
 

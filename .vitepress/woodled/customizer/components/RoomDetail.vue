@@ -367,6 +367,9 @@ function confirmDelete() {
       </div>
 
       <Footer />
+
+      <!-- Bottom spacer для global sticky bar -->
+      <div :style="{ height: '80px' }" />
     </div>
 
     <!-- ───────── Модалки ───────── -->

@@ -100,8 +100,7 @@ const activeRoom = computed(() => cfg.activeRoom.value)
 /* ──────────────── Обработчики ──────────────── */
 
 function onPromoClick() {
-  const lr = rooms.value.find((r) => r.typeId === 'living')
-  if (lr) cfg.active.value = lr.id
+  cfg.showBuy.value = true
 }
 
 function onEditRoom(room: Room) {
@@ -175,7 +174,7 @@ const subtitle = computed(() => {
             gap: '8px',
           }"
         >
-          <div :style="{ fontSize: '20px', fontWeight: 700, color: T.text }">
+          <div :style="{ fontSize: '22px', fontWeight: 700, color: T.text }">
             {{ cfg.name.value }}
           </div>
           <button
@@ -191,9 +190,33 @@ const subtitle = computed(() => {
             <Icon name="pen" :color="T.textSec" :size="18" />
           </button>
         </div>
-        <div :style="{ fontSize: '11px', color: T.textDim, marginTop: '2px' }">
-          {{ subtitle }}
+        <div
+          :style="{
+            display: 'inline-block',
+            marginTop: '6px',
+            padding: '3px 12px',
+            borderRadius: '10px',
+            background: T.neutral + '18',
+            fontSize: '10px',
+            fontWeight: 700,
+            color: T.neutral,
+            letterSpacing: '0.5px',
+          }"
+        >
+          WOODLED ROTOR
         </div>
+      </div>
+
+      <!-- Секция комнат -->
+      <div
+        :style="{
+          fontSize: '14px',
+          fontWeight: 600,
+          color: T.text,
+          marginBottom: '10px',
+        }"
+      >
+        {{ subtitle }}
       </div>
 
       <!-- Сетка комнат -->
@@ -235,21 +258,8 @@ const subtitle = computed(() => {
       <!-- Промо (всегда) -->
       <PromoBlock @click="onPromoClick" />
 
-      <!-- Сториз (если есть светильники) -->
-      <StoryLink
-        v-if="cfg.hasFixtures.value"
-        @click="cfg.showStory.value = true"
-      />
-
       <!-- Онбординг (всегда) -->
       <OnboardingLink />
-
-      <!-- Sticky bar (если есть светильники) -->
-      <StickyBar
-        v-if="cfg.hasFixtures.value"
-        @share="cfg.showShare.value = true"
-        @buy="cfg.showBuy.value = true"
-      />
 
       <Footer />
 
@@ -328,6 +338,13 @@ const subtitle = computed(() => {
   >
     <SoundButton />
   </div>
+
+  <!-- Глобальный sticky bar — поверх всех экранов -->
+  <StickyBar
+    v-if="cfg.hasFixtures.value"
+    @share="cfg.showShare.value = true"
+    @buy="cfg.showBuy.value = true"
+  />
 </template>
 
 <!-- Глобальные стили — не scoped, применяются ко всему документу.
