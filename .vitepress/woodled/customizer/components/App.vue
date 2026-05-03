@@ -103,7 +103,7 @@ onMounted(() => {
 
   // 4. Возврат юзера, который раньше dismiss'нул welcome (localStorage),
   //    но state не сохранён (мы ничего не персистим, кроме welcomeSeen).
-  //    Без этого main экран был бы пустым — нет ни welcome, ни комнат.
+  //    Welcome больше не показывается, поэтому заполняем стандартными комнатами.
   if (cfg.welcomeSeen.value) {
     cfg.ensureStarterRooms()
   }
@@ -240,9 +240,6 @@ const anyModalOpen = computed<boolean>(() =>
 </script>
 
 <template>
-  <!-- Welcome screen — показывается при первом запуске поверх всего (zIndex 200) -->
-  <WelcomeScreen v-if="!cfg.welcomeSeen.value" />
-
   <!-- ═══════ МАРШРУТЫ (взаимоисключающие) ═══════ -->
   <template v-if="activeFxData">
     <FxEditor
@@ -266,6 +263,12 @@ const anyModalOpen = computed<boolean>(() =>
       @feedback="cfg.showFB"
       @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)"
     />
+  </template>
+
+  <!-- Welcome screen — первая страница для нового юзера.
+       Это не overlay, а полноценный route наравне с остальными. -->
+  <template v-else-if="!cfg.welcomeSeen.value">
+    <WelcomeScreen />
   </template>
 
   <template v-else>
