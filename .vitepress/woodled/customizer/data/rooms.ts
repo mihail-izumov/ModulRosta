@@ -37,6 +37,12 @@ export type FurnId =
   | 'shower'
   | 'sink'
   | 'washer'
+  | 'fridge'
+  | 'kitchen_set'
+  | 'stove'
+  | 'tv_stand'
+  | 'shoe_rack'
+  | 'coat_rack'
 
 export type MoodId = 'empty' | 'dawn' | 'noon' | 'clearing'
 
@@ -95,7 +101,7 @@ export const RTS: readonly RoomType[] = [
     def: 'noon',
     zones: ['ceiling', 'wall', 'floor', 'table'],
     limits: { ceiling: 1, wall: 2, floor: 2, table: 1 },
-    furn: ['sofa', 'armchair', 'bookshelf', 'dtable', 'jtable'],
+    furn: ['sofa', 'armchair', 'bookshelf', 'dtable', 'jtable', 'wardrobe', 'tv_stand'],
   },
   {
     id: 'kitchen',
@@ -106,7 +112,7 @@ export const RTS: readonly RoomType[] = [
     def: 'noon',
     zones: ['ceiling', 'wall', 'table'],
     limits: { ceiling: 1, wall: 3, table: 1 },
-    furn: ['dtable', 'island', 'bar'],
+    furn: ['dtable', 'island', 'bar', 'fridge', 'kitchen_set', 'stove'],
   },
   {
     id: 'bedroom',
@@ -128,7 +134,7 @@ export const RTS: readonly RoomType[] = [
     def: 'clearing',
     zones: ['ceiling', 'wall', 'table'],
     limits: { ceiling: 1, wall: 2, table: 1 },
-    furn: ['bed', 'desk', 'wardrobe', 'bookshelf'],
+    furn: ['bed', 'desk', 'wardrobe', 'bookshelf', 'dresser', 'nightstand'],
   },
   {
     id: 'office',
@@ -150,7 +156,7 @@ export const RTS: readonly RoomType[] = [
     def: 'dawn',
     zones: ['ceiling', 'wall'],
     limits: { ceiling: 3, wall: 2 },
-    furn: ['wardrobe', 'dresser', 'mirror'],
+    furn: ['wardrobe', 'dresser', 'mirror', 'shoe_rack', 'coat_rack'],
   },
   {
     id: 'bathroom',

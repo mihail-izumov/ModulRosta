@@ -31,6 +31,12 @@ export const FURN: Record<FurnId, Furn> = {
   shower: { name: 'Душевая', ab: 0.03 },
   sink: { name: 'Раковина', ab: 0.02 },
   washer: { name: 'Стиральная', ab: 0.04 },
+  fridge: { name: 'Холодильник', ab: 0.05 },
+  kitchen_set: { name: 'Кух. гарнитур', ab: 0.06 },
+  stove: { name: 'Плита', ab: 0.03 },
+  tv_stand: { name: 'ТВ-тумба', ab: 0.03 },
+  shoe_rack: { name: 'Полка для обуви', ab: 0.03 },
+  coat_rack: { name: 'Вешалка', ab: 0.02 },
 }
 
 /**
