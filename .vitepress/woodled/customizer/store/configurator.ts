@@ -220,8 +220,16 @@ function loadFromHash(): boolean {
 
 const WELCOME_KEY = 'woodled.welcomeSeen'
 
+/** На клиенте: ?welcome в URL → принудительно показать welcome (для теста). */
+function shouldForceWelcome(): boolean {
+  if (typeof window === 'undefined') return false
+  return new URLSearchParams(window.location.search).has('welcome')
+}
+
 const welcomeSeen = ref<boolean>(
-  typeof window !== 'undefined' && localStorage.getItem(WELCOME_KEY) === 'true',
+  typeof window !== 'undefined'
+    && !shouldForceWelcome()
+    && localStorage.getItem(WELCOME_KEY) === 'true',
 )
 
 function dismissWelcome(): void {
