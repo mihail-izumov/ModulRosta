@@ -44,6 +44,7 @@ import ColorPickerModal from './ColorPickerModal.vue'
 import RoomDetail from './RoomDetail.vue'
 import FxEditor from './FxEditor.vue'
 import MoodDetailModal from './MoodDetailModal.vue'
+import WelcomeScreen from './WelcomeScreen.vue'
 import { readModelLink, clearModelLink } from '../engine/useModelLink'
 import { decodeFixture, readHashFixture } from '../engine/share'
 
@@ -52,8 +53,13 @@ const cfg = useConfigurator()
 /* ────────── Deeplinks ────────── */
 
 onMounted(() => {
-  cfg.loadFromHash()
+  // 1. Shared state (полный дом) — #s=...
+  if (cfg.loadFromHash()) {
+    cfg.dismissWelcome()
+    return
+  }
 
+  // 2. Shared fixture — #fx=...
   const fxEncoded = readHashFixture()
   if (fxEncoded) {
     const fx = decodeFixture(fxEncoded)
@@ -69,11 +75,13 @@ onMounted(() => {
         cfg.showBuy.value = true
         cfg.openFx(targetRoom.id, fxIdx)
       }
+      cfg.dismissWelcome()
     }
     window.history.replaceState({}, '', window.location.pathname)
     return
   }
 
+  // 3. Deeplink на модель — ?model=rotor_m
   const link = readModelLink()
   if (link) {
     let targetRoom = cfg.rooms.find((r: Room) => r.typeId === 'living') ?? null
@@ -87,6 +95,7 @@ onMounted(() => {
       const fxIdx = targetRoom.fixtures.length - 1
       cfg.showBuy.value = true
       cfg.openFx(targetRoom.id, fxIdx)
+      cfg.dismissWelcome()
     }
     clearModelLink()
   }
@@ -223,6 +232,9 @@ const anyModalOpen = computed<boolean>(() =>
 </script>
 
 <template>
+  <!-- Welcome screen — показывается при первом запуске поверх всего (zIndex 200) -->
+  <WelcomeScreen v-if="!cfg.welcomeSeen.value" />
+
   <!-- ═══════ МАРШРУТЫ (взаимоисключающие) ═══════ -->
   <template v-if="activeFxData">
     <FxEditor
