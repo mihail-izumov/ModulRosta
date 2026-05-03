@@ -39,9 +39,7 @@ import ZoneCard from './ZoneCard.vue'
 import FurnitureBlock from './FurnitureBlock.vue'
 import Footer from './Footer.vue'
 import RoomSettings from './RoomSettings.vue'
-import FxEditor from './FxEditor.vue'
 import AddFxModal from './AddFxModal.vue'
-import RemoveFxModal from './RemoveFxModal.vue'
 import MoodDetailModal from './MoodDetailModal.vue'
 
 interface Props {
@@ -53,6 +51,7 @@ const emit = defineEmits<{
   delete: []
   close: []
   feedback: [msg: string]
+  openFx: [roomId: string, fxIdx: number]
 }>()
 
 /* ──────────────── Производные ──────────────── */
@@ -110,18 +109,6 @@ function addFx(fx: Fixture) {
   setFx([...props.room.fixtures, fx], `${MD[fx.m]?.name} добавлен`)
 }
 
-function removeFxAt(idx: number) {
-  const name = MD[props.room.fixtures[idx]?.m]?.name
-  emit('feedback', `${name} убран`)
-  setFx(props.room.fixtures.filter((_, i) => i !== idx))
-}
-
-function updateFxAt(idx: number, next: Fixture) {
-  const nf = [...props.room.fixtures]
-  nf[idx] = next
-  setFx(nf)
-}
-
 /* Settings-patch (с тостом). */
 function handleSettingsPatch(key: keyof Room, value: unknown, toast?: string) {
   emit('update', { ...props.room, [key]: value as Room[typeof key] })
@@ -130,11 +117,9 @@ function handleSettingsPatch(key: keyof Room, value: unknown, toast?: string) {
 
 /* ──────────────── UI state ──────────────── */
 
-const editFx = ref<number | null>(null)
 const addZone = ref<ZoneId | null>(null)
 const showSettings = ref(false)
 const confirmDel = ref(false)
-const removeFxIdx = ref<number | null>(null)
 const showMoodDetail = ref<Mood | null>(null)
 
 /* Hit-limit toast для ZoneCard. */
@@ -306,7 +291,7 @@ function confirmDelete() {
             :total-lm="actual"
             :limit="(props.room.limits ?? rt.limits)?.[zone.id] ?? 99"
             @add="addZone = zone.id"
-            @edit="(idx) => (editFx = idx)"
+            @edit="(idx) => emit('openFx', props.room.id, idx)"
             @limit-hit="onLimitHit(zone.id)"
           />
         </div>
@@ -380,24 +365,6 @@ function confirmDelete() {
       :room="props.room"
       @patch="handleSettingsPatch"
       @close="showSettings = false"
-    />
-
-    <FxEditor
-      v-if="editFx !== null && props.room.fixtures[editFx]"
-      :item="props.room.fixtures[editFx]"
-      :def-wood="rW"
-      back-label="← Комната"
-      @save="(n) => editFx !== null && updateFxAt(editFx, n)"
-      @delete="() => { removeFxIdx = editFx; editFx = null }"
-      @close="editFx = null"
-      @feedback="(msg) => emit('feedback', msg)"
-    />
-
-    <RemoveFxModal
-      v-if="removeFxIdx !== null && props.room.fixtures[removeFxIdx]"
-      :item="props.room.fixtures[removeFxIdx]"
-      @confirm="() => { removeFxAt(removeFxIdx!); removeFxIdx = null }"
-      @close="removeFxIdx = null"
     />
 
     <AddFxModal

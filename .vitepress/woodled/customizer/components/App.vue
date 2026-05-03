@@ -1,13 +1,20 @@
 <script setup lang="ts">
 /**
- * App.vue — Корневой компонент конфигуратора.
+ * App.vue — Корневой роутер.
  *
- * Источник: woodled-v42.jsx (App).
- * Отвечает за:
- *   - Главный экран: заголовок + 4 блока (онбординг, сториз, промо) + сетка комнат + StickyBar
- *   - Переключение на RoomDetail при active !== null
- *   - Модалки: TypePicker, NameModal, FirstModal, StoryModal, BuyModal, ShareModal
- *   - Toast внизу
+ * Состояния (взаимоисключающие):
+ *  1. Home          — главная (cfg.active === null)
+ *  2. RoomDetail    — поверх главной, когда cfg.active !== null
+ *
+ * Слои поверх (могут быть открыты на любом из состояний):
+ *  - BuyModal       (cfg.showBuy)
+ *  - StoryModal     (cfg.showStory) — поверх BuyModal
+ *  - FxEditor       (cfg.activeFx) — поверх всего
+ *
+ * Светильник открывается через cfg.openFx(roomId, fxIdx) из 3 источников:
+ *  - клик в RoomDetail (ZoneCard)
+ *  - кнопка «Настроить» в BuyModal
+ *  - deeplink #fx=… или ?model=…
  */
 
 import { computed, onMounted, ref } from 'vue'
@@ -16,11 +23,11 @@ import { useConfigurator } from '../store/configurator'
 import type { Room } from '../data/rooms'
 import { getRT } from '../data/rooms'
 import { rw } from '../engine/i18n'
+import type { Fixture } from '../data/catalog'
 import Icon from './ui/Icons.vue'
 import Toast from './ui/Toast.vue'
 
 import OnboardingLink from './OnboardingLink.vue'
-import StoryLink from './StoryLink.vue'
 import PromoBlock from './PromoBlock.vue'
 import RoomCard from './RoomCard.vue'
 import SoundButton from './SoundButton.vue'
@@ -34,17 +41,19 @@ import BuyModal from './BuyModal.vue'
 import ShareModal from './ShareModal.vue'
 import ColorPickerModal from './ColorPickerModal.vue'
 import RoomDetail from './RoomDetail.vue'
+import FxEditor from './FxEditor.vue'
 import { readModelLink, clearModelLink } from '../engine/useModelLink'
 import { decodeFixture, readHashFixture } from '../engine/share'
 
 const cfg = useConfigurator()
 
-/* Подхватываем shared-ссылку при загрузке. Только на клиенте. */
+/* ────────── Deeplinks ────────── */
+
 onMounted(() => {
-  // 1. Shared state (полный дом)
+  // 1. Полный shared state
   cfg.loadFromHash()
 
-  // 2. Shared fixture (#fx=...)
+  // 2. Шаринг конкретного светильника (#fx=…)
   const fxEncoded = readHashFixture()
   if (fxEncoded) {
     const fx = decodeFixture(fxEncoded)
@@ -57,8 +66,8 @@ onMounted(() => {
       if (targetRoom) {
         cfg.addFixture(targetRoom.id, fx)
         const fxIdx = targetRoom.fixtures.length - 1
-        buyInitialEdit.value = { roomId: targetRoom.id, fxIdx }
         cfg.showBuy.value = true
+        cfg.openFx(targetRoom.id, fxIdx)
       }
     }
     window.history.replaceState({}, '', window.location.pathname)
@@ -77,20 +86,17 @@ onMounted(() => {
       const fx = { m: link.modelId, q: 1, wood: 'oak' as const, zone: link.zone }
       cfg.addFixture(targetRoom.id, fx)
       const fxIdx = targetRoom.fixtures.length - 1
-      buyInitialEdit.value = { roomId: targetRoom.id, fxIdx }
       cfg.showBuy.value = true
+      cfg.openFx(targetRoom.id, fxIdx)
     }
     clearModelLink()
   }
 })
 
+/* ────────── Computed ────────── */
+
 const rooms = computed<Room[]>(() => cfg.rooms as Room[])
 
-/**
- * Отсортированный список для главной сетки: заполненные сверху.
- * Относительный порядок внутри каждой группы сохраняется.
- * Сам массив в store не переставляется — иначе IDs путаются при навигации.
- */
 const sortedRooms = computed<Room[]>(() => {
   return [...rooms.value].sort((a, b) => {
     const aFilled = a.fixtures.length > 0 ? 0 : 1
@@ -101,7 +107,33 @@ const sortedRooms = computed<Room[]>(() => {
 
 const activeRoom = computed(() => cfg.activeRoom.value)
 
-/* ──────────────── Обработчики ──────────────── */
+const subtitle = computed(() => {
+  const n = rooms.value.length
+  if (n === 0) return 'Добавьте комнату'
+  return `${n} ${rw(n)}`
+})
+
+const activeFxData = computed(() => {
+  const af = cfg.activeFx.value
+  if (!af) return null
+  const room = cfg.rooms.find((r: Room) => r.id === af.roomId)
+  if (!room) return null
+  const fx = room.fixtures[af.fxIdx]
+  if (!fx) return null
+  return { room, fx, roomId: af.roomId, fxIdx: af.fxIdx }
+})
+
+const fxBackLabel = computed(() => {
+  if (cfg.showBuy.value) return '← Мой лес'
+  if (cfg.active.value) return '← Комната'
+  return '← Назад'
+})
+
+const stickyVisible = computed(
+  () => cfg.hasFixtures.value && !cfg.showBuy.value && !cfg.activeFx.value,
+)
+
+/* ────────── Handlers ────────── */
 
 function onPromoClick() {
   cfg.showBuy.value = true
@@ -119,10 +151,34 @@ function onCloseRoom() {
   cfg.active.value = null
 }
 
-/* ──────────────── Цвет карточки ──────────────── */
+function onBuyEditFx(roomId: string, fxIdx: number, next: Fixture | null) {
+  if (next === null) cfg.removeFixture(roomId, fxIdx)
+  else cfg.updateFixture(roomId, fxIdx, next)
+}
+
+function onFxSave(next: Fixture) {
+  const af = cfg.activeFx.value
+  if (!af) return
+  cfg.updateFixture(af.roomId, af.fxIdx, next)
+  cfg.showFB('Светильник сохранён')
+  cfg.closeFx()
+}
+
+function onFxDelete() {
+  const af = cfg.activeFx.value
+  if (!af) return
+  cfg.removeFixture(af.roomId, af.fxIdx)
+  cfg.closeFx()
+  cfg.showFB('Светильник удалён')
+}
+
+function onFxClose() {
+  cfg.closeFx()
+}
+
+/* ────────── Цвет карточки ────────── */
 
 const colorPickRoom = ref<Room | null>(null)
-const buyInitialEdit = ref<{ roomId: string; fxIdx: number } | null>(null)
 
 function onPickColor(room: Room) {
   colorPickRoom.value = room
@@ -134,17 +190,10 @@ function onColorPicked(color: string | undefined) {
     colorPickRoom.value = { ...colorPickRoom.value, cardColor: color }
   }
 }
-
-/* Тексты в заголовке. */
-const subtitle = computed(() => {
-  const n = rooms.value.length
-  if (n === 0) return 'Добавьте комнату'
-  return `${n} ${rw(n)}`
-})
 </script>
 
 <template>
-  <!-- Экран комнаты (полный экран) -->
+  <!-- ═══════ Главный экран / RoomDetail ═══════ -->
   <template v-if="activeRoom">
     <RoomDetail
       :room="activeRoom"
@@ -152,11 +201,10 @@ const subtitle = computed(() => {
       @delete="onDeleteRoom"
       @close="onCloseRoom"
       @feedback="cfg.showFB"
+      @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)"
     />
-    <Toast :msg="cfg.fb.value" @done="cfg.clearFB" />
   </template>
 
-  <!-- Главный экран -->
   <template v-else>
     <div
       :style="{
@@ -212,7 +260,6 @@ const subtitle = computed(() => {
         </div>
       </div>
 
-      <!-- Секция комнат -->
       <div
         :style="{
           fontSize: '14px',
@@ -224,7 +271,6 @@ const subtitle = computed(() => {
         {{ subtitle }}
       </div>
 
-      <!-- Сетка комнат -->
       <div
         :style="{
           display: 'grid',
@@ -260,102 +306,105 @@ const subtitle = computed(() => {
         </div>
       </div>
 
-      <!-- Промо (всегда) -->
       <PromoBlock @click="onPromoClick" />
-
-      <!-- Онбординг (всегда) -->
       <OnboardingLink />
-
       <Footer />
 
-      <!-- Bottom spacer для sticky bar -->
-      <div v-if="cfg.hasFixtures.value" :style="{ height: '80px' }" />
-
-      <!-- ───── Модалки ───── -->
-
-      <TypePicker
-        v-if="cfg.picker.value"
-        @pick="(tid) => cfg.add(tid)"
-        @close="cfg.picker.value = false"
-      />
-
-      <FirstModal
-        v-if="cfg.showFirst.value"
-        :rooms="rooms"
-        :first-id="cfg.firstId.value"
-        @update="(id) => (cfg.firstId.value = id)"
-        @close="cfg.showFirst.value = false"
-      />
-
-      <NameModal
-        v-if="cfg.showName.value"
-        :value="cfg.name.value"
-        @save="cfg.setName"
-        @close="cfg.showName.value = false"
-      />
-
-      <StoryModal
-        v-if="cfg.showStory.value"
-        :rooms="rooms"
-        :name="cfg.name.value"
-        @close="cfg.showStory.value = false"
-      />
-
-      <BuyModal
-        v-if="cfg.showBuy.value"
-        :rooms="rooms"
-        :initial-edit="buyInitialEdit"
-        @edit-fx="(roomId, fxIdx, next) => {
-          if (next === null) cfg.removeFixture(roomId, fxIdx)
-          else cfg.updateFixture(roomId, fxIdx, next)
-        }"
-        @close="cfg.showBuy.value = false; buyInitialEdit = null"
-        @feedback="cfg.showFB"
-        @story="cfg.showStory.value = true"
-      />
-
-      <ShareModal
-        v-if="cfg.showShare.value"
-        :name="cfg.name.value"
-        :rooms="rooms"
-        @close="cfg.showShare.value = false"
-        @feedback="cfg.showFB"
-      />
-
-      <ColorPickerModal
-        v-if="colorPickRoom"
-        :current="colorPickRoom.cardColor"
-        :room-name="colorPickRoom.customName || getRT(colorPickRoom.typeId).name"
-        @pick="onColorPicked"
-        @close="colorPickRoom = null"
-      />
-
-      <Toast :msg="cfg.fb.value" @done="cfg.clearFB" />
+      <div v-if="stickyVisible" :style="{ height: '80px' }" />
     </div>
   </template>
 
-  <!-- Глобальная кнопка звука — поверх всех экранов -->
+  <!-- ═══════ Глобальные модалки ═══════ -->
+
+  <TypePicker
+    v-if="cfg.picker.value"
+    @pick="(tid) => cfg.add(tid)"
+    @close="cfg.picker.value = false"
+  />
+
+  <FirstModal
+    v-if="cfg.showFirst.value"
+    :rooms="rooms"
+    :first-id="cfg.firstId.value"
+    @update="(id) => (cfg.firstId.value = id)"
+    @close="cfg.showFirst.value = false"
+  />
+
+  <NameModal
+    v-if="cfg.showName.value"
+    :value="cfg.name.value"
+    @save="cfg.setName"
+    @close="cfg.showName.value = false"
+  />
+
+  <BuyModal
+    v-if="cfg.showBuy.value"
+    :rooms="rooms"
+    @edit-fx="onBuyEditFx"
+    @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)"
+    @close="cfg.showBuy.value = false"
+    @feedback="cfg.showFB"
+    @story="cfg.showStory.value = true"
+  />
+
+  <StoryModal
+    v-if="cfg.showStory.value"
+    :rooms="rooms"
+    :name="cfg.name.value"
+    @close="cfg.showStory.value = false"
+  />
+
+  <ShareModal
+    v-if="cfg.showShare.value"
+    :name="cfg.name.value"
+    :rooms="rooms"
+    @close="cfg.showShare.value = false"
+    @feedback="cfg.showFB"
+  />
+
+  <ColorPickerModal
+    v-if="colorPickRoom"
+    :current="colorPickRoom.cardColor"
+    :room-name="colorPickRoom.customName || getRT(colorPickRoom.typeId).name"
+    @pick="onColorPicked"
+    @close="colorPickRoom = null"
+  />
+
+  <!-- Страница светильника — поверх всего -->
+  <FxEditor
+    v-if="activeFxData"
+    :key="activeFxData.roomId + ':' + activeFxData.fxIdx"
+    :item="activeFxData.fx"
+    :def-wood="activeFxData.fx.wood ?? 'oak'"
+    :back-label="fxBackLabel"
+    @save="onFxSave"
+    @delete="onFxDelete"
+    @close="onFxClose"
+    @feedback="cfg.showFB"
+  />
+
+  <!-- Глобальный звук -->
   <div
     :style="{
       position: 'fixed',
       top: '10px',
       right: '16px',
-      zIndex: 45,
+      zIndex: 90,
     }"
   >
     <SoundButton />
   </div>
 
-  <!-- Глобальный sticky bar — поверх всех экранов -->
+  <!-- Глобальный sticky-бар -->
   <StickyBar
-    v-if="cfg.hasFixtures.value"
+    v-if="stickyVisible"
     @share="cfg.showShare.value = true"
     @buy="cfg.showBuy.value = true"
   />
+
+  <Toast :msg="cfg.fb.value" @done="cfg.clearFB" />
 </template>
 
-<!-- Глобальные стили — не scoped, применяются ко всему документу.
-     В VitePress можно вынести в theme/custom.css, но inline проще при миграции. -->
 <style>
 html, body {
   background: #13110E !important;

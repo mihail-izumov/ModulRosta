@@ -1,15 +1,20 @@
 <script setup lang="ts">
 /**
- * BuyModal.vue — «Ваш лес WOODLED» с 3-шаговым flow.
+ * BuyModal.vue — «Мой лес».
  *
- * Источник: woodled-v42.jsx (BuyModal).
  * Шаги:
- *   1. list  — список комнат со светильниками, выбор одного для скидки
+ *   1. list  — список комнат со светильниками; выбор одного для скидки
  *   2. form  — имя, телефон, комментарий
- *   3. done  — «План отправлен» + имя выбранной модели
+ *   3. done  — «План отправлен»
+ *
+ * Светильник редактируется через emit('open-fx', roomId, fxIdx) —
+ * App.vue открывает FxEditor поверх BuyModal.
+ *
+ * StoryLink («Посмотрите на свой лес») открывает StoryModal через
+ * emit('story') — App.vue ставит cfg.showStory = true.
  */
 
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import { T, Z, WCOL } from '../theme/tokens'
 import { MD, type Fixture } from '../data/catalog'
 import { MATS } from '../data/materials'
@@ -17,16 +22,15 @@ import { fxPrice, itemPrice } from '../data/price-engine'
 import { lw } from '../engine/i18n'
 import { getRT, type Room } from '../data/rooms'
 import Icon, { fxIcName } from './ui/Icons.vue'
-import FxEditor from './FxEditor.vue'
 import StoryLink from './StoryLink.vue'
 
 interface Props {
   rooms: Room[]
-  initialEdit?: { roomId: string; fxIdx: number } | null
 }
-const props = withDefaults(defineProps<Props>(), { initialEdit: null })
+const props = defineProps<Props>()
 const emit = defineEmits<{
   editFx: [roomId: string, fxIdx: number, next: Fixture | null]
+  openFx: [roomId: string, fxIdx: number]
   close: []
   feedback: [msg: string]
   story: []
@@ -36,20 +40,10 @@ type Step = 'list' | 'form' | 'done'
 
 const step = ref<Step>('list')
 const discountFx = ref<{ roomId: string; fxIdx: number } | null>(null)
-const editItem = ref<{ roomId: string; fxIdx: number } | null>(null)
-
 const contact = ref({ name: '', phone: '', comment: '' })
-
-/* Auto-open editor if initialEdit is set */
-onMounted(() => {
-  if (props.initialEdit) {
-    editItem.value = { ...props.initialEdit }
-  }
-})
 
 const filledRooms = computed(() => props.rooms.filter((r) => r.fixtures.length > 0))
 
-/* Найти выбранный (со скидкой) fixture для отображения в form/done. */
 const discountDetails = computed(() => {
   if (!discountFx.value) return null
   const r = props.rooms.find((rm) => rm.id === discountFx.value!.roomId)
@@ -71,7 +65,7 @@ function toggleDiscount(roomId: string, fxIdx: number) {
 }
 
 function openEdit(roomId: string, fxIdx: number) {
-  editItem.value = { roomId, fxIdx }
+  emit('openFx', roomId, fxIdx)
 }
 
 function submitList() {
@@ -89,15 +83,6 @@ function submitForm() {
   }
   step.value = 'done'
 }
-
-/* Под редактирование конкретного светильника. */
-const editItemData = computed(() => {
-  if (!editItem.value) return null
-  const room = props.rooms.find((r) => r.id === editItem.value!.roomId)
-  const fx = room?.fixtures[editItem.value!.fxIdx]
-  if (!room || !fx) return null
-  return { room, fx }
-})
 </script>
 
 <template>
@@ -140,8 +125,7 @@ const editItemData = computed(() => {
       <template v-if="discountDetails">
         Скидка 3 000 ₽ на
         <span :style="{ color: T.text, fontWeight: 600 }">
-          {{ discountDetails.woodName }} · {{ discountDetails.m.name }}</span
-        >.
+          {{ discountDetails.woodName }} · {{ discountDetails.m.name }}</span>.
       </template>
       Консультант WOODLED свяжется с вами
     </div>
@@ -188,16 +172,17 @@ const editItemData = computed(() => {
           background: 'none',
           border: 'none',
           color: T.textSec,
-          fontSize: '20px',
+          fontSize: '14px',
           cursor: 'pointer',
         }"
         @click="step = 'list'"
       >
-        ←
+        ← Мой лес
       </button>
-      <span :style="{ flex: 1, fontWeight: 700, fontSize: '16px', color: T.text }">
+      <span :style="{ flex: 1, fontWeight: 700, fontSize: '16px', color: T.text, textAlign: 'center' }">
         Оставить заявку
       </span>
+      <span :style="{ width: '70px' }" />
     </div>
     <div :style="{ padding: '20px', maxWidth: '400px', margin: '0 auto' }">
       <div
@@ -321,14 +306,7 @@ const editItemData = computed(() => {
       >
         Отправить план леса
       </button>
-      <div
-        :style="{
-          fontSize: '11px',
-          color: T.textDim,
-          marginTop: '10px',
-          textAlign: 'center',
-        }"
-      >
+      <div :style="{ fontSize: '11px', color: T.textDim, marginTop: '10px', textAlign: 'center' }">
         Консультант свяжется в течение часа
       </div>
     </div>
@@ -345,7 +323,7 @@ const editItemData = computed(() => {
       overflow: 'auto',
     }"
   >
-    <!-- Header -->
+    <!-- Sticky header -->
     <div
       :style="{
         padding: '12px 16px',
@@ -371,31 +349,34 @@ const editItemData = computed(() => {
       >
         ← Домой
       </button>
-      <span :style="{ flex: 1, fontWeight: 700, fontSize: '18px', color: T.text, textAlign: 'center' }">
+      <span
+        :style="{
+          flex: 1,
+          fontWeight: 700,
+          fontSize: '18px',
+          color: T.text,
+          textAlign: 'center',
+        }"
+      >
         Мой лес
       </span>
       <span :style="{ width: '70px' }" />
     </div>
 
     <div :style="{ padding: '16px', maxWidth: '480px', margin: '0 auto' }">
-      <!-- Посмотрите на свой лес -->
-      <StoryLink
-        v-if="filledRooms.length > 0"
-        @click="emit('story')"
-      />
+      <!-- Посмотрите на свой лес — ведёт в StoryModal -->
+      <StoryLink v-if="filledRooms.length > 0" @click="emit('story')" />
 
-      <div :style="{ textAlign: 'center', marginBottom: '16px' }">
+      <div :style="{ textAlign: 'center', marginBottom: '16px', marginTop: '8px' }">
         <div :style="{ fontSize: '16px', fontWeight: 700, color: T.text }">
           3 000 ₽ на любой светильник
         </div>
         <div :style="{ fontSize: '12px', color: T.textSec, marginTop: '4px' }">
-          Нажмите, чтобы применить скидку
+          Нажмите на светильник, чтобы применить скидку
         </div>
       </div>
 
-      <!-- Комнаты со светильниками -->
       <div v-for="r in filledRooms" :key="r.id" :style="{ marginBottom: '16px' }">
-        <!-- Заголовок комнаты + цена -->
         <div
           :style="{
             display: 'flex',
@@ -404,13 +385,7 @@ const editItemData = computed(() => {
             marginBottom: '8px',
           }"
         >
-          <div
-            :style="{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: T.text,
-            }"
-          >
+          <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
             {{ r.customName || getRT(r.typeId).name }}
           </div>
           <div
@@ -445,12 +420,7 @@ const editItemData = computed(() => {
           </div>
         </div>
 
-        <!-- Светильники комнаты -->
-        <div
-          v-for="(fx, i) in r.fixtures"
-          :key="i"
-          :style="{ marginBottom: '6px' }"
-        >
+        <div v-for="(fx, i) in r.fixtures" :key="i" :style="{ marginBottom: '8px' }">
           <button
             :style="{
               width: '100%',
@@ -485,11 +455,7 @@ const editItemData = computed(() => {
                 flexShrink: 0,
               }"
             >
-              <Icon
-                :name="fxIcName(MD[fx.m].type)"
-                :color="WCOL[fx.wood ?? 'oak']"
-                :size="18"
-              />
+              <Icon :name="fxIcName(MD[fx.m].type)" :color="WCOL[fx.wood ?? 'oak']" :size="18" />
             </div>
             <div :style="{ flex: 1 }">
               <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
@@ -532,33 +498,30 @@ const editItemData = computed(() => {
                   {{ Math.max(0, itemPrice(fx) - 3000).toLocaleString('ru-RU') }} ₽
                 </div>
               </template>
-              <div
-                v-else
-                :style="{ fontSize: '12px', fontWeight: 600, color: T.textSec }"
-              >
+              <div v-else :style="{ fontSize: '12px', fontWeight: 600, color: T.textSec }">
                 {{ itemPrice(fx).toLocaleString('ru-RU') }} ₽
               </div>
             </div>
           </button>
 
-          <!-- Кнопка редактирования -->
+          <!-- Кнопка «Настроить» — открывает страницу светильника -->
           <div :style="{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }">
             <button
               :style="{
                 background: 'none',
                 border: `1px solid ${T.border}`,
                 borderRadius: '6px',
-                padding: '4px 10px',
+                padding: '5px 12px',
                 cursor: 'pointer',
                 fontSize: '11px',
                 color: T.textSec,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px',
+                gap: '6px',
               }"
               @click="openEdit(r.id, i)"
             >
-              <Icon name="pen" :color="T.textSec" :size="10" />
+              <Icon name="pen" :color="T.textSec" :size="12" />
               Настроить
             </button>
           </div>
@@ -573,7 +536,6 @@ const editItemData = computed(() => {
       </div>
     </div>
 
-    <!-- Sticky submit -->
     <div v-if="filledRooms.length > 0" :style="{ position: 'sticky', bottom: 0 }">
       <div
         :style="{
@@ -581,14 +543,7 @@ const editItemData = computed(() => {
           background: `linear-gradient(to bottom, transparent, ${T.bg})`,
         }"
       />
-      <div
-        :style="{
-          background: T.bg,
-          padding: '0 16px 20px',
-          maxWidth: '480px',
-          margin: '0 auto',
-        }"
-      >
+      <div :style="{ background: T.bg, padding: '0 16px 20px', maxWidth: '480px', margin: '0 auto' }">
         <button
           :style="{
             width: '100%',
@@ -607,22 +562,7 @@ const editItemData = computed(() => {
         </button>
       </div>
     </div>
-
-    <!-- Редактор светильника поверх -->
-    <FxEditor
-      v-if="editItemData"
-      :item="editItemData.fx"
-      :def-wood="editItemData.fx.wood ?? 'oak'"
-      back-label="← Мой лес"
-      @save="(n) => emit('editFx', editItem!.roomId, editItem!.fxIdx, n)"
-      @delete="emit('editFx', editItem!.roomId, editItem!.fxIdx, null)"
-      @close="editItem = null"
-      @feedback="(msg) => emit('feedback', msg)"
-    />
   </div>
-
-  <!-- reference to silence linter -->
-  <span v-show="false">{{ openEdit }}</span>
 </template>
 
 <style>
