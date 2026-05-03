@@ -18,6 +18,7 @@ import {
   type Wood, type Bowl,
 } from '../data/materials'
 import Icon, { type IconName } from './ui/Icons.vue'
+import { buildFixtureShareUrl } from '../engine/share'
 
 /* ═══ PROPS & EMITS ═══ */
 
@@ -159,6 +160,25 @@ const price = computed(() => {
   return p
 })
 
+interface PriceLine { label: string; amount: number }
+const priceBreakdown = computed<PriceLine[]>(() => {
+  const m = model.value, b = build.value
+  const lines: PriceLine[] = []
+  lines.push({ label: 'Базовая', amount: m.p[b.wood] || 0 })
+  const extra = Math.max(0, b.lamps - m.lamps)
+  if (extra > 0) lines.push({ label: `+${extra} ${spw(extra)}`, amount: extra * m.sur })
+  if (b.diffuser && m.hasDiffuser) lines.push({ label: 'Рассеиватель', amount: OPT_PRICE.diffuser })
+  if (b.moisture) lines.push({ label: 'Влагозащита', amount: OPT_PRICE.moisture })
+  if (m.bulbOpts) {
+    const bo = m.bulbOpts.find(x => x.id === b.bulbOpt)
+    if (bo && bo.price > 0) lines.push({ label: bo.label, amount: bo.price })
+  } else if (!m.bulbsIn && b.bulbs && m.bulbPrice) {
+    lines.push({ label: `Лампочки (${b.lamps} шт)`, amount: Math.round(m.bulbPrice * b.lamps / m.lamps) })
+  }
+  return lines
+})
+const hasExtras = computed(() => priceBreakdown.value.length > 1)
+
 const progress = computed(() => {
   const t = steps.value.length
   const d = steps.value.filter(s => build.value.steps[s] === 'chosen').length
@@ -218,6 +238,25 @@ function doSave() {
   emit('close')
 }
 
+async function shareFx() {
+  const b = build.value
+  const fx: Fixture = {
+    m: b.m, q: props.item.q ?? 1, wood: b.wood, zone: props.item.zone, l: b.lamps,
+    opts: {
+      bowl: b.bowl, mount: b.mount, wire: b.wire, btemp: b.btemp,
+      diffuser: b.diffuser, moisture: b.moisture, bulbs: b.bulbs,
+      bulbOpt: b.bulbOpt, baseColor: b.baseColor,
+    },
+  }
+  const url = buildFixtureShareUrl(fx)
+  try {
+    await navigator.clipboard.writeText(url)
+    emit('feedback', 'Ссылка на светильник скопирована')
+  } catch {
+    emit('feedback', url)
+  }
+}
+
 /* ═══ HELPERS ═══ */
 
 const fmt = (n: number) => n.toLocaleString('ru-RU')
@@ -243,8 +282,7 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
             <div :style="{ fontSize: '18px', fontWeight: 700 }">{{ model.name }}</div>
           </div>
           <div :style="{ textAlign: 'right' }">
-            <div :style="{ fontSize: '16px', fontWeight: 700, color: T.neutral }">{{ fmt(price) }} ₽</div>
-            <div :style="{ fontSize: '10px', color: T.textDim }">{{ simMats.find(x => x.id === build.wood)?.name }}</div>
+            <div :style="{ fontSize: '11px', color: T.textDim }">{{ simMats.find(x => x.id === build.wood)?.name }}</div>
           </div>
         </div>
         <!-- Dots -->
@@ -395,9 +433,24 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
           </div>
         </div>
         <!-- Nav -->
-        <div :style="{ display: 'flex', gap: '8px', marginTop: '16px', paddingBottom: '8px' }">
+        <div :style="{ display: 'flex', gap: '8px', marginTop: '16px', paddingBottom: '80px' }">
           <button v-if="stepIdx > 0" @click="prev" :style="{ padding: '12px 16px', background: 'none', border: `1px solid ${T.border}`, borderRadius: '8px', color: T.textSec, cursor: 'pointer', fontSize: '18px' }">←</button>
           <button @click="doCommit(isTouched)" :style="{ flex: 1, padding: '12px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '14px', background: isTouched ? T.text : T.neutral + '33', color: isTouched ? T.bg : T.neutral }">{{ isTouched ? '✓ Выбрать' : 'Пропустить →' }}</button>
+        </div>
+
+        <!-- Sticky price -->
+        <div :style="{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 10 }">
+          <div :style="{ height: '20px', background: `linear-gradient(to bottom, transparent, ${T.bg})` }" />
+          <div :style="{ background: T.bg, padding: '10px 20px 16px', maxWidth: '480px', margin: '0 auto' }">
+            <div v-if="hasExtras" :style="{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '6px', justifyContent: 'center' }">
+              <span v-for="(line, i) in priceBreakdown" :key="i" :style="{ fontSize: '11px', color: i === 0 ? T.textSec : T.yellow, whiteSpace: 'nowrap' }">
+                {{ i > 0 ? '+ ' : '' }}{{ line.label }} {{ fmt(line.amount) }} ₽
+              </span>
+            </div>
+            <div :style="{ textAlign: 'center', fontSize: '20px', fontWeight: 800, color: T.neutral }">
+              {{ fmt(price) }} ₽
+            </div>
+          </div>
         </div>
       </template>
 
@@ -449,6 +502,33 @@ function bulbPer() { return model.value.bulbPrice ? Math.round(model.value.bulbP
         <div :style="{ display: 'flex', gap: '8px' }">
           <button @click="() => { stepIdx = 0; view = 'steps' }" :style="{ flex: 1, padding: '12px', background: 'none', border: `1px solid ${T.border}`, borderRadius: '8px', color: T.textSec, cursor: 'pointer', fontSize: '13px' }">Изменить</button>
           <button @click="doSave" :style="{ flex: 1, padding: '12px', background: isDone ? sc : T.neutral, color: T.bg, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }">Сохранить</button>
+        </div>
+        <!-- Share -->
+        <div :style="{ textAlign: 'center', marginTop: '12px' }">
+          <button
+            :style="{
+              padding: '8px 20px',
+              background: 'none',
+              border: `1px solid ${T.border}`,
+              borderRadius: '6px',
+              color: T.textSec,
+              cursor: 'pointer',
+              fontSize: '12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }"
+            @click="shareFx"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+              <polyline points="16 6 12 2 8 6" />
+              <line x1="12" y1="2" x2="12" y2="15" />
+            </svg>
+            Поделиться
+          </button>
         </div>
         <div :style="{ textAlign: 'center', marginTop: '16px' }">
           <button @click="emit('delete')" :style="{ padding: '8px 20px', background: 'none', border: `1px solid ${T.red}55`, borderRadius: '6px', color: T.red, cursor: 'pointer', fontSize: '12px' }">Удалить светильник</button>

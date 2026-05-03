@@ -34,12 +34,50 @@ import BuyModal from './BuyModal.vue'
 import ShareModal from './ShareModal.vue'
 import ColorPickerModal from './ColorPickerModal.vue'
 import RoomDetail from './RoomDetail.vue'
+import { readModelLink, clearModelLink } from '../engine/useModelLink'
+import { decodeFixture, readHashFixture } from '../engine/share'
 
 const cfg = useConfigurator()
 
 /* Подхватываем shared-ссылку при загрузке. Только на клиенте. */
 onMounted(() => {
+  // 1. Shared state (полный дом)
   cfg.loadFromHash()
+
+  // 2. Shared fixture (#fx=...)
+  const fxEncoded = readHashFixture()
+  if (fxEncoded) {
+    const fx = decodeFixture(fxEncoded)
+    if (fx) {
+      let targetRoom = cfg.rooms.find((r: Room) => r.typeId === 'living') ?? null
+      if (!targetRoom) {
+        const roomId = cfg.add('living')
+        targetRoom = cfg.rooms.find((r: Room) => r.id === roomId) ?? null
+      }
+      if (targetRoom) {
+        cfg.addFixture(targetRoom.id, fx)
+        cfg.active.value = targetRoom.id
+      }
+    }
+    window.history.replaceState({}, '', window.location.pathname)
+    return
+  }
+
+  // 3. Deeplink на модель (?model=rotor_m)
+  const link = readModelLink()
+  if (link) {
+    let targetRoom = cfg.rooms.find((r: Room) => r.typeId === 'living') ?? null
+    if (!targetRoom) {
+      const roomId = cfg.add('living')
+      targetRoom = cfg.rooms.find((r: Room) => r.id === roomId) ?? null
+    }
+    if (targetRoom) {
+      const fx = { m: link.modelId, q: 1, wood: 'oak' as const, zone: link.zone }
+      cfg.addFixture(targetRoom.id, fx)
+      cfg.active.value = targetRoom.id
+    }
+    clearModelLink()
+  }
 })
 
 const rooms = computed<Room[]>(() => cfg.rooms as Room[])
