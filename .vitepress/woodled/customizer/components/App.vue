@@ -98,6 +98,14 @@ onMounted(() => {
       cfg.dismissWelcome()
     }
     clearModelLink()
+    return
+  }
+
+  // 4. Возврат юзера, который раньше dismiss'нул welcome (localStorage),
+  //    но state не сохранён (мы ничего не персистим, кроме welcomeSeen).
+  //    Без этого main экран был бы пустым — нет ни welcome, ни комнат.
+  if (cfg.welcomeSeen.value) {
+    cfg.ensureStarterRooms()
   }
 })
 
