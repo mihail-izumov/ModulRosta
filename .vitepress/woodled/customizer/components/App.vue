@@ -202,6 +202,22 @@ function onColorPicked(color: string | undefined) {
     colorPickRoom.value = { ...colorPickRoom.value, cardColor: color }
   }
 }
+
+/**
+ * Любая модалка открыта — скрываем SoundButton (визуально, через display).
+ * Скрытие через v-if демонтирует <audio> и обрывает воспроизведение —
+ * поэтому именно display, а не v-if.
+ */
+const anyModalOpen = computed<boolean>(() =>
+  cfg.showFirst.value ||
+  cfg.showName.value ||
+  cfg.showStory.value ||
+  cfg.showBuy.value ||
+  cfg.showShare.value ||
+  cfg.showMoodDetail.value !== null ||
+  cfg.picker.value ||
+  colorPickRoom.value !== null,
+)
 </script>
 
 <template>
@@ -408,7 +424,15 @@ function onColorPicked(color: string | undefined) {
   </template>
 
   <!-- ═══════ ГЛОБАЛЬНЫЕ — ВСЕГДА (один экземпляр, чтобы audio не прерывался) ═══════ -->
-  <div :style="{ position: 'fixed', top: '10px', right: '16px', zIndex: 90 }">
+  <div
+    :style="{
+      position: 'fixed',
+      top: '10px',
+      right: '16px',
+      zIndex: 90,
+      display: anyModalOpen ? 'none' : 'block',
+    }"
+  >
     <SoundButton />
   </div>
 
