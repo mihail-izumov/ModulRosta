@@ -4,17 +4,13 @@
  *
  * ТРИ состояния, ТРИ разные иконки:
  *   1. muted   — volume-x       (звук выключен; клик включает).
- *   2. loading — audio-lines    (включено, но playback ещё не стартовал;
- *                               анимированная SMIL-пульсация эквалайзера).
+ *   2. loading — эквалайзер     (включено, ждём playback;
+ *                               6 rect'ов с CSS scaleY-анимацией —
+ *                               надёжнее SMIL внутри Vue-template).
  *   3. playing — volume-2       (играет; клик выключает).
  *
- * Переход loading → playing происходит когда Promise от audio.play()
- * резолвится (это надёжнее, чем event 'playing' — у Safari/iOS event
- * не всегда срабатывает при loop=true). Дублируем event 'playing' как
- * страховку.
- *
- * НЕ слушаем waiting/pause/stalled — они могут сбрасывать playing в false
- * во время штатной перемотки loop'а в некоторых браузерах.
+ * loading длится минимум MIN_LOADING_MS — даже если play() резолвится
+ * мгновенно (файл в кэше), эквалайзер видно секунду.
  */
 
 import { computed, ref, onMounted, onUnmounted } from 'vue'
@@ -22,8 +18,6 @@ import { T } from '../theme/tokens'
 
 const AUDIO_SRC = 'https://runscale.ru/woodled/onboarding/forest-soundscape.mp3'
 
-/* Минимальная длительность loading-состояния — даёт юзеру время заметить
- * иконку эквалайзера, даже если файл уже в кэше и play() резолвится мгновенно. */
 const MIN_LOADING_MS = 1000
 
 const muted = ref(true)
@@ -43,7 +37,6 @@ let hintTimer: ReturnType<typeof setTimeout> | null = null
 let toggleStartTs = 0
 let pendingPlayingTimer: ReturnType<typeof setTimeout> | null = null
 
-/* Запланировать переход в playing с учётом минимума MIN_LOADING_MS. */
 function scheduleTransitionToPlaying() {
   if (muted.value) return
   const elapsed = Date.now() - toggleStartTs
@@ -61,7 +54,6 @@ function toggleSound() {
   if (!a) return
 
   if (muted.value) {
-    // Включаем — переход в loading, потом в playing с минимумом 1с.
     if (pendingPlayingTimer) {
       clearTimeout(pendingPlayingTimer)
       pendingPlayingTimer = null
@@ -75,17 +67,14 @@ function toggleSound() {
       p.then(() => {
         scheduleTransitionToPlaying()
       }).catch(() => {
-        // Autoplay policy / file error — откатываемся.
         muted.value = true
         a.muted = true
         playing.value = false
       })
     } else {
-      // Старые браузеры без Promise-возврата.
       scheduleTransitionToPlaying()
     }
   } else {
-    // Выключаем — мгновенно сбрасываем всё.
     if (pendingPlayingTimer) {
       clearTimeout(pendingPlayingTimer)
       pendingPlayingTimer = null
@@ -97,8 +86,6 @@ function toggleSound() {
   }
 }
 
-/* Страховка: если Promise по какой-то причине не резолвится, ловим
- * стандартное событие playing (тоже с минимумом MIN_LOADING_MS). */
 function onPlaying() {
   if (!muted.value) scheduleTransitionToPlaying()
 }
@@ -124,6 +111,22 @@ onUnmounted(() => {
     audioRef.value.currentTime = 0
   }
 })
+
+/* Стили палочек эквалайзера. Каждая со своим dur/delay → асинхронная
+ * пульсация. transform-box: fill-box нужен чтобы scaleY шёл от центра
+ * самого rect, а не от 0,0 svg.
+ *
+ * Координаты — те же, что у Lucide audio-lines: палочки на x=2,6,10,14,
+ * 18,22 с разной высотой. Шириной 2 (как stroke-width=2) с rx=1 для
+ * скруглённых концов.
+ */
+function barStyle(dur: number, delay: number) {
+  return {
+    animation: `wlSoundBar ${dur}s ease-in-out ${delay}s infinite`,
+    transformOrigin: 'center',
+    transformBox: 'fill-box' as const,
+  }
+}
 </script>
 
 <template>
@@ -161,33 +164,14 @@ onUnmounted(() => {
         <line x1="16" y1="9" x2="22" y2="15"/>
       </svg>
 
-      <!-- 2. Loading: audio-lines с пульсирующей SMIL-анимацией -->
-      <svg v-else-if="loading" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M2 10v3">
-          <animate attributeName="d" dur="0.6s" repeatCount="indefinite"
-            values="M2 10v3;M2 11v1;M2 10v3" />
-        </path>
-        <path d="M6 6v11">
-          <animate attributeName="d" dur="0.7s" begin="0.08s" repeatCount="indefinite"
-            values="M6 6v11;M6 9v5;M6 6v11" />
-        </path>
-        <path d="M10 3v18">
-          <animate attributeName="d" dur="0.8s" begin="0.16s" repeatCount="indefinite"
-            values="M10 3v18;M10 8v8;M10 3v18" />
-        </path>
-        <path d="M14 8v7">
-          <animate attributeName="d" dur="0.65s" begin="0.24s" repeatCount="indefinite"
-            values="M14 8v7;M14 10v3;M14 8v7" />
-        </path>
-        <path d="M18 5v13">
-          <animate attributeName="d" dur="0.55s" begin="0.04s" repeatCount="indefinite"
-            values="M18 5v13;M18 9v5;M18 5v13" />
-        </path>
-        <path d="M22 10v3">
-          <animate attributeName="d" dur="0.75s" begin="0.12s" repeatCount="indefinite"
-            values="M22 10v3;M22 11v1;M22 10v3" />
-        </path>
+      <!-- 2. Loading: 6 rect-палочек с CSS-эквалайзером -->
+      <svg v-else-if="loading" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="1"  y="10" width="2" height="3"  rx="1" :style="barStyle(0.55, 0)" />
+        <rect x="5"  y="6"  width="2" height="11" rx="1" :style="barStyle(0.7,  0.08)" />
+        <rect x="9"  y="3"  width="2" height="18" rx="1" :style="barStyle(0.8,  0.16)" />
+        <rect x="13" y="8"  width="2" height="7"  rx="1" :style="barStyle(0.65, 0.24)" />
+        <rect x="17" y="5"  width="2" height="13" rx="1" :style="barStyle(0.6,  0.04)" />
+        <rect x="21" y="10" width="2" height="3"  rx="1" :style="barStyle(0.75, 0.12)" />
       </svg>
 
       <!-- 3. Playing: volume-2 -->
@@ -222,3 +206,10 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style>
+@keyframes wlSoundBar {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.3); }
+}
+</style>

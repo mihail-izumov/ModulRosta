@@ -207,12 +207,14 @@ function onColorPicked(color: string | undefined) {
  * Любая модалка открыта — скрываем SoundButton (визуально, через display).
  * Скрытие через v-if демонтирует <audio> и обрывает воспроизведение —
  * поэтому именно display, а не v-if.
+ *
+ * BuyModal («Мой лес») в этот список НЕ входит — там кнопка должна
+ * оставаться видимой.
  */
 const anyModalOpen = computed<boolean>(() =>
   cfg.showFirst.value ||
   cfg.showName.value ||
   cfg.showStory.value ||
-  cfg.showBuy.value ||
   cfg.showShare.value ||
   cfg.showMoodDetail.value !== null ||
   cfg.picker.value ||
