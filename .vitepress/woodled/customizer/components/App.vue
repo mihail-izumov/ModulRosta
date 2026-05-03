@@ -2,19 +2,15 @@
 /**
  * App.vue — Корневой роутер.
  *
- * Состояния (взаимоисключающие):
- *  1. Home          — главная (cfg.active === null)
- *  2. RoomDetail    — поверх главной, когда cfg.active !== null
+ * Архитектура — взаимоисключающие «маршруты»:
+ *   1. FxEditor   (cfg.activeFx) — топ-приоритет, полный экран светильника
+ *   2. BuyModal   (cfg.showBuy)  — поверх главной/RoomDetail, но ниже FxEditor
+ *   3. RoomDetail (cfg.active)   — карточка комнаты
+ *   4. Home                       — главный экран
  *
- * Слои поверх (могут быть открыты на любом из состояний):
- *  - BuyModal       (cfg.showBuy)
- *  - StoryModal     (cfg.showStory) — поверх BuyModal
- *  - FxEditor       (cfg.activeFx) — поверх всего
- *
- * Светильник открывается через cfg.openFx(roomId, fxIdx) из 3 источников:
- *  - клик в RoomDetail (ZoneCard)
- *  - кнопка «Настроить» в BuyModal
- *  - deeplink #fx=… или ?model=…
+ * Когда открыт FxEditor, всё остальное РАЗМОНТИРОВАНО — никаких stacking
+ * context'ов и z-index гонок. Это гарантирует, что страница светильника
+ * виден всегда поверх любого другого UI.
  */
 
 import { computed, onMounted, ref } from 'vue'
@@ -50,10 +46,8 @@ const cfg = useConfigurator()
 /* ────────── Deeplinks ────────── */
 
 onMounted(() => {
-  // 1. Полный shared state
   cfg.loadFromHash()
 
-  // 2. Шаринг конкретного светильника (#fx=…)
   const fxEncoded = readHashFixture()
   if (fxEncoded) {
     const fx = decodeFixture(fxEncoded)
@@ -74,7 +68,6 @@ onMounted(() => {
     return
   }
 
-  // 3. Deeplink на модель (?model=rotor_m)
   const link = readModelLink()
   if (link) {
     let targetRoom = cfg.rooms.find((r: Room) => r.typeId === 'living') ?? null
@@ -193,216 +186,215 @@ function onColorPicked(color: string | undefined) {
 </script>
 
 <template>
-  <!-- ═══════ Главный экран / RoomDetail ═══════ -->
-  <template v-if="activeRoom">
-    <RoomDetail
-      :room="activeRoom"
-      @update="onEditRoom"
-      @delete="onDeleteRoom"
-      @close="onCloseRoom"
+  <!-- ═══════ РЕЖИМ 1: открыт светильник — только он + звук + тосты ═══════ -->
+  <template v-if="activeFxData">
+    <FxEditor
+      :key="activeFxData.roomId + ':' + activeFxData.fxIdx"
+      :item="activeFxData.fx"
+      :def-wood="activeFxData.fx.wood ?? 'oak'"
+      :back-label="fxBackLabel"
+      @save="onFxSave"
+      @delete="onFxDelete"
+      @close="onFxClose"
       @feedback="cfg.showFB"
-      @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)"
     />
-  </template>
 
-  <template v-else>
-    <div
-      :style="{
-        maxWidth: '560px',
-        margin: '0 auto',
-        padding: '16px',
-        fontFamily: `'Segoe UI', system-ui, sans-serif`,
-        color: T.text,
-        background: T.bg,
-        minHeight: '100vh',
-      }"
-    >
-      <!-- Заголовок -->
-      <div :style="{ textAlign: 'center', marginBottom: '20px', paddingTop: '8px' }">
-        <div
-          :style="{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-          }"
-        >
-          <div :style="{ fontSize: '22px', fontWeight: 700, color: T.text }">
-            {{ cfg.name.value }}
-          </div>
-          <button
-            :style="{
-              background: 'none',
-              border: 'none',
-              color: T.textSec,
-              cursor: 'pointer',
-              padding: '4px',
-            }"
-            @click="cfg.showName.value = true"
-          >
-            <Icon name="pen" :color="T.textSec" :size="18" />
-          </button>
-        </div>
-        <div
-          :style="{
-            display: 'inline-block',
-            marginTop: '6px',
-            padding: '3px 12px',
-            borderRadius: '10px',
-            background: T.neutral + '18',
-            fontSize: '10px',
-            fontWeight: 700,
-            color: T.neutral,
-            letterSpacing: '0.5px',
-          }"
-        >
-          WOODLED ROTOR
-        </div>
-      </div>
-
-      <div
-        :style="{
-          fontSize: '14px',
-          fontWeight: 600,
-          color: T.text,
-          marginBottom: '10px',
-        }"
-      >
-        {{ subtitle }}
-      </div>
-
-      <div
-        :style="{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '10px',
-          marginBottom: '16px',
-        }"
-      >
-        <RoomCard
-          v-for="r in sortedRooms"
-          :key="r.id"
-          :room="r"
-          @click="cfg.active.value = r.id"
-          @pick-color="onPickColor(r)"
-        />
-        <div
-          :style="{
-            border: `1px dashed ${T.border}`,
-            borderRadius: '12px',
-            minHeight: '140px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
-            cursor: 'pointer',
-            color: T.textDim,
-            gap: '6px',
-          }"
-          @click="cfg.picker.value = true"
-        >
-          <div :style="{ fontSize: '28px' }">+</div>
-          <div :style="{ fontSize: '11px' }">Добавить комнату</div>
-        </div>
-      </div>
-
-      <PromoBlock @click="onPromoClick" />
-      <OnboardingLink />
-      <Footer />
-
-      <div v-if="stickyVisible" :style="{ height: '80px' }" />
+    <div :style="{ position: 'fixed', top: '10px', right: '16px', zIndex: 90 }">
+      <SoundButton />
     </div>
+
+    <Toast :msg="cfg.fb.value" @done="cfg.clearFB" />
   </template>
 
-  <!-- ═══════ Глобальные модалки ═══════ -->
+  <!-- ═══════ РЕЖИМ 2: всё остальное ═══════ -->
+  <template v-else>
+    <!-- Главный или RoomDetail (взаимоисключающие) -->
+    <template v-if="activeRoom">
+      <RoomDetail
+        :room="activeRoom"
+        @update="onEditRoom"
+        @delete="onDeleteRoom"
+        @close="onCloseRoom"
+        @feedback="cfg.showFB"
+        @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)"
+      />
+    </template>
 
-  <TypePicker
-    v-if="cfg.picker.value"
-    @pick="(tid) => cfg.add(tid)"
-    @close="cfg.picker.value = false"
-  />
+    <template v-else>
+      <div
+        :style="{
+          maxWidth: '560px',
+          margin: '0 auto',
+          padding: '16px',
+          fontFamily: `'Segoe UI', system-ui, sans-serif`,
+          color: T.text,
+          background: T.bg,
+          minHeight: '100vh',
+        }"
+      >
+        <div :style="{ textAlign: 'center', marginBottom: '20px', paddingTop: '8px' }">
+          <div
+            :style="{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+            }"
+          >
+            <div :style="{ fontSize: '22px', fontWeight: 700, color: T.text }">
+              {{ cfg.name.value }}
+            </div>
+            <button
+              :style="{
+                background: 'none',
+                border: 'none',
+                color: T.textSec,
+                cursor: 'pointer',
+                padding: '4px',
+              }"
+              @click="cfg.showName.value = true"
+            >
+              <Icon name="pen" :color="T.textSec" :size="18" />
+            </button>
+          </div>
+          <div
+            :style="{
+              display: 'inline-block',
+              marginTop: '6px',
+              padding: '3px 12px',
+              borderRadius: '10px',
+              background: T.neutral + '18',
+              fontSize: '10px',
+              fontWeight: 700,
+              color: T.neutral,
+              letterSpacing: '0.5px',
+            }"
+          >
+            WOODLED ROTOR
+          </div>
+        </div>
 
-  <FirstModal
-    v-if="cfg.showFirst.value"
-    :rooms="rooms"
-    :first-id="cfg.firstId.value"
-    @update="(id) => (cfg.firstId.value = id)"
-    @close="cfg.showFirst.value = false"
-  />
+        <div
+          :style="{
+            fontSize: '14px',
+            fontWeight: 600,
+            color: T.text,
+            marginBottom: '10px',
+          }"
+        >
+          {{ subtitle }}
+        </div>
 
-  <NameModal
-    v-if="cfg.showName.value"
-    :value="cfg.name.value"
-    @save="cfg.setName"
-    @close="cfg.showName.value = false"
-  />
+        <div
+          :style="{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '10px',
+            marginBottom: '16px',
+          }"
+        >
+          <RoomCard
+            v-for="r in sortedRooms"
+            :key="r.id"
+            :room="r"
+            @click="cfg.active.value = r.id"
+            @pick-color="onPickColor(r)"
+          />
+          <div
+            :style="{
+              border: `1px dashed ${T.border}`,
+              borderRadius: '12px',
+              minHeight: '140px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              cursor: 'pointer',
+              color: T.textDim,
+              gap: '6px',
+            }"
+            @click="cfg.picker.value = true"
+          >
+            <div :style="{ fontSize: '28px' }">+</div>
+            <div :style="{ fontSize: '11px' }">Добавить комнату</div>
+          </div>
+        </div>
 
-  <BuyModal
-    v-if="cfg.showBuy.value"
-    :rooms="rooms"
-    @edit-fx="onBuyEditFx"
-    @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)"
-    @close="cfg.showBuy.value = false"
-    @feedback="cfg.showFB"
-    @story="cfg.showStory.value = true"
-  />
+        <PromoBlock @click="onPromoClick" />
+        <OnboardingLink />
+        <Footer />
 
-  <StoryModal
-    v-if="cfg.showStory.value"
-    :rooms="rooms"
-    :name="cfg.name.value"
-    @close="cfg.showStory.value = false"
-  />
+        <div v-if="stickyVisible" :style="{ height: '80px' }" />
+      </div>
+    </template>
 
-  <ShareModal
-    v-if="cfg.showShare.value"
-    :name="cfg.name.value"
-    :rooms="rooms"
-    @close="cfg.showShare.value = false"
-    @feedback="cfg.showFB"
-  />
+    <!-- Глобальные модалки (НЕ показываются если открыт FxEditor) -->
+    <TypePicker
+      v-if="cfg.picker.value"
+      @pick="(tid) => cfg.add(tid)"
+      @close="cfg.picker.value = false"
+    />
 
-  <ColorPickerModal
-    v-if="colorPickRoom"
-    :current="colorPickRoom.cardColor"
-    :room-name="colorPickRoom.customName || getRT(colorPickRoom.typeId).name"
-    @pick="onColorPicked"
-    @close="colorPickRoom = null"
-  />
+    <FirstModal
+      v-if="cfg.showFirst.value"
+      :rooms="rooms"
+      :first-id="cfg.firstId.value"
+      @update="(id) => (cfg.firstId.value = id)"
+      @close="cfg.showFirst.value = false"
+    />
 
-  <!-- Страница светильника — поверх всего -->
-  <FxEditor
-    v-if="activeFxData"
-    :key="activeFxData.roomId + ':' + activeFxData.fxIdx"
-    :item="activeFxData.fx"
-    :def-wood="activeFxData.fx.wood ?? 'oak'"
-    :back-label="fxBackLabel"
-    @save="onFxSave"
-    @delete="onFxDelete"
-    @close="onFxClose"
-    @feedback="cfg.showFB"
-  />
+    <NameModal
+      v-if="cfg.showName.value"
+      :value="cfg.name.value"
+      @save="cfg.setName"
+      @close="cfg.showName.value = false"
+    />
 
-  <!-- Глобальный звук -->
-  <div
-    :style="{
-      position: 'fixed',
-      top: '10px',
-      right: '16px',
-      zIndex: 90,
-    }"
-  >
-    <SoundButton />
-  </div>
+    <BuyModal
+      v-if="cfg.showBuy.value"
+      :rooms="rooms"
+      @edit-fx="onBuyEditFx"
+      @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)"
+      @close="cfg.showBuy.value = false"
+      @feedback="cfg.showFB"
+      @story="cfg.showStory.value = true"
+    />
 
-  <!-- Глобальный sticky-бар -->
-  <StickyBar
-    v-if="stickyVisible"
-    @share="cfg.showShare.value = true"
-    @buy="cfg.showBuy.value = true"
-  />
+    <StoryModal
+      v-if="cfg.showStory.value"
+      :rooms="rooms"
+      :name="cfg.name.value"
+      @close="cfg.showStory.value = false"
+    />
 
-  <Toast :msg="cfg.fb.value" @done="cfg.clearFB" />
+    <ShareModal
+      v-if="cfg.showShare.value"
+      :name="cfg.name.value"
+      :rooms="rooms"
+      @close="cfg.showShare.value = false"
+      @feedback="cfg.showFB"
+    />
+
+    <ColorPickerModal
+      v-if="colorPickRoom"
+      :current="colorPickRoom.cardColor"
+      :room-name="colorPickRoom.customName || getRT(colorPickRoom.typeId).name"
+      @pick="onColorPicked"
+      @close="colorPickRoom = null"
+    />
+
+    <div :style="{ position: 'fixed', top: '10px', right: '16px', zIndex: 90 }">
+      <SoundButton />
+    </div>
+
+    <StickyBar
+      v-if="stickyVisible"
+      @share="cfg.showShare.value = true"
+      @buy="cfg.showBuy.value = true"
+    />
+
+    <Toast :msg="cfg.fb.value" @done="cfg.clearFB" />
+  </template>
 </template>
 
 <style>

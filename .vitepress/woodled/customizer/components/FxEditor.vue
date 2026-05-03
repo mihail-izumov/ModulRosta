@@ -2,24 +2,24 @@
 /**
  * FxEditor.vue — Страница светильника.
  *
- * Главный экран = чек-лист (summary). Юзер видит:
- *   - sticky шапка: ← Назад, название светильника, цена
- *   - превью + статус (Новый / В сборке / Собран)
- *   - чек-лист всех шагов
- *   - «Мой выбор» (что уже настроено)
- *   - actions: Сохранить / Поделиться / Удалить
+ * Структура (сверху вниз):
+ *   1. Sticky шапка: ← Назад, название светильника. БЕЗ цены (чтоб не лезла на кнопку звука).
+ *   2. Hero-блок (НЕ sticky): иконка + название + тип·дерево + статус +
+ *      разбивка цены (базовая + допы) + компактный «Мой выбор».
+ *   3. Чек-лист (тапается → экран шага → возврат сюда).
+ *   4. Действия: Сохранить / Поделиться / Удалить.
  *
- * Из чек-листа юзер тапает на любой шаг и попадает на экран этого шага.
- * Завершив шаг, возвращается обратно на чек-лист.
+ * Когда юзер заходит в шаг (view='steps') — hero-блок скрывается, видны
+ * только заголовок шага + контрол + кнопка «Готово».
  *
- * z-index: Z.fxPage — поверх RoomDetail (40), BuyModal (55), StoryModal (65).
+ * Это компонент-маршрут, рендерится без обёрток когда cfg.activeFx !== null.
  */
 
 import { computed, ref } from 'vue'
-import { T, Z, WCOL } from '../theme/tokens'
+import { T, WCOL } from '../theme/tokens'
 import {
   MD, FAMILIES,
-  type Fixture, type ModelId, type FamilyId,
+  type Fixture, type ModelId,
 } from '../data/catalog'
 import {
   MATS, BOWLS as ALL_BOWLS, BTEMPS, DEF_OPT, OPT_PRICE,
@@ -83,10 +83,8 @@ const BASE_COLORS = {
 const mid = ref<ModelId>(props.item.m)
 const stepIdx = ref(0)
 
-/* Был ли светильник уже настроен (хоть один opt задан)? */
 const hasExistingOpts = !!(props.item.opts && Object.keys(props.item.opts).length > 0)
 
-/* Главный экран — всегда чек-лист (summary). Шаги открываются по тапу. */
 const view = ref<'steps' | 'summary'>('summary')
 const touched = ref(new Set<StepId>())
 
@@ -166,24 +164,46 @@ const simMats = computed(() =>
   })),
 )
 
-const price = computed(() => {
+interface PriceRow { label: string; amount: number }
+
+/* Полный список «строк» в разбивке цены — компонуется из активных опций. */
+const priceBreakdown = computed<PriceRow[]>(() => {
   const m = model.value, b = build.value
-  let p = m.p[b.wood] || 0
-  p += Math.max(0, b.lamps - m.lamps) * m.sur
-  if (b.diffuser && m.hasDiffuser) p += OPT_PRICE.diffuser
-  if (b.moisture) p += OPT_PRICE.moisture
+  const items: PriceRow[] = []
+
+  const woodName = simMats.value.find((x) => x.id === b.wood)?.name ?? 'Дуб'
+  items.push({ label: `Базовая (${woodName})`, amount: m.p[b.wood] || 0 })
+
+  const extra = Math.max(0, b.lamps - m.lamps)
+  if (extra > 0) {
+    items.push({ label: `+${extra} ${spw(extra)}`, amount: extra * m.sur })
+  }
+
+  if (b.diffuser && m.hasDiffuser) {
+    items.push({ label: 'Рассеиватель', amount: OPT_PRICE.diffuser })
+  }
+
+  if (b.moisture) {
+    items.push({ label: 'Влагозащита', amount: OPT_PRICE.moisture })
+  }
+
   if (m.bulbOpts) {
     const bo = m.bulbOpts.find((x) => x.id === b.bulbOpt)
-    if (bo) p += bo.price
+    if (bo && bo.price > 0) items.push({ label: bo.label, amount: bo.price })
   } else if (!m.bulbsIn && b.bulbs && m.bulbPrice) {
-    p += Math.round((m.bulbPrice * b.lamps) / m.lamps)
+    const amt = Math.round((m.bulbPrice * b.lamps) / m.lamps)
+    items.push({ label: `Лампочки ${b.lamps} шт`, amount: amt })
   }
+
   if (m.wireOpts) {
     const wo = m.wireOpts.find((x) => x.id === b.wire)
-    if (wo) p += wo.price
+    if (wo && wo.price > 0) items.push({ label: wo.label, amount: wo.price })
   }
-  return p
+
+  return items
 })
+
+const price = computed(() => priceBreakdown.value.reduce((s, r) => s + r.amount, 0))
 
 const progress = computed(() => {
   const t = steps.value.length
@@ -205,6 +225,25 @@ const sc = computed(() =>
 )
 const isDone = computed(() => status.value === 'Собран')
 
+/* «Мой выбор» — компактные пары k/v только для модели-релевантных полей. */
+const myChoices = computed<[string, string][]>(() => {
+  const m = model.value, b = build.value
+  const list: ([string, string] | null)[] = [
+    ['Свет', `${b.lamps} п. · ${fmt(Math.round(b.lamps * m.lmPer * diffMult()))} лм · ${btempK()}`],
+    m.hasMount ? ['Крепление', b.mount === 'pendant' ? 'На подвесе' : 'Вплотную'] : null,
+    m.avBowls.length > 0 ? ['Чаша', bowlName()] : null,
+    m.hasDiffuser ? ['Рассеиватель', b.diffuser ? 'Да' : 'Нет'] : null,
+    m.wireOpts ? ['Подключение', m.wireOpts.find((x) => x.id === b.wire)?.label || '—'] : null,
+    m.baseColors ? ['Основание', BASE_COLORS[b.baseColor as keyof typeof BASE_COLORS]?.name || '—'] : null,
+    (m.bulbPrice || m.bulbOpts)
+      ? ['Лампочки', m.bulbOpts
+          ? (m.bulbOpts.find((x) => x.id === b.bulbOpt)?.label ?? '—')
+          : (b.bulbs ? `${b.lamps} шт в комплекте` : 'Свои')]
+      : null,
+  ]
+  return list.filter(Boolean) as [string, string][]
+})
+
 /* ═══ MUTATIONS ═══ */
 
 function upBuild(patch: Partial<Build>) {
@@ -221,7 +260,6 @@ function doCommit(isChoice: boolean) {
     },
   }
   touched.value = new Set([...touched.value].filter((x) => x !== curStep.value))
-  // После шага возвращаемся на чек-лист
   view.value = 'summary'
 }
 
@@ -231,7 +269,6 @@ function goToStep(i: number) {
 }
 
 function backFromStep() {
-  // Из шага → на чек-лист
   view.value = 'summary'
 }
 
@@ -318,11 +355,10 @@ function bulbPer() {
       position: 'fixed',
       inset: 0,
       background: T.bg,
-      zIndex: Z.fxPage,
       overflow: 'auto',
     }"
   >
-    <!-- ═══════ STICKY HEADER (один на оба view) ═══════ -->
+    <!-- ═══════ STICKY HEADER (без цены, чтоб не наезжала на звук) ═══════ -->
     <div
       :style="{
         position: 'sticky',
@@ -336,13 +372,12 @@ function bulbPer() {
         :style="{
           maxWidth: '480px',
           margin: '0 auto',
-          padding: '12px 20px',
+          padding: '12px 80px 12px 16px',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
         }"
       >
-        <!-- Кнопка назад: на summary → close, на step → summary -->
         <button
           :style="{
             background: 'none',
@@ -352,41 +387,31 @@ function bulbPer() {
             padding: '4px 8px 4px 0',
             fontSize: '14px',
             fontWeight: 500,
+            flexShrink: 0,
           }"
           @click="view === 'summary' ? emit('close') : backFromStep()"
         >
           {{ view === 'summary' ? props.backLabel : '← К чек-листу' }}
         </button>
 
-        <div :style="{ flex: 1, textAlign: 'center', minWidth: 0 }">
-          <div
-            :style="{
-              fontSize: '15px',
-              fontWeight: 700,
-              color: T.text,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }"
-          >
-            {{ model.name }}
-          </div>
-        </div>
-
         <div
           :style="{
+            flex: 1,
+            textAlign: 'center',
             fontSize: '15px',
-            fontWeight: 800,
-            color: T.neutral,
-            flexShrink: 0,
+            fontWeight: 700,
+            color: T.text,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }"
         >
-          {{ fmt(price) }} ₽
+          {{ model.name }}
         </div>
       </div>
     </div>
 
-    <!-- ═══════ Контент ═══════ -->
+    <!-- ═══════ КОНТЕНТ ═══════ -->
     <div
       :style="{
         maxWidth: '480px',
@@ -397,47 +422,172 @@ function bulbPer() {
         boxSizing: 'border-box',
       }"
     >
-      <!-- ═══════════════ SUMMARY (чек-лист как главный экран) ═══════════════ -->
+      <!-- ═══════════════ SUMMARY ═══════════════ -->
       <template v-if="view === 'summary'">
-        <!-- Превью + статус -->
-        <div :style="{ textAlign: 'center', marginBottom: '20px', paddingTop: '8px' }">
-          <div
-            :style="{
-              width: '64px',
-              height: '64px',
-              borderRadius: '14px',
-              background: WCOL[build.wood] + '22',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 12px',
-            }"
-          >
-            <Icon name="ceiling" :color="WCOL[build.wood]" :size="30" />
-          </div>
-          <div :style="{ fontSize: '11px', color: T.textDim, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }">
-            {{ model.type }} · {{ simMats.find((x) => x.id === build.wood)?.name }}
-          </div>
-          <div
-            :style="{
-              display: 'inline-block',
-              padding: '4px 14px',
-              borderRadius: '6px',
-              background: sc + '22',
-              fontSize: '13px',
-              fontWeight: 700,
-              color: sc,
-            }"
-          >
-            {{ status }}
-          </div>
-        </div>
-
-        <!-- Чек-лист -->
+        <!-- ═══ HERO-БЛОК: иконка + название/тип/дерево + статус + цена-разбивка + Мой выбор ═══ -->
         <div
           :style="{
             background: T.card,
             border: `1px solid ${isDone ? sc + '44' : T.border}`,
+            borderRadius: '14px',
+            padding: '18px 18px 14px',
+            marginBottom: '16px',
+          }"
+        >
+          <!-- Иконка + название + тип/дерево + статус (по центру) -->
+          <div :style="{ textAlign: 'center', marginBottom: '16px' }">
+            <div
+              :style="{
+                width: '64px',
+                height: '64px',
+                borderRadius: '14px',
+                background: WCOL[build.wood] + '22',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 10px',
+              }"
+            >
+              <Icon name="ceiling" :color="WCOL[build.wood]" :size="30" />
+            </div>
+            <div :style="{ fontSize: '16px', fontWeight: 700, color: T.text, marginBottom: '4px' }">
+              {{ model.name }}
+            </div>
+            <div
+              :style="{
+                fontSize: '11px',
+                color: T.textDim,
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '8px',
+              }"
+            >
+              {{ model.type }} · {{ simMats.find((x) => x.id === build.wood)?.name }}
+            </div>
+            <div
+              :style="{
+                display: 'inline-block',
+                padding: '4px 14px',
+                borderRadius: '6px',
+                background: sc + '22',
+                fontSize: '12px',
+                fontWeight: 700,
+                color: sc,
+              }"
+            >
+              {{ status }}
+            </div>
+          </div>
+
+          <!-- Цена с разбивкой -->
+          <div
+            :style="{
+              borderTop: `1px solid ${T.border}`,
+              paddingTop: '12px',
+              marginBottom: '14px',
+            }"
+          >
+            <div
+              v-for="(row, i) in priceBreakdown"
+              :key="i"
+              :style="{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'baseline',
+                fontSize: '12px',
+                padding: '3px 0',
+              }"
+            >
+              <span :style="{ color: T.textSec }">{{ row.label }}</span>
+              <span
+                :style="{
+                  color: i === 0 ? T.text : T.yellow,
+                  fontWeight: 600,
+                  fontVariantNumeric: 'tabular-nums',
+                }"
+              >
+                {{ i === 0 ? '' : '+' }}{{ fmt(row.amount) }} ₽
+              </span>
+            </div>
+            <div
+              :style="{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'baseline',
+                fontSize: '14px',
+                fontWeight: 800,
+                color: T.text,
+                marginTop: '6px',
+                paddingTop: '8px',
+                borderTop: `1px solid ${T.border}`,
+              }"
+            >
+              <span>Итого</span>
+              <span :style="{ color: T.neutral, fontVariantNumeric: 'tabular-nums' }">
+                {{ fmt(price) }} ₽
+              </span>
+            </div>
+          </div>
+
+          <!-- Мой выбор (компактно, 2 столбца на широких, 1 — на узких) -->
+          <div
+            :style="{
+              borderTop: `1px solid ${T.border}`,
+              paddingTop: '12px',
+            }"
+          >
+            <div
+              :style="{
+                fontSize: '10px',
+                fontWeight: 700,
+                color: T.neutral,
+                textTransform: 'uppercase',
+                letterSpacing: '.8px',
+                marginBottom: '8px',
+              }"
+            >
+              Мой выбор
+            </div>
+            <div
+              :style="{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gap: '6px 12px',
+              }"
+            >
+              <div
+                v-for="([k, v]) in myChoices"
+                :key="k"
+                :style="{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontSize: '12px',
+                  gap: '8px',
+                }"
+              >
+                <span :style="{ color: T.textSec, flexShrink: 0 }">{{ k }}</span>
+                <span
+                  :style="{
+                    fontWeight: 600,
+                    color: T.text,
+                    textAlign: 'right',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }"
+                >
+                  {{ v }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ ЧЕК-ЛИСТ ═══ -->
+        <div
+          :style="{
+            background: T.card,
+            border: `1px solid ${T.border}`,
             borderRadius: '10px',
             padding: '14px',
             marginBottom: '16px',
@@ -446,7 +596,7 @@ function bulbPer() {
           <div :style="{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }">
             <span :style="{ fontSize: '13px', fontWeight: 700 }">Чек-лист</span>
             <span :style="{ fontSize: '12px', fontWeight: 700, color: sc }">
-              {{ isDone ? '' : `${progress.done} из ${progress.total}` }}
+              {{ isDone ? 'Готово' : `${progress.done} из ${progress.total}` }}
             </span>
           </div>
           <div
@@ -506,54 +656,7 @@ function bulbPer() {
           </button>
         </div>
 
-        <!-- Мой выбор -->
-        <div
-          :style="{
-            background: T.card,
-            border: `1px solid ${T.border}`,
-            borderRadius: '10px',
-            padding: '14px',
-            marginBottom: '16px',
-          }"
-        >
-          <div
-            :style="{
-              fontSize: '11px',
-              fontWeight: 700,
-              color: T.neutral,
-              textTransform: 'uppercase',
-              letterSpacing: '.8px',
-              marginBottom: '8px',
-            }"
-          >
-            Мой выбор
-          </div>
-          <div
-            v-for="([k, v], i) in (
-              [
-                ['Дерево', simMats.find((x) => x.id === build.wood)?.name],
-                ['Свет', `${build.lamps} патр. · ${fmt(Math.round(build.lamps * model.lmPer * diffMult()))} лм · ${btempK()}`],
-                model.hasMount ? ['Крепление', build.mount === 'pendant' ? 'На подвесе' : 'Вплотную'] : null,
-                model.avBowls.length > 0 ? ['Чаша', bowlName()] : null,
-                model.hasDiffuser ? ['Рассеиватель', build.diffuser ? `Да (+${fmt(OPT_PRICE.diffuser)} ₽)` : 'Нет'] : null,
-                model.wireOpts ? ['Подключение', model.wireOpts.find((x) => x.id === build.wire)?.label || '—'] : null,
-                model.baseColors ? ['Основание', BASE_COLORS[build.baseColor as keyof typeof BASE_COLORS]?.name || '—'] : null,
-                (model.bulbPrice || model.bulbOpts)
-                  ? ['Лампочки', model.bulbOpts
-                      ? (model.bulbOpts.find((x) => x.id === build.bulbOpt)?.label ?? '—')
-                      : (build.bulbs ? `${build.lamps} шт × ${fmt(bulbPer())} ₽` : 'Свои')]
-                  : null,
-              ].filter(Boolean) as [string, string][]
-            )"
-            :key="i"
-            :style="{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: '12px' }"
-          >
-            <span :style="{ color: T.textSec }">{{ k }}</span>
-            <span :style="{ fontWeight: 600 }">{{ v }}</span>
-          </div>
-        </div>
-
-        <!-- Actions -->
+        <!-- ═══ ACTIONS ═══ -->
         <button
           :style="{
             width: '100%',
@@ -617,9 +720,8 @@ function bulbPer() {
         </div>
       </template>
 
-      <!-- ═══════════════ STEP (один шаг кастомизации) ═══════════════ -->
+      <!-- ═══════════════ STEP ═══════════════ -->
       <template v-if="view === 'steps'">
-        <!-- Заголовок шага -->
         <div :style="{ marginBottom: '16px', paddingTop: '8px' }">
           <div :style="{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }">
             <Icon :name="meta.icon" :color="T.neutral" :size="18" />
@@ -634,7 +736,6 @@ function bulbPer() {
           </div>
         </div>
 
-        <!-- Карточка шага -->
         <div
           :style="{
             background: T.card,
@@ -1193,7 +1294,6 @@ function bulbPer() {
           </div>
         </div>
 
-        <!-- Подтверждение шага -->
         <button
           :style="{
             width: '100%',

@@ -468,7 +468,29 @@ function submitForm() {
                 {{ lw((fx.l ?? MD[fx.m].lamps) * (fx.q ?? 1)) }}
               </div>
             </div>
-            <div :style="{ textAlign: 'right', flexShrink: 0 }">
+            <div :style="{ textAlign: 'right', flexShrink: 0, position: 'relative' }">
+              <!-- Pen-иконка → открыть страницу светильника -->
+              <span
+                :style="{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: '-4px',
+                  width: '26px',
+                  height: '26px',
+                  borderRadius: '50%',
+                  background: T.neutral + '22',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  zIndex: 1,
+                }"
+                @click.stop="openEdit(r.id, i)"
+              >
+                <Icon name="pen" :color="T.neutral" :size="13" />
+              </span>
+
+              <div :style="{ paddingTop: '24px' }">
               <div
                 v-if="discountFx?.roomId === r.id && discountFx?.fxIdx === i"
                 :style="{
@@ -501,30 +523,9 @@ function submitForm() {
               <div v-else :style="{ fontSize: '12px', fontWeight: 600, color: T.textSec }">
                 {{ itemPrice(fx).toLocaleString('ru-RU') }} ₽
               </div>
+              </div>
             </div>
           </button>
-
-          <!-- Кнопка «Настроить» — открывает страницу светильника -->
-          <div :style="{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }">
-            <button
-              :style="{
-                background: 'none',
-                border: `1px solid ${T.border}`,
-                borderRadius: '6px',
-                padding: '5px 12px',
-                cursor: 'pointer',
-                fontSize: '11px',
-                color: T.textSec,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-              }"
-              @click="openEdit(r.id, i)"
-            >
-              <Icon name="pen" :color="T.textSec" :size="12" />
-              Настроить
-            </button>
-          </div>
         </div>
       </div>
 
