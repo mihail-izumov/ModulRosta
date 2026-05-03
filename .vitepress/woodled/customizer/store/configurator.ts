@@ -14,6 +14,7 @@
 import { ref, computed, reactive } from 'vue'
 import { getRT, STARTER_ROOM_TYPES, type Room, type RoomTypeId } from '../data/rooms'
 import type { Fixture } from '../data/catalog'
+import type { Mood } from '../data/moods'
 import { decodeState, readHashState } from '../engine/share'
 
 /* ──────────────── Счётчик ID ──────────────── */
@@ -63,6 +64,16 @@ const showBuy = ref(false)
 const showShare = ref(false)
 
 const fb = ref<string | null>(null)
+
+/* ──────────────── Полноэкранный онбординг настроения ────────────────
+ *
+ * Когда != null — поверх роутов рендерится MoodDetailModal (5 слайдов).
+ * Открывается из RoomDetail (тап на MoodBlock), закрывается «Домой/Пропустить».
+ * Должен быть в store (а не локально в RoomDetail), чтобы App.vue мог
+ * скрыть StickyBar на время показа — иначе кнопка «Дальше/Пропустить»
+ * уезжает под StickyBar и недоступна для тапа.
+ */
+const showMoodDetail = ref<Mood | null>(null)
 
 /* ──────────────── BuyModal state ──────────────── */
 
@@ -226,6 +237,7 @@ export function useConfigurator() {
     fb,
     discountFx,
     activeFx,
+    showMoodDetail,
 
     /* computed */
     activeRoom,
