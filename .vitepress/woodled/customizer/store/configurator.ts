@@ -72,6 +72,25 @@ interface DiscountFx {
 }
 const discountFx = ref<DiscountFx | null>(null)
 
+/* ──────────────── FxEditor state ──────────────── */
+
+/**
+ * Глобальный «открытый светильник». Если не null — поверх всего рендерится
+ * страница FxEditor. Открывается из:
+ *   - RoomDetail (клик на ZoneCard fixture)
+ *   - BuyModal («Настроить»)
+ *   - Deeplink #fx=… или ?model=…
+ */
+const activeFx = ref<{ roomId: string; fxIdx: number } | null>(null)
+
+function openFx(roomId: string, fxIdx: number) {
+  activeFx.value = { roomId, fxIdx }
+}
+
+function closeFx() {
+  activeFx.value = null
+}
+
 /* ──────────────── Производные значения ──────────────── */
 
 const activeRoom = computed<Room | null>(() => {
@@ -206,6 +225,7 @@ export function useConfigurator() {
     showShare,
     fb,
     discountFx,
+    activeFx,
 
     /* computed */
     activeRoom,
@@ -220,6 +240,8 @@ export function useConfigurator() {
     addFixture,
     removeFixture,
     updateFixture,
+    openFx,
+    closeFx,
 
     /* toast */
     showFB,
