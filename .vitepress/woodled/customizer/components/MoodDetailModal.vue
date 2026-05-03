@@ -3,8 +3,8 @@
  * MoodDetailModal.vue — 5 слайдов онбординга настроения.
  *
  * Источник: woodled-v42.jsx (MoodDetailModal).
- * Все иконки — Lucide (через Icon компонент).
- * Прогресс-бар сверху, большая иконка с float-анимацией, кнопка «Дальше/Домой».
+ * Прогресс-бар сверху (без ✕), большая иконка с float-анимацией,
+ * кнопка «Дальше/Домой» + ссылка «Пропустить».
  */
 
 import { computed, ref } from 'vue'
@@ -20,7 +20,13 @@ const emit = defineEmits<{ close: [] }>()
 
 const slide = ref(0)
 const slides = computed(() => buildMoodSlides(props.mood))
-const s = computed(() => slides.value[slide.value])
+const s = computed(() => slides.value[slide.value] ?? slides.value[0])
+
+function next() {
+  if (slide.value < slides.value.length - 1) {
+    slide.value = slide.value + 1
+  }
+}
 </script>
 
 <template>
@@ -34,7 +40,7 @@ const s = computed(() => slides.value[slide.value])
       flexDirection: 'column',
     }"
   >
-    <!-- Прогресс + закрытие -->
+    <!-- Прогресс-бар (без ✕ — пропустить внизу) -->
     <div
       :style="{
         display: 'flex',
@@ -56,19 +62,6 @@ const s = computed(() => slides.value[slide.value])
           }"
         />
       </div>
-      <button
-        :style="{
-          background: 'none',
-          border: 'none',
-          color: T.textDim,
-          fontSize: '18px',
-          cursor: 'pointer',
-          flexShrink: 0,
-        }"
-        @click="emit('close')"
-      >
-        ✕
-      </button>
     </div>
 
     <!-- Контент слайда -->
@@ -147,7 +140,7 @@ const s = computed(() => slides.value[slide.value])
       </div>
     </div>
 
-    <!-- Кнопка «Дальше/Домой» -->
+    <!-- Кнопка + ссылка «Пропустить» -->
     <div :style="{ padding: '0 28px 28px', textAlign: 'center' }">
       <button
         v-if="slide < slides.length - 1"
@@ -161,7 +154,7 @@ const s = computed(() => slides.value[slide.value])
           fontSize: '14px',
           fontWeight: 600,
         }"
-        @click="slide++"
+        @click="next"
       >
         Дальше
       </button>
@@ -181,6 +174,24 @@ const s = computed(() => slides.value[slide.value])
       >
         Домой
       </button>
+
+      <div v-if="slide < slides.length - 1" :style="{ marginTop: '14px' }">
+        <button
+          :style="{
+            background: 'none',
+            border: 'none',
+            color: T.textSec,
+            fontSize: '13px',
+            cursor: 'pointer',
+            padding: '4px 8px',
+            textDecoration: 'underline',
+            textUnderlineOffset: '3px',
+          }"
+          @click="emit('close')"
+        >
+          Пропустить
+        </button>
+      </div>
     </div>
   </div>
 </template>
