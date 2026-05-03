@@ -149,6 +149,15 @@ function onBuyEditFx(roomId: string, fxIdx: number, next: Fixture | null) {
   else cfg.updateFixture(roomId, fxIdx, next)
 }
 
+/**
+ * «← Домой» из BuyModal — закрывает Мой лес И сбрасывает активную комнату,
+ * чтобы юзер вернулся именно на главный экран, а не на ранее открытую комнату.
+ */
+function onBuyClose() {
+  cfg.showBuy.value = false
+  cfg.active.value = null
+}
+
 function onFxSave(next: Fixture) {
   const af = cfg.activeFx.value
   if (!af) return
@@ -355,7 +364,7 @@ function onColorPicked(color: string | undefined) {
       :rooms="rooms"
       @edit-fx="onBuyEditFx"
       @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)"
-      @close="cfg.showBuy.value = false"
+      @close="onBuyClose"
       @feedback="cfg.showFB"
       @story="cfg.showStory.value = true"
     />

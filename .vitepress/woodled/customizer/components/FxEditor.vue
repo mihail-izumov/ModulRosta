@@ -84,9 +84,14 @@ const mid = ref<ModelId>(props.item.m)
 const stepIdx = ref(0)
 
 const hasExistingOpts = !!(props.item.opts && Object.keys(props.item.opts).length > 0)
+const existingDone = props.item.done ?? []
+/* Legacy: если был сохранён без `done`, но с `opts` — все шаги считаем выполненными. */
+const legacyAllDone = hasExistingOpts && existingDone.length === 0
 
 const view = ref<'steps' | 'summary'>('summary')
 const touched = ref(new Set<StepId>())
+/* Раскрытие блока разбивки цены (как dropdown). */
+const priceOpen = ref(false)
 
 interface Build {
   m: ModelId; wood: Wood; mount: string; bowl: string; btemp: string
@@ -130,7 +135,17 @@ const build = ref<Build>((() => {
     baseColor: o.baseColor ?? 'white',
     bulbOpt: o.bulbOpt ?? 'none',
     steps: Object.fromEntries(
-      stps.map((s) => [s, hasExistingOpts ? 'chosen' as StepStatus : 'default' as StepStatus]),
+      stps.map((s) => {
+        let isDone: boolean
+        if (existingDone.length > 0) {
+          isDone = existingDone.includes(s)
+        } else if (legacyAllDone) {
+          isDone = true
+        } else {
+          isDone = false
+        }
+        return [s, isDone ? 'chosen' as StepStatus : 'default' as StepStatus]
+      }),
     ),
   }
 })())
@@ -286,6 +301,9 @@ function diffMult(): number {
 
 function buildFixture(): Fixture {
   const b = build.value
+  const done = (Object.entries(b.steps) as [StepId, StepStatus][])
+    .filter(([, status]) => status === 'chosen')
+    .map(([s]) => s as string)
   return {
     m: b.m,
     q: props.item.q ?? 1,
@@ -297,6 +315,7 @@ function buildFixture(): Fixture {
       diffuser: b.diffuser, moisture: b.moisture, bulbs: b.bulbs,
       bulbOpt: b.bulbOpt, baseColor: b.baseColor,
     },
+    done,
   }
 }
 
@@ -424,67 +443,114 @@ function bulbPer() {
     >
       <!-- ═══════════════ SUMMARY ═══════════════ -->
       <template v-if="view === 'summary'">
-        <!-- ═══ HERO-БЛОК: иконка + название/тип/дерево + статус + цена-разбивка + Мой выбор ═══ -->
+        <!-- ═══ HERO-БЛОК (компактный): иконка слева, инфо/цена справа, разбивка раскрывается ═══ -->
         <div
           :style="{
             background: T.card,
             border: `1px solid ${isDone ? sc + '44' : T.border}`,
             borderRadius: '14px',
-            padding: '18px 18px 14px',
+            padding: '14px',
             marginBottom: '16px',
           }"
         >
-          <!-- Иконка + название + тип/дерево + статус (по центру) -->
-          <div :style="{ textAlign: 'center', marginBottom: '16px' }">
+          <!-- Top row: иконка + (название/тип/статус) + цена + chevron -->
+          <div :style="{ display: 'flex', alignItems: 'center', gap: '12px' }">
             <div
               :style="{
-                width: '64px',
-                height: '64px',
-                borderRadius: '14px',
+                width: '52px',
+                height: '52px',
+                borderRadius: '12px',
                 background: WCOL[build.wood] + '22',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 10px',
+                flexShrink: 0,
               }"
             >
-              <Icon name="ceiling" :color="WCOL[build.wood]" :size="30" />
+              <Icon name="ceiling" :color="WCOL[build.wood]" :size="26" />
             </div>
-            <div :style="{ fontSize: '16px', fontWeight: 700, color: T.text, marginBottom: '4px' }">
-              {{ model.name }}
+
+            <div :style="{ flex: 1, minWidth: 0 }">
+              <div :style="{ fontSize: '15px', fontWeight: 700, color: T.text, marginBottom: '2px' }">
+                {{ model.name }}
+              </div>
+              <div
+                :style="{
+                  fontSize: '11px',
+                  color: T.textDim,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  flexWrap: 'wrap',
+                }"
+              >
+                <span :style="{ textTransform: 'uppercase', letterSpacing: '.5px' }">
+                  {{ model.type }} · {{ simMats.find((x) => x.id === build.wood)?.name }}
+                </span>
+                <span
+                  :style="{
+                    display: 'inline-block',
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    background: sc + '22',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    color: sc,
+                  }"
+                >
+                  {{ status }}
+                </span>
+              </div>
             </div>
-            <div
+
+            <!-- Цена с chevron — кликабельно -->
+            <button
               :style="{
-                fontSize: '11px',
-                color: T.textDim,
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                marginBottom: '8px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                color: T.neutral,
+                flexShrink: 0,
               }"
+              @click="priceOpen = !priceOpen"
             >
-              {{ model.type }} · {{ simMats.find((x) => x.id === build.wood)?.name }}
-            </div>
-            <div
-              :style="{
-                display: 'inline-block',
-                padding: '4px 14px',
-                borderRadius: '6px',
-                background: sc + '22',
-                fontSize: '12px',
-                fontWeight: 700,
-                color: sc,
-              }"
-            >
-              {{ status }}
-            </div>
+              <span :style="{ fontSize: '15px', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }">
+                {{ fmt(price) }} ₽
+              </span>
+              <span
+                :style="{
+                  fontSize: '10px',
+                  color: T.textSec,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                  marginTop: '2px',
+                }"
+              >
+                {{ priceOpen ? 'Скрыть' : 'Детали' }}
+                <svg
+                  width="10" height="10" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round"
+                  :style="{ transform: priceOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </span>
+            </button>
           </div>
 
-          <!-- Цена с разбивкой -->
+          <!-- Раскрывающаяся разбивка цены -->
           <div
+            v-if="priceOpen"
             :style="{
-              borderTop: `1px solid ${T.border}`,
+              marginTop: '12px',
               paddingTop: '12px',
-              marginBottom: '14px',
+              borderTop: `1px solid ${T.border}`,
             }"
           >
             <div
@@ -514,7 +580,7 @@ function bulbPer() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'baseline',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: 800,
                 color: T.text,
                 marginTop: '6px',
@@ -529,11 +595,12 @@ function bulbPer() {
             </div>
           </div>
 
-          <!-- Мой выбор (компактно, 2 столбца на широких, 1 — на узких) -->
+          <!-- Мой выбор (компактно, всегда виден) -->
           <div
             :style="{
               borderTop: `1px solid ${T.border}`,
-              paddingTop: '12px',
+              marginTop: '12px',
+              paddingTop: '10px',
             }"
           >
             <div
@@ -543,7 +610,7 @@ function bulbPer() {
                 color: T.neutral,
                 textTransform: 'uppercase',
                 letterSpacing: '.8px',
-                marginBottom: '8px',
+                marginBottom: '6px',
               }"
             >
               Мой выбор
@@ -552,7 +619,7 @@ function bulbPer() {
               :style="{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                gap: '6px 12px',
+                gap: '4px 12px',
               }"
             >
               <div

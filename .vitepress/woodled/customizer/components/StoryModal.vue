@@ -66,7 +66,7 @@ function zoneGlowAlpha(zoneId: string): string {
       flexDirection: 'column',
     }"
   >
-    <!-- Прогресс + закрытие -->
+    <!-- Прогресс-бар (без кнопки закрытия — пропустить внизу) -->
     <div
       :style="{
         display: 'flex',
@@ -88,19 +88,6 @@ function zoneGlowAlpha(zoneId: string): string {
           }"
         />
       </div>
-      <button
-        :style="{
-          background: 'none',
-          border: 'none',
-          color: T.textDim,
-          fontSize: '18px',
-          cursor: 'pointer',
-          flexShrink: 0,
-        }"
-        @click="emit('close')"
-      >
-        ✕
-      </button>
     </div>
 
     <!-- Контент -->
@@ -322,7 +309,7 @@ function zoneGlowAlpha(zoneId: string): string {
       </div>
     </div>
 
-    <!-- Кнопка -->
+    <!-- Кнопка + ссылка «пропустить» -->
     <div :style="{ padding: '0 28px 28px', textAlign: 'center' }">
       <button
         v-if="slide < slides.length - 1"
@@ -356,6 +343,25 @@ function zoneGlowAlpha(zoneId: string): string {
       >
         Домой
       </button>
+
+      <!-- Ссылка «пропустить» — закрывает story (только пока не последний слайд) -->
+      <div v-if="slide < slides.length - 1" :style="{ marginTop: '14px' }">
+        <button
+          :style="{
+            background: 'none',
+            border: 'none',
+            color: T.textSec,
+            fontSize: '13px',
+            cursor: 'pointer',
+            padding: '4px 8px',
+            textDecoration: 'underline',
+            textUnderlineOffset: '3px',
+          }"
+          @click="emit('close')"
+        >
+          Пропустить
+        </button>
+      </div>
     </div>
   </div>
 </template>
