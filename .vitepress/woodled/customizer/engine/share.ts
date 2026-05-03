@@ -138,7 +138,7 @@ export function encodeState(name: string, rooms: Room[]): string {
   const packed: PackedState = {
     r: rooms.map(packRoom),
   }
-  if (name && name !== 'Дом с WOODLED ROTOR') packed.n = name
+  if (name && name !== 'Живой Дом') packed.n = name
   const json = JSON.stringify(packed)
   return toUrlSafe(utf8ToBase64(json))
 }
