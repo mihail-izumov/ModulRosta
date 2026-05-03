@@ -50,7 +50,7 @@ function starterRooms(): Room[] {
 /* Названию и фидбеку хватает ref, но для массивов используем reactive —
    так мутации (push/splice) сразу реактивны без особых правил. */
 
-const name = ref('Дом с WOODLED ROTOR')
+const name = ref('Живой Дом')
 const rooms = reactive<Room[]>(starterRooms())
 
 const picker = ref(false)
