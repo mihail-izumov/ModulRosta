@@ -225,6 +225,7 @@ function loadFromHash(): boolean {
 /* ──────────────── Welcome screen ──────────────── */
 
 const WELCOME_KEY = 'woodled.welcomeSeen'
+const DASHBOARD_TOUR_KEY = 'woodled.dashboardTourSeen'
 
 /** На клиенте: ?welcome в URL → принудительно показать welcome (для теста). */
 function shouldForceWelcome(): boolean {
@@ -237,6 +238,37 @@ const welcomeSeen = ref<boolean>(
     && !shouldForceWelcome()
     && localStorage.getItem(WELCOME_KEY) === 'true',
 )
+
+/**
+ * Флаг прохождения/закрытия онбординга виджета HouseStats.
+ *
+ * Пока false:
+ *   - под виджетом видна скрываемая подсказка «Тапните для деталей →»
+ *   - при первом показе главного с заполненным домом запускается
+ *     затемняющий 3-шаговый spotlight tour
+ *
+ * После true (юзер прошёл/пропустил/закрыл подсказку):
+ *   - подсказка не показывается
+ *   - тур не запускается
+ *
+ * Один флаг для двух механизмов — иначе юзер видел бы и тур, и подсказку
+ * с одинаковым посылом, что создаёт дубль.
+ */
+const dashboardTourSeen = ref<boolean>(
+  typeof window !== 'undefined'
+    && localStorage.getItem(DASHBOARD_TOUR_KEY) === 'true',
+)
+
+function markDashboardTourSeen(): void {
+  dashboardTourSeen.value = true
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(DASHBOARD_TOUR_KEY, 'true')
+    } catch {
+      /* private mode / quota exceeded — не критично */
+    }
+  }
+}
 
 function dismissWelcome(): void {
   welcomeSeen.value = true
@@ -325,6 +357,7 @@ function loadTemplate(templateId: string): void {
 function resetAll(): void {
   rooms.splice(0, rooms.length)
   welcomeSeen.value = false
+  dashboardTourSeen.value = false
   active.value = null
   activeFx.value = null
   showBuy.value = false
@@ -337,6 +370,7 @@ function resetAll(): void {
   if (typeof window !== 'undefined') {
     try {
       localStorage.removeItem(WELCOME_KEY)
+      localStorage.removeItem(DASHBOARD_TOUR_KEY)
     } catch {
       /* private mode — не критично */
     }
@@ -396,5 +430,9 @@ export function useConfigurator() {
     loadTemplate,
     ensureStarterRooms,
     resetAll,
+
+    /* dashboard onboarding */
+    dashboardTourSeen,
+    markDashboardTourSeen,
   }
 }
