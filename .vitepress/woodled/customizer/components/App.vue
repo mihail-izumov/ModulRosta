@@ -45,6 +45,8 @@ import RoomDetail from './RoomDetail.vue'
 import FxEditor from './FxEditor.vue'
 import MoodDetailModal from './MoodDetailModal.vue'
 import WelcomeScreen from './WelcomeScreen.vue'
+import HouseStats from './HouseStats.vue'
+import Modal from './ui/Modal.vue'
 import { readModelLink, clearModelLink } from '../engine/useModelLink'
 import { decodeFixture, readHashFixture } from '../engine/share'
 
@@ -220,6 +222,28 @@ function onColorPicked(color: string | undefined) {
   }
 }
 
+/* ────────── Сброс «Начать заново» ──────────
+ *
+ * Двойное подтверждение через модалку — это safe-action, не destructive.
+ * При confirm — resetAll(): rooms пустеют, welcomeSeen сбрасывается, все
+ * флаги модалок гасятся. После этого <WelcomeScreen v-if="!welcomeSeen">
+ * снова виден, юзер выбирает шаблон или пустой старт.
+ */
+const showResetConfirm = ref(false)
+
+function onResetClick() {
+  showResetConfirm.value = true
+}
+
+function onResetConfirm() {
+  cfg.resetAll()
+  showResetConfirm.value = false
+}
+
+function onResetCancel() {
+  showResetConfirm.value = false
+}
+
 /**
  * Любая модалка открыта — скрываем SoundButton (визуально, через display).
  * Скрытие через v-if демонтирует <audio> и обрывает воспроизведение —
@@ -235,7 +259,8 @@ const anyModalOpen = computed<boolean>(() =>
   cfg.showShare.value ||
   cfg.showMoodDetail.value !== null ||
   cfg.picker.value ||
-  colorPickRoom.value !== null,
+  colorPickRoom.value !== null ||
+  showResetConfirm.value,
 )
 </script>
 
@@ -325,6 +350,9 @@ const anyModalOpen = computed<boolean>(() =>
         </div>
       </div>
 
+      <!-- Виджет дома: площадь / потолок / точки света. -->
+      <HouseStats />
+
       <div
         :style="{
           fontSize: '14px',
@@ -373,7 +401,7 @@ const anyModalOpen = computed<boolean>(() =>
 
       <PromoBlock @click="onPromoClick" />
       <OnboardingLink />
-      <Footer />
+      <Footer @reset-click="onResetClick" />
 
       <div v-if="stickyVisible" :style="{ height: '80px' }" />
     </div>
@@ -440,6 +468,72 @@ const anyModalOpen = computed<boolean>(() =>
       :mood="cfg.showMoodDetail.value"
       @close="cfg.showMoodDetail.value = null"
     />
+
+    <!-- Подтверждение «Начать заново» — safe-action, не destructive.
+         Кнопка confirm нейтральная (T.neutral), не красная. -->
+    <Modal v-if="showResetConfirm" @close="onResetCancel">
+      <div :style="{ padding: '24px 20px', textAlign: 'center' }">
+        <div
+          :style="{
+            fontSize: '17px',
+            fontWeight: 700,
+            color: T.text,
+            marginBottom: '10px',
+          }"
+        >
+          Начать заново?
+        </div>
+        <div
+          :style="{
+            fontSize: '13px',
+            color: T.textSec,
+            lineHeight: 1.55,
+            marginBottom: '20px',
+            maxWidth: '320px',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }"
+        >
+          Текущий дом и все настройки сбросятся. Вы вернётесь к выбору шаблона дома.
+        </div>
+        <div :style="{ display: 'flex', gap: '8px' }">
+          <button
+            :style="{
+              flex: 1,
+              padding: '12px',
+              background: 'none',
+              border: `1px solid ${T.border}`,
+              color: T.textSec,
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 600,
+              fontFamily: 'inherit',
+            }"
+            @click="onResetCancel"
+          >
+            Отмена
+          </button>
+          <button
+            :style="{
+              flex: 1,
+              padding: '12px',
+              background: T.neutral,
+              color: T.bg,
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 700,
+              fontFamily: 'inherit',
+            }"
+            @click="onResetConfirm"
+          >
+            Начать заново
+          </button>
+        </div>
+      </div>
+    </Modal>
 
     <StickyBar
       v-if="stickyVisible"

@@ -194,6 +194,14 @@ const priceBreakdown = computed<PriceRow[]>(() => {
     items.push({ label: `+${extra} ${spw(extra)}`, amount: extra * m.sur })
   }
 
+  // Чаша — платные опции (wood_8 / hook_10 / chrome_14 = +1200 ₽)
+  if (m.avBowls.length > 0 && b.bowl) {
+    const bowl = ALL_BOWLS.find((x) => x.id === b.bowl)
+    if (bowl && bowl.price > 0) {
+      items.push({ label: `Чаша «${bowl.name}»`, amount: bowl.price })
+    }
+  }
+
   if (b.diffuser && m.hasDiffuser) {
     items.push({ label: 'Рассеиватель', amount: OPT_PRICE.diffuser })
   }
