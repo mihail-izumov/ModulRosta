@@ -15,8 +15,9 @@ import { ref, computed, reactive } from 'vue'
 import { getRT, STARTER_ROOM_TYPES, type Room, type RoomTypeId } from '../data/rooms'
 import type { Fixture } from '../data/catalog'
 import type { Mood } from '../data/moods'
-import { TEMPLATES, type TemplateRoom } from '../data/templates'
+import { TEMPLATES, allStepsForModel, type TemplateRoom } from '../data/templates'
 import { decodeState, readHashState } from '../engine/share'
+import { ROOM_TINTS } from '../theme/tokens'
 
 /* ──────────────── Счётчик ID ──────────────── */
 
@@ -266,7 +267,18 @@ function ensureStarterRooms(): void {
 
 /**
  * Заменяет все комнаты на шаблон.
- * Генерирует новые id, копирует limits из RTS.
+ *
+ * Каждая комната получает:
+ *   - cardColor из ROOM_TINTS по typeId (пастельная палитра 2026)
+ *   - limits копируется из RTS
+ *
+ * Каждый светильник получает:
+ *   - opts (если задан в шаблоне) — дефолтная чаша wood_8 и т.д.
+ *   - l (если задан) — override стандартного количества патронов
+ *   - done — список выполненных шагов чек-листа. Если шаблон не указал явно,
+ *     автоматически проставляются все применимые шаги через allStepsForModel.
+ *     Это даёт юзеру «6/6 готово» в каждом светильнике.
+ *
  * Также закрывает welcome screen (welcomeSeen=true).
  */
 function loadTemplate(templateId: string): void {
@@ -287,14 +299,48 @@ function loadTemplate(templateId: string): void {
         q: f.q,
         wood: f.wood,
         zone: f.zone,
+        l: f.l,
+        opts: f.opts,
+        done: f.done ?? allStepsForModel(f.m),
       })),
       furniture: [...tr.furniture],
       limits: { ...rt.limits },
+      cardColor: ROOM_TINTS[tr.typeId],
     }
   })
 
   rooms.splice(0, rooms.length, ...newRooms)
   dismissWelcome()
+}
+
+/**
+ * Полный сброс state и welcomeSeen — пользователь возвращается к welcome screen.
+ *
+ * Это НЕ destructive действие: используется когда юзер хочет попробовать
+ * другой шаблон или начать заново. Все state-флаги сбрасываются автоматически
+ * через v-if при пустых rooms (showBuy/active/showStory и т.п.).
+ *
+ * Вызывается из Footer → «Начать заново» после двойного подтверждения.
+ */
+function resetAll(): void {
+  rooms.splice(0, rooms.length)
+  welcomeSeen.value = false
+  active.value = null
+  activeFx.value = null
+  showBuy.value = false
+  showStory.value = false
+  showShare.value = false
+  showFirst.value = false
+  showName.value = false
+  showMoodDetail.value = null
+  picker.value = false
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.removeItem(WELCOME_KEY)
+    } catch {
+      /* private mode — не критично */
+    }
+  }
 }
 
 /* ──────────────── Экспорт singleton ──────────────── */
@@ -349,5 +395,6 @@ export function useConfigurator() {
     dismissWelcome,
     loadTemplate,
     ensureStarterRooms,
+    resetAll,
   }
 }
