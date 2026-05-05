@@ -1,78 +1,106 @@
 <script setup lang="ts">
 /**
- * WelcomeScreen.vue — Первая страница «План вашего леса».
+ * WelcomeScreen.vue — Welcome-страница «7 185 деревьев продолжают светить».
  *
- * Концепция: garden planner.
- * Карточка шаблона = одна горизонтальная диаграмма-лента всех комнат
- * (включая кухню и коридор), где ширина каждой плашки пропорциональна
- * её площади. Это даёт сразу два визуальных ответа:
- *   1. Какие комнаты в формате
- *   2. Их относительные размеры (видно «откуда складывается общая площадь»)
+ * Концепция: живая доска почёта сообщества WOODLED.
+ * Точные цифры из аналитики (customization_report.pdf): 14 353 товарных
+ * позиции из 13 899 заказов 2020-2026, материал определён однозначно
+ * у 7 185. «10 000+ покупателей» — округление вниз.
  *
- * Деревья — главный акцент:
- *   - Размер кружков заметно крупнее (16px), располагаются под названием
- *   - На пастельном фоне комнаты читаются как «посаженные в эту комнату»
+ * Структура (сверху вниз):
+ *   1. H1 «7 185 деревьев продолжают светить в ваших домах»
+ *   2. Подзаголовок-приглашение (10 000+ домов · посадите свой)
+ *   3. HonorBoard — три деревянные сферы (oak/walnut/black) с pulse-glow
+ *   4. OnboardingLinkCard «Как рождается свет»
+ *   5. SectionTitle «Пространство для света»
+ *   6. SubLabel «Любимые места»
+ *   7. 3 карточки шаблонов с tint-glass pills комнат
+ *   8. «или»
+ *   9. EmptyButton «Создать с чистого листа»
+ *   10. Логотип
  *
- * Стрелка → справа от плашки метража подчёркивает что вся карточка
- * кликабельна целиком (юзер не путает «тап на комнату» с «тап на дом»).
- *
- * Брендовый header (Живой Дом / WOODLED ROTOR) намеренно убран.
+ * Glassmorphism — три стиля (darkGlass / warmGlass / tintGlass) через
+ * radial-gradient с мягкими пятнами света. Pulse-анимация WoodOrb через
+ * CSS keyframes + per-orb CSS variables для корректного цвета породы.
  */
 
 import { computed } from 'vue'
-import { T, ROOM_TINTS, WCOL } from '../theme/tokens'
-import { TEMPLATES, type HomeTemplate, type TemplateRoom } from '../data/templates'
+import { T, WCOL, ROOM_TINTS } from '../theme/tokens'
+import { TEMPLATES, type HomeTemplate } from '../data/templates'
 import { getRT, type RoomTypeId } from '../data/rooms'
 import type { Wood } from '../data/materials'
 import { useConfigurator } from '../store/configurator'
 
 const cfg = useConfigurator()
 
-interface RoomBlock {
+/* ─────────── Аналитика (точные цифры из customization_report.pdf) ─────────── */
+
+const WOOD_COUNTS: Record<Wood, number> = { oak: 4674, walnut: 1960, black: 551 }
+const WOOD_TOTAL = 7185
+const COMMUNITY_TOTAL = '10 000+'
+const WOOD_ORDER: readonly Wood[] = ['oak', 'walnut', 'black'] as const
+const WOOD_NAMES: Record<Wood, string> = {
+  oak: 'Дуб',
+  walnut: 'Орех',
+  black: 'Чёрный дуб',
+}
+
+/* Порядок комнат в pills: спальня — главная (≡ якорь), гостиная вторая,
+   служебные (кухня/коридор/ванная) — в конце. Сортировка применяется
+   только к отображению pills, не меняет реальный порядок шаблона. */
+const ROOM_DISPLAY_ORDER: readonly RoomTypeId[] = [
+  'bedroom', 'living', 'kids', 'office',
+  'kitchen', 'hallway', 'bathroom', 'stairs',
+] as const
+
+/* ─────────── Производные данные карточек шаблонов ─────────── */
+
+interface PillRoom {
+  type: RoomTypeId
   name: string
+  trees: Wood[]
   tint: string
-  range: string
-  sizeArea: number
-  trees: string[]
 }
 
 interface TplCard {
   id: string
   areaLabel: string
-  rooms: RoomBlock[]
-}
-
-function collectTrees(tr: TemplateRoom): string[] {
-  const trees: string[] = []
-  for (const fx of tr.fixtures) {
-    const wood: Wood = fx.wood
-    const color = WCOL[wood]
-    const q = fx.q ?? 1
-    for (let i = 0; i < q; i++) trees.push(color)
-  }
-  return trees
+  rooms: PillRoom[]
+  woodCounts: Record<Wood, number>
+  totalTrees: number
 }
 
 function buildCard(tpl: HomeTemplate): TplCard {
-  const blocks: RoomBlock[] = tpl.rooms.map((tr) => {
-    const rt = getRT(tr.typeId as RoomTypeId)
-    const sizeIdx = (tr.sizeIndex ?? 1) as 0 | 1 | 2
-    return {
-      name: rt.name,
-      tint: ROOM_TINTS[tr.typeId as RoomTypeId],
-      range: rt.ranges[sizeIdx],
-      sizeArea: rt.sizes[sizeIdx],
-      trees: collectTrees(tr),
-    }
-  })
-  return {
-    id: tpl.id,
-    areaLabel: tpl.areaLabel,
-    rooms: blocks,
-  }
+  const rooms: PillRoom[] = tpl.rooms
+    .map((r): PillRoom => {
+      const rt = getRT(r.typeId)
+      const trees: Wood[] = []
+      for (const fx of r.fixtures) {
+        const q = fx.q ?? 1
+        for (let i = 0; i < q; i++) trees.push(fx.wood)
+      }
+      return {
+        type: r.typeId,
+        name: rt.name,
+        trees,
+        tint: ROOM_TINTS[r.typeId],
+      }
+    })
+    .sort((a, b) =>
+      ROOM_DISPLAY_ORDER.indexOf(a.type) - ROOM_DISPLAY_ORDER.indexOf(b.type),
+    )
+
+  const woodCounts: Record<Wood, number> = { oak: 0, walnut: 0, black: 0 }
+  for (const r of rooms) for (const w of r.trees) woodCounts[w]++
+  const totalTrees =
+    woodCounts.oak + woodCounts.walnut + woodCounts.black
+
+  return { id: tpl.id, areaLabel: tpl.areaLabel, rooms, woodCounts, totalTrees }
 }
 
 const cards = computed<TplCard[]>(() => TEMPLATES.map(buildCard))
+
+/* ─────────── Handlers ─────────── */
 
 function pickTemplate(id: string) {
   cfg.loadTemplate(id)
@@ -81,14 +109,137 @@ function pickTemplate(id: string) {
 function startEmpty() {
   cfg.dismissWelcome()
 }
+
+/* ─────────── Helpers ─────────── */
+
+function formatNum(n: number): string {
+  return n.toLocaleString('ru-RU')
+}
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return { r, g, b }
+}
+
+/* ─────────── Glass-стили (как в welcome-orb playground) ─────────── */
+
+/** Тёмное стекло — для FinalCard и OnboardingLinkCard на фоне T.bg. */
+const darkGlass = {
+  background: `
+    radial-gradient(ellipse 90% 70% at 20% 0%, rgba(255,255,255,0.07), transparent 65%),
+    radial-gradient(ellipse 70% 50% at 100% 100%, rgba(255,255,255,0.025), transparent 70%),
+    rgba(255,255,255,0.012)
+  `,
+  border: '1px solid rgba(255,255,255,0.07)',
+  boxShadow: `
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 2px 12px rgba(0,0,0,0.25)
+  `,
+}
+
+/** Тёплое стекло — для HonorBoard. Просвечивает фон, тёплый glow. */
+const warmGlass = (() => {
+  const { r, g, b } = hexToRgb(T.text)
+  return {
+    background: `
+      radial-gradient(ellipse 80% 70% at 25% 15%, rgba(${r},${g},${b},0.22), transparent 70%),
+      radial-gradient(ellipse 60% 50% at 90% 90%, rgba(${r},${g},${b},0.10), transparent 75%),
+      rgba(${r},${g},${b},0.04)
+    `,
+    border: `1px solid rgba(${r},${g},${b},0.18)`,
+    boxShadow: `
+      inset 0 1px 0 rgba(255,255,255,0.12),
+      0 4px 22px rgba(0,0,0,0.3)
+    `,
+  }
+})()
+
+/** Tint-стекло — для pills комнат. Цвет породы виден, но просвечивает фон. */
+function tintGlass(hex: string) {
+  const { r, g, b } = hexToRgb(hex)
+  return {
+    background: `
+      radial-gradient(ellipse 100% 80% at 25% 0%, rgba(${r},${g},${b},0.42), transparent 70%),
+      radial-gradient(ellipse 80% 60% at 100% 100%, rgba(${r},${g},${b},0.18), transparent 70%),
+      rgba(${r},${g},${b},0.10)
+    `,
+    border: `1px solid rgba(${r},${g},${b},0.32)`,
+    boxShadow: `
+      inset 0 1px 0 rgba(255,255,255,0.15),
+      0 1px 4px rgba(0,0,0,0.18)
+    `,
+  }
+}
+
+/* ─────────── WoodOrb стиль ─────────── */
+
+/**
+ * 3D-сфера дерева 56px с radial highlight, inset shadows,
+ * двухслойным glow цвета породы и pulse-анимацией через keyframes.
+ *
+ * CSS variables --orb-glow / --orb-glow-soft передают КОНКРЕТНЫЙ цвет
+ * породы в keyframes orbPulse — иначе все три сферы пульсировали бы
+ * одним fallback-цветом (oak).
+ */
+function orbStyle(wood: Wood, delay: number): Record<string, string> {
+  const color = WCOL[wood]
+  const { r, g, b } = hexToRgb(color)
+  return {
+    width: '56px',
+    height: '56px',
+    borderRadius: '50%',
+    background: `
+      radial-gradient(circle at 32% 26%, rgba(255,255,255,0.55), transparent 42%),
+      radial-gradient(circle at 70% 78%, rgba(0,0,0,0.22), transparent 60%),
+      ${color}
+    `,
+    flexShrink: '0',
+    display: 'inline-block',
+    border: wood === 'black' ? '1px solid rgba(19,17,14,0.55)' : 'none',
+    /* Initial box-shadow — переопределится CSS animation, но нужен для
+       первого кадра до старта анимации. */
+    boxShadow: `
+      inset 0 -2px 4px rgba(0,0,0,0.22),
+      inset 0 2px 2px rgba(255,255,255,0.18),
+      0 0 22px rgba(${r},${g},${b},0.45),
+      0 0 44px rgba(${r},${g},${b},0.18),
+      0 6px 18px rgba(0,0,0,0.45)
+    `,
+    animation: `orbPulse 4.5s ease-in-out ${delay}s infinite`,
+    /* CSS-variables для keyframes — каждая сфера пульсирует своим цветом */
+    '--orb-glow': `rgba(${r},${g},${b},0.45)`,
+    '--orb-glow-soft': `rgba(${r},${g},${b},0.18)`,
+    '--orb-glow-peak': `rgba(${r},${g},${b},0.55)`,
+    '--orb-glow-peak-soft': `rgba(${r},${g},${b},0.22)`,
+  }
+}
+
+/** Tree — маленький плоский кружок породы 16px в pills. */
+function treeStyle(wood: Wood) {
+  return {
+    width: '16px',
+    height: '16px',
+    borderRadius: '50%',
+    background: WCOL[wood],
+    flexShrink: '0',
+    display: 'inline-block',
+    border: wood === 'black' ? '1px solid rgba(19,17,14,0.4)' : 'none',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.25)',
+  }
+}
+
+const ORB_DELAYS: Record<Wood, number> = { oak: 0, walnut: 1.5, black: 3 }
+const SECTION_LABEL = 'Любимые места'
 </script>
 
 <template>
   <div
     :style="{
-      maxWidth: '560px',
+      maxWidth: '480px',
       margin: '0 auto',
-      padding: '32px 16px 20px',
+      padding: '32px 16px 32px',
       fontFamily: `'Segoe UI', system-ui, sans-serif`,
       color: T.text,
       background: T.bg,
@@ -96,189 +247,384 @@ function startEmpty() {
       boxSizing: 'border-box',
     }"
   >
-    <!-- Заголовок-мостик из онбординга -->
+    <!-- ═══ H1 ═══ -->
     <div
       :style="{
-        fontSize: '24px',
+        textAlign: 'center',
+        fontSize: '22px',
         fontWeight: 700,
         color: T.text,
-        marginBottom: '8px',
-        lineHeight: 1.2,
+        marginBottom: '10px',
+        lineHeight: 1.25,
       }"
     >
-      Спроектируйте свой лес
-    </div>
-    <div
-      :style="{
-        fontSize: '13px',
-        color: T.textSec,
-        lineHeight: 1.5,
-        marginBottom: '20px',
-        maxWidth: '480px',
-      }"
-    >
-      Каждая комната — своё дерево. Выберите формат — мы расставим свет
-      по реальной статистике WOODLED. Дальше всё под себя.
+      {{ formatNum(WOOD_TOTAL) }} деревьев<br />продолжают светить<br />в&nbsp;ваших домах
     </div>
 
-    <!-- Карточки шаблонов -->
+    <!-- ═══ Подзаголовок-приглашение ═══ -->
+    <div
+      :style="{
+        textAlign: 'center',
+        fontSize: '13px',
+        color: T.textSec,
+        lineHeight: 1.55,
+        marginBottom: '20px',
+        maxWidth: '320px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+      }"
+    >
+      Один большой лес уже светит в
+      <span :style="{ color: T.text, fontWeight: 600 }">{{ COMMUNITY_TOTAL }} домах</span>.
+      Присоединяйтесь — посадите свой.
+    </div>
+
+    <!-- ═══ HonorBoard — три деревянные сферы с цифрами ═══ -->
     <div
       :style="{
         display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-        marginBottom: '10px',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        gap: '32px',
+        padding: '26px 16px 22px',
+        borderRadius: '12px',
+        marginBottom: '12px',
+        ...warmGlass,
       }"
     >
+      <div
+        v-for="w in WOOD_ORDER"
+        :key="w"
+        :style="{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '14px',
+        }"
+      >
+        <span :style="orbStyle(w, ORB_DELAYS[w])" />
+        <div
+          :style="{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px',
+          }"
+        >
+          <span
+            :style="{
+              fontSize: '20px',
+              fontWeight: 700,
+              color: T.text,
+              fontVariantNumeric: 'tabular-nums',
+              lineHeight: 1,
+            }"
+          >
+            {{ formatNum(WOOD_COUNTS[w]) }}
+          </span>
+          <span
+            :style="{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: T.textSec,
+              textAlign: 'center',
+              lineHeight: 1.2,
+              whiteSpace: 'nowrap',
+            }"
+          >
+            {{ WOOD_NAMES[w] }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ OnboardingLinkCard «Как рождается свет» ═══ -->
+    <a
+      href="https://runscale.ru/woodled/onboarding"
+      target="_blank"
+      rel="noopener noreferrer"
+      :style="{
+        textDecoration: 'none',
+        marginTop: '16px',
+        width: '100%',
+        padding: '14px 16px',
+        borderRadius: '12px',
+        cursor: 'pointer',
+        fontFamily: 'inherit',
+        color: T.text,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '12px',
+        boxSizing: 'border-box',
+        ...darkGlass,
+      }"
+    >
+      <div :style="{ flex: 1 }">
+        <div
+          :style="{
+            fontSize: '13px',
+            fontWeight: 700,
+            color: T.text,
+            marginBottom: '2px',
+            lineHeight: 1.2,
+          }"
+        >
+          Как рождается свет
+        </div>
+        <div :style="{ fontSize: '11px', color: T.textSec, lineHeight: 1.45 }">
+          4 главы — от ламели до теней на стене
+        </div>
+      </div>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        :stroke="T.textSec"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        :style="{ flexShrink: 0 }"
+      >
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
+    </a>
+
+    <!-- ═══ SectionTitle ═══ -->
+    <div
+      :style="{
+        textAlign: 'center',
+        fontSize: '20px',
+        fontWeight: 700,
+        color: T.text,
+        marginTop: '32px',
+        marginBottom: '8px',
+        lineHeight: 1.25,
+      }"
+    >
+      Пространство для света
+    </div>
+
+    <!-- ═══ SectionSubtitle ═══ -->
+    <div
+      :style="{
+        textAlign: 'center',
+        fontSize: '13px',
+        color: T.textSec,
+        lineHeight: 1.55,
+        marginBottom: '16px',
+        maxWidth: '320px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+      }"
+    >
+      В тонкой ламели WOODLED остаётся свет настоящего дерева.
+      Каждый светильник — продолжение леса в&nbsp;вашем доме.
+    </div>
+
+    <!-- ═══ SubLabel ═══ -->
+    <div
+      :style="{
+        fontSize: '10px',
+        fontWeight: 700,
+        color: T.textDim,
+        textTransform: 'uppercase',
+        letterSpacing: '1.5px',
+        marginBottom: '12px',
+        textAlign: 'center',
+      }"
+    >
+      {{ SECTION_LABEL }}
+    </div>
+
+    <!-- ═══ Карточки шаблонов ═══ -->
+    <div :style="{ display: 'flex', flexDirection: 'column' }">
       <button
         v-for="c in cards"
         :key="c.id"
         :style="{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
           width: '100%',
-          padding: '12px',
-          background: T.card,
-          border: `1px solid ${T.border}`,
+          padding: 0,
           borderRadius: '12px',
-          cursor: 'pointer',
           textAlign: 'left',
-          color: T.text,
+          cursor: 'pointer',
+          marginBottom: '8px',
           fontFamily: 'inherit',
+          color: T.text,
+          display: 'flex',
+          alignItems: 'stretch',
+          overflow: 'hidden',
+          ...darkGlass,
         }"
         @click="pickTemplate(c.id)"
       >
-        <!-- Слева: плашка с метражом -->
-        <div
-          :style="{
-            flexShrink: 0,
-            width: '56px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: T.neutral + '15',
-            border: `1px solid ${T.neutral}28`,
-            borderRadius: '8px',
-            padding: '8px 4px',
-            alignSelf: 'stretch',
-          }"
-        >
-          <div
-            :style="{
-              fontSize: '13px',
-              fontWeight: 700,
-              color: T.neutral,
-              lineHeight: 1,
-              fontVariantNumeric: 'tabular-nums',
-              whiteSpace: 'nowrap',
-            }"
-          >
-            {{ c.areaLabel }}
-          </div>
-        </div>
-
-        <!-- Лента всех комнат (включая кухню и коридор) — пропорциональные ширины -->
         <div
           :style="{
             flex: 1,
             display: 'flex',
-            gap: '3px',
-            minHeight: '76px',
+            flexDirection: 'column',
+            gap: '12px',
             minWidth: 0,
+            padding: '14px',
           }"
         >
+          <!-- Метраж + капсула с подсчётом пород -->
           <div
-            v-for="(r, ri) in c.rooms"
-            :key="ri"
             :style="{
-              flexGrow: r.sizeArea,
-              flexShrink: 1,
-              flexBasis: '0',
-              minWidth: '40px',
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              background: r.tint,
-              borderRadius: '6px',
-              padding: '7px 8px',
-              gap: '4px',
-              overflow: 'hidden',
+              alignItems: 'center',
+              gap: '12px',
+              flexWrap: 'wrap',
             }"
           >
-            <!-- Название -->
             <div
               :style="{
-                fontSize: '10px',
+                fontSize: '15px',
                 fontWeight: 700,
-                color: T.bg,
-                lineHeight: 1.1,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                opacity: 0.85,
+                color: T.text,
+                fontVariantNumeric: 'tabular-nums',
+                lineHeight: 1,
               }"
             >
-              {{ r.name }}
+              {{ c.areaLabel }}
             </div>
-
-            <!-- Деревья — главный акцент, крупнее -->
             <div
               :style="{
-                display: 'flex',
-                gap: '4px',
+                display: 'inline-flex',
                 alignItems: 'center',
-                flexWrap: 'wrap',
-                flex: 1,
+                gap: '8px',
+                padding: '4px 10px 4px 4px',
+                border: '1px solid rgba(255,255,255,0.10)',
+                borderRadius: '999px',
+                lineHeight: 1,
+                background: 'rgba(255,255,255,0.025)',
               }"
             >
               <span
-                v-for="(treeColor, ti) in r.trees"
-                :key="ti"
                 :style="{
-                  width: '14px',
-                  height: '14px',
-                  borderRadius: '50%',
-                  background: treeColor,
-                  border: treeColor === WCOL.black
-                    ? `1px solid rgba(19,17,14,0.4)`
-                    : 'none',
-                  flexShrink: 0,
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '20px',
+                  height: '20px',
+                  padding: '0 7px',
+                  background: T.text,
+                  color: T.bg,
+                  borderRadius: '999px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  fontVariantNumeric: 'tabular-nums',
+                  lineHeight: 1,
                 }"
-              />
+              >
+                {{ c.totalTrees }}
+              </span>
+              <span
+                v-for="w in WOOD_ORDER.filter((x) => c.woodCounts[x] > 0)"
+                :key="w"
+                :style="{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  lineHeight: 1,
+                }"
+              >
+                <span
+                  :style="{
+                    width: '9px',
+                    height: '9px',
+                    borderRadius: '50%',
+                    background: WCOL[w],
+                    border: w === 'black' ? `1px solid ${T.textDim}` : 'none',
+                  }"
+                />
+                <span
+                  :style="{
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    color: T.text,
+                    fontVariantNumeric: 'tabular-nums',
+                    lineHeight: 1,
+                  }"
+                >
+                  {{ c.woodCounts[w] }}
+                </span>
+              </span>
             </div>
+          </div>
 
-            <!-- Диапазон м² -->
+          <!-- Pills комнат с tint glass + tree-кружки -->
+          <div :style="{ display: 'flex', flexWrap: 'wrap', gap: '6px' }">
             <div
+              v-for="(r, ri) in c.rooms"
+              :key="ri"
               :style="{
-                fontSize: '9px',
-                color: 'rgba(19,17,14,0.5)',
-                fontVariantNumeric: 'tabular-nums',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '8px 14px 8px 12px',
+                borderRadius: '999px',
                 lineHeight: 1,
-                whiteSpace: 'nowrap',
+                ...tintGlass(r.tint),
               }"
             >
-              {{ r.range }}
+              <span
+                :style="{
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: T.text,
+                  whiteSpace: 'nowrap',
+                  lineHeight: 1,
+                }"
+              >
+                {{ r.name }}
+              </span>
+              <div
+                :style="{
+                  display: 'flex',
+                  alignItems: 'center',
+                  lineHeight: 1,
+                  paddingLeft: '3px',
+                }"
+              >
+                <span
+                  v-for="(w, ti) in r.trees"
+                  :key="ti"
+                  :style="{
+                    marginLeft: ti === 0 ? '0' : '-4px',
+                    display: 'inline-flex',
+                    zIndex: 100 - ti,
+                    position: 'relative',
+                    ...treeStyle(w),
+                  }"
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Справа: явная CTA-стрелка чтобы карточка читалась как кнопка-выбор -->
+        <!-- Стрелка-affordance -->
         <div
           :style="{
             flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: T.textSec,
+            borderLeft: '1px solid rgba(255,255,255,0.06)',
+            paddingLeft: '16px',
+            paddingRight: '16px',
           }"
         >
           <svg
-            width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            :stroke="T.textSec"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
           >
             <polyline points="9 18 15 12 9 6" />
           </svg>
@@ -286,74 +632,93 @@ function startEmpty() {
       </button>
     </div>
 
-    <!-- Начать с пустого дома -->
+    <!-- ═══ Симметричный «или» ═══ -->
+    <div
+      :style="{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        margin: '16px 0',
+      }"
+    >
+      <div :style="{ flex: 1, height: '1px', background: T.border }" />
+      <span
+        :style="{
+          fontSize: '10px',
+          color: T.textDim,
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '1.5px',
+        }"
+      >
+        или
+      </span>
+      <div :style="{ flex: 1, height: '1px', background: T.border }" />
+    </div>
+
+    <!-- ═══ EmptyButton — primary CTA ═══ -->
     <button
       :style="{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        padding: '14px',
-        background: T.cardAlt,
-        border: `1px solid ${T.border}`,
+        padding: '16px',
+        background: T.text,
+        color: T.bg,
+        border: `1px solid ${T.text}`,
         borderRadius: '12px',
+        fontSize: '14px',
+        fontWeight: 700,
         cursor: 'pointer',
-        fontSize: '13px',
-        fontWeight: 600,
-        color: T.text,
         fontFamily: 'inherit',
+        boxShadow: `
+          inset 0 1px 0 rgba(255,255,255,0.4),
+          0 4px 14px rgba(0,0,0,0.25)
+        `,
       }"
       @click="startEmpty"
     >
-      Начать с пустого дома
+      Создать с чистого листа
     </button>
 
-    <!-- Легенда деревьев -->
-    <div
-      :style="{
-        marginTop: '14px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '14px',
-        fontSize: '10px',
-        color: T.textDim,
-      }"
-    >
-      <span :style="{ display: 'flex', alignItems: 'center', gap: '4px' }">
-        <span
-          :style="{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: WCOL.oak,
-          }"
-        />
-        Дуб
-      </span>
-      <span :style="{ display: 'flex', alignItems: 'center', gap: '4px' }">
-        <span
-          :style="{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: WCOL.walnut,
-          }"
-        />
-        Орех
-      </span>
-      <span :style="{ display: 'flex', alignItems: 'center', gap: '4px' }">
-        <span
-          :style="{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: WCOL.black,
-            border: `1px solid ${T.textDim}`,
-          }"
-        />
-        Чёрный
+    <!-- ═══ Логотип ═══ -->
+    <div :style="{ marginTop: '44px', textAlign: 'center' }">
+      <span
+        :style="{
+          fontSize: '13px',
+          fontWeight: 700,
+          color: T.textDim,
+          letterSpacing: '5px',
+        }"
+      >
+        WOODLED
       </span>
     </div>
   </div>
 </template>
+
+<style>
+/* Pulse-анимация деревянных сфер. Box-shadow с CSS-variables: каждая
+   сфера передаёт через inline style свой цвет породы (--orb-glow и
+   --orb-glow-peak), поэтому keyframes общая, но glow разный. */
+@keyframes orbPulse {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 -2px 4px rgba(0, 0, 0, 0.22),
+      inset 0 2px 2px rgba(255, 255, 255, 0.18),
+      0 0 18px var(--orb-glow, rgba(196, 164, 108, 0.35)),
+      0 0 36px var(--orb-glow-soft, rgba(196, 164, 108, 0.12)),
+      0 6px 18px rgba(0, 0, 0, 0.45);
+  }
+  50% {
+    box-shadow:
+      inset 0 -2px 4px rgba(0, 0, 0, 0.22),
+      inset 0 2px 2px rgba(255, 255, 255, 0.18),
+      0 0 28px var(--orb-glow-peak, rgba(196, 164, 108, 0.55)),
+      0 0 56px var(--orb-glow-peak-soft, rgba(196, 164, 108, 0.22)),
+      0 6px 18px rgba(0, 0, 0, 0.45);
+  }
+}
+</style>
