@@ -425,7 +425,7 @@ const anyModalOpen = computed<boolean>(() =>
 
       <PromoBlock @click="onPromoClick" />
       <OnboardingLink />
-      <Footer @reset-click="onResetClick" />
+      <Footer />
 
       <div v-if="stickyVisible" :style="{ height: '80px' }" />
     </div>
@@ -493,22 +493,22 @@ const anyModalOpen = computed<boolean>(() =>
       @close="cfg.showMoodDetail.value = null"
     />
 
-    <!-- Подтверждение «Сменить дом / Начать заново» — safe-action, не destructive.
+    <!-- Подтверждение «Начать заново» — safe-action, не destructive.
          Кнопка confirm нейтральная (T.neutral), не красная.
-         Перед подтверждением юзер может скопировать ссылку — это сохраняет дом.
-    -->
+         Сохранение ссылки доступно отдельно через виджет HouseStats →
+         «Дополнительно» → «Сохранить ссылку на дом», поэтому здесь
+         модалка простая: только подтверждение. -->
     <Modal v-if="showResetConfirm" @close="onResetCancel">
-      <div :style="{ padding: '24px 20px' }">
+      <div :style="{ padding: '24px 20px', textAlign: 'center' }">
         <div
           :style="{
             fontSize: '17px',
             fontWeight: 700,
             color: T.text,
             marginBottom: '10px',
-            textAlign: 'center',
           }"
         >
-          Сменить дом?
+          Начать заново?
         </div>
         <div
           :style="{
@@ -516,60 +516,13 @@ const anyModalOpen = computed<boolean>(() =>
             color: T.textSec,
             lineHeight: 1.55,
             marginBottom: '20px',
-            textAlign: 'center',
             maxWidth: '320px',
             marginLeft: 'auto',
             marginRight: 'auto',
           }"
         >
-          Текущий дом и все настройки сбросятся. Вы вернётесь к выбору формата.
+          Текущий дом и все настройки сбросятся. Вы вернётесь к выбору формата дома.
         </div>
-
-        <!-- Сохранить ссылку перед сбросом -->
-        <button
-          :style="{
-            width: '100%',
-            padding: '12px',
-            background: T.cardAlt,
-            border: `1px solid ${T.border}`,
-            borderRadius: '8px',
-            color: T.text,
-            cursor: 'pointer',
-            fontSize: '13px',
-            fontWeight: 600,
-            fontFamily: 'inherit',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            marginBottom: '8px',
-          }"
-          @click="onSaveShareLink"
-        >
-          <svg
-            width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round"
-          >
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-          </svg>
-          Сохранить эту ссылку
-        </button>
-        <div
-          :style="{
-            fontSize: '11px',
-            color: T.textDim,
-            textAlign: 'center',
-            lineHeight: 1.5,
-            marginBottom: '20px',
-            padding: '0 8px',
-          }"
-        >
-          Скопирует ссылку на текущий дом — отправьте себе или менеджеру,
-          чтобы вернуться к нему позже.
-        </div>
-
         <div :style="{ display: 'flex', gap: '8px' }">
           <button
             :style="{
@@ -603,7 +556,7 @@ const anyModalOpen = computed<boolean>(() =>
             }"
             @click="onResetConfirm"
           >
-            Сменить дом
+            Начать заново
           </button>
         </div>
       </div>
