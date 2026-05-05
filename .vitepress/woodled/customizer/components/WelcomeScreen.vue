@@ -3,11 +3,15 @@
  * WelcomeScreen.vue — Первая страница при первом запуске.
  *
  * Это НЕ модалка/overlay. Рендерится как route через App.vue
- * (наравне с RoomDetail / FxEditor / Home), занимает всё место
- * на экране и использует те же визуальные стили что главная
- * (max-width 560px, padding 16px, тёмный фон, шрифт Segoe UI).
+ * (наравне с RoomDetail / FxEditor / Home).
  *
- * 3 шаблона домов (~45/65/85 м²) + кнопка «Начать с пустого дома».
+ * Заголовок «Спроектируйте свой лес» — мостик из онбординга
+ * (последняя глава: «В каждой комнате — своё дерево. Спроектируйте свой лес»).
+ * Это связывает онбординг и конфигуратор единым языком.
+ *
+ * Брендовый header (Живой Дом / WOODLED ROTOR) намеренно убран —
+ * на первом экране бренд избыточен и дублирует главную.
+ *
  * После выбора закрывается навсегда (флаг welcomeSeen в localStorage).
  */
 
@@ -52,7 +56,7 @@ function startEmpty() {
     :style="{
       maxWidth: '560px',
       margin: '0 auto',
-      padding: '16px',
+      padding: '40px 16px 24px',
       fontFamily: `'Segoe UI', system-ui, sans-serif`,
       color: T.text,
       background: T.bg,
@@ -60,48 +64,29 @@ function startEmpty() {
       boxSizing: 'border-box',
     }"
   >
-    <!-- Тот же header что на главной — WOODLED ROTOR badge -->
-    <div :style="{ textAlign: 'center', marginBottom: '32px', paddingTop: '8px' }">
-      <div :style="{ fontSize: '22px', fontWeight: 700, color: T.text }">
-        Живой Дом
-      </div>
-      <div
-        :style="{
-          display: 'inline-block',
-          marginTop: '6px',
-          padding: '3px 12px',
-          borderRadius: '10px',
-          background: T.neutral + '18',
-          fontSize: '10px',
-          fontWeight: 700,
-          color: T.neutral,
-          letterSpacing: '0.5px',
-        }"
-      >
-        WOODLED ROTOR
-      </div>
-    </div>
-
-    <!-- Заголовок -->
+    <!-- Заголовок-мостик из онбординга -->
     <div
       :style="{
-        fontSize: '20px',
+        fontSize: '26px',
         fontWeight: 700,
         color: T.text,
-        marginBottom: '6px',
+        marginBottom: '10px',
+        lineHeight: 1.2,
       }"
     >
-      Начните здесь
+      Спроектируйте свой лес
     </div>
     <div
       :style="{
-        fontSize: '13px',
+        fontSize: '14px',
         color: T.textSec,
-        lineHeight: 1.5,
-        marginBottom: '20px',
+        lineHeight: 1.55,
+        marginBottom: '28px',
+        maxWidth: '480px',
       }"
     >
-      Выберите формат дома для старта — далее всё сделаете под себя
+      Каждая комната — своё дерево. Выберите формат — мы расставим свет
+      по реальной статистике WOODLED. Дальше всё под себя.
     </div>
 
     <!-- Карточки шаблонов -->

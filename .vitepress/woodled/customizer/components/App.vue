@@ -48,7 +48,7 @@ import WelcomeScreen from './WelcomeScreen.vue'
 import HouseStats from './HouseStats.vue'
 import Modal from './ui/Modal.vue'
 import { readModelLink, clearModelLink } from '../engine/useModelLink'
-import { decodeFixture, readHashFixture } from '../engine/share'
+import { decodeFixture, readHashFixture, buildShareUrl } from '../engine/share'
 
 const cfg = useConfigurator()
 
@@ -222,12 +222,17 @@ function onColorPicked(color: string | undefined) {
   }
 }
 
-/* ────────── Сброс «Начать заново» ──────────
+/* ────────── Сброс «Сменить дом» / «Начать заново» ──────────
  *
  * Двойное подтверждение через модалку — это safe-action, не destructive.
- * При confirm — resetAll(): rooms пустеют, welcomeSeen сбрасывается, все
- * флаги модалок гасятся. После этого <WelcomeScreen v-if="!welcomeSeen">
- * снова виден, юзер выбирает шаблон или пустой старт.
+ * Кнопка confirm нейтральная (T.neutral), не красная.
+ *
+ * В модалке доступна опция «Сохранить эту ссылку» — буфер обмена + toast.
+ * Юзер может скопировать ссылку, отменить сброс, и тогда он не теряет дом.
+ *
+ * Точки входа:
+ *   - Footer ссылка «Начать заново»
+ *   - HouseStats expand-панель → «Сменить дом»
  */
 const showResetConfirm = ref(false)
 
@@ -242,6 +247,21 @@ function onResetConfirm() {
 
 function onResetCancel() {
   showResetConfirm.value = false
+}
+
+/**
+ * Копирует ссылку текущего дома в буфер обмена. Используется и из reset modal,
+ * и из expand-панели HouseStats. После копирования — toast подтверждения.
+ */
+async function onSaveShareLink() {
+  const url = buildShareUrl(cfg.name.value, cfg.rooms as Room[])
+  try {
+    await navigator.clipboard.writeText(url)
+    cfg.showFB('Ссылка на дом скопирована')
+  } catch {
+    /* iOS/Safari могут блокировать clipboard в некоторых контекстах. */
+    cfg.showFB(url)
+  }
 }
 
 /**
@@ -350,8 +370,12 @@ const anyModalOpen = computed<boolean>(() =>
         </div>
       </div>
 
-      <!-- Виджет дома: площадь / потолок / точки света. -->
-      <HouseStats />
+      <!-- Виджет дома: площадь / потолок / точки света.
+           Tap-to-expand → разбивка по комнатам + действия. -->
+      <HouseStats
+        @share-link="onSaveShareLink"
+        @change-home="onResetClick"
+      />
 
       <div
         :style="{
@@ -469,19 +493,22 @@ const anyModalOpen = computed<boolean>(() =>
       @close="cfg.showMoodDetail.value = null"
     />
 
-    <!-- Подтверждение «Начать заново» — safe-action, не destructive.
-         Кнопка confirm нейтральная (T.neutral), не красная. -->
+    <!-- Подтверждение «Сменить дом / Начать заново» — safe-action, не destructive.
+         Кнопка confirm нейтральная (T.neutral), не красная.
+         Перед подтверждением юзер может скопировать ссылку — это сохраняет дом.
+    -->
     <Modal v-if="showResetConfirm" @close="onResetCancel">
-      <div :style="{ padding: '24px 20px', textAlign: 'center' }">
+      <div :style="{ padding: '24px 20px' }">
         <div
           :style="{
             fontSize: '17px',
             fontWeight: 700,
             color: T.text,
             marginBottom: '10px',
+            textAlign: 'center',
           }"
         >
-          Начать заново?
+          Сменить дом?
         </div>
         <div
           :style="{
@@ -489,13 +516,60 @@ const anyModalOpen = computed<boolean>(() =>
             color: T.textSec,
             lineHeight: 1.55,
             marginBottom: '20px',
+            textAlign: 'center',
             maxWidth: '320px',
             marginLeft: 'auto',
             marginRight: 'auto',
           }"
         >
-          Текущий дом и все настройки сбросятся. Вы вернётесь к выбору шаблона дома.
+          Текущий дом и все настройки сбросятся. Вы вернётесь к выбору формата.
         </div>
+
+        <!-- Сохранить ссылку перед сбросом -->
+        <button
+          :style="{
+            width: '100%',
+            padding: '12px',
+            background: T.cardAlt,
+            border: `1px solid ${T.border}`,
+            borderRadius: '8px',
+            color: T.text,
+            cursor: 'pointer',
+            fontSize: '13px',
+            fontWeight: 600,
+            fontFamily: 'inherit',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            marginBottom: '8px',
+          }"
+          @click="onSaveShareLink"
+        >
+          <svg
+            width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
+          >
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+          Сохранить эту ссылку
+        </button>
+        <div
+          :style="{
+            fontSize: '11px',
+            color: T.textDim,
+            textAlign: 'center',
+            lineHeight: 1.5,
+            marginBottom: '20px',
+            padding: '0 8px',
+          }"
+        >
+          Скопирует ссылку на текущий дом — отправьте себе или менеджеру,
+          чтобы вернуться к нему позже.
+        </div>
+
         <div :style="{ display: 'flex', gap: '8px' }">
           <button
             :style="{
@@ -529,7 +603,7 @@ const anyModalOpen = computed<boolean>(() =>
             }"
             @click="onResetConfirm"
           >
-            Начать заново
+            Сменить дом
           </button>
         </div>
       </div>
