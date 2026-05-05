@@ -178,7 +178,7 @@ function pillStyle(hex: string) {
   return {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '10px',
+    gap: '11px',
     padding: '8px 14px 8px 12px',
     borderRadius: '999px',
     lineHeight: '1',
@@ -266,18 +266,30 @@ function orbStyle(wood: Wood, delay: number): Record<string, string> {
   }
 }
 
-/** Tree — маленький плоский кружок породы 16px в pills. */
+/** Tree — 18px 3D-сфера с radial highlight и micro-glow цвета породы.
+ *  Точная копия из welcome-orb.jsx. */
 function treeStyle(wood: Wood, idx: number): Record<string, string | number> {
+  const color = WCOL[wood]
+  const { r, g, b } = hexToRgb(color)
   return {
-    width: '16px',
-    height: '16px',
+    width: '18px',
+    height: '18px',
     borderRadius: '50%',
-    background: WCOL[wood],
+    background: `
+      radial-gradient(circle at 32% 28%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(circle at 65% 70%, rgba(0,0,0,0.15), transparent 55%),
+      ${color}
+    `,
     flexShrink: '0',
     display: 'inline-block',
-    border: wood === 'black' ? '1px solid rgba(19,17,14,0.4)' : 'none',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.25)',
-    marginLeft: idx === 0 ? '0' : '-4px',
+    border: wood === 'black' ? '1px solid rgba(19,17,14,0.5)' : 'none',
+    boxShadow: `
+      inset 0 -1px 1.5px rgba(0,0,0,0.18),
+      inset 0 1px 1px rgba(255,255,255,0.15),
+      0 0 8px rgba(${r},${g},${b},0.35),
+      0 1px 3px rgba(0,0,0,0.35)
+    `,
+    marginLeft: idx === 0 ? '0' : '-5px',
     zIndex: 100 - idx,
     position: 'relative',
   }
