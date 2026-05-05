@@ -45,18 +45,20 @@ const emit = defineEmits<{
 
 /* ────────── Производные данные ────────── */
 
-const rooms = computed<Room[]>(() => cfg.rooms as Room[])
+/* Читаем cfg.rooms напрямую без промежуточного computed —
+   гарантирует deep reactivity при изменении любого поля комнаты
+   (лимиты, потолок, площадь, fixtures). */
 
 const totalArea = computed<number | null>(() => {
-  if (rooms.value.length === 0) return null
+  if (cfg.rooms.length === 0) return null
   return Math.round(
-    rooms.value.reduce((s, r) => s + getArea(getRT(r.typeId), r), 0),
+    cfg.rooms.reduce((s, r) => s + getArea(getRT(r.typeId), r as Room), 0),
   )
 })
 
 const ceilingDisplay = computed<string | null>(() => {
-  if (rooms.value.length === 0) return null
-  const heights = [...new Set(rooms.value.map((r) => r.ceilingH))].sort(
+  if (cfg.rooms.length === 0) return null
+  const heights = [...new Set(cfg.rooms.map((r) => r.ceilingH))].sort(
     (a, b) => a - b,
   )
   if (heights.length === 1) return heights[0].toFixed(1)
@@ -64,12 +66,16 @@ const ceilingDisplay = computed<string | null>(() => {
 })
 
 const lightPoints = computed<{ used: number; max: number } | null>(() => {
-  if (rooms.value.length === 0) return null
+  if (cfg.rooms.length === 0) return null
   let used = 0
   let max = 0
-  for (const r of rooms.value) {
+  for (const r of cfg.rooms) {
     const rt = getRT(r.typeId)
-    const limits = r.limits ?? rt.limits
+    /* Defensive: r.limits может быть пустым объектом или undefined
+       при некорректной миграции state — фолбэк на rt.limits. */
+    const limits = (r.limits && Object.keys(r.limits).length > 0)
+      ? r.limits
+      : rt.limits
     for (const z of rt.zones) {
       max += limits[z] ?? 0
     }
@@ -80,7 +86,7 @@ const lightPoints = computed<{ used: number; max: number } | null>(() => {
   return { used, max }
 })
 
-const isEmpty = computed(() => rooms.value.length === 0)
+const isEmpty = computed(() => cfg.rooms.length === 0)
 
 /* ────────── Разбивка по комнатам в разных режимах ────────── */
 
@@ -114,9 +120,11 @@ interface RoomBreakdownLight {
 }
 
 const roomsAll = computed<RoomBreakdownAll[]>(() =>
-  rooms.value.map((r) => {
+  cfg.rooms.map((r) => {
     const rt = getRT(r.typeId)
-    const limits = r.limits ?? rt.limits
+    const limits = (r.limits && Object.keys(r.limits).length > 0)
+      ? r.limits
+      : rt.limits
     let pointsMax = 0
     for (const z of rt.zones) pointsMax += limits[z] ?? 0
     let fxCount = 0
@@ -124,7 +132,7 @@ const roomsAll = computed<RoomBreakdownAll[]>(() =>
     return {
       id: r.id,
       name: r.customName || rt.name,
-      area: Math.round(getArea(rt, r)),
+      area: Math.round(getArea(rt, r as Room)),
       ceiling: r.ceilingH,
       fxCount,
       pointsMax,
@@ -133,13 +141,15 @@ const roomsAll = computed<RoomBreakdownAll[]>(() =>
 )
 
 const roomsByArea = computed<RoomBreakdownArea[]>(() =>
-  rooms.value.map((r) => {
+  cfg.rooms.map((r) => {
     const rt = getRT(r.typeId)
     let display: string
     if (r.sizeIndex === 3 && r.customArea != null) {
       display = `${r.customArea} м²`
     } else {
-      const idx = (r.sizeIndex ?? 1) as 0 | 1 | 2
+      /* Clamp sizeIndex в [0,2] на случай неконсистентного state. */
+      const raw = r.sizeIndex ?? 1
+      const idx = (raw >= 0 && raw <= 2 ? raw : 1) as 0 | 1 | 2
       display = `${rt.ranges[idx]} м²`
     }
     return {
@@ -151,7 +161,7 @@ const roomsByArea = computed<RoomBreakdownArea[]>(() =>
 )
 
 const roomsByCeiling = computed<RoomBreakdownCeiling[]>(() =>
-  rooms.value.map((r) => {
+  cfg.rooms.map((r) => {
     const rt = getRT(r.typeId)
     return {
       id: r.id,
@@ -162,9 +172,11 @@ const roomsByCeiling = computed<RoomBreakdownCeiling[]>(() =>
 )
 
 const roomsByLight = computed<RoomBreakdownLight[]>(() =>
-  rooms.value.map((r) => {
+  cfg.rooms.map((r) => {
     const rt = getRT(r.typeId)
-    const limits = r.limits ?? rt.limits
+    const limits = (r.limits && Object.keys(r.limits).length > 0)
+      ? r.limits
+      : rt.limits
     let pointsMax = 0
     for (const z of rt.zones) pointsMax += limits[z] ?? 0
     let fxCount = 0
@@ -247,7 +259,7 @@ function finishTour() {
 }
 
 onMounted(() => {
-  if (!cfg.dashboardTourSeen.value && rooms.value.length > 0) {
+  if (!cfg.dashboardTourSeen.value && cfg.rooms.length > 0) {
     setTimeout(() => {
       if (!cfg.dashboardTourSeen.value) startTour()
     }, 600)
