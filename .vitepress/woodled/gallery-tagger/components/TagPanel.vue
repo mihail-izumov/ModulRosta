@@ -7,7 +7,7 @@ import { T } from '../lib/theme'
 import { countCritical, toggleIn, toDisplayUrl, SIZE_TAGS } from '../lib/gallery'
 import type { GalleryEntry } from '../lib/types'
 import { RTS } from '../../customizer/data/rooms'
-import { MD, FAMILIES, ALL_ZONES } from '../../customizer/data/catalog'
+import { MD, FAMILIES, ALL_ZONES, type ModelId, type FamilyId } from '../../customizer/data/catalog'
 import { MATS } from '../../customizer/data/materials'
 import { WOOD_COLORS } from '../lib/wood-colors'
 import ImageWithFallback from './ImageWithFallback.vue'
@@ -27,14 +27,54 @@ const emit = defineEmits<{
 const filled = computed(() => countCritical(props.entry))
 const displayUrl = computed(() => toDisplayUrl(props.entry.url))
 
-// Модели сгруппированные по семействам, плюс одиночные
-const familyModels = computed(() =>
-  FAMILIES.map(f => ({
-    family: f,
-    models: MD.filter(m => m.family === f.id),
-  })).filter(g => g.models.length > 0),
+// FAMILIES в реальном catalog — это Record<FamilyId, readonly ModelId[]>:
+//   { rotor: ['rotor_s', 'rotor_m', ...], rotor_x: [...], ... }
+// MD — это Record<ModelId, Model>:
+//   { rotor_s: { name: 'Rotor S', letter: 'S', family: 'rotor', ... }, ... }
+// Поэтому никаких .map / .filter — индексируем как объекты.
+
+const FAMILY_DISPLAY: Record<FamilyId, string> = {
+  rotor:      'Rotor',
+  rotor_x:    'Rotor X',
+  elliptical: 'Elliptical',
+  spot:       'Spot',
+  bra_v:      'Бра Vertical',
+}
+
+interface FamilyGroupView {
+  familyId: FamilyId
+  familyName: string
+  models: { id: ModelId; letter: string; name: string }[]
+}
+
+interface SingletonView {
+  id: ModelId
+  name: string
+}
+
+// Модели сгруппированные по семействам (для чипов с буквой S / M / L / 1000)
+const familyModels = computed<FamilyGroupView[]>(() =>
+  (Object.entries(FAMILIES) as [FamilyId, readonly ModelId[]][])
+    .map(([famId, modelIds]) => ({
+      familyId: famId,
+      familyName: FAMILY_DISPLAY[famId] || famId,
+      models: modelIds
+        .filter(mid => MD[mid])
+        .map(mid => ({
+          id: mid,
+          letter: MD[mid].letter,
+          name: MD[mid].name,
+        })),
+    }))
+    .filter(g => g.models.length > 0),
 )
-const singletonModels = computed(() => MD.filter(m => !m.family))
+
+// Одиночные модели (без family) — показываем полным именем
+const singletonModels = computed<SingletonView[]>(() =>
+  (Object.entries(MD) as [ModelId, typeof MD[ModelId]][])
+    .filter(([, m]) => !m.family)
+    .map(([id, m]) => ({ id, name: m.name })),
+)
 
 function update(patch: Partial<GalleryEntry>) {
   emit('change', { ...props.entry, ...patch })
@@ -179,7 +219,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             <div :style="{ display: 'flex', flexDirection: 'column', gap: '8px' }">
               <div
                 v-for="g in familyModels"
-                :key="g.family.id"
+                :key="g.familyId"
                 :style="{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }"
               >
                 <div :style="{
@@ -187,17 +227,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
                   textTransform: 'uppercase', letterSpacing: '0.5px',
                   minWidth: '78px', fontWeight: 600,
                 }">
-                  {{ g.family.name }}
+                  {{ g.familyName }}
                 </div>
                 <Chip
                   v-for="m in g.models"
                   :key="m.id"
                   size="sm"
                   :active="entry.models.includes(m.id)"
-                  :title="m.id"
+                  :title="m.name"
                   @click="toggleModel(m.id)"
                 >
-                  {{ m.size || m.name }}
+                  {{ m.letter }}
                 </Chip>
               </div>
 

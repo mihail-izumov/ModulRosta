@@ -22,7 +22,8 @@ const summary = computed(() => {
   if (e.rooms.length)
     parts.push(e.rooms.map(id => RTS.find(r => r.id === id)?.name || id).join(', '))
   if (e.models.length)
-    parts.push(e.models.map(id => MD.find(m => m.id === id)?.name || id).join(', '))
+    // MD — Record<ModelId, Model>, индексируем как объект
+    parts.push(e.models.map(id => MD[id]?.name || id).join(', '))
   if (e.woods.length)
     parts.push(e.woods.map(id => MATS.find(w => w.id === id)?.name || id).join(', '))
   if (e.zones.length)
