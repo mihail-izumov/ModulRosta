@@ -2,30 +2,32 @@
 /**
  * HouseStats.vue — Виджет дома (приборная панель).
  *
- * Tesla-style: инвертированный — светлая заливка (T.text) на тёмном фоне
- * страницы. Контрастно, читается как «панель управления». 3 параметра
- * в одну строку (S комнат / потолок / свет).
+ * Архитектура (после правок v3):
  *
- * Интерактивность:
+ *   ┌──────────────────────────────────┐
+ *   │  S комнат  │ потолок │  свет     │  ← инвертированная панель
+ *   │   26       │  2.7    │  5/16     │     (тап для деталей с фокусом
+ *   └──────────────────────────────────┘      на параметре)
  *
- * 1. Тап на сам виджет → expand с общей таблицей (название · S · потолок · свет)
+ *   ┌──────────────────────────────────┐
+ *   │  Подсказка (скрываемая) ...   ✕  │  ← пока tour не пройден
+ *   └──────────────────────────────────┘
  *
- * 2. Тап на поле → expand с подсветкой и УНИКАЛЬНОЙ для этого поля инфой:
- *      - area:    список комнат с диапазонами площадей (либо точная customArea)
- *      - ceiling: список комнат только с высотами потолков
- *      - light:   список комнат с «N светильников · M точек подключения»
+ *   ┌──────────────────────────────────┐
+ *   │  Дополнительно           ▼/▲     │  ← всегда видный блок
+ *   ├──────────────────────────────────┤     (раскрывает 2 действия)
+ *   │  🔗 Сохранить ссылку на дом      │
+ *   │  ⇄ Начать заново                 │
+ *   └──────────────────────────────────┘
  *
- * 3. Внизу expand — единственный блок «Дополнительно» (collapsed по умолчанию).
- *    Раскрывается → две кнопки: «Сохранить ссылку», «Начать заново».
- *    Эти действия больше нигде не дублируются — ни в Footer, ни в reset modal.
+ *   Expand-панель появляется ниже при тапе на виджет — содержит
+ *   разбивку по комнатам без действий (они теперь снаружи).
  *
- * 4. Скрываемая подсказка под виджетом (Вариант C) пока tour не пройден.
+ * Это даёт быстрый доступ к ключевым действиям без необходимости
+ * раскрывать виджет: «Дополнительно» — отдельная утилитарная зона,
+ * виджет — главная приборная панель.
  *
- * 5. Затемняющий 3-шаговый tour (Вариант A) — при первом заходе с домом.
- *
- * 6. Тап на поле → toast с короткой пояснилкой (Вариант B).
- *
- * Эмиты: shareLink, changeHome — App.vue реагирует.
+ * Эмиты: shareLink, changeHome.
  */
 
 import { computed, onMounted, ref } from 'vue'
@@ -45,9 +47,6 @@ const emit = defineEmits<{
 
 /* ────────── Производные данные ────────── */
 
-/* Читаем cfg.rooms напрямую без промежуточного computed —
-   гарантирует deep reactivity при изменении любого поля комнаты
-   (лимиты, потолок, площадь, fixtures). */
 
 const totalArea = computed<number | null>(() => {
   if (cfg.rooms.length === 0) return null
@@ -88,33 +87,13 @@ const lightPoints = computed<{ used: number; max: number } | null>(() => {
 
 const isEmpty = computed(() => cfg.rooms.length === 0)
 
-/* ────────── Разбивка по комнатам в разных режимах ────────── */
+/* ────────── Разбивка по комнатам ────────── */
 
 interface RoomBreakdownAll {
   id: string
   name: string
   area: number
   ceiling: number
-  fxCount: number
-  pointsMax: number
-}
-
-interface RoomBreakdownArea {
-  id: string
-  name: string
-  /** Диапазон или точная цифра (если customArea задана). */
-  display: string
-}
-
-interface RoomBreakdownCeiling {
-  id: string
-  name: string
-  ceiling: number
-}
-
-interface RoomBreakdownLight {
-  id: string
-  name: string
   fxCount: number
   pointsMax: number
 }
@@ -140,38 +119,28 @@ const roomsAll = computed<RoomBreakdownAll[]>(() =>
   }),
 )
 
-const roomsByArea = computed<RoomBreakdownArea[]>(() =>
+const roomsByArea = computed(() =>
   cfg.rooms.map((r) => {
     const rt = getRT(r.typeId)
-    let display: string
-    if (r.sizeIndex === 3 && r.customArea != null) {
-      display = `${r.customArea} м²`
-    } else {
-      /* Clamp sizeIndex в [0,2] на случай неконсистентного state. */
-      const raw = r.sizeIndex ?? 1
-      const idx = (raw >= 0 && raw <= 2 ? raw : 1) as 0 | 1 | 2
-      display = `${rt.ranges[idx]} м²`
-    }
-    return {
-      id: r.id,
-      name: r.customName || rt.name,
-      display,
-    }
+    /* Clamp sizeIndex в [0,2] на случай неконсистентного state. */
+    const raw = r.sizeIndex ?? 1
+    const idx = (raw >= 0 && raw <= 2 ? raw : 1) as 0 | 1 | 2
+    const display = (r.sizeIndex === 3 && r.customArea != null)
+      ? `${r.customArea} м²`
+      : `${rt.ranges[idx]} м²`
+    return { id: r.id, name: r.customName || rt.name, display }
   }),
 )
 
-const roomsByCeiling = computed<RoomBreakdownCeiling[]>(() =>
-  cfg.rooms.map((r) => {
-    const rt = getRT(r.typeId)
-    return {
-      id: r.id,
-      name: r.customName || rt.name,
-      ceiling: r.ceilingH,
-    }
-  }),
+const roomsByCeiling = computed(() =>
+  cfg.rooms.map((r) => ({
+    id: r.id,
+    name: r.customName || getRT(r.typeId).name,
+    ceiling: r.ceilingH,
+  })),
 )
 
-const roomsByLight = computed<RoomBreakdownLight[]>(() =>
+const roomsByLight = computed(() =>
   cfg.rooms.map((r) => {
     const rt = getRT(r.typeId)
     const limits = (r.limits && Object.keys(r.limits).length > 0)
@@ -181,12 +150,7 @@ const roomsByLight = computed<RoomBreakdownLight[]>(() =>
     for (const z of rt.zones) pointsMax += limits[z] ?? 0
     let fxCount = 0
     for (const fx of r.fixtures) fxCount += fx.q ?? 1
-    return {
-      id: r.id,
-      name: r.customName || rt.name,
-      fxCount,
-      pointsMax,
-    }
+    return { id: r.id, name: r.customName || rt.name, fxCount, pointsMax }
   }),
 )
 
@@ -200,21 +164,13 @@ function toggleExpand(field: FieldId | null = null) {
   if (focusField.value === field && expanded.value) {
     expanded.value = false
     focusField.value = null
-    moreOpen.value = false
   } else {
     expanded.value = true
     focusField.value = field
-    moreOpen.value = false
   }
   if (!cfg.dashboardTourSeen.value) {
     cfg.markDashboardTourSeen()
   }
-}
-
-function collapseExpand() {
-  expanded.value = false
-  focusField.value = null
-  moreOpen.value = false
 }
 
 /* ────────── Spotlight tour ────────── */
@@ -266,7 +222,7 @@ onMounted(() => {
   }
 })
 
-/* ────────── Toast при тапе на поле ────────── */
+/* ────────── Toast ────────── */
 
 const fieldToast = ref<string | null>(null)
 let toastTimer: ReturnType<typeof setTimeout> | null = null
@@ -290,7 +246,8 @@ function onFieldTap(field: FieldId) {
 function onWidgetTap() {
   if (tourActive.value) return
   if (expanded.value && focusField.value === null) {
-    collapseExpand()
+    expanded.value = false
+    focusField.value = null
   } else {
     toggleExpand(null)
   }
@@ -302,10 +259,19 @@ function dismissHint() {
   }
 }
 
-/* ────────── Стили инвертированной панели ────────── */
+/* ────────── Действия — теперь снаружи в блоке «Дополнительно» ────────── */
 
-/* Цветовая схема: фон T.text (кремовый светлый), текст T.bg (тёмный),
-   границы и divider'ы — слегка прозрачный T.bg. */
+function onSaveLinkClick() {
+  emit('shareLink')
+  moreOpen.value = false
+}
+
+function onChangeHomeClick() {
+  emit('changeHome')
+  moreOpen.value = false
+}
+
+/* ────────── Стили ────────── */
 
 const PANEL_BG = T.text
 const PANEL_FG = T.bg
@@ -336,7 +302,7 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
 
 <template>
   <div :style="{ position: 'relative' }">
-    <!-- ═══════ САМ ВИДЖЕТ — ИНВЕРТИРОВАННАЯ ПАНЕЛЬ ═══════ -->
+    <!-- ═══════ ВИДЖЕТ — ИНВЕРТИРОВАННАЯ ПАНЕЛЬ ═══════ -->
     <div
       :style="{
         display: 'flex',
@@ -344,7 +310,7 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
         background: PANEL_BG,
         borderRadius: '14px',
         padding: '16px 4px',
-        marginBottom: cfg.dashboardTourSeen.value ? '16px' : '6px',
+        marginBottom: '8px',
         cursor: isEmpty ? 'default' : 'pointer',
         position: 'relative',
         zIndex: tourActive ? 60 : 1,
@@ -352,27 +318,20 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
       }"
       @click.self="onWidgetTap"
     >
-      <!-- S комнат -->
       <div :style="fieldStyle('area')" @click.stop="onFieldTap('area')">
         <div
           :style="{
-            fontSize: '9px',
-            fontWeight: 700,
-            color: PANEL_FG_SEC,
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            opacity: 0.7,
+            fontSize: '9px', fontWeight: 700, color: PANEL_FG_SEC,
+            textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.7,
           }"
         >
           S комнат
         </div>
         <div
           :style="{
-            fontSize: '28px',
-            fontWeight: 800,
+            fontSize: '28px', fontWeight: 800,
             color: isEmpty ? PANEL_FG_SEC : PANEL_FG,
-            fontVariantNumeric: 'tabular-nums',
-            lineHeight: 1,
+            fontVariantNumeric: 'tabular-nums', lineHeight: 1,
           }"
         >
           {{ totalArea ?? '—' }}
@@ -382,27 +341,20 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
 
       <div :style="{ width: '1px', background: PANEL_DIVIDER, margin: '4px 0' }" />
 
-      <!-- Потолок -->
       <div :style="fieldStyle('ceiling')" @click.stop="onFieldTap('ceiling')">
         <div
           :style="{
-            fontSize: '9px',
-            fontWeight: 700,
-            color: PANEL_FG_SEC,
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            opacity: 0.7,
+            fontSize: '9px', fontWeight: 700, color: PANEL_FG_SEC,
+            textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.7,
           }"
         >
           потолок
         </div>
         <div
           :style="{
-            fontSize: '28px',
-            fontWeight: 800,
+            fontSize: '28px', fontWeight: 800,
             color: isEmpty ? PANEL_FG_SEC : PANEL_FG,
-            fontVariantNumeric: 'tabular-nums',
-            lineHeight: 1,
+            fontVariantNumeric: 'tabular-nums', lineHeight: 1,
           }"
         >
           {{ ceilingDisplay ?? '—' }}
@@ -412,39 +364,29 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
 
       <div :style="{ width: '1px', background: PANEL_DIVIDER, margin: '4px 0' }" />
 
-      <!-- Свет -->
       <div :style="fieldStyle('light')" @click.stop="onFieldTap('light')">
         <div
           :style="{
-            fontSize: '9px',
-            fontWeight: 700,
-            color: PANEL_FG_SEC,
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            opacity: 0.7,
+            fontSize: '9px', fontWeight: 700, color: PANEL_FG_SEC,
+            textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.7,
           }"
         >
           свет
         </div>
         <div
           :style="{
-            fontSize: '28px',
-            fontWeight: 800,
+            fontSize: '28px', fontWeight: 800,
             color: isEmpty ? PANEL_FG_SEC : PANEL_FG,
-            fontVariantNumeric: 'tabular-nums',
-            lineHeight: 1,
-            display: 'flex',
-            alignItems: 'baseline',
+            fontVariantNumeric: 'tabular-nums', lineHeight: 1,
+            display: 'flex', alignItems: 'baseline',
           }"
         >
           <template v-if="lightPoints">
             <span>{{ lightPoints.used }}</span>
             <span
               :style="{
-                fontSize: '14px',
-                color: PANEL_FG_SEC,
-                fontWeight: 500,
-                opacity: 0.55,
+                fontSize: '14px', color: PANEL_FG_SEC,
+                fontWeight: 500, opacity: 0.55,
               }"
             >
               /{{ lightPoints.max }}
@@ -466,23 +408,18 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
         padding: '8px 12px',
         background: T.neutral + '10',
         borderRadius: '8px',
-        marginBottom: '16px',
+        marginBottom: '8px',
         fontSize: '11px',
         color: T.textSec,
       }"
     >
       <span :style="{ flex: 1 }">
-        Тапните на виджет для деталей и управления →
+        Тапните на параметр или «Дополнительно» для деталей →
       </span>
       <button
         :style="{
-          background: 'none',
-          border: 'none',
-          color: T.textDim,
-          cursor: 'pointer',
-          padding: '2px 6px',
-          fontSize: '14px',
-          lineHeight: 1,
+          background: 'none', border: 'none', color: T.textDim,
+          cursor: 'pointer', padding: '2px 6px', fontSize: '14px', lineHeight: 1,
         }"
         @click="dismissHint"
       >
@@ -490,7 +427,7 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
       </button>
     </div>
 
-    <!-- ═══════ Expand-панель ═══════ -->
+    <!-- ═══════ Expand-панель (только разбивка, без действий) ═══════ -->
     <div
       v-if="expanded && !isEmpty"
       :style="{
@@ -498,7 +435,7 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
         border: `1px solid ${T.border}`,
         borderRadius: '12px',
         padding: '14px',
-        marginBottom: '16px',
+        marginBottom: '8px',
       }"
     >
       <!-- Если фокус — пояснение для конкретного поля -->
@@ -514,64 +451,43 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
       >
         <div
           :style="{
-            fontSize: '10px',
-            fontWeight: 700,
-            color: T.neutral,
-            textTransform: 'uppercase',
-            letterSpacing: '0.8px',
-            marginBottom: '4px',
+            fontSize: '10px', fontWeight: 700, color: T.neutral,
+            textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px',
           }"
         >
           {{ TOUR_FIELDS.find(f => f.id === focusField)?.title }}
         </div>
-        <div
-          :style="{
-            fontSize: '12px',
-            color: T.text,
-            lineHeight: 1.5,
-          }"
-        >
+        <div :style="{ fontSize: '12px', color: T.text, lineHeight: 1.5 }">
           {{ TOUR_FIELDS.find(f => f.id === focusField)?.text }}
         </div>
       </div>
 
-      <!-- Заголовок «по комнатам» -->
       <div
         :style="{
-          fontSize: '10px',
-          fontWeight: 700,
-          color: T.textDim,
-          textTransform: 'uppercase',
-          letterSpacing: '0.8px',
-          marginBottom: '8px',
+          fontSize: '10px', fontWeight: 700, color: T.textDim,
+          textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px',
         }"
       >
         по комнатам
       </div>
 
-      <!-- Без фокуса — общая таблица (всё в одной строке) -->
+      <!-- Без фокуса — общая таблица -->
       <template v-if="focusField === null">
         <div
           v-for="r in roomsAll"
           :key="r.id"
           :style="{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'baseline',
-            padding: '8px 0',
-            fontSize: '13px',
-            color: T.text,
-            borderBottom: `1px solid ${T.border}`,
-            gap: '12px',
+            display: 'flex', justifyContent: 'space-between',
+            alignItems: 'baseline', padding: '8px 0',
+            fontSize: '13px', color: T.text,
+            borderBottom: `1px solid ${T.border}`, gap: '12px',
           }"
         >
           <span :style="{ flexShrink: 0 }">{{ r.name }}</span>
           <span
             :style="{
-              color: T.textSec,
-              fontVariantNumeric: 'tabular-nums',
-              fontSize: '12px',
-              textAlign: 'right',
+              color: T.textSec, fontVariantNumeric: 'tabular-nums',
+              fontSize: '12px', textAlign: 'right',
             }"
           >
             {{ r.area }} м² · {{ r.ceiling.toFixed(1) }} м · {{ r.fxCount }}/{{ r.pointsMax }}
@@ -579,17 +495,14 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
         </div>
       </template>
 
-      <!-- Фокус: area — только площади (диапазон или customArea) -->
+      <!-- area: только диапазоны площадей -->
       <template v-else-if="focusField === 'area'">
         <div
           v-for="r in roomsByArea"
           :key="r.id"
           :style="{
-            display: 'flex',
-            justifyContent: 'space-between',
-            padding: '8px 0',
-            fontSize: '13px',
-            color: T.text,
+            display: 'flex', justifyContent: 'space-between',
+            padding: '8px 0', fontSize: '13px', color: T.text,
             borderBottom: `1px solid ${T.border}`,
           }"
         >
@@ -600,17 +513,14 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
         </div>
       </template>
 
-      <!-- Фокус: ceiling — только высоты потолков -->
+      <!-- ceiling: только высоты -->
       <template v-else-if="focusField === 'ceiling'">
         <div
           v-for="r in roomsByCeiling"
           :key="r.id"
           :style="{
-            display: 'flex',
-            justifyContent: 'space-between',
-            padding: '8px 0',
-            fontSize: '13px',
-            color: T.text,
+            display: 'flex', justifyContent: 'space-between',
+            padding: '8px 0', fontSize: '13px', color: T.text,
             borderBottom: `1px solid ${T.border}`,
           }"
         >
@@ -621,28 +531,22 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
         </div>
       </template>
 
-      <!-- Фокус: light — светильники и точки подключения -->
+      <!-- light: светильники / точки -->
       <template v-else-if="focusField === 'light'">
         <div
           v-for="r in roomsByLight"
           :key="r.id"
           :style="{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'baseline',
-            padding: '8px 0',
-            fontSize: '13px',
-            color: T.text,
-            borderBottom: `1px solid ${T.border}`,
-            gap: '8px',
+            display: 'flex', justifyContent: 'space-between',
+            alignItems: 'baseline', padding: '8px 0',
+            fontSize: '13px', color: T.text,
+            borderBottom: `1px solid ${T.border}`, gap: '8px',
           }"
         >
           <span>{{ r.name }}</span>
           <span
             :style="{
-              color: T.textSec,
-              fontVariantNumeric: 'tabular-nums',
-              fontSize: '12px',
+              color: T.textSec, fontVariantNumeric: 'tabular-nums', fontSize: '12px',
             }"
           >
             {{ r.fxCount }}
@@ -651,116 +555,132 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
           </span>
         </div>
       </template>
+    </div>
 
-      <!-- Блок «Дополнительно» — единственная точка для shareLink/changeHome -->
-      <div :style="{ marginTop: '14px' }">
+    <!-- ═══════ Блок «Дополнительно» — всегда снаружи, на главном виде ═══════ -->
+    <div :style="{ marginBottom: '16px' }">
+      <button
+        :style="{
+          width: '100%',
+          padding: '12px 14px',
+          background: T.card,
+          border: `1px solid ${T.border}`,
+          borderRadius: '10px',
+          color: T.text,
+          cursor: 'pointer',
+          fontSize: '13px',
+          fontWeight: 600,
+          fontFamily: 'inherit',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }"
+        @click="moreOpen = !moreOpen"
+      >
+        <span :style="{ display: 'flex', alignItems: 'center', gap: '8px' }">
+          <svg
+            width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
+            :style="{ color: T.textSec }"
+          >
+            <circle cx="12" cy="12" r="1" />
+            <circle cx="19" cy="12" r="1" />
+            <circle cx="5" cy="12" r="1" />
+          </svg>
+          Дополнительно
+        </span>
+        <svg
+          width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"
+          :style="{
+            transform: moreOpen ? 'rotate(180deg)' : 'none',
+            transition: 'transform .2s',
+            color: T.textSec,
+          }"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      <!-- Раскрытое: 2 действия в столбец -->
+      <div
+        v-if="moreOpen"
+        :style="{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          marginTop: '8px',
+        }"
+      >
+        <!-- Сохранить ссылку -->
         <button
           :style="{
             width: '100%',
-            padding: '12px 14px',
-            background: 'none',
+            padding: '14px',
+            background: T.cardAlt,
             border: `1px solid ${T.border}`,
             borderRadius: '8px',
-            color: T.textSec,
+            color: T.text,
             cursor: 'pointer',
             fontSize: '13px',
             fontWeight: 600,
             fontFamily: 'inherit',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
+            justifyContent: 'center',
+            gap: '8px',
           }"
-          @click="moreOpen = !moreOpen"
+          @click="onSaveLinkClick"
         >
-          <span>Дополнительно</span>
           <svg
-            width="14" height="14" viewBox="0 0 24 24" fill="none"
+            width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round"
-            :style="{
-              transform: moreOpen ? 'rotate(180deg)' : 'none',
-              transition: 'transform .2s',
-            }"
           >
-            <polyline points="6 9 12 15 18 9" />
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
           </svg>
+          <span :style="{ color: T.text }">Сохранить ссылку на дом</span>
         </button>
 
-        <!-- Раскрытое: 2 действия -->
-        <div
-          v-if="moreOpen"
+        <!-- Начать заново -->
+        <button
           :style="{
+            width: '100%',
+            padding: '14px',
+            background: T.cardAlt,
+            border: `1px solid ${T.border}`,
+            borderRadius: '8px',
+            color: T.text,
+            cursor: 'pointer',
+            fontSize: '13px',
+            fontWeight: 600,
+            fontFamily: 'inherit',
             display: 'flex',
-            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
             gap: '8px',
-            marginTop: '8px',
           }"
+          @click="onChangeHomeClick"
         >
-          <button
-            :style="{
-              width: '100%',
-              padding: '12px',
-              background: T.cardAlt,
-              border: `1px solid ${T.border}`,
-              borderRadius: '8px',
-              color: T.text,
-              cursor: 'pointer',
-              fontSize: '13px',
-              fontWeight: 600,
-              fontFamily: 'inherit',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-            }"
-            @click="emit('shareLink'); collapseExpand()"
+          <svg
+            width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
           >
-            <svg
-              width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round"
-            >
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-            </svg>
-            Сохранить ссылку на дом
-          </button>
-          <button
-            :style="{
-              width: '100%',
-              padding: '12px',
-              background: 'none',
-              border: `1px solid ${T.border}`,
-              borderRadius: '8px',
-              color: T.textSec,
-              cursor: 'pointer',
-              fontSize: '13px',
-              fontWeight: 600,
-              fontFamily: 'inherit',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-            }"
-            @click="emit('changeHome'); collapseExpand()"
-          >
-            <svg
-              width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round"
-            >
-              <polyline points="17 1 21 5 17 9" />
-              <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-              <polyline points="7 23 3 19 7 15" />
-              <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-            </svg>
-            Начать заново
-          </button>
-        </div>
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+            <path d="M21 3v5h-5" />
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+            <path d="M8 16H3v5" />
+          </svg>
+          <span :style="{ color: T.text }">Начать заново</span>
+        </button>
       </div>
     </div>
 
-    <!-- ═══════ Toast при тапе на поле ═══════ -->
+    <!-- ═══════ Toast ═══════ -->
     <div
       v-if="fieldToast && !expanded"
       :style="{
@@ -788,8 +708,7 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
     <div
       v-if="tourActive"
       :style="{
-        position: 'fixed',
-        inset: 0,
+        position: 'fixed', inset: 0,
         background: 'rgba(0,0,0,0.78)',
         zIndex: 55,
       }"
@@ -799,8 +718,7 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
       v-if="tourActive"
       :style="{
         position: 'fixed',
-        bottom: '24px',
-        left: '50%',
+        bottom: '24px', left: '50%',
         transform: 'translateX(-50%)',
         width: 'calc(100% - 32px)',
         maxWidth: '420px',
@@ -817,51 +735,35 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
           v-for="(_, i) in TOUR_FIELDS"
           :key="i"
           :style="{
-            height: '3px',
-            borderRadius: '2px',
+            height: '3px', borderRadius: '2px',
             flex: i === tourStep ? 2 : 1,
             background: i === tourStep ? T.neutral : T.border,
             transition: 'all .3s',
           }"
         />
       </div>
-
       <div
         :style="{
-          fontSize: '10px',
-          fontWeight: 700,
-          color: T.neutral,
-          textTransform: 'uppercase',
-          letterSpacing: '0.8px',
-          marginBottom: '6px',
+          fontSize: '10px', fontWeight: 700, color: T.neutral,
+          textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '6px',
         }"
       >
         {{ tourCurrentText.title }}
       </div>
       <div
         :style="{
-          fontSize: '14px',
-          color: T.text,
-          lineHeight: 1.55,
-          marginBottom: '16px',
+          fontSize: '14px', color: T.text, lineHeight: 1.55, marginBottom: '16px',
         }"
       >
         {{ tourCurrentText.text }}
       </div>
-
       <div :style="{ display: 'flex', gap: '8px' }">
         <button
           :style="{
-            flex: 1,
-            padding: '10px',
-            background: 'none',
-            border: `1px solid ${T.border}`,
-            color: T.textSec,
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '13px',
-            fontWeight: 600,
-            fontFamily: 'inherit',
+            flex: 1, padding: '10px', background: 'none',
+            border: `1px solid ${T.border}`, color: T.textSec,
+            borderRadius: '8px', cursor: 'pointer',
+            fontSize: '13px', fontWeight: 600, fontFamily: 'inherit',
           }"
           @click="finishTour"
         >
@@ -869,16 +771,9 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
         </button>
         <button
           :style="{
-            flex: 1,
-            padding: '10px',
-            background: T.neutral,
-            color: T.bg,
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '13px',
-            fontWeight: 700,
-            fontFamily: 'inherit',
+            flex: 1, padding: '10px', background: T.neutral, color: T.bg,
+            border: 'none', borderRadius: '8px', cursor: 'pointer',
+            fontSize: '13px', fontWeight: 700, fontFamily: 'inherit',
           }"
           @click="nextTourStep"
         >
@@ -887,7 +782,7 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
       </div>
     </div>
 
-    <!-- Подсветка текущего поля во время тура -->
+    <!-- Подсветка поля во время тура -->
     <div
       v-if="tourActive"
       :style="{

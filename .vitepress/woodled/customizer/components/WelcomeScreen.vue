@@ -2,35 +2,21 @@
 /**
  * WelcomeScreen.vue — Первая страница «План вашего леса».
  *
- * Концепция: garden planner вместо аналитики.
- * Каждая карточка шаблона = мини-схема дома с пропорциональными
- * блоками комнат, как сетка грядок в garden planning app.
+ * Концепция: garden planner.
+ * Карточка шаблона = одна горизонтальная диаграмма-лента всех комнат
+ * (включая кухню и коридор), где ширина каждой плашки пропорциональна
+ * её площади. Это даёт сразу два визуальных ответа:
+ *   1. Какие комнаты в формате
+ *   2. Их относительные размеры (видно «откуда складывается общая площадь»)
  *
- * Структура карточки:
+ * Деревья — главный акцент:
+ *   - Размер кружков заметно крупнее (16px), располагаются под названием
+ *   - На пастельном фоне комнаты читаются как «посаженные в эту комнату»
  *
- *   ┌────┐  [───Гостиная──][──Спальня──][Дет]   ← значимые комнаты
- *   │~65 │   ●●●●           ●●            ●●     (ширина пропорциональна
- *   └────┘   12–20          8–14          5–10    площади)
- *           + Кухня ● · Коридор ●●               ← сервис мелким текстом
+ * Стрелка → справа от плашки метража подчёркивает что вся карточка
+ * кликабельна целиком (юзер не путает «тап на комнату» с «тап на дом»).
  *
- * Принципы:
- *   1. Значимые комнаты (Спальня, Гостиная, Детская, Кабинет) —
- *      крупные плашки в ROOM_TINTS, ширина по площади. Внутри
- *      название + кружочки деревьев (oak/walnut/black).
- *
- *   2. Сервисные (Кухня, Коридор, Ванная) — компактная строка
- *      снизу. Это снимает повторение «Кухня · Коридор» в каждой
- *      карточке, освобождает место для значимых комнат.
- *
- *   3. Под значимыми комнатами — диапазон м² мелким текстом
- *      (rt.ranges[sizeIndex]). Юзер видит «откуда складывается»
- *      общая площадь шаблона.
- *
- *   4. Все 3 шаблона помещаются на одном экране мобильного:
- *      ~110px на карточку × 3 + заголовок + кнопка пустого ≈ 600px.
- *
- *   5. Бренд WOODLED намеренно убран — на первом экране это
- *      мостик из онбординга, не приложение.
+ * Брендовый header (Живой Дом / WOODLED ROTOR) намеренно убран.
  */
 
 import { computed } from 'vue'
@@ -42,24 +28,7 @@ import { useConfigurator } from '../store/configurator'
 
 const cfg = useConfigurator()
 
-/* ────────── Категории комнат ────────── */
-
-/** Значимые жилые комнаты — отображаются крупными плашками. */
-const MAIN_ROOMS: ReadonlySet<RoomTypeId> = new Set([
-  'living',
-  'bedroom',
-  'kids',
-  'office',
-])
-
-/** Сервисные/общие — отображаются мелкой строкой снизу. */
-function isMain(typeId: RoomTypeId): boolean {
-  return MAIN_ROOMS.has(typeId)
-}
-
-/* ────────── Структуры данных ────────── */
-
-interface MainRoomBlock {
+interface RoomBlock {
   name: string
   tint: string
   range: string
@@ -67,19 +36,11 @@ interface MainRoomBlock {
   trees: string[]
 }
 
-interface ServiceRoomBlock {
-  name: string
-  trees: string[]
-}
-
 interface TplCard {
   id: string
   areaLabel: string
-  mainRooms: MainRoomBlock[]
-  serviceRooms: ServiceRoomBlock[]
+  rooms: RoomBlock[]
 }
-
-/* ────────── Helpers ────────── */
 
 function collectTrees(tr: TemplateRoom): string[] {
   const trees: string[] = []
@@ -93,46 +54,25 @@ function collectTrees(tr: TemplateRoom): string[] {
 }
 
 function buildCard(tpl: HomeTemplate): TplCard {
-  const mainRooms: MainRoomBlock[] = []
-  const serviceRooms: ServiceRoomBlock[] = []
-
-  for (const tr of tpl.rooms) {
+  const blocks: RoomBlock[] = tpl.rooms.map((tr) => {
     const rt = getRT(tr.typeId as RoomTypeId)
     const sizeIdx = (tr.sizeIndex ?? 1) as 0 | 1 | 2
-    const trees = collectTrees(tr)
-
-    if (isMain(tr.typeId as RoomTypeId)) {
-      mainRooms.push({
-        name: rt.name,
-        tint: ROOM_TINTS[tr.typeId as RoomTypeId],
-        range: rt.ranges[sizeIdx],
-        sizeArea: rt.sizes[sizeIdx],
-        trees,
-      })
-    } else {
-      serviceRooms.push({
-        name: rt.name,
-        trees,
-      })
+    return {
+      name: rt.name,
+      tint: ROOM_TINTS[tr.typeId as RoomTypeId],
+      range: rt.ranges[sizeIdx],
+      sizeArea: rt.sizes[sizeIdx],
+      trees: collectTrees(tr),
     }
-  }
-
+  })
   return {
     id: tpl.id,
     areaLabel: tpl.areaLabel,
-    mainRooms,
-    serviceRooms,
+    rooms: blocks,
   }
 }
 
-const cards = computed<TplCard[]>(() =>
-  TEMPLATES.map(buildCard),
-)
-
-/** Сумма «единиц» по основным комнатам — для расчёта flex-basis. */
-function mainTotal(card: TplCard): number {
-  return card.mainRooms.reduce((s, r) => s + r.sizeArea, 0) || 1
-}
+const cards = computed<TplCard[]>(() => TEMPLATES.map(buildCard))
 
 function pickTemplate(id: string) {
   cfg.loadTemplate(id)
@@ -195,8 +135,8 @@ function startEmpty() {
         :key="c.id"
         :style="{
           display: 'flex',
-          alignItems: 'stretch',
-          gap: '12px',
+          alignItems: 'center',
+          gap: '10px',
           width: '100%',
           padding: '12px',
           background: T.card,
@@ -213,7 +153,7 @@ function startEmpty() {
         <div
           :style="{
             flexShrink: 0,
-            width: '64px',
+            width: '56px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -222,151 +162,126 @@ function startEmpty() {
             border: `1px solid ${T.neutral}28`,
             borderRadius: '8px',
             padding: '8px 4px',
+            alignSelf: 'stretch',
           }"
         >
           <div
             :style="{
-              fontSize: '15px',
+              fontSize: '13px',
               fontWeight: 700,
               color: T.neutral,
               lineHeight: 1,
               fontVariantNumeric: 'tabular-nums',
+              whiteSpace: 'nowrap',
             }"
           >
             {{ c.areaLabel }}
           </div>
         </div>
 
-        <!-- Правая часть -->
+        <!-- Лента всех комнат (включая кухню и коридор) — пропорциональные ширины -->
         <div
           :style="{
             flex: 1,
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '6px',
+            gap: '3px',
+            minHeight: '76px',
             minWidth: 0,
           }"
         >
-          <!-- Лента значимых комнат — пропорциональные ширины -->
           <div
+            v-for="(r, ri) in c.rooms"
+            :key="ri"
             :style="{
+              flexGrow: r.sizeArea,
+              flexShrink: 1,
+              flexBasis: '0',
+              minWidth: '40px',
               display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              background: r.tint,
+              borderRadius: '6px',
+              padding: '7px 8px',
               gap: '4px',
-              minHeight: '54px',
+              overflow: 'hidden',
             }"
           >
+            <!-- Название -->
             <div
-              v-for="(r, ri) in c.mainRooms"
-              :key="ri"
               :style="{
-                flex: r.sizeArea,
-                minWidth: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                background: r.tint,
-                borderRadius: '6px',
-                padding: '6px 8px',
-                gap: '4px',
+                fontSize: '10px',
+                fontWeight: 700,
+                color: T.bg,
+                lineHeight: 1.1,
+                whiteSpace: 'nowrap',
                 overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                opacity: 0.85,
               }"
             >
-              <!-- Название -->
-              <div
+              {{ r.name }}
+            </div>
+
+            <!-- Деревья — главный акцент, крупнее -->
+            <div
+              :style="{
+                display: 'flex',
+                gap: '4px',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                flex: 1,
+              }"
+            >
+              <span
+                v-for="(treeColor, ti) in r.trees"
+                :key="ti"
                 :style="{
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  color: T.bg,
-                  lineHeight: 1,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
+                  width: '14px',
+                  height: '14px',
+                  borderRadius: '50%',
+                  background: treeColor,
+                  border: treeColor === WCOL.black
+                    ? `1px solid rgba(19,17,14,0.4)`
+                    : 'none',
+                  flexShrink: 0,
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
                 }"
-              >
-                {{ r.name }}
-              </div>
-              <!-- Деревья -->
-              <div
-                :style="{
-                  display: 'flex',
-                  gap: '3px',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                }"
-              >
-                <span
-                  v-for="(treeColor, ti) in r.trees"
-                  :key="ti"
-                  :style="{
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '50%',
-                    background: treeColor,
-                    border: treeColor === WCOL.black
-                      ? `1px solid rgba(19,17,14,0.4)`
-                      : 'none',
-                    flexShrink: 0,
-                  }"
-                />
-              </div>
-              <!-- Диапазон м² -->
-              <div
-                :style="{
-                  fontSize: '9px',
-                  color: 'rgba(19,17,14,0.55)',
-                  fontVariantNumeric: 'tabular-nums',
-                  lineHeight: 1,
-                }"
-              >
-                {{ r.range }} м²
-              </div>
+              />
+            </div>
+
+            <!-- Диапазон м² -->
+            <div
+              :style="{
+                fontSize: '9px',
+                color: 'rgba(19,17,14,0.5)',
+                fontVariantNumeric: 'tabular-nums',
+                lineHeight: 1,
+                whiteSpace: 'nowrap',
+              }"
+            >
+              {{ r.range }}
             </div>
           </div>
+        </div>
 
-          <!-- Сервисные комнаты — компактная строка -->
-          <div
-            v-if="c.serviceRooms.length > 0"
-            :style="{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontSize: '10px',
-              color: T.textDim,
-              flexWrap: 'wrap',
-            }"
+        <!-- Справа: явная CTA-стрелка чтобы карточка читалась как кнопка-выбор -->
+        <div
+          :style="{
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: T.textSec,
+          }"
+        >
+          <svg
+            width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
           >
-            <span
-              v-for="(r, ri) in c.serviceRooms"
-              :key="ri"
-              :style="{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }"
-            >
-              <span v-if="ri > 0" :style="{ color: T.border }">·</span>
-              <span>{{ r.name }}</span>
-              <span
-                :style="{
-                  display: 'flex',
-                  gap: '2px',
-                }"
-              >
-                <span
-                  v-for="(treeColor, ti) in r.trees"
-                  :key="ti"
-                  :style="{
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    background: treeColor,
-                    flexShrink: 0,
-                  }"
-                />
-              </span>
-            </span>
-          </div>
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </div>
       </button>
     </div>
@@ -393,7 +308,7 @@ function startEmpty() {
       Начать с пустого дома
     </button>
 
-    <!-- Легенда деревьев — компактная -->
+    <!-- Легенда деревьев -->
     <div
       :style="{
         marginTop: '14px',
