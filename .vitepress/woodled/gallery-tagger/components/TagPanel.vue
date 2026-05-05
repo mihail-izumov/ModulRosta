@@ -4,7 +4,7 @@ import {
   Tag, ExternalLink, X, Check, RefreshCw, Trash2, AlertCircle,
 } from '../lib/icons'
 import { T } from '../lib/theme'
-import { countCritical, toggleIn, toDisplayUrl, SIZE_TAGS } from '../lib/gallery'
+import { countCritical, toggleIn, toDisplayUrl } from '../lib/gallery'
 import type { GalleryEntry } from '../lib/types'
 import { RTS } from '../../customizer/data/rooms'
 import { MD, FAMILIES, ALL_ZONES, type ModelId, type FamilyId } from '../../customizer/data/catalog'
@@ -91,9 +91,6 @@ function toggleWood(id: string) {
 }
 function toggleZone(id: string) {
   update({ zones: toggleIn(props.entry.zones, id as any) })
-}
-function toggleSize(id: string) {
-  update({ sizes: toggleIn(props.entry.sizes, id as any) })
 }
 
 function onKey(e: KeyboardEvent) {
@@ -302,25 +299,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             </div>
           </Section>
 
-          <!-- 5. Размер -->
-          <Section
-            :title="`Размер · ${entry.sizes.length}`"
-            :accent="entry.sizes.length ? T.neutral : T.textSec"
-          >
-            <div :style="{ display: 'flex', flexWrap: 'wrap', gap: '6px' }">
-              <Chip
-                v-for="s in SIZE_TAGS"
-                :key="s"
-                size="sm"
-                :active="entry.sizes.includes(s)"
-                @click="toggleSize(s)"
-              >
-                {{ s }}
-              </Chip>
-            </div>
-          </Section>
-
-          <!-- 6. Заметка -->
+          <!-- 5. Заметка -->
           <Section title="Заметка">
             <textarea
               :value="entry.note"
