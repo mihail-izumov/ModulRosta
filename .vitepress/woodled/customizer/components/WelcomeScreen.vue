@@ -17,11 +17,12 @@
  *   7. 3 карточки шаблонов с tint-glass pills комнат
  *   8. «или»
  *   9. EmptyButton «Создать с чистого листа»
- *   10. Логотип
+ *   10. Логотип WOODLED
  *
- * Glassmorphism — три стиля (darkGlass / warmGlass / tintGlass) через
- * radial-gradient с мягкими пятнами света. Pulse-анимация WoodOrb через
- * CSS keyframes + per-orb CSS variables для корректного цвета породы.
+ * ВАЖНО про стили: каждая визуальная роль вынесена в отдельную
+ * style-функцию (pillStyle / templateCardStyle / etc.) и возвращает
+ * единый объект. Это надёжнее spread'а внутри :style — Vue template
+ * иногда теряет вложенные свойства при `{...base, ...glass}`.
  */
 
 import { computed } from 'vue'
@@ -45,15 +46,14 @@ const WOOD_NAMES: Record<Wood, string> = {
   black: 'Чёрный дуб',
 }
 
-/* Порядок комнат в pills: спальня — главная (≡ якорь), гостиная вторая,
-   служебные (кухня/коридор/ванная) — в конце. Сортировка применяется
-   только к отображению pills, не меняет реальный порядок шаблона. */
 const ROOM_DISPLAY_ORDER: readonly RoomTypeId[] = [
   'bedroom', 'living', 'kids', 'office',
   'kitchen', 'hallway', 'bathroom', 'stairs',
 ] as const
 
-/* ─────────── Производные данные карточек шаблонов ─────────── */
+const LOGO_URL = 'https://runscale.ru/woodled/customizer/woodled-logo.svg'
+
+/* ─────────── Производные данные карточек ─────────── */
 
 interface PillRoom {
   type: RoomTypeId
@@ -123,26 +123,38 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
   return { r, g, b }
 }
 
-/* ─────────── Glass-стили (как в welcome-orb playground) ─────────── */
+/* ─────────── Style-функции (полные объекты, без spread в template) ─────────── */
 
-/** Тёмное стекло — для FinalCard и OnboardingLinkCard на фоне T.bg. */
-const darkGlass = {
-  background: `
-    radial-gradient(ellipse 90% 70% at 20% 0%, rgba(255,255,255,0.07), transparent 65%),
-    radial-gradient(ellipse 70% 50% at 100% 100%, rgba(255,255,255,0.025), transparent 70%),
-    rgba(255,255,255,0.012)
-  `,
-  border: '1px solid rgba(255,255,255,0.07)',
-  boxShadow: `
-    inset 0 1px 0 rgba(255,255,255,0.06),
-    0 2px 12px rgba(0,0,0,0.25)
-  `,
+const TEXT_RGB = hexToRgb(T.text)
+
+/** Карточка-шаблон или OnboardingLinkCard на тёмном фоне. */
+function darkGlassCard(extra: Record<string, string | number> = {}) {
+  return {
+    background: `
+      radial-gradient(ellipse 90% 70% at 20% 0%, rgba(255,255,255,0.07), transparent 65%),
+      radial-gradient(ellipse 70% 50% at 100% 100%, rgba(255,255,255,0.025), transparent 70%),
+      rgba(255,255,255,0.012)
+    `,
+    border: '1px solid rgba(255,255,255,0.07)',
+    boxShadow: `
+      inset 0 1px 0 rgba(255,255,255,0.06),
+      0 2px 12px rgba(0,0,0,0.25)
+    `,
+    ...extra,
+  }
 }
 
-/** Тёплое стекло — для HonorBoard. Просвечивает фон, тёплый glow. */
-const warmGlass = (() => {
-  const { r, g, b } = hexToRgb(T.text)
+/** HonorBoard — тёплое стекло. */
+function honorBoardStyle() {
+  const { r, g, b } = TEXT_RGB
   return {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    gap: '32px',
+    padding: '26px 16px 22px',
+    borderRadius: '12px',
+    marginBottom: '12px',
     background: `
       radial-gradient(ellipse 80% 70% at 25% 15%, rgba(${r},${g},${b},0.22), transparent 70%),
       radial-gradient(ellipse 60% 50% at 90% 90%, rgba(${r},${g},${b},0.10), transparent 75%),
@@ -154,12 +166,22 @@ const warmGlass = (() => {
       0 4px 22px rgba(0,0,0,0.3)
     `,
   }
-})()
+}
 
-/** Tint-стекло — для pills комнат. Цвет породы виден, но просвечивает фон. */
-function tintGlass(hex: string) {
+/**
+ * Pill комнаты — все стили в одном объекте, БЕЗ spread.
+ * Это убирает риск что Vue потеряет background/boxShadow при компиляции
+ * `{...base, ...tintGlass(...)}` — что и было причиной плоских pills.
+ */
+function pillStyle(hex: string) {
   const { r, g, b } = hexToRgb(hex)
   return {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '8px 14px 8px 12px',
+    borderRadius: '999px',
+    lineHeight: '1',
     background: `
       radial-gradient(ellipse 100% 80% at 25% 0%, rgba(${r},${g},${b},0.42), transparent 70%),
       radial-gradient(ellipse 80% 60% at 100% 100%, rgba(${r},${g},${b},0.18), transparent 70%),
@@ -173,15 +195,45 @@ function tintGlass(hex: string) {
   }
 }
 
-/* ─────────── WoodOrb стиль ─────────── */
+/** Карточка-шаблон. */
+function templateCardStyle() {
+  return darkGlassCard({
+    width: '100%',
+    padding: '0',
+    borderRadius: '12px',
+    textAlign: 'left',
+    cursor: 'pointer',
+    marginBottom: '8px',
+    fontFamily: 'inherit',
+    color: T.text,
+    display: 'flex',
+    alignItems: 'stretch',
+    overflow: 'hidden',
+  })
+}
+
+/** OnboardingLinkCard. */
+function onboardingLinkStyle() {
+  return darkGlassCard({
+    textDecoration: 'none',
+    marginTop: '16px',
+    width: '100%',
+    padding: '14px 16px',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    color: T.text,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '12px',
+    boxSizing: 'border-box',
+  })
+}
 
 /**
- * 3D-сфера дерева 56px с radial highlight, inset shadows,
- * двухслойным glow цвета породы и pulse-анимацией через keyframes.
- *
- * CSS variables --orb-glow / --orb-glow-soft передают КОНКРЕТНЫЙ цвет
- * породы в keyframes orbPulse — иначе все три сферы пульсировали бы
- * одним fallback-цветом (oak).
+ * 3D-сфера дерева 56px — оригинальные стили из welcome-orb.jsx
+ * + CSS-variables для per-orb pulse glow в keyframes.
  */
 function orbStyle(wood: Wood, delay: number): Record<string, string> {
   const color = WCOL[wood]
@@ -198,8 +250,6 @@ function orbStyle(wood: Wood, delay: number): Record<string, string> {
     flexShrink: '0',
     display: 'inline-block',
     border: wood === 'black' ? '1px solid rgba(19,17,14,0.55)' : 'none',
-    /* Initial box-shadow — переопределится CSS animation, но нужен для
-       первого кадра до старта анимации. */
     boxShadow: `
       inset 0 -2px 4px rgba(0,0,0,0.22),
       inset 0 2px 2px rgba(255,255,255,0.18),
@@ -208,7 +258,7 @@ function orbStyle(wood: Wood, delay: number): Record<string, string> {
       0 6px 18px rgba(0,0,0,0.45)
     `,
     animation: `orbPulse 4.5s ease-in-out ${delay}s infinite`,
-    /* CSS-variables для keyframes — каждая сфера пульсирует своим цветом */
+    /* Per-orb glow цвета — keyframes использует var(--orb-glow*) */
     '--orb-glow': `rgba(${r},${g},${b},0.45)`,
     '--orb-glow-soft': `rgba(${r},${g},${b},0.18)`,
     '--orb-glow-peak': `rgba(${r},${g},${b},0.55)`,
@@ -217,7 +267,7 @@ function orbStyle(wood: Wood, delay: number): Record<string, string> {
 }
 
 /** Tree — маленький плоский кружок породы 16px в pills. */
-function treeStyle(wood: Wood) {
+function treeStyle(wood: Wood, idx: number): Record<string, string | number> {
   return {
     width: '16px',
     height: '16px',
@@ -227,6 +277,9 @@ function treeStyle(wood: Wood) {
     display: 'inline-block',
     border: wood === 'black' ? '1px solid rgba(19,17,14,0.4)' : 'none',
     boxShadow: '0 1px 2px rgba(0,0,0,0.25)',
+    marginLeft: idx === 0 ? '0' : '-4px',
+    zIndex: 100 - idx,
+    position: 'relative',
   }
 }
 
@@ -280,18 +333,7 @@ const SECTION_LABEL = 'Любимые места'
     </div>
 
     <!-- ═══ HonorBoard — три деревянные сферы с цифрами ═══ -->
-    <div
-      :style="{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        gap: '32px',
-        padding: '26px 16px 22px',
-        borderRadius: '12px',
-        marginBottom: '12px',
-        ...warmGlass,
-      }"
-    >
+    <div :style="honorBoardStyle()">
       <div
         v-for="w in WOOD_ORDER"
         :key="w"
@@ -338,27 +380,10 @@ const SECTION_LABEL = 'Любимые места'
       </div>
     </div>
 
-    <!-- ═══ OnboardingLinkCard «Как рождается свет» ═══ -->
+    <!-- ═══ OnboardingLinkCard «Как рождается свет» — открываем в том же окне ═══ -->
     <a
       href="https://runscale.ru/woodled/onboarding"
-      target="_blank"
-      rel="noopener noreferrer"
-      :style="{
-        textDecoration: 'none',
-        marginTop: '16px',
-        width: '100%',
-        padding: '14px 16px',
-        borderRadius: '12px',
-        cursor: 'pointer',
-        fontFamily: 'inherit',
-        color: T.text,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '12px',
-        boxSizing: 'border-box',
-        ...darkGlass,
-      }"
+      :style="onboardingLinkStyle()"
     >
       <div :style="{ flex: 1 }">
         <div
@@ -443,20 +468,7 @@ const SECTION_LABEL = 'Любимые места'
       <button
         v-for="c in cards"
         :key="c.id"
-        :style="{
-          width: '100%',
-          padding: 0,
-          borderRadius: '12px',
-          textAlign: 'left',
-          cursor: 'pointer',
-          marginBottom: '8px',
-          fontFamily: 'inherit',
-          color: T.text,
-          display: 'flex',
-          alignItems: 'stretch',
-          overflow: 'hidden',
-          ...darkGlass,
-        }"
+        :style="templateCardStyle()"
         @click="pickTemplate(c.id)"
       >
         <div
@@ -559,15 +571,7 @@ const SECTION_LABEL = 'Любимые места'
             <div
               v-for="(r, ri) in c.rooms"
               :key="ri"
-              :style="{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '8px 14px 8px 12px',
-                borderRadius: '999px',
-                lineHeight: 1,
-                ...tintGlass(r.tint),
-              }"
+              :style="pillStyle(r.tint)"
             >
               <span
                 :style="{
@@ -591,13 +595,7 @@ const SECTION_LABEL = 'Любимые места'
                 <span
                   v-for="(w, ti) in r.trees"
                   :key="ti"
-                  :style="{
-                    marginLeft: ti === 0 ? '0' : '-4px',
-                    display: 'inline-flex',
-                    zIndex: 100 - ti,
-                    position: 'relative',
-                    ...treeStyle(w),
-                  }"
+                  :style="treeStyle(w, ti)"
                 />
               </div>
             </div>
@@ -682,18 +680,30 @@ const SECTION_LABEL = 'Любимые места'
       Создать с чистого листа
     </button>
 
-    <!-- ═══ Логотип ═══ -->
-    <div :style="{ marginTop: '44px', textAlign: 'center' }">
-      <span
+    <!-- ═══ Логотип WOODLED — SVG как CSS-mask, тонированный T.neutral ═══ -->
+    <div
+      :style="{
+        marginTop: '44px',
+        display: 'flex',
+        justifyContent: 'center',
+        opacity: 0.55,
+      }"
+    >
+      <div
         :style="{
-          fontSize: '13px',
-          fontWeight: 700,
-          color: T.textDim,
-          letterSpacing: '5px',
+          width: '130px',
+          height: '22px',
+          background: T.neutral,
+          maskImage: `url(${LOGO_URL})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          WebkitMaskImage: `url(${LOGO_URL})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
         }"
-      >
-        WOODLED
-      </span>
+      />
     </div>
   </div>
 </template>
