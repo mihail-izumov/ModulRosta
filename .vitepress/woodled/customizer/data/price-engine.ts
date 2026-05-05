@@ -6,18 +6,19 @@
  *
  * Формула:
  *   base = p[wood]
- *   + (l − lamps) × sur          // доп. патроны
- *   + diffuser (если hasDiffuser) // 500₽
- *   + moisture                    // 1000₽
- *   + bulbOpts.price              // Rotor X: 0/3000/3600
- *   | bulbPrice × l/lamps         // остальные: 250₽ × патроны
+ *   + (l − lamps) × sur            // доп. патроны
+ *   + bowl.price                    // платные чаши: wood_8 / hook_10 / chrome_14 = 1200₽
+ *   + diffuser (если hasDiffuser)   // 500₽
+ *   + moisture                      // 1000₽
+ *   + bulbOpts.price                // Rotor X: 0/3000/3600
+ *   | bulbPrice × l/lamps           // остальные: 250₽ × патроны
  *   × qty
  *
- * Чаши и wire НЕ входят в цену (показываются как бейдж в UI).
+ * Wire НЕ входит в цену в текущей версии (см. wireOpts.price если потребуется).
  */
 
 import { MD, type Fixture } from '../data/catalog'
-import { OPT_PRICE } from '../data/materials'
+import { OPT_PRICE, BOWLS } from '../data/materials'
 
 /**
  * Цена одного размещённого светильника с учётом всех опций.
@@ -34,8 +35,15 @@ export function itemPrice(it: Fixture): number {
   const extra = Math.max(0, l - m.lamps)
   price += extra * m.sur
 
-  // Рассеиватель (только если модель поддерживает)
   const opts = it.opts ?? {}
+
+  // Чаша — платные опции (wood_8 / hook_10 / chrome_14 = +1200 ₽)
+  if (opts.bowl) {
+    const bowl = BOWLS.find((b) => b.id === opts.bowl)
+    if (bowl) price += bowl.price
+  }
+
+  // Рассеиватель (только если модель поддерживает)
   if (opts.diffuser && m.hasDiffuser) {
     price += OPT_PRICE.diffuser
   }
