@@ -96,3 +96,28 @@ export const Z = {
   storyOverlay: 65,      // ещё выше — story поверх buy
   toast: 100,
 } as const
+
+/**
+ * ROOM_TINTS — пастельные цвета карточек комнат для шаблонов.
+ *
+ * Применяются ТОЛЬКО при загрузке шаблона через loadTemplate().
+ * Свой дом (через «Начать с пустого» или ручное добавление комнат)
+ * стартует без cardColor — юзер раскрашивает сам через ColorPickerModal.
+ *
+ * Палитра построена на интерьерных трендах 2026 для женской ЦА 25–40:
+ *   - Sage green, dusty mauve — главные feminine-тренды (F&B, Sherwin-Williams)
+ *   - Lavender, buttery yellow — возвращение пастелей в sophisticated виде
+ *   - Все приглушённые/«muted» — на тёмном фоне T.bg ощущаются взрослыми
+ *
+ * Подробнее: docs/ROOM_PALETTE.md
+ */
+export const ROOM_TINTS = {
+  living:   '#A8C09A', // Sage green — biophilic, центр жизни
+  bedroom:  '#D4A5B0', // Dusty mauve — главный feminine-тренд 2026
+  kitchen:  '#E8D5A0', // Buttery yellow — тёплый аппетитный
+  kids:     '#F0C9B0', // Soft peach — игривый без инфантильности
+  office:   '#C8B5D6', // Lavender — concentration, sophistication
+  hallway:  '#E8DCC4', // Warm cream — нейтральный приём
+  bathroom: '#B5C8D4', // Powder blue — свежесть
+  stairs:   '#C4A88A', // Mocha (Pantone 2025) — тёплый акцент
+} as const
