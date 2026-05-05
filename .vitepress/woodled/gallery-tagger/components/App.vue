@@ -23,7 +23,14 @@ import TagPanel from './TagPanel.vue'
 import ExportPanel from './ExportPanel.vue'
 import ImportPanel from './ImportPanel.vue'
 
-const DEFAULT_BASE_URL = 'https://raw.githubusercontent.com/mihail-izumov/ModulRosta/main/public/woodled/gallery/'
+// Локальный путь к папке public/woodled/gallery/ — VitePress сам обслужит.
+// Не используем raw.githubusercontent.com потому что GitHub блокирует hotlinking
+// (отдаёт картинки с Content-Disposition: attachment и X-Content-Type-Options: nosniff,
+// браузер не показывает их в <img>).
+const DEFAULT_BASE_URL = '/woodled/gallery/'
+
+// Старый дефолт — для миграции, если у юзера он уже в localStorage.
+const OLD_DEFAULT_BASE_URL = 'https://raw.githubusercontent.com/mihail-izumov/ModulRosta/main/public/woodled/gallery/'
 
 // === STATE ===
 const loaded = ref(false)
@@ -51,13 +58,27 @@ onMounted(() => {
   const u = storageGet(SK.baseUrl)
   const f = storageGet(SK.filenames)
   const e = storageGet(SK.entries)
-  if (u) baseUrl.value = u
+
+  // Миграция: если в localStorage сохранён старый дефолт (raw.githubusercontent...) —
+  // молча заменяем на новый локальный путь и пересобираем URL у всех записей.
+  const needsMigration = u === OLD_DEFAULT_BASE_URL
+  if (needsMigration) {
+    baseUrl.value = DEFAULT_BASE_URL
+  } else if (u) {
+    baseUrl.value = u
+  }
+
   if (f) filenamesText.value = f
   if (e) {
     try {
       const parsed = JSON.parse(e)
       if (Array.isArray(parsed)) {
-        entries.value = parsed.map(x => normalizeEntry(x, baseUrl.value))
+        entries.value = parsed.map(x => {
+          const norm = normalizeEntry(x, baseUrl.value)
+          // При миграции — пересчитать URL у каждой записи на новый base.
+          if (needsMigration) norm.url = joinUrl(baseUrl.value, norm.filename)
+          return norm
+        })
       }
     } catch { /* ignore */ }
   }
