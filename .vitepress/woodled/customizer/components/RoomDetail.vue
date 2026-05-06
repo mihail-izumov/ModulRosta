@@ -97,7 +97,12 @@ function addFx(fx: Fixture) {
     emit('feedback', `Максимум ${limit} точек для ${zName}`)
     return
   }
-  setFx([...props.room.fixtures, fx], `${MD[fx.m]?.name} добавлен`)
+  const newFixtures = [...props.room.fixtures, fx]
+  const newIdx = newFixtures.length - 1
+  emit('update', { ...props.room, fixtures: newFixtures })
+  emit('feedback', `${MD[fx.m]?.name} добавлен`)
+  // Сразу открываем FxEditor — новый светильник стартует в онбординг-режиме
+  emit('openFx', props.room.id, newIdx)
 }
 
 function handleSettingsPatch(key: keyof Room, value: unknown, toast?: string) {
