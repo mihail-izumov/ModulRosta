@@ -46,21 +46,24 @@ function startTimeline() {
   clearTimers()
   p.value = -1
   const schedule: [number, number][] = [
-    [200, 0],
-    [1200, 1],
-    [5500, 2],
-    [7500, 3],
+    [50, 0],     // фото проявляется почти сразу
+    [1000, 1],   // текст проявляется
+    [5500, 2],   // фото уходит, ламели разлетаются, текст 2
+    [7500, 3],   // ламели начинают spin
   ]
   schedule.forEach(([ms, val]) => {
     timers.push(setTimeout(() => { p.value = val }, ms))
   })
-  /* Финал — после полной длительности эмитим done */
-  timers.push(setTimeout(() => emit('done'), 9000))
+  /* Финал: пауза +1s после spin чтобы текст успел прочитаться,
+   * затем эмитим done — App.vue запускает crossfade в WelcomeScreen. */
+  timers.push(setTimeout(() => emit('done'), 11000))
 }
 
-onMounted(async () => {
-  await preloadImg(ROTOR_URL)
-  rotorLoaded.value = true
+onMounted(() => {
+  /* Таймлайн стартует сразу — фото проявится через v-if когда загрузится.
+   * Ждать preloadImg синхронно нельзя: это создаёт visible задержку перед
+   * запуском анимации. */
+  preloadImg(ROTOR_URL).then(() => { rotorLoaded.value = true })
   startTimeline()
 })
 

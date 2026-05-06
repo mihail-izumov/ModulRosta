@@ -338,8 +338,10 @@ function onPreloaderDone() {
   <!-- Welcome screen — первая страница для нового юзера.
        Это не overlay, а полноценный route наравне с остальными. -->
   <template v-else-if="!cfg.welcomeSeen.value">
-    <Preloader v-if="!preloaderDone" @done="onPreloaderDone" />
-    <WelcomeScreen v-else />
+    <Transition name="preloader-fade" mode="out-in">
+      <Preloader v-if="!preloaderDone" key="preloader" @done="onPreloaderDone" />
+      <WelcomeScreen v-else key="welcome" />
+    </Transition>
   </template>
 
   <template v-else>
@@ -627,5 +629,20 @@ textarea::placeholder {
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
+}
+
+/* Crossfade Preloader → WelcomeScreen.
+ * mode="out-in" гарантирует что Preloader сначала исчезает за 0.8s,
+ * затем WelcomeScreen появляется за 0.6s. Между ними нет «пустого
+ * промежутка» — браузер удерживает чёрный фон body. */
+.preloader-fade-leave-active {
+  transition: opacity 0.8s ease;
+}
+.preloader-fade-enter-active {
+  transition: opacity 0.6s ease;
+}
+.preloader-fade-leave-to,
+.preloader-fade-enter-from {
+  opacity: 0;
 }
 </style>

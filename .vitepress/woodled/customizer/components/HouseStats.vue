@@ -269,10 +269,12 @@ function onChangeHomeClick() {
 
 /* ────────── Стили ────────── */
 
-const PANEL_BG = T.text
+/* Тёплая жемчужная гамма WOODLED — ближе к онбордингу/основным страницам.
+ * Чуть теплее и золотистее чем T.text (#E8E0D4). */
+const PANEL_BG = '#EAE0CA'
 const PANEL_FG = T.bg
 const PANEL_FG_SEC = T.cardAlt
-const PANEL_FOCUS_BG = 'rgba(19,17,14,0.10)'
+const PANEL_FOCUS_BG = 'rgba(19,17,14,0.18)'
 const PANEL_PASSIVE_BG = 'rgba(19,17,14,0.07)'
 const PANEL_DIVIDER = 'rgba(19,17,14,0.10)'
 /* Кнопки внизу панели — светлее плашек (белый поверх жемчужного фона). */
@@ -529,8 +531,7 @@ function fieldStyle(field: FieldId) {
       <div
         v-if="focusField"
         :style="{
-          background: T.text + '24',
-          border: `1px solid ${T.text}38`,
+          background: PANEL_BG,
           borderRadius: '8px',
           padding: '10px 12px',
           marginBottom: '12px',
@@ -538,13 +539,14 @@ function fieldStyle(field: FieldId) {
       >
         <div
           :style="{
-            fontSize: '10px', fontWeight: 700, color: T.text,
+            fontSize: '10px', fontWeight: 700, color: PANEL_FG,
             textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px',
+            opacity: 0.7,
           }"
         >
           {{ TOUR_FIELDS.find(f => f.id === focusField)?.title }}
         </div>
-        <div :style="{ fontSize: '12px', color: T.text, lineHeight: 1.5 }">
+        <div :style="{ fontSize: '12px', color: PANEL_FG, lineHeight: 1.5 }">
           {{ TOUR_FIELDS.find(f => f.id === focusField)?.text }}
         </div>
       </div>
