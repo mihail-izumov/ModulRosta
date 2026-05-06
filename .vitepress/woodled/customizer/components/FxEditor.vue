@@ -142,50 +142,78 @@ const roomLabel=computed(()=>{
   return `${name} · ${props.roomArea} м²`
 })
 
-/** Текст-совет «что делать» под сеткой. Зависит от состояния выбора. */
+/** Текст-совет «что делать» под сеткой. Многострочный, покрывает все сценарии. */
 interface SizeAdvice{text:string;tone:'good'|'warn'|'bad'|'neutral'}
 const sizeAdvice=computed<SizeAdvice|null>(()=>{
   if(!sizeRecs.value||!hasRoomContext.value)return null
   const recs=sizeRecs.value
+  const sel=recs.find(r=>r.mid===build.value.m)
+  const rec=recs.find(r=>r.recommended)
+  if(!sel)return null
+  const selBright=getBright(sel.projectedRatio).name
   const cats=recs.map(r=>getBright(r.projectedRatio).name)
   const uniqueCats=[...new Set(cats)]
+  const comfCount=recs.filter(r=>r.projectedRatio>=0.8&&r.projectedRatio<=2.0).length
 
-  // Все варианты дают одинаковую яркость — выбор по дизайну
+  // 1. Выбран рекомендованный
+  if(rec&&rec.mid===sel.mid){
+    if(comfCount>1){
+      return{text:`${MD[rec.mid].name} — лучший баланс яркости и размера для вашей комнаты. Остальные «комфортные» тоже подойдут — выбирайте по диаметру под потолок и стиль интерьера.`,tone:'good'}
+    }
+    return{text:`${MD[rec.mid].name} — оптимальный выбор для этой комнаты. Ровно столько света, сколько нужно.`,tone:'good'}
+  }
+
+  // 2. Все одинаковая яркость
   if(uniqueCats.length===1){
-    const cat=uniqueCats[0]
-    if(cat==='Не хватает'||cat==='Приглушённо'){
-      return{text:`Этой коллекции мало для ${props.roomArea} м². Возьмите крупнейший и добавьте бра или торшер позже.`,tone:'bad'}
+    if(selBright==='Не хватает'||selBright==='Приглушённо'){
+      return{text:`Ни один размер этой коллекции не осветит ${props.roomArea} м² самостоятельно. Выберите крупнейший — он даст максимум, а остальной свет добавьте бра, торшером или спотами.`,tone:'bad'}
     }
-    if(cat==='Избыточно'){
-      return{text:`Будет очень много света — возьмите наименьший или поставьте диммер.`,tone:'warn'}
+    if(selBright==='Избыточно'){
+      return{text:`Все размеры дают слишком много света для этой комнаты. Возьмите наименьший и обязательно поставьте диммер — будете управлять яркостью.`,tone:'warn'}
     }
-    return{text:`Свет одинаковый. Крупнее — выразительнее, компактнее — деликатнее. Выбирайте под потолок и интерьер.`,tone:'neutral'}
+    if(selBright==='С запасом'){
+      return{text:`Все размеры дают запас яркости. Крупный — для выразительного потолка, компактный — если хотите минимализм. Диммер пригодится в любом случае.`,tone:'neutral'}
+    }
+    // Все «Комфортно»
+    return{text:`Все размеры подходят по яркости — свет одинаковый. Крупнее — выразительнее на потолке, компактнее — деликатнее. Выбирайте по диаметру под высоту потолка и стиль.`,tone:'neutral'}
   }
 
-  // Выбран рекомендованный
-  const rec=recs.find(r=>r.recommended)
-  const sel=recs.find(r=>r.mid===build.value.m)
-  if(rec&&sel&&rec.mid===sel.mid){
-    return{text:`Подходит для вашей комнаты — комфортный свет.`,tone:'good'}
-  }
-
-  // Выбран не рекомендованный
+  // 3. Выбран НЕ рекомендованный, есть рекомендация
   if(rec&&sel){
+    const recName=MD[rec.mid].name
     if(sel.modelLm<rec.modelLm){
-      return{text:`Может не хватить света. Возьмите ${MD[rec.mid].name} или добавьте бра/торшер после.`,tone:'warn'}
+      if(selBright==='Не хватает'){
+        return{text:`Этого размера не хватит — будет темно. Рекомендуем ${recName} или добавьте дополнительные светильники (бра, торшер).`,tone:'bad'}
+      }
+      if(selBright==='Приглушённо'){
+        return{text:`Получится приглушённый свет — для атмосферы хорошо, для работы мало. Хотите ярче — возьмите ${recName}.`,tone:'warn'}
+      }
+      return{text:`Чуть меньше рекомендуемого, но всё равно комфортно. Если любите яркость — возьмите ${recName}.`,tone:'neutral'}
     }
-    return{text:`Будет с запасом — поставьте диммер для управления яркостью.`,tone:'warn'}
+    // Больше рекомендуемого
+    if(selBright==='Избыточно'){
+      return{text:`Этот размер даст слишком много света. Возьмите ${recName} — он идеально балансирует, или поставьте диммер.`,tone:'warn'}
+    }
+    if(selBright==='С запасом'){
+      return{text:`Будет с запасом — хорошо для рабочей зоны или если в комнате тёмные стены. Поставьте диммер для вечернего режима.`,tone:'neutral'}
+    }
+    return{text:`Хороший выбор. Рекомендация — ${recName}, но ваш вариант тоже в комфортном диапазоне.`,tone:'good'}
   }
 
-  // Нет рекомендации, но яркости разные — общий совет
-  const sb=sel?getBright(sel.projectedRatio).name:''
-  if(sb==='Не хватает'||sb==='Приглушённо'){
-    return{text:`Для ${props.roomArea} м² недостаточно. Возьмите крупнее или добавьте бра.`,tone:'bad'}
+  // 4. Нет рекомендации, разные яркости
+  if(selBright==='Не хватает'){
+    return{text:`Для ${props.roomArea} м² этого мало. Возьмите крупнее или добавьте другие светильники — бра, торшер, споты.`,tone:'bad'}
   }
-  if(sb==='Избыточно'){
-    return{text:`Слишком много света — возьмите меньше или поставьте диммер.`,tone:'warn'}
+  if(selBright==='Приглушённо'){
+    return{text:`Приглушённый свет — создаст атмосферу, но для постоянного использования мало. Добавьте бра или возьмите размер крупнее.`,tone:'warn'}
   }
-  return{text:`Хороший выбор для вашей комнаты.`,tone:'good'}
+  if(selBright==='Избыточно'){
+    return{text:`Много света для этой комнаты. Возьмите размер поменьше или установите диммер.`,tone:'warn'}
+  }
+  if(selBright==='С запасом'){
+    return{text:`С запасом яркости — комфортно днём, а вечером приглушите диммером. Хороший вариант для светлых комнат и рабочих зон.`,tone:'neutral'}
+  }
+  return{text:`Комфортный уровень света для вашей комнаты.`,tone:'good'}
 })
 
 function adviceColor(tone:'good'|'warn'|'bad'|'neutral'):string{
@@ -193,6 +221,14 @@ function adviceColor(tone:'good'|'warn'|'bad'|'neutral'):string{
   if(tone==='warn')return T.yellow
   if(tone==='bad')return T.red
   return T.neutral
+}
+
+/** «Выбери за меня» — переключает на рекомендуемый размер. */
+function selectBestForMe(){
+  const best=recommendedMid.value
+  if(!best)return
+  mid.value=best
+  upBuild({m:best,lamps:MD[best].lamps})
 }
 
 /** Статусы яркости для модалки «Как подбирается размер». */
@@ -317,24 +353,24 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
           </div>
           <div v-if="curStep!=='size'" :style="{fontSize:'12px',color:T.textSec}">{{ curStep==='bulbs'?`${build.lamps} ${spw(build.lamps)}`:meta.desc }}</div>
         </div>
+
+        <!-- Бейдж комнаты — ВНЕ карточки, по центру над ней -->
+        <div v-if="curStep==='size'&&roomLabel" :style="{textAlign:'center',marginBottom:'12px'}">
+          <div :style="{display:'inline-block',padding:'7px 16px',borderRadius:'20px',background:`linear-gradient(135deg, ${(props.roomTint??T.neutral)}33, ${(props.roomTint??T.neutral)}10)`,border:`1px solid ${(props.roomTint??T.neutral)}55`,fontSize:'13px',fontWeight:600,color:T.text,letterSpacing:'.2px'}">{{ roomLabel }}</div>
+        </div>
+
         <div :style="{background:T.card,border:`1px solid ${T.border}`,borderRadius:'12px',padding:'16px'}">
 
-          <!-- SIZE — Smart-подбор -->
+          <!-- SIZE — Смарт-подбор -->
           <div v-if="curStep==='size'&&families">
 
-            <!-- Заголовок «Смарт-подбор» — крупно -->
-            <div v-if="hasRoomContext" :style="{textAlign:'center',marginBottom:'12px'}">
-              <div :style="{fontSize:'18px',fontWeight:800,color:T.neutral,letterSpacing:'.3px',marginBottom:'8px'}">Смарт-подбор</div>
-
-              <!-- Бейдж комнаты с её цветом -->
-              <div v-if="roomLabel" :style="{display:'inline-block',padding:'7px 16px',borderRadius:'20px',background:`linear-gradient(135deg, ${(props.roomTint??T.neutral)}33, ${(props.roomTint??T.neutral)}10)`,border:`1px solid ${(props.roomTint??T.neutral)}55`,fontSize:'13px',fontWeight:600,color:T.text,letterSpacing:'.2px',marginBottom:'10px'}">{{ roomLabel }}</div>
-
-              <!-- Подобрали X -->
-              <div v-if="recommendedMid" :style="{fontSize:'13px',color:T.text,fontWeight:500,marginBottom:'10px'}">Подобрали <span :style="{fontWeight:700}">{{ MD[recommendedMid].name }}</span></div>
-
-              <!-- Бабл «Как подбирается размер» -->
-              <button :style="{display:'inline-flex',alignItems:'center',gap:'6px',padding:'5px 12px',borderRadius:'12px',background:T.cardAlt,border:`1px solid ${T.border}`,color:T.textSec,cursor:'pointer',fontSize:'11px'}" @click="showHelp=true">
-                <span :style="{width:'14px',height:'14px',borderRadius:'50%',background:T.neutral+'33',color:T.neutral,display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:'9px',fontWeight:700,fontFamily:'serif',fontStyle:'italic'}">i</span>
+            <!-- Заголовок -->
+            <div v-if="hasRoomContext" :style="{textAlign:'center',marginBottom:'14px'}">
+              <div :style="{fontSize:'18px',fontWeight:800,color:T.neutral,letterSpacing:'.3px',marginBottom:'6px'}">Смарт-подбор</div>
+              <div v-if="recommendedMid" :style="{fontSize:'13px',color:T.text,fontWeight:500,marginBottom:'8px'}">Подобрали <span :style="{fontWeight:700}">{{ MD[recommendedMid].name }}</span></div>
+              <!-- Бабл «Как подбирается размер» — яркий -->
+              <button :style="{display:'inline-flex',alignItems:'center',gap:'6px',padding:'6px 14px',borderRadius:'14px',background:T.neutral+'22',border:`1px solid ${T.neutral}55`,color:T.text,cursor:'pointer',fontSize:'12px',fontWeight:500}" @click="showHelp=true">
+                <span :style="{width:'16px',height:'16px',borderRadius:'50%',background:T.neutral,color:T.bg,display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:'10px',fontWeight:800}">?</span>
                 <span>Как подбирается размер</span>
               </button>
             </div>
@@ -356,7 +392,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
                 <!-- Letter + check -->
                 <div :style="{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',gap:'6px'}">
                   <span :style="{fontSize:'20px',fontWeight:800,color:build.m===fid?T.text:T.textSec}">{{ MD[fid].letter }}</span>
-                  <span v-if="recommendedMid===fid" :style="{width:'18px',height:'18px',borderRadius:'50%',background:T.green,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px',color:T.bg,fontWeight:700}">✓</span>
+                  <span v-if="recommendedMid===fid" :style="{width:'20px',height:'20px',borderRadius:'50%',background:T.green,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'12px',color:T.bg,fontWeight:700}">✓</span>
                 </div>
 
                 <!-- Бейдж яркости -->
@@ -364,32 +400,36 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
                   {{ brightLabel(fid) }}
                 </div>
 
-                <!-- Бейдж размера в цвет статуса -->
-                <div :style="{padding:'5px 12px',borderRadius:'7px',background:(hasRoomContext?brightColor(fid):T.textDim)+'14',border:`1px solid ${(hasRoomContext?brightColor(fid):T.textDim)}33`,color:T.text,fontSize:'12px',fontWeight:700,whiteSpace:'nowrap'}">
-                  Ø{{ MD[fid].dimD }} см
-                </div>
-
-                <!-- Параметры -->
-                <div :style="{fontSize:'11px',color:T.textDim,lineHeight:'1.5',marginTop:'2px'}">
+                <!-- Параметры ярче -->
+                <div :style="{fontSize:'12px',color:T.textSec,lineHeight:'1.6',marginTop:'2px'}">
+                  <div :style="{fontWeight:600}">{{ MD[fid].dimD }} см</div>
                   <div>{{ fmt(MD[fid].lmPer*MD[fid].lamps) }} лм</div>
                   <div>для {{ MD[fid].sqMin }}–{{ MD[fid].sqMax }} м²</div>
                 </div>
               </button>
             </div>
 
-            <!-- Блок «Что делать» — рекомендация в цвет комнаты -->
+            <!-- Кнопка «Выбери за меня» -->
+            <button v-if="recommendedMid&&build.m!==recommendedMid"
+              :style="{width:'100%',padding:'12px',marginBottom:'14px',borderRadius:'10px',cursor:'pointer',border:`1px solid ${T.green}55`,background:T.green+'12',color:T.green,fontSize:'13px',fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',gap:'8px'}"
+              @click="selectBestForMe"
+            >
+              <span :style="{width:'20px',height:'20px',borderRadius:'50%',background:T.green,color:T.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'12px',fontWeight:700}">✓</span>
+              Выбери за меня
+            </button>
+
+            <!-- Блок совета с анимацией ламелей -->
             <div v-if="sizeAdvice" :style="{
               padding:'12px 14px',
               background:`linear-gradient(135deg, ${(props.roomTint??T.neutral)}26, ${(props.roomTint??T.neutral)}10)`,
               border:`1px solid ${(props.roomTint??T.neutral)}44`,
               borderRadius:'10px',
-              display:'flex',gap:'12px',alignItems:'center',
+              display:'flex',gap:'12px',alignItems:'flex-start',
             }">
-              <!-- Брендовая анимация ламелей -->
               <div class="rotor-mini" aria-hidden="true">
                 <div v-for="i in 12" :key="i" class="rotor-mini-l" :style="{'--rot': ((i-1)/12*360)+'deg', animationDelay: ((i-1)*30)+'ms'}" />
               </div>
-              <div :style="{fontSize:'12px',lineHeight:1.5,color:T.text,flex:1,fontWeight:500}">{{ sizeAdvice.text }}</div>
+              <div :style="{fontSize:'12px',lineHeight:1.6,color:T.text,flex:1}">{{ sizeAdvice.text }}</div>
             </div>
           </div>
 
@@ -408,19 +448,13 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
       </template>
     </div>
 
-    <!-- ═══════ HELP MODAL: Как подбирается размер ═══════ -->
-    <div v-if="showHelp" :style="{position:'fixed',inset:0,zIndex:50,background:'rgba(0,0,0,.7)',display:'flex',alignItems:'flex-end',justifyContent:'center'}" @click.self="showHelp=false">
+    <!-- ═══════ HELP MODAL: Смарт-подбор ═══════ -->
+    <div v-if="showHelp" :style="{position:'fixed',inset:0,zIndex:50,background:'rgba(0,0,0,.75)',display:'flex',alignItems:'flex-end',justifyContent:'center'}" @click.self="showHelp=false">
       <div :style="{width:'100%',maxWidth:'480px',maxHeight:'92vh',overflow:'auto',background:T.bg,borderTopLeftRadius:'18px',borderTopRightRadius:'18px',borderTop:`1px solid ${T.border}`}">
-        <!-- Drag handle -->
-        <div :style="{display:'flex',justifyContent:'center',padding:'10px 0 4px'}">
-          <div :style="{width:'40px',height:'4px',borderRadius:'2px',background:T.border}"/>
-        </div>
-        <!-- Header -->
-        <div :style="{padding:'8px 20px 16px',position:'relative'}">
-          <button :style="{position:'absolute',top:'8px',right:'12px',width:'32px',height:'32px',borderRadius:'50%',background:T.cardAlt,border:`1px solid ${T.border}`,color:T.textSec,cursor:'pointer',fontSize:'15px',lineHeight:1}" @click="showHelp=false">✕</button>
+        <div :style="{padding:'20px 20px 16px'}">
 
-          <!-- Hero — крупная анимация ламелей -->
-          <div :style="{display:'flex',justifyContent:'center',padding:'24px 0 16px'}">
+          <!-- Hero -->
+          <div :style="{display:'flex',justifyContent:'center',padding:'20px 0 14px'}">
             <div class="rotor-hero" aria-hidden="true">
               <div v-for="i in 16" :key="i" class="rotor-hero-l" :style="{'--rot': ((i-1)/16*360)+'deg', animationDelay: ((i-1)*40)+'ms'}" />
             </div>
@@ -428,41 +462,32 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
 
           <div :style="{textAlign:'center',marginBottom:'24px'}">
             <div :style="{fontSize:'10px',fontWeight:700,color:T.neutral,letterSpacing:'1.5px',marginBottom:'8px'}">СМАРТ-ПОДБОР</div>
-            <div :style="{fontSize:'24px',fontWeight:800,color:T.text,lineHeight:1.2,marginBottom:'8px'}">Как подбирается<br/>размер</div>
-            <div :style="{fontSize:'13px',color:T.textSec,lineHeight:1.5,maxWidth:'320px',margin:'0 auto'}">Алгоритм сравнивает яркость ваших светильников с нормой для комнаты и подсказывает, что хорошо ляжет.</div>
+            <div :style="{fontSize:'22px',fontWeight:800,color:T.text,lineHeight:1.2,marginBottom:'10px'}">Как подбирается<br/>размер светильника</div>
+            <div :style="{fontSize:'13px',color:T.textSec,lineHeight:1.6,maxWidth:'340px',margin:'0 auto'}">Алгоритм WOODLED сравнивает яркость всех светильников в комнате с нормой и подсказывает лучшее сочетание.</div>
           </div>
 
           <!-- Три фактора -->
-          <div :style="{marginBottom:'28px'}">
-            <div :style="{fontSize:'11px',fontWeight:700,color:T.textDim,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'10px'}">Учитываем три фактора</div>
+          <div :style="{marginBottom:'24px'}">
+            <div :style="{fontSize:'12px',fontWeight:700,color:T.textSec,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'10px'}">Учитываем три фактора</div>
             <div :style="{display:'flex',flexDirection:'column',gap:'8px'}">
               <div :style="{padding:'14px',background:T.card,border:`1px solid ${T.border}`,borderRadius:'12px',display:'flex',gap:'12px',alignItems:'flex-start'}">
-                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.neutral+'22',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px'}">📐</div>
-                <div :style="{flex:1}">
-                  <div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'3px'}">Площадь и норма</div>
-                  <div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}">Базовая норма — 100 лм/м². Для спальни мягче, для кухни ярче. Каждая модель Rotor рассчитана на свой диапазон м².</div>
-                </div>
+                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.neutral+'22',display:'flex',alignItems:'center',justifyContent:'center'}"><Icon name="fxSize" :color="T.neutral" :size="18"/></div>
+                <div :style="{flex:1}"><div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'3px'}">Площадь и норма</div><div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}">Базовая норма — 100 лм/м². Для спальни мягче, для кухни ярче. Каждая модель Rotor рассчитана на свой диапазон м².</div></div>
               </div>
               <div :style="{padding:'14px',background:T.card,border:`1px solid ${T.border}`,borderRadius:'12px',display:'flex',gap:'12px',alignItems:'flex-start'}">
-                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.yellow+'22',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px'}">💡</div>
-                <div :style="{flex:1}">
-                  <div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'3px'}">Все светильники в комнате</div>
-                  <div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}">Спот, бра, торшер — суммируем общий свет, и на этом фоне считаем, сколько добавит выбранный Rotor.</div>
-                </div>
+                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.yellow+'22',display:'flex',alignItems:'center',justifyContent:'center'}"><Icon name="sun" :color="T.yellow" :size="18"/></div>
+                <div :style="{flex:1}"><div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'3px'}">Все светильники в комнате</div><div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}">Спот, бра, торшер — суммируем общий свет, и на этом фоне считаем, сколько добавит выбранный Rotor.</div></div>
               </div>
               <div :style="{padding:'14px',background:T.card,border:`1px solid ${T.border}`,borderRadius:'12px',display:'flex',gap:'12px',alignItems:'flex-start'}">
-                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.green+'22',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px'}">🪑</div>
-                <div :style="{flex:1}">
-                  <div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'3px'}">Мебель и зоны</div>
-                  <div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}">Стол, диван, кухонный гарнитур поднимают локальную норму — рабочей зоне нужно больше света, чем проходу.</div>
-                </div>
+                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.green+'22',display:'flex',alignItems:'center',justifyContent:'center'}"><Icon name="leafy" :color="T.green" :size="18"/></div>
+                <div :style="{flex:1}"><div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'3px'}">Мебель и зоны</div><div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}">Стол, диван, кухонный гарнитур поднимают локальную норму — рабочей зоне нужно больше света, чем проходу.</div></div>
               </div>
             </div>
           </div>
 
           <!-- Что означают статусы -->
-          <div :style="{marginBottom:'28px'}">
-            <div :style="{fontSize:'11px',fontWeight:700,color:T.textDim,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'10px'}">Что означают статусы</div>
+          <div :style="{marginBottom:'24px'}">
+            <div :style="{fontSize:'12px',fontWeight:700,color:T.textSec,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'10px'}">Что означают статусы</div>
             <div :style="{display:'flex',flexDirection:'column',gap:'6px'}">
               <div v-for="row in helpStatuses" :key="row.label" :style="{padding:'10px 12px',background:T.card,border:`1px solid ${T.border}`,borderRadius:'10px',display:'flex',alignItems:'center',gap:'10px'}">
                 <div :style="{padding:'4px 10px',borderRadius:'6px',background:row.color+'22',color:row.color,fontSize:'11px',fontWeight:700,whiteSpace:'nowrap',flexShrink:0,minWidth:'92px',textAlign:'center'}">{{ row.label }}</div>
@@ -471,38 +496,63 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             </div>
           </div>
 
+          <!-- Кнопка «Выбери за меня» -->
+          <div :style="{marginBottom:'24px'}">
+            <div :style="{fontSize:'12px',fontWeight:700,color:T.textSec,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'10px'}">Кнопка «Выбери за меня»</div>
+            <div :style="{padding:'14px',background:T.green+'10',border:`1px solid ${T.green}33`,borderRadius:'12px'}">
+              <div :style="{display:'flex',alignItems:'center',gap:'8px',marginBottom:'6px'}">
+                <span :style="{width:'22px',height:'22px',borderRadius:'50%',background:T.green,color:T.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'13px',fontWeight:700}">✓</span>
+                <span :style="{fontSize:'13px',fontWeight:700,color:T.green}">Доверьтесь зелёной галочке</span>
+              </div>
+              <div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.6}">Если несколько размеров подходят — нажмите «Выбери за меня». Алгоритм выберет самый сбалансированный: ровно столько света, сколько нужно, без переплаты за избыточный размер.</div>
+            </div>
+          </div>
+
           <!-- Когда довериться -->
           <div :style="{marginBottom:'24px'}">
-            <div :style="{fontSize:'11px',fontWeight:700,color:T.textDim,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'10px'}">Когда положиться на алгоритм</div>
+            <div :style="{fontSize:'12px',fontWeight:700,color:T.textSec,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'10px'}">Когда положиться на алгоритм</div>
             <div :style="{padding:'14px',background:T.green+'10',border:`1px solid ${T.green}33`,borderRadius:'12px',marginBottom:'8px'}">
-              <div :style="{fontSize:'13px',fontWeight:700,color:T.green,marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}"><span>✓</span>Доверьтесь зелёной галочке</div>
-              <div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}">Обычная комната с типичной мебелью, потолок до 2.7 м — рекомендация попадёт в комфортный диапазон.</div>
+              <div :style="{display:'flex',alignItems:'center',gap:'8px',marginBottom:'6px'}">
+                <span :style="{width:'22px',height:'22px',borderRadius:'50%',background:T.green,color:T.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'13px',fontWeight:700}">✓</span>
+                <span :style="{fontSize:'13px',fontWeight:700,color:T.green}">Обычная комната</span>
+              </div>
+              <div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.6}">Типичная мебель, потолок до 2.7 м, светлые стены — рекомендация попадёт в комфортный диапазон.</div>
             </div>
             <div :style="{padding:'14px',background:T.cardAlt,border:`1px solid ${T.border}`,borderRadius:'12px'}">
-              <div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'8px'}">Возьмите ответственность сами:</div>
-              <ul :style="{margin:0,padding:'0 0 0 18px',fontSize:'12px',color:T.textSec,lineHeight:1.6}">
-                <li>Высокий потолок (&gt;3 м) → возьмите крупнее</li>
-                <li>Тёмные стены, мало окон → возьмите крупнее</li>
-                <li>Конкретный ритуал (кино, чтение) → выбирайте под зону</li>
-                <li>Светлый минимализм → можно мельче рекомендации</li>
-              </ul>
+              <div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'10px'}">Играйте — выбирайте и пробуйте:</div>
+              <div :style="{display:'flex',flexDirection:'column',gap:'8px'}">
+                <div :style="{display:'flex',gap:'8px',alignItems:'flex-start'}"><span :style="{color:T.yellow,fontSize:'14px',flexShrink:0,marginTop:'1px'}">→</span><div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}"><b :style="{color:T.text}">Высокий потолок (&gt;3 м)</b> — выберите на размер крупнее, свет расходится на больший объём</div></div>
+                <div :style="{display:'flex',gap:'8px',alignItems:'flex-start'}"><span :style="{color:T.yellow,fontSize:'14px',flexShrink:0,marginTop:'1px'}">→</span><div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}"><b :style="{color:T.text}">Тёмные стены, мало окон</b> — тоже крупнее, тёмные поверхности поглощают свет</div></div>
+                <div :style="{display:'flex',gap:'8px',alignItems:'flex-start'}"><span :style="{color:T.yellow,fontSize:'14px',flexShrink:0,marginTop:'1px'}">→</span><div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}"><b :style="{color:T.text}">Конкретная задача</b> (чтение, кино, готовка) — выбирайте под зону, а не под всю комнату</div></div>
+                <div :style="{display:'flex',gap:'8px',alignItems:'flex-start'}"><span :style="{color:T.yellow,fontSize:'14px',flexShrink:0,marginTop:'1px'}">→</span><div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}"><b :style="{color:T.text}">Хотите минимализм</b> — возьмите компактнее, добавьте диммер для управления яркостью</div></div>
+              </div>
             </div>
           </div>
 
-          <!-- Как пользоваться -->
+          <!-- Как пользоваться — карточки-шаги -->
           <div :style="{marginBottom:'24px'}">
-            <div :style="{fontSize:'11px',fontWeight:700,color:T.textDim,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'10px'}">Как пользоваться</div>
-            <ol :style="{margin:0,padding:'0 0 0 20px',fontSize:'13px',color:T.textSec,lineHeight:1.7}">
-              <li><b :style="{color:T.text}">Сравните все размеры</b> — статусы помогают увидеть, как каждый ляжет именно в эту комнату.</li>
-              <li><b :style="{color:T.text}">Если всё «комфортно»</b> — выбирайте по диаметру под потолок и общий стиль.</li>
-              <li><b :style="{color:T.text}">Если все «не хватает»</b> — берите крупнейший и добавьте бра или торшер.</li>
-              <li><b :style="{color:T.text}">Если все «избыточно»</b> — берите наименьший или поставьте диммер.</li>
-              <li><b :style="{color:T.text}">Подбор обновляется</b> при добавлении или удалении светильников в комнате.</li>
-            </ol>
+            <div :style="{fontSize:'12px',fontWeight:700,color:T.textSec,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'10px'}">Как пользоваться</div>
+            <div :style="{display:'flex',flexDirection:'column',gap:'6px'}">
+              <div :style="{padding:'12px 14px',background:T.card,border:`1px solid ${T.border}`,borderRadius:'10px',display:'flex',gap:'10px',alignItems:'flex-start'}">
+                <span :style="{width:'22px',height:'22px',borderRadius:'6px',background:T.neutral+'22',color:T.neutral,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px',fontWeight:800,flexShrink:0}">1</span>
+                <div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}"><b :style="{color:T.text}">Сравните карточки</b> — каждый статус показывает, как ляжет размер именно в эту комнату.</div>
+              </div>
+              <div :style="{padding:'12px 14px',background:T.card,border:`1px solid ${T.border}`,borderRadius:'10px',display:'flex',gap:'10px',alignItems:'flex-start'}">
+                <span :style="{width:'22px',height:'22px',borderRadius:'6px',background:T.neutral+'22',color:T.neutral,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px',fontWeight:800,flexShrink:0}">2</span>
+                <div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}"><b :style="{color:T.text}">Нажмите «Выбери за меня»</b> — если не уверены. Алгоритм подставит лучший вариант.</div>
+              </div>
+              <div :style="{padding:'12px 14px',background:T.card,border:`1px solid ${T.border}`,borderRadius:'10px',display:'flex',gap:'10px',alignItems:'flex-start'}">
+                <span :style="{width:'22px',height:'22px',borderRadius:'6px',background:T.neutral+'22',color:T.neutral,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px',fontWeight:800,flexShrink:0}">3</span>
+                <div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}"><b :style="{color:T.text}">Подбор обновляется</b> — при любом изменении в комнате (добавление/удаление светильников) статусы пересчитываются.</div>
+              </div>
+              <div :style="{padding:'12px 14px',background:T.card,border:`1px solid ${T.border}`,borderRadius:'10px',display:'flex',gap:'10px',alignItems:'flex-start'}">
+                <span :style="{width:'22px',height:'22px',borderRadius:'6px',background:T.neutral+'22',color:T.neutral,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px',fontWeight:800,flexShrink:0}">4</span>
+                <div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}"><b :style="{color:T.text}">Можно менять позже</b> — зайдите в чек-лист и пересмотрите размер когда добавите другие светильники.</div>
+              </div>
+            </div>
           </div>
 
-          <!-- Close button -->
-          <button :style="{width:'100%',padding:'14px',background:T.text,color:T.bg,border:'none',borderRadius:'12px',cursor:'pointer',fontSize:'14px',fontWeight:700,marginBottom:'12px'}" @click="showHelp=false">Понятно</button>
+          <button :style="{width:'100%',padding:'14px',background:T.text,color:T.bg,border:'none',borderRadius:'12px',cursor:'pointer',fontSize:'14px',fontWeight:700,marginBottom:'12px'}" @click="showHelp=false">Супер!</button>
         </div>
       </div>
     </div>
@@ -510,47 +560,29 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
 </template>
 
 <style scoped>
-/* Брендовая мини-анимация ламелей Rotor — для блока совета.
- * Цикл ~2.8s: assembly → hold → fade → pause. Каждая ламель staggered. */
-.rotor-mini {
-  width: 32px;
-  height: 32px;
-  position: relative;
-  flex-shrink: 0;
-}
+/* Мини-анимация ламелей — блок совета. Цикл ~6s (больше паузы). */
+.rotor-mini { width: 32px; height: 32px; position: relative; flex-shrink: 0; }
 .rotor-mini-l {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 2px;
-  height: 8px;
-  margin: -4px 0 0 -1px;
+  position: absolute; top: 50%; left: 50%;
+  width: 2px; height: 8px; margin: -4px 0 0 -1px;
   border-radius: 1px;
   background: linear-gradient(to bottom, #d4b87a, #b4915a, #8a6e3e);
   transform-origin: 50% 50%;
-  animation: rotorMiniCycle 2800ms ease-in-out infinite;
+  animation: rotorMiniCycle 6000ms ease-in-out infinite;
   opacity: 0;
 }
 @keyframes rotorMiniCycle {
   0%   { transform: rotate(var(--rot)) translateY(-22px) scale(0.3); opacity: 0; }
-  18%  { transform: rotate(var(--rot)) translateY(-10px) scale(1);   opacity: 0.95; }
-  60%  { transform: rotate(var(--rot)) translateY(-10px) scale(1);   opacity: 0.95; }
-  80%  { transform: rotate(var(--rot)) translateY(-22px) scale(0.4); opacity: 0; }
+  8%   { transform: rotate(var(--rot)) translateY(-10px) scale(1);   opacity: 0.95; }
+  28%  { transform: rotate(var(--rot)) translateY(-10px) scale(1);   opacity: 0.95; }
+  38%  { transform: rotate(var(--rot)) translateY(-22px) scale(0.4); opacity: 0; }
   100% { transform: rotate(var(--rot)) translateY(-22px) scale(0.3); opacity: 0; }
 }
-
-/* Большая версия для модалки — статичный круг + медленное вращение группы */
-.rotor-hero {
-  width: 100px;
-  height: 100px;
-  position: relative;
-  animation: rotorHeroSpin 18s linear infinite;
-}
+/* Hero — модалка */
+.rotor-hero { width: 100px; height: 100px; position: relative; animation: rotorHeroSpin 18s linear infinite; }
 .rotor-hero-l {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 3px;
-  height: 22px;
-  margin: -11px 0 0 -1.5px;
+  position: absolute; top: 50%; left: 50%;
+  width: 3px; height: 22px; margin: -11px 0 0 -1.5px;
   border-radius: 2px;
   background: linear-gradient(to bottom, #d4b87a, #b4915a, #8a6e3e);
   transform-origin: 50% 50%;
