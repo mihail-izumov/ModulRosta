@@ -45,10 +45,11 @@ import RoomDetail from './RoomDetail.vue'
 import FxEditor from './FxEditor.vue'
 import MoodDetailModal from './MoodDetailModal.vue'
 import WelcomeScreen from './WelcomeScreen.vue'
+import Preloader from './Preloader.vue'
 import HouseStats from './HouseStats.vue'
 import Modal from './ui/Modal.vue'
 import { readModelLink, clearModelLink } from '../engine/useModelLink'
-import { decodeFixture, readHashFixture, buildShareUrl } from '../engine/share'
+import { decodeFixture, readHashFixture } from '../engine/share'
 
 const cfg = useConfigurator()
 
@@ -250,18 +251,11 @@ function onResetCancel() {
 }
 
 /**
- * Копирует ссылку текущего дома в буфер обмена. Используется и из reset modal,
- * и из expand-панели HouseStats. После копирования — toast подтверждения.
+ * Открывает ShareModal — ту же модалку, что открывается из StickyBar.
+ * Используется кнопкой «Поделиться домом» в HouseStats.
  */
-async function onSaveShareLink() {
-  const url = buildShareUrl(cfg.name.value, cfg.rooms as Room[])
-  try {
-    await navigator.clipboard.writeText(url)
-    cfg.showFB('Ссылка на дом скопирована')
-  } catch {
-    /* iOS/Safari могут блокировать clipboard в некоторых контекстах. */
-    cfg.showFB(url)
-  }
+function onSaveShareLink() {
+  cfg.showShare.value = true
 }
 
 /**
@@ -291,6 +285,28 @@ watch(
     nextTick(() => window.scrollTo({ top: 0, behavior: 'instant' }))
   },
 )
+
+/* ────────── Preloader перед WelcomeScreen ──────────
+ *
+ * Каждый раз, когда юзер выходит на welcome (включая reset),
+ * сначала проигрывается брендовая интро-анимация. Когда Preloader
+ * эмитит 'done', WelcomeScreen становится видимым.
+ *
+ * preloaderDone сбрасывается при welcomeSeen → false (reset/?welcome),
+ * чтобы preloader проигрался заново.
+ */
+const preloaderDone = ref(false)
+
+watch(
+  () => cfg.welcomeSeen.value,
+  (seen) => {
+    if (!seen) preloaderDone.value = false
+  },
+)
+
+function onPreloaderDone() {
+  preloaderDone.value = true
+}
 </script>
 
 <template>
@@ -322,7 +338,8 @@ watch(
   <!-- Welcome screen — первая страница для нового юзера.
        Это не overlay, а полноценный route наравне с остальными. -->
   <template v-else-if="!cfg.welcomeSeen.value">
-    <WelcomeScreen />
+    <Preloader v-if="!preloaderDone" @done="onPreloaderDone" />
+    <WelcomeScreen v-else />
   </template>
 
   <template v-else>

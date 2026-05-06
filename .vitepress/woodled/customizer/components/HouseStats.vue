@@ -259,7 +259,7 @@ function dismissHint() {
   }
 }
 
-function onSaveLinkClick() {
+function onShareClick() {
   emit('shareLink')
 }
 
@@ -273,8 +273,11 @@ const PANEL_BG = T.text
 const PANEL_FG = T.bg
 const PANEL_FG_SEC = T.cardAlt
 const PANEL_FOCUS_BG = 'rgba(19,17,14,0.10)'
-const PANEL_PASSIVE_BG = 'rgba(19,17,14,0.03)'
+const PANEL_PASSIVE_BG = 'rgba(19,17,14,0.07)'
 const PANEL_DIVIDER = 'rgba(19,17,14,0.10)'
+/* Кнопки внизу панели — светлее плашек (белый поверх жемчужного фона). */
+const PANEL_BTN_BG = 'rgba(255,255,255,0.45)'
+const PANEL_BTN_BG_HOVER = 'rgba(255,255,255,0.65)'
 
 const tourCurrentField = computed<FieldId>(() => TOUR_FIELDS[tourStep.value].id)
 const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
@@ -314,21 +317,25 @@ function fieldStyle(field: FieldId) {
       :style="{
         background: PANEL_BG,
         borderRadius: '14px',
-        padding: '12px 4px 0',
+        padding: '6px',
         marginBottom: '8px',
         cursor: isEmpty ? 'default' : 'pointer',
         position: 'relative',
         zIndex: tourActive ? 60 : 1,
         boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
         overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '6px',
       }"
       @click.self="onWidgetTap"
     >
-      <!-- Три поля без разделителей -->
+      <!-- Три поля — равные gap, без разделителей -->
       <div
         :style="{
           display: 'flex',
           alignItems: 'stretch',
+          gap: '6px',
         }"
       >
         <div :style="fieldStyle('area')" @click.stop="onFieldTap('area')">
@@ -408,22 +415,20 @@ function fieldStyle(field: FieldId) {
         </div>
       </div>
 
-      <!-- Две кнопки действий — внутри панели, в один ряд -->
+      <!-- Две кнопки — без разделителей, светлее плашек, тот же gap -->
       <div
         :style="{
           display: 'flex',
-          gap: '1px',
-          borderTop: `1px solid ${PANEL_DIVIDER}`,
-          marginTop: '4px',
-          background: PANEL_DIVIDER,
+          gap: '6px',
         }"
       >
         <button
           :style="{
             flex: 1,
             padding: '10px 6px',
-            background: PANEL_BG,
+            background: PANEL_BTN_BG,
             border: 'none',
+            borderRadius: '8px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -431,28 +436,30 @@ function fieldStyle(field: FieldId) {
             gap: '6px',
             fontSize: '11px',
             fontWeight: 600,
-            color: PANEL_FG_SEC,
+            color: PANEL_FG,
             fontFamily: 'inherit',
-            opacity: 0.8,
           }"
-          @click.stop="onSaveLinkClick"
+          @click.stop="onShareClick"
         >
+          <!-- Иконка share -->
           <svg
             width="13" height="13" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round"
           >
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+            <polyline points="16 6 12 2 8 6" />
+            <line x1="12" y1="2" x2="12" y2="15" />
           </svg>
-          Сохранить ссылку
+          Поделиться домом
         </button>
         <button
           :style="{
             flex: 1,
             padding: '10px 6px',
-            background: PANEL_BG,
+            background: PANEL_BTN_BG,
             border: 'none',
+            borderRadius: '8px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -460,9 +467,8 @@ function fieldStyle(field: FieldId) {
             gap: '6px',
             fontSize: '11px',
             fontWeight: 600,
-            color: PANEL_FG_SEC,
+            color: PANEL_FG,
             fontFamily: 'inherit',
-            opacity: 0.8,
           }"
           @click.stop="onChangeHomeClick"
         >
@@ -523,8 +529,8 @@ function fieldStyle(field: FieldId) {
       <div
         v-if="focusField"
         :style="{
-          background: T.text + '12',
-          border: `1px solid ${T.text}22`,
+          background: T.text + '24',
+          border: `1px solid ${T.text}38`,
           borderRadius: '8px',
           padding: '10px 12px',
           marginBottom: '12px',

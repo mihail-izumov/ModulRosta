@@ -304,7 +304,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
     :style="{
       maxWidth: '480px',
       margin: '0 auto',
-      padding: '32px 16px 32px',
+      padding: '32px 16px 96px',
       fontFamily: `'Segoe UI', system-ui, sans-serif`,
       color: T.text,
       background: T.bg,
@@ -365,9 +365,9 @@ const SECTION_LABEL = 'Какой размер ближе?'
         marginRight: 'auto',
       }"
     >
-      Каждый покупатель WOODLED сажает своё дерево.
+      Каждое дерево здесь уже светит в чьём-то доме.
       <span :style="{ color: T.text, fontWeight: 600 }">
-        Присоединяйтесь — посадите свой.
+        Соберите свой план света — это бесплатно, 1–2 минуты.
       </span>
     </div>
 
@@ -483,8 +483,8 @@ const SECTION_LABEL = 'Какой размер ближе?'
         marginRight: 'auto',
       }"
     >
-      В тонкой ламели WOODLED остаётся свет настоящего дерева.
-      Выберите ближайший формат — настроите под себя на&nbsp;следующем шаге.
+      Так свет домой выбирают 10 000+ покупателей WOODLED — три формата
+      с метражом, комнатами и светильниками. Настроите под себя на&nbsp;следующем шаге.
     </div>
 
     <!-- ═══ SubLabel ═══ -->
