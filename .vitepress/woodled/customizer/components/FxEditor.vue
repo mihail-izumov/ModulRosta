@@ -57,6 +57,7 @@ const isNewFixture = !hasExistingOpts && existingDone.length === 0
 const inOnboarding = ref(isNewFixture)
 const view = ref<'steps'|'summary'>(isNewFixture ? 'steps' : 'summary')
 const showHelp = ref(false)
+const showDeleteConfirm = ref(false)
 const touched = ref(new Set<StepId>())
 const priceOpen = ref(false)
 
@@ -123,6 +124,9 @@ const myChoices=computed<[string,string][]>(()=>{
     (m.bulbPrice||m.bulbOpts)?['Лампочки',m.bulbOpts?(m.bulbOpts.find(x=>x.id===b.bulbOpt)?.label??'—'):(b.bulbs?`${b.lamps} шт в комплекте`:'Свои')]:null,
   ];return list.filter(Boolean) as [string,string][]
 })
+
+/** Мой выбор без строки «Свет» — она показывается баблами отдельно. */
+const myChoicesNoLight=computed(()=>myChoices.value.filter(([k])=>k!=='Свет'))
 
 /* ═══ SIZE RECOMMENDATION ═══ */
 const hasRoomContext=computed(()=>props.roomArea!=null&&props.roomBaseLm!=null&&props.roomCurrentLmWithoutThis!=null)
@@ -303,33 +307,56 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
       <!-- SUMMARY -->
       <template v-if="view==='summary'">
         <div :style="{background:T.card,border:`1px solid ${isDone?sc+'44':T.border}`,borderRadius:'14px',padding:'14px',marginBottom:'16px'}">
+          <!-- Hero row -->
           <div :style="{display:'flex',alignItems:'center',gap:'12px'}">
             <div :style="{width:'52px',height:'52px',borderRadius:'12px',background:WCOL[build.wood]+'22',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}"><Icon name="ceiling" :color="WCOL[build.wood]" :size="26"/></div>
             <div :style="{flex:1,minWidth:0}">
-              <div :style="{fontSize:'15px',fontWeight:700,color:T.text,marginBottom:'2px'}">{{ model.name }}</div>
-              <div :style="{fontSize:'11px',color:T.textDim,display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}">
-                <span :style="{textTransform:'uppercase',letterSpacing:'.5px'}">{{ model.type }} · {{ simMats.find(x=>x.id===build.wood)?.name }}</span>
+              <div :style="{fontSize:'15px',fontWeight:700,color:T.text,marginBottom:'4px'}">{{ model.name }}</div>
+              <div :style="{display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}">
+                <!-- Дерево — ярко, с кружком -->
+                <span :style="{display:'inline-flex',alignItems:'center',gap:'5px',padding:'2px 10px 2px 4px',borderRadius:'12px',background:WCOL[build.wood]+'22',fontSize:'11px',fontWeight:600,color:T.text}">
+                  <span :style="{width:'14px',height:'14px',borderRadius:'50%',background:WCOL[build.wood],flexShrink:0}"/>
+                  {{ simMats.find(x=>x.id===build.wood)?.name }}
+                </span>
                 <span :style="{display:'inline-block',padding:'2px 8px',borderRadius:'4px',background:sc+'22',fontSize:'10px',fontWeight:700,color:sc}">{{ status }}</span>
               </div>
             </div>
             <button :style="{background:'none',border:'none',cursor:'pointer',padding:'4px',display:'flex',flexDirection:'column',alignItems:'flex-end',color:T.neutral,flexShrink:0}" @click="priceOpen=!priceOpen">
               <span :style="{fontSize:'15px',fontWeight:800,fontVariantNumeric:'tabular-nums'}">{{ fmt(price) }} ₽</span>
-              <span :style="{fontSize:'10px',color:T.textSec,display:'flex',alignItems:'center',gap:'3px',marginTop:'2px'}">{{ priceOpen?'Скрыть':'Детали' }}<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" :style="{transform:priceOpen?'rotate(180deg)':'none',transition:'transform .2s'}"><polyline points="6 9 12 15 18 9"/></svg></span>
+              <span :style="{fontSize:'12px',color:T.textSec,display:'flex',alignItems:'center',gap:'3px',marginTop:'2px',fontWeight:500}">{{ priceOpen?'Скрыть':'Детали' }}<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" :style="{transform:priceOpen?'rotate(180deg)':'none',transition:'transform .2s'}"><polyline points="6 9 12 15 18 9"/></svg></span>
             </button>
           </div>
+
+          <!-- Price breakdown -->
           <div v-if="priceOpen" :style="{marginTop:'12px',paddingTop:'12px',borderTop:`1px solid ${T.border}`}">
             <div v-for="(row,i) in priceBreakdown" :key="i" :style="{display:'flex',justifyContent:'space-between',alignItems:'baseline',fontSize:'12px',padding:'3px 0'}"><span :style="{color:T.textSec}">{{ row.label }}</span><span :style="{color:i===0?T.text:T.yellow,fontWeight:600,fontVariantNumeric:'tabular-nums'}">{{ i===0?'':'+' }}{{ fmt(row.amount) }} ₽</span></div>
             <div :style="{display:'flex',justifyContent:'space-between',alignItems:'baseline',fontSize:'13px',fontWeight:800,color:T.text,marginTop:'6px',paddingTop:'8px',borderTop:`1px solid ${T.border}`}"><span>Итого</span><span :style="{color:T.neutral,fontVariantNumeric:'tabular-nums'}">{{ fmt(price) }} ₽</span></div>
           </div>
+
+          <!-- Мой выбор -->
           <div :style="{borderTop:`1px solid ${T.border}`,marginTop:'12px',paddingTop:'10px'}">
-            <div :style="{fontSize:'10px',fontWeight:700,color:T.neutral,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'6px'}">Мой выбор</div>
-            <div :style="{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))',gap:'4px 12px'}">
-              <div v-for="([k,v]) in myChoices" :key="k" :style="{display:'flex',justifyContent:'space-between',fontSize:'12px',gap:'8px'}"><span :style="{color:T.textSec,flexShrink:0}">{{ k }}</span><span :style="{fontWeight:600,color:T.text,textAlign:'right',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}">{{ v }}</span></div>
+            <div :style="{fontSize:'10px',fontWeight:700,color:T.neutral,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'8px'}">Мой выбор</div>
+
+            <!-- Свет — баблы -->
+            <div :style="{display:'flex',flexWrap:'wrap',gap:'6px',marginBottom:'8px'}">
+              <span :style="{padding:'4px 10px',borderRadius:'6px',background:T.neutral+'18',fontSize:'11px',fontWeight:600,color:T.text}">{{ build.lamps }} {{ spw(build.lamps) }}</span>
+              <span :style="{padding:'4px 10px',borderRadius:'6px',background:T.neutral+'18',fontSize:'11px',fontWeight:600,color:T.text}">{{ fmt(Math.round(build.lamps*model.lmPer*diffMult())) }} лм</span>
+              <span :style="{padding:'4px 10px',borderRadius:'6px',background:T.neutral+'18',fontSize:'11px',fontWeight:600,color:T.text}">{{ btempK() }}</span>
+            </div>
+
+            <!-- Остальные опции — колонка -->
+            <div :style="{display:'flex',flexDirection:'column',gap:'4px'}">
+              <div v-for="([k,v]) in myChoicesNoLight" :key="k" :style="{display:'flex',justifyContent:'space-between',fontSize:'12px',gap:'8px'}">
+                <span :style="{color:T.textSec,flexShrink:0}">{{ k }}</span>
+                <span :style="{fontWeight:600,color:T.text,textAlign:'right',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}">{{ v }}</span>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Комплектация -->
         <div :style="{background:T.card,border:`1px solid ${T.border}`,borderRadius:'10px',padding:'14px',marginBottom:'16px'}">
-          <div :style="{display:'flex',justifyContent:'space-between',marginBottom:'8px'}"><span :style="{fontSize:'13px',fontWeight:700}">Чек-лист</span><span :style="{fontSize:'12px',fontWeight:700,color:sc}">{{ isDone?'Готово':`${progress.done} из ${progress.total}` }}</span></div>
+          <div :style="{display:'flex',justifyContent:'space-between',marginBottom:'8px'}"><span :style="{fontSize:'13px',fontWeight:700}">Комплектация</span><span :style="{fontSize:'12px',fontWeight:700,color:sc}">{{ isDone?'Готово':`${progress.done} из ${progress.total}` }}</span></div>
           <div :style="{height:'6px',background:T.border,borderRadius:'4px',overflow:'hidden',marginBottom:'12px'}"><div :style="{height:'100%',width:progress.pct+'%',background:sc,borderRadius:'4px',transition:'width .3s'}"/></div>
           <button v-for="(s,i) in steps" :key="s" :style="{display:'flex',alignItems:'center',gap:'10px',width:'100%',padding:'10px 0',background:'none',border:'none',cursor:'pointer',borderBottom:i<steps.length-1?`1px solid ${T.border}`:'none',textAlign:'left'}" @click="goToStep(i)">
             <Icon :name="SM[s]?.icon??'sun'" :size="18" :color="build.steps[s]==='chosen'?T.green:T.textDim"/>
@@ -337,9 +364,16 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             <span :style="{fontSize:'10px',padding:'4px 10px',borderRadius:'5px',fontWeight:600,background:build.steps[s]==='chosen'?T.green+'22':T.neutral+'15',color:build.steps[s]==='chosen'?T.green:T.neutral}">{{ build.steps[s]==='chosen'?'Готово':'Выбрать' }}</span>
           </button>
         </div>
+
+        <!-- Actions -->
         <button :style="{width:'100%',padding:'14px',background:isDone?sc:T.neutral,color:T.bg,border:'none',borderRadius:'10px',cursor:'pointer',fontSize:'14px',fontWeight:700,marginBottom:'8px'}" @click="doSave">Сохранить</button>
         <button :style="{width:'100%',padding:'12px',background:'none',border:`1px solid ${T.border}`,borderRadius:'8px',color:T.textSec,cursor:'pointer',fontSize:'13px',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'6px',marginBottom:'20px'}" @click="shareFx"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Поделиться ссылкой на светильник</button>
-        <div :style="{textAlign:'center',marginTop:'24px',paddingTop:'20px',borderTop:`1px solid ${T.border}`}"><button :style="{padding:'8px 20px',background:'none',border:`1px solid ${T.red}55`,borderRadius:'6px',color:T.red,cursor:'pointer',fontSize:'12px'}" @click="emit('delete')">Удалить светильник</button></div>
+
+        <!-- Опасная зона -->
+        <div :style="{background:T.red+'08',border:`1px solid ${T.red}25`,borderRadius:'10px',padding:'14px',marginTop:'12px'}">
+          <div :style="{fontSize:'12px',color:T.textSec,marginBottom:'10px',lineHeight:1.5}">Светильник будет удалён из комнаты. Настройки не сохранятся — при повторном добавлении нужно будет собрать заново.</div>
+          <button :style="{width:'100%',padding:'10px',background:'none',border:`1px solid ${T.red}44`,borderRadius:'8px',color:T.red,cursor:'pointer',fontSize:'12px',fontWeight:600}" @click="showDeleteConfirm=true">Удалить светильник</button>
+        </div>
       </template>
 
       <!-- STEP -->
@@ -450,6 +484,18 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
         </div>
         <button :style="{width:'100%',marginTop:'14px',padding:'14px',border:'none',borderRadius:'10px',cursor:'pointer',fontWeight:700,fontSize:'14px',background:isTouched?T.text:T.neutral+'33',color:isTouched?T.bg:T.neutral}" @click="doCommit(isTouched)">{{ isTouched?'Готово':'Пропустить' }}</button>
       </template>
+    </div>
+
+    <!-- ═══════ DELETE CONFIRM ═══════ -->
+    <div v-if="showDeleteConfirm" :style="{position:'fixed',inset:0,zIndex:60,background:'rgba(0,0,0,.7)',display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}" @click.self="showDeleteConfirm=false">
+      <div :style="{width:'100%',maxWidth:'340px',background:T.bg,borderRadius:'16px',border:`1px solid ${T.border}`,padding:'24px 20px',textAlign:'center'}">
+        <div :style="{fontSize:'16px',fontWeight:700,color:T.text,marginBottom:'8px'}">Удалить светильник?</div>
+        <div :style="{fontSize:'13px',color:T.textSec,lineHeight:1.5,marginBottom:'20px'}">{{ model.name }} будет удалён из комнаты. Все настройки потеряются.</div>
+        <div :style="{display:'flex',gap:'8px'}">
+          <button :style="{flex:1,padding:'12px',borderRadius:'10px',border:`1px solid ${T.border}`,background:T.card,color:T.textSec,cursor:'pointer',fontSize:'13px',fontWeight:600}" @click="showDeleteConfirm=false">Отмена</button>
+          <button :style="{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:T.red,color:'#fff',cursor:'pointer',fontSize:'13px',fontWeight:700}" @click="showDeleteConfirm=false;emit('delete')">Удалить</button>
+        </div>
+      </div>
     </div>
 
     <!-- ═══════ HELP MODAL: Смарт-подбор ═══════ -->
