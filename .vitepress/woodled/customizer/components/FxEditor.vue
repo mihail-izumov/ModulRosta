@@ -3,16 +3,16 @@
  * FxEditor.vue — Страница светильника.
  *
  * Структура (сверху вниз):
- *   1. Sticky шапка: ← Назад, название светильника. БЕЗ цены (чтоб не лезла на кнопку звука).
- *   2. Hero-блок (НЕ sticky): иконка + название + тип·дерево + статус +
- *      разбивка цены (базовая + допы) + компактный «Мой выбор».
+ *   1. Sticky шапка: ← Назад, название светильника.
+ *   2. Hero-блок: иконка + название + тип·дерево + статус +
+ *      разбивка цены + компактный «Мой выбор».
  *   3. Чек-лист (тапается → экран шага → возврат сюда).
  *   4. Действия: Сохранить / Поделиться / Удалить.
  *
- * Когда юзер заходит в шаг (view='steps') — hero-блок скрывается, видны
- * только заголовок шага + контрол + кнопка «Готово».
- *
- * Это компонент-маршрут, рендерится без обёрток когда cfg.activeFx !== null.
+ * Шаг «Размер» обогащён рекомендацией: бейдж «Подходит» на оптимальной
+ * модели, индикатор покрытия площади, прогноз яркости/настроения.
+ * Данные комнаты приходят через опциональные пропсы roomArea / roomBaseLm /
+ * roomCurrentLmWithoutThis. Без них — стандартный UI без рекомендации.
  */
 
 import { computed, ref } from 'vue'
@@ -26,6 +26,8 @@ import {
   WOOD_TIPS, OPT_TIPS,
   type Wood, type Bowl,
 } from '../data/materials'
+import { getBright, autoMood } from '../data/moods'
+import { buildSizeRecommendation, type AreaFit, type SizeCandidate } from '../engine/autosize'
 import Icon, { type IconName } from './ui/Icons.vue'
 import { buildFixtureShareUrl } from '../engine/share'
 
@@ -36,6 +38,12 @@ interface Props {
   defWood?: Wood
   skipSize?: boolean
   backLabel?: string
+  /** Площадь комнаты (м²). Если undefined — рекомендация не показывается. */
+  roomArea?: number
+  /** Целевые люмены комнаты (baseLm). */
+  roomBaseLm?: number
+  /** Текущие люмены комнаты БЕЗ этого светильника. */
+  roomCurrentLmWithoutThis?: number
 }
 const props = withDefaults(defineProps<Props>(), {
   skipSize: false,
@@ -85,12 +93,10 @@ const stepIdx = ref(0)
 
 const hasExistingOpts = !!(props.item.opts && Object.keys(props.item.opts).length > 0)
 const existingDone = props.item.done ?? []
-/* Legacy: если был сохранён без `done`, но с `opts` — все шаги считаем выполненными. */
 const legacyAllDone = hasExistingOpts && existingDone.length === 0
 
 const view = ref<'steps' | 'summary'>('summary')
 const touched = ref(new Set<StepId>())
-/* Раскрытие блока разбивки цены (как dropdown). */
 const priceOpen = ref(false)
 
 interface Build {
@@ -181,7 +187,6 @@ const simMats = computed(() =>
 
 interface PriceRow { label: string; amount: number }
 
-/* Полный список «строк» в разбивке цены — компонуется из активных опций. */
 const priceBreakdown = computed<PriceRow[]>(() => {
   const m = model.value, b = build.value
   const items: PriceRow[] = []
@@ -194,7 +199,6 @@ const priceBreakdown = computed<PriceRow[]>(() => {
     items.push({ label: `+${extra} ${spw(extra)}`, amount: extra * m.sur })
   }
 
-  // Чаша — платные опции (wood_8 / hook_10 / chrome_14 = +1200 ₽)
   if (m.avBowls.length > 0 && b.bowl) {
     const bowl = ALL_BOWLS.find((x) => x.id === b.bowl)
     if (bowl && bowl.price > 0) {
@@ -248,7 +252,6 @@ const sc = computed(() =>
 )
 const isDone = computed(() => status.value === 'Собран')
 
-/* «Мой выбор» — компактные пары k/v только для модели-релевантных полей. */
 const myChoices = computed<[string, string][]>(() => {
   const m = model.value, b = build.value
   const list: ([string, string] | null)[] = [
@@ -265,6 +268,81 @@ const myChoices = computed<[string, string][]>(() => {
       : null,
   ]
   return list.filter(Boolean) as [string, string][]
+})
+
+/* ═══ SIZE RECOMMENDATION ═══ */
+
+/** Есть ли данные комнаты для показа рекомендации. */
+const hasRoomContext = computed(() =>
+  props.roomArea != null && props.roomBaseLm != null && props.roomCurrentLmWithoutThis != null,
+)
+
+/** Рекомендации для каждого члена семейства. null если нет контекста комнаты. */
+const sizeRecs = computed<SizeCandidate[] | null>(() => {
+  if (!hasRoomContext.value || !families.value) return null
+  return buildSizeRecommendation(
+    families.value,
+    props.roomArea!,
+    props.roomBaseLm!,
+    props.roomCurrentLmWithoutThis!,
+    props.item.q ?? 1,
+  )
+})
+
+/** Рекомендуемая модель (зелёный бейдж). */
+const recommendedMid = computed<ModelId | null>(() => {
+  if (!sizeRecs.value) return null
+  const rec = sizeRecs.value.find((r) => r.recommended)
+  return rec?.mid ?? null
+})
+
+/** Получить рекомендацию для конкретной модели. */
+function getRecFor(fid: ModelId): SizeCandidate | null {
+  if (!sizeRecs.value) return null
+  return sizeRecs.value.find((r) => r.mid === fid) ?? null
+}
+
+/** Цвет индикатора покрытия площади. */
+function areaFitColor(fit: AreaFit): string {
+  if (fit === 'ideal') return T.green
+  if (fit === 'acceptable') return T.yellow
+  return T.red
+}
+
+/** Текст прогноза яркости/настроения для кандидата. */
+function projectedLabel(fid: ModelId): string | null {
+  const rec = getRecFor(fid)
+  if (!rec) return null
+  const bright = getBright(rec.projectedRatio)
+  const mood = autoMood(rec.projectedRatio)
+  if (mood.id === 'empty') return bright.name
+  return `${mood.name} · ${bright.name}`
+}
+
+/** Цвет прогноза яркости. */
+function projectedColor(fid: ModelId): string {
+  const rec = getRecFor(fid)
+  if (!rec) return T.textDim
+  const bright = getBright(rec.projectedRatio)
+  return bright.color
+}
+
+/** Подсказка под списком размеров. */
+const sizeHintText = computed<string | null>(() => {
+  if (!sizeRecs.value || !props.roomArea) return null
+  const allPoor = sizeRecs.value.every((r) => r.areaFit === 'poor')
+  if (allPoor) return `Ни один размер не рассчитан на ${props.roomArea} м² — добавьте бра или торшер`
+
+  const rec = sizeRecs.value.find((r) => r.recommended)
+  if (!rec) return null
+  if (build.value.m === rec.mid) return 'Оптимальный размер для вашей комнаты'
+
+  const currentRec = sizeRecs.value.find((r) => r.mid === build.value.m)
+  if (!currentRec) return null
+  if (currentRec.modelLm < rec.modelLm) {
+    return `Для ${props.roomArea} м² может не хватить света — рекомендуем ${MD[rec.mid].name}`
+  }
+  return `Для ${props.roomArea} м² будет с запасом — можно диммировать`
 })
 
 /* ═══ MUTATIONS ═══ */
@@ -385,7 +463,7 @@ function bulbPer() {
       overflow: 'auto',
     }"
   >
-    <!-- ═══════ STICKY HEADER (без цены, чтоб не наезжала на звук) ═══════ -->
+    <!-- ═══════ STICKY HEADER ═══════ -->
     <div
       :style="{
         position: 'sticky',
@@ -451,7 +529,7 @@ function bulbPer() {
     >
       <!-- ═══════════════ SUMMARY ═══════════════ -->
       <template v-if="view === 'summary'">
-        <!-- ═══ HERO-БЛОК (компактный): иконка слева, инфо/цена справа, разбивка раскрывается ═══ -->
+        <!-- ═══ HERO-БЛОК ═══ -->
         <div
           :style="{
             background: T.card,
@@ -461,7 +539,6 @@ function bulbPer() {
             marginBottom: '16px',
           }"
         >
-          <!-- Top row: иконка + (название/тип/статус) + цена + chevron -->
           <div :style="{ display: 'flex', alignItems: 'center', gap: '12px' }">
             <div
               :style="{
@@ -511,7 +588,6 @@ function bulbPer() {
               </div>
             </div>
 
-            <!-- Цена с chevron — кликабельно -->
             <button
               :style="{
                 background: 'none',
@@ -552,7 +628,7 @@ function bulbPer() {
             </button>
           </div>
 
-          <!-- Раскрывающаяся разбивка цены -->
+          <!-- Разбивка цены -->
           <div
             v-if="priceOpen"
             :style="{
@@ -603,7 +679,7 @@ function bulbPer() {
             </div>
           </div>
 
-          <!-- Мой выбор (компактно, всегда виден) -->
+          <!-- Мой выбор -->
           <div
             :style="{
               borderTop: `1px solid ${T.border}`,
@@ -819,7 +895,7 @@ function bulbPer() {
             padding: '16px',
           }"
         >
-          <!-- size -->
+          <!-- ═══ SIZE (с рекомендацией) ═══ -->
           <div
             v-if="curStep === 'size' && families"
             :style="{ display: 'flex', flexDirection: 'column', gap: '6px' }"
@@ -840,9 +916,29 @@ function bulbPer() {
                   : `1px solid ${T.border}`,
                 background: build.m === fid ? T.neutral + '18' : T.card,
                 color: build.m === fid ? T.text : T.textSec,
+                position: 'relative',
               }"
               @click="() => { mid = fid; upBuild({ m: fid, lamps: MD[fid].lamps }) }"
             >
+              <!-- Бейдж «Подходит» -->
+              <div
+                v-if="recommendedMid === fid"
+                :style="{
+                  position: 'absolute',
+                  top: '-8px',
+                  right: '12px',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  background: T.green,
+                  fontSize: '9px',
+                  fontWeight: 700,
+                  color: T.bg,
+                  letterSpacing: '0.5px',
+                }"
+              >
+                ПОДХОДИТ
+              </div>
+
               <span
                 :style="{
                   padding: '4px 10px',
@@ -866,19 +962,63 @@ function bulbPer() {
                 <div :style="{ fontSize: '11px', color: T.textSec, marginTop: '2px' }">
                   {{ fmt(MD[fid].lmPer * MD[fid].lamps) }} лм
                 </div>
+                <!-- Прогноз яркости -->
+                <div
+                  v-if="getRecFor(fid)"
+                  :style="{
+                    fontSize: '10px',
+                    color: projectedColor(fid),
+                    marginTop: '4px',
+                    fontWeight: 600,
+                  }"
+                >
+                  → {{ projectedLabel(fid) }}
+                </div>
               </div>
-              <span
-                :style="{
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  background: T.neutral + '15',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                }"
-              >
-                {{ MD[fid].sqMin }}–{{ MD[fid].sqMax }} м²
-              </span>
+              <!-- Площадь с индикатором -->
+              <div :style="{ textAlign: 'right', flexShrink: 0 }">
+                <span
+                  :style="{
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    background: getRecFor(fid)
+                      ? areaFitColor(getRecFor(fid)!.areaFit) + '15'
+                      : T.neutral + '15',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    color: getRecFor(fid)
+                      ? areaFitColor(getRecFor(fid)!.areaFit)
+                      : T.text,
+                  }"
+                >
+                  {{ MD[fid].sqMin }}–{{ MD[fid].sqMax }} м²
+                </span>
+                <div
+                  v-if="hasRoomContext"
+                  :style="{
+                    fontSize: '9px',
+                    color: T.textDim,
+                    marginTop: '4px',
+                  }"
+                >
+                  ваша {{ props.roomArea }} м²
+                </div>
+              </div>
             </button>
+
+            <!-- Подсказка под списком -->
+            <div
+              v-if="sizeHintText"
+              :style="{
+                fontSize: '11px',
+                color: T.textSec,
+                textAlign: 'center',
+                marginTop: '6px',
+                lineHeight: 1.5,
+              }"
+            >
+              {{ sizeHintText }}
+            </div>
           </div>
 
           <!-- wood -->
@@ -972,30 +1112,18 @@ function bulbPer() {
             <div v-if="freeBowls.length > 0">
               <div
                 :style="{
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  color: T.textDim,
-                  textTransform: 'uppercase',
-                  letterSpacing: '.8px',
-                  marginBottom: '6px',
+                  fontSize: '10px', fontWeight: 700, color: T.textDim,
+                  textTransform: 'uppercase', letterSpacing: '.8px', marginBottom: '6px',
                 }"
               >
                 {{ paidBowls.length > 0 ? 'Стандарт · входит в цену' : 'Выберите чашу' }}
               </div>
-              <div
-                :style="{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '6px' }"
-              >
+              <div :style="{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '6px' }">
                 <button
-                  v-for="b in freeBowls"
-                  :key="b.id"
+                  v-for="b in freeBowls" :key="b.id"
                   :style="{
-                    padding: '10px 8px',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textAlign: 'center',
-                    border: build.bowl === b.id
-                      ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`)
-                      : `1px solid ${T.border}`,
+                    padding: '10px 8px', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
+                    border: build.bowl === b.id ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`,
                     background: build.bowl === b.id ? T.neutral + '18' : T.card,
                     color: build.bowl === b.id ? T.text : T.textSec,
                   }"
@@ -1006,135 +1134,64 @@ function bulbPer() {
               </div>
             </div>
             <div v-if="paidBowls.length > 0" :style="{ marginTop: freeBowls.length > 0 ? '12px' : '0' }">
-              <div
-                :style="{
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  color: T.yellow,
-                  textTransform: 'uppercase',
-                  letterSpacing: '.8px',
-                  marginBottom: '6px',
-                }"
-              >
+              <div :style="{ fontSize: '10px', fontWeight: 700, color: T.yellow, textTransform: 'uppercase', letterSpacing: '.8px', marginBottom: '6px' }">
                 С доплатой
               </div>
-              <div
-                :style="{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '6px' }"
-              >
+              <div :style="{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '6px' }">
                 <button
-                  v-for="b in paidBowls"
-                  :key="b.id"
+                  v-for="b in paidBowls" :key="b.id"
                   :style="{
-                    padding: '10px 8px',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textAlign: 'center',
-                    border: build.bowl === b.id
-                      ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`)
-                      : `1px solid ${T.border}`,
+                    padding: '10px 8px', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
+                    border: build.bowl === b.id ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`,
                     background: build.bowl === b.id ? T.neutral + '18' : T.card,
                     color: build.bowl === b.id ? T.text : T.textSec,
                   }"
                   @click="upBuild({ bowl: b.id })"
                 >
                   <div :style="{ fontSize: '12px', fontWeight: 600 }">{{ b.name }}</div>
-                  <div :style="{ fontSize: '11px', color: T.yellow, marginTop: '3px' }">
-                    +{{ fmt(b.price) }} ₽
-                  </div>
+                  <div :style="{ fontSize: '11px', color: T.yellow, marginTop: '3px' }">+{{ fmt(b.price) }} ₽</div>
                 </button>
               </div>
             </div>
           </div>
 
           <!-- temp -->
-          <div
-            v-else-if="curStep === 'temp'"
-            :style="{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }"
-          >
-            <button
-              v-for="bt in BTEMPS"
-              :key="bt.id"
+          <div v-else-if="curStep === 'temp'" :style="{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }">
+            <button v-for="bt in BTEMPS" :key="bt.id"
               :style="{
-                padding: '12px 6px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                textAlign: 'center',
-                border: build.btemp === bt.id
-                  ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`)
-                  : `1px solid ${T.border}`,
+                padding: '12px 6px', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
+                border: build.btemp === bt.id ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`,
                 background: build.btemp === bt.id ? T.neutral + '18' : T.card,
                 color: build.btemp === bt.id ? T.text : T.textSec,
               }"
               @click="upBuild({ btemp: bt.id })"
             >
               <div :style="{ fontSize: '13px', fontWeight: 700 }">{{ bt.label }}</div>
-              <div :style="{ fontSize: '11px', color: T.textDim, marginTop: '2px' }">
-                {{ bt.kelvin }}К
-              </div>
-              <div
-                v-if="bt.tip"
-                :style="{ fontSize: '10px', color: T.textSec, marginTop: '6px', lineHeight: '1.3' }"
-              >
-                {{ bt.tip }}
-              </div>
+              <div :style="{ fontSize: '11px', color: T.textDim, marginTop: '2px' }">{{ bt.kelvin }}К</div>
+              <div v-if="bt.tip" :style="{ fontSize: '10px', color: T.textSec, marginTop: '6px', lineHeight: '1.3' }">{{ bt.tip }}</div>
             </button>
           </div>
 
           <!-- patrons -->
           <div v-else-if="curStep === 'patrons'">
-            <div
-              :style="{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))', gap: '8px' }"
-            >
-              <button
-                v-for="v in lampOpts()"
-                :key="v"
+            <div :style="{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))', gap: '8px' }">
+              <button v-for="v in lampOpts()" :key="v"
                 :style="{
-                  padding: '14px 6px',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  border: build.lamps === v
-                    ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`)
-                    : `1px solid ${T.border}`,
-                  background: build.lamps === v ? T.neutral + '18' : T.card,
-                  transition: 'all .15s',
+                  padding: '14px 6px', borderRadius: '10px', cursor: 'pointer', textAlign: 'center',
+                  border: build.lamps === v ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`,
+                  background: build.lamps === v ? T.neutral + '18' : T.card, transition: 'all .15s',
                 }"
                 @click="upBuild({ lamps: v })"
               >
-                <div
-                  :style="{
-                    display: 'inline-block',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    background: T.neutral + '22',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    color: T.neutral,
-                    marginBottom: '8px',
-                  }"
-                >
+                <div :style="{ display: 'inline-block', padding: '2px 8px', borderRadius: '4px', background: T.neutral + '22', fontSize: '11px', fontWeight: 700, color: T.neutral, marginBottom: '8px' }">
                   {{ v }} {{ spw(v) }}
                 </div>
-                <div
-                  :style="{
-                    fontSize: '20px',
-                    fontWeight: 800,
-                    color: build.lamps === v ? T.yellow : T.text,
-                  }"
-                >
+                <div :style="{ fontSize: '20px', fontWeight: 800, color: build.lamps === v ? T.yellow : T.text }">
                   {{ fmt(Math.round(v * model.lmPer * diffMult())) }}
                   <span :style="{ fontSize: '12px', fontWeight: 400, color: T.textDim }">лм</span>
                 </div>
-                <div
-                  v-if="v === model.lamps"
-                  :style="{ fontSize: '10px', color: T.neutral, marginTop: '6px' }"
-                >
-                  стандарт
-                </div>
-                <div
-                  v-if="(v - model.lamps) * model.sur > 0"
-                  :style="{ fontSize: '11px', color: T.yellow, marginTop: '4px', fontWeight: 700 }"
-                >
+                <div v-if="v === model.lamps" :style="{ fontSize: '10px', color: T.neutral, marginTop: '6px' }">стандарт</div>
+                <div v-if="(v - model.lamps) * model.sur > 0" :style="{ fontSize: '11px', color: T.yellow, marginTop: '4px', fontWeight: 700 }">
                   +{{ fmt((v - model.lamps) * model.sur) }} ₽
                 </div>
               </button>
@@ -1142,53 +1199,27 @@ function bulbPer() {
           </div>
 
           <!-- diffuser -->
-          <div
-            v-else-if="curStep === 'diffuser'"
-            :style="{ display: 'flex', flexDirection: 'column', gap: '8px' }"
-          >
+          <div v-else-if="curStep === 'diffuser'" :style="{ display: 'flex', flexDirection: 'column', gap: '8px' }">
             <button
               :style="{
-                width: '100%',
-                padding: '14px 16px',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                textAlign: 'left',
-                border: build.diffuser
-                  ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`)
-                  : `1px solid ${T.border}`,
-                background: build.diffuser ? T.neutral + '12' : T.cardAlt,
-                color: T.text,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
+                width: '100%', padding: '14px 16px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left',
+                border: build.diffuser ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`,
+                background: build.diffuser ? T.neutral + '12' : T.cardAlt, color: T.text,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               }"
               @click="upBuild({ diffuser: true })"
             >
               <div>
                 <div :style="{ fontSize: '14px', fontWeight: 700 }">Добавить рассеиватель</div>
-                <div :style="{ fontSize: '11px', color: T.textDim, marginTop: '4px' }">
-                  {{ OPT_TIPS.diffuser.on }}
-                </div>
+                <div :style="{ fontSize: '11px', color: T.textDim, marginTop: '4px' }">{{ OPT_TIPS.diffuser.on }}</div>
               </div>
-              <span
-                :style="{ fontSize: '14px', fontWeight: 700, color: T.yellow, flexShrink: 0 }"
-              >
-                +{{ fmt(OPT_PRICE.diffuser) }} ₽
-              </span>
+              <span :style="{ fontSize: '14px', fontWeight: 700, color: T.yellow, flexShrink: 0 }">+{{ fmt(OPT_PRICE.diffuser) }} ₽</span>
             </button>
             <button
               :style="{
-                width: '100%',
-                padding: '14px 16px',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                textAlign: 'left',
-                border: !build.diffuser
-                  ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`)
-                  : `1px solid ${T.border}`,
-                background: !build.diffuser ? T.neutral + '12' : T.cardAlt,
-                color: T.textSec,
-                fontSize: '13px',
+                width: '100%', padding: '14px 16px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left',
+                border: !build.diffuser ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`,
+                background: !build.diffuser ? T.neutral + '12' : T.cardAlt, color: T.textSec, fontSize: '13px',
               }"
               @click="upBuild({ diffuser: false })"
             >
@@ -1197,24 +1228,12 @@ function bulbPer() {
           </div>
 
           <!-- wire -->
-          <div
-            v-else-if="curStep === 'wire' && model.wireOpts"
-            :style="{ display: 'flex', flexDirection: 'column', gap: '6px' }"
-          >
-            <button
-              v-for="w in model.wireOpts"
-              :key="w.id"
+          <div v-else-if="curStep === 'wire' && model.wireOpts" :style="{ display: 'flex', flexDirection: 'column', gap: '6px' }">
+            <button v-for="w in model.wireOpts" :key="w.id"
               :style="{
-                textAlign: 'left',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '12px 14px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                border: build.wire === w.id
-                  ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`)
-                  : `1px solid ${T.border}`,
+                textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '12px 14px', borderRadius: '8px', cursor: 'pointer',
+                border: build.wire === w.id ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`,
                 background: build.wire === w.id ? T.neutral + '18' : T.card,
                 color: build.wire === w.id ? T.text : T.textSec,
               }"
@@ -1222,145 +1241,69 @@ function bulbPer() {
             >
               <div>
                 <div :style="{ fontSize: '13px', fontWeight: 600 }">{{ w.label }}</div>
-                <div
-                  v-if="w.tip"
-                  :style="{ fontSize: '10px', color: T.textDim, marginTop: '2px' }"
-                >
-                  {{ w.tip }}
-                </div>
+                <div v-if="w.tip" :style="{ fontSize: '10px', color: T.textDim, marginTop: '2px' }">{{ w.tip }}</div>
               </div>
-              <span
-                v-if="w.price > 0"
-                :style="{ fontSize: '12px', fontWeight: 700, color: T.yellow, flexShrink: 0 }"
-              >
-                +{{ fmt(w.price) }} ₽
-              </span>
-              <span v-else :style="{ fontSize: '10px', color: T.green, flexShrink: 0 }">
-                стандарт
-              </span>
+              <span v-if="w.price > 0" :style="{ fontSize: '12px', fontWeight: 700, color: T.yellow, flexShrink: 0 }">+{{ fmt(w.price) }} ₽</span>
+              <span v-else :style="{ fontSize: '10px', color: T.green, flexShrink: 0 }">стандарт</span>
             </button>
           </div>
 
           <!-- base -->
-          <div
-            v-else-if="curStep === 'base'"
-            :style="{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }"
-          >
-            <button
-              v-for="(bc, bcId) in BASE_COLORS"
-              :key="bcId"
+          <div v-else-if="curStep === 'base'" :style="{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }">
+            <button v-for="(bc, bcId) in BASE_COLORS" :key="bcId"
               :style="{
-                padding: '20px 10px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                textAlign: 'center',
-                border: build.baseColor === bcId
-                  ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`)
-                  : `1px solid ${T.border}`,
+                padding: '20px 10px', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
+                border: build.baseColor === bcId ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`,
                 background: build.baseColor === bcId ? T.neutral + '18' : T.card,
                 color: build.baseColor === bcId ? T.text : T.textSec,
               }"
               @click="upBuild({ baseColor: String(bcId) })"
             >
-              <div
-                :style="{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  background: bc.color,
-                  margin: '0 auto 8px',
-                  border: `1px solid ${T.border}`,
-                }"
-              />
+              <div :style="{ width: '36px', height: '36px', borderRadius: '50%', background: bc.color, margin: '0 auto 8px', border: `1px solid ${T.border}` }" />
               <div :style="{ fontSize: '14px', fontWeight: 700 }">{{ bc.name }}</div>
             </button>
           </div>
 
           <!-- bulbs (Rotor X bulbOpts) -->
-          <div
-            v-else-if="curStep === 'bulbs' && model.bulbOpts"
-            :style="{ display: 'flex', flexDirection: 'column', gap: '6px' }"
-          >
-            <div :style="{ fontSize: '12px', color: T.textSec, marginBottom: '2px' }">
-              Включить в комплект?
-            </div>
-            <button
-              v-for="bo in model.bulbOpts"
-              :key="bo.id"
+          <div v-else-if="curStep === 'bulbs' && model.bulbOpts" :style="{ display: 'flex', flexDirection: 'column', gap: '6px' }">
+            <div :style="{ fontSize: '12px', color: T.textSec, marginBottom: '2px' }">Включить в комплект?</div>
+            <button v-for="bo in model.bulbOpts" :key="bo.id"
               :style="{
-                textAlign: 'left',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '14px 16px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                border: build.bulbOpt === bo.id
-                  ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`)
-                  : `1px solid ${T.border}`,
+                textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '14px 16px', borderRadius: '8px', cursor: 'pointer',
+                border: build.bulbOpt === bo.id ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`,
                 background: build.bulbOpt === bo.id ? T.neutral + '18' : T.card,
-                color: build.bulbOpt === bo.id ? T.text : T.textSec,
-                fontSize: '14px',
+                color: build.bulbOpt === bo.id ? T.text : T.textSec, fontSize: '14px',
               }"
               @click="upBuild({ bulbOpt: bo.id })"
             >
               <span :style="{ fontWeight: 600 }">{{ bo.label }}</span>
-              <span v-if="bo.price > 0" :style="{ fontWeight: 700, color: T.yellow }">
-                +{{ fmt(bo.price) }} ₽
-              </span>
+              <span v-if="bo.price > 0" :style="{ fontWeight: 700, color: T.yellow }">+{{ fmt(bo.price) }} ₽</span>
             </button>
           </div>
 
           <!-- bulbs (стандартные) -->
-          <div
-            v-else-if="curStep === 'bulbs'"
-            :style="{ display: 'flex', flexDirection: 'column', gap: '8px' }"
-          >
+          <div v-else-if="curStep === 'bulbs'" :style="{ display: 'flex', flexDirection: 'column', gap: '8px' }">
             <button
               :style="{
-                width: '100%',
-                padding: '14px 16px',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                textAlign: 'left',
-                border: build.bulbs
-                  ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`)
-                  : `1px solid ${T.border}`,
-                background: build.bulbs ? T.neutral + '12' : T.cardAlt,
-                color: T.text,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
+                width: '100%', padding: '14px 16px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left',
+                border: build.bulbs ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`,
+                background: build.bulbs ? T.neutral + '12' : T.cardAlt, color: T.text,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               }"
               @click="upBuild({ bulbs: true })"
             >
               <div>
-                <div :style="{ fontSize: '14px', fontWeight: 700 }">
-                  Да, {{ build.lamps }} {{ slw(build.lamps) }} в комплекте
-                </div>
-                <div :style="{ fontSize: '11px', color: T.textDim, marginTop: '4px' }">
-                  {{ build.lamps }} {{ spw(build.lamps) }} × {{ fmt(bulbPer()) }} ₽
-                </div>
+                <div :style="{ fontSize: '14px', fontWeight: 700 }">Да, {{ build.lamps }} {{ slw(build.lamps) }} в комплекте</div>
+                <div :style="{ fontSize: '11px', color: T.textDim, marginTop: '4px' }">{{ build.lamps }} {{ spw(build.lamps) }} × {{ fmt(bulbPer()) }} ₽</div>
               </div>
-              <span
-                :style="{ fontSize: '14px', fontWeight: 700, color: T.yellow, flexShrink: 0 }"
-              >
-                +{{ fmt(bulbTotal()) }} ₽
-              </span>
+              <span :style="{ fontSize: '14px', fontWeight: 700, color: T.yellow, flexShrink: 0 }">+{{ fmt(bulbTotal()) }} ₽</span>
             </button>
             <button
               :style="{
-                width: '100%',
-                padding: '14px 16px',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                textAlign: 'left',
-                border: !build.bulbs
-                  ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`)
-                  : `1px solid ${T.border}`,
-                background: !build.bulbs ? T.neutral + '12' : T.cardAlt,
-                color: T.textSec,
-                fontSize: '13px',
+                width: '100%', padding: '14px 16px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left',
+                border: !build.bulbs ? (isTouched ? '2px solid #fff' : `2px solid ${T.neutral}`) : `1px solid ${T.border}`,
+                background: !build.bulbs ? T.neutral + '12' : T.cardAlt, color: T.textSec, fontSize: '13px',
               }"
               @click="upBuild({ bulbs: false })"
             >
@@ -1371,14 +1314,8 @@ function bulbPer() {
 
         <button
           :style="{
-            width: '100%',
-            marginTop: '14px',
-            padding: '14px',
-            border: 'none',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            fontWeight: 700,
-            fontSize: '14px',
+            width: '100%', marginTop: '14px', padding: '14px', border: 'none', borderRadius: '10px',
+            cursor: 'pointer', fontWeight: 700, fontSize: '14px',
             background: isTouched ? T.text : T.neutral + '33',
             color: isTouched ? T.bg : T.neutral,
           }"

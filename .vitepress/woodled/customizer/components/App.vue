@@ -2,20 +2,8 @@
 /**
  * App.vue — Корневой роутер.
  *
- * Архитектура — взаимоисключающие «маршруты»:
- *   1. FxEditor   (cfg.activeFx) — топ-приоритет, полный экран светильника
- *   2. RoomDetail (cfg.active)   — карточка комнаты
- *   3. Home                       — главный экран
- *
- * Слои поверх (если не открыт FxEditor):
- *   - BuyModal (cfg.showBuy)
- *   - StoryModal (cfg.showStory)
- *   - ColorPickerModal, NameModal, FirstModal, ShareModal, TypePicker
- *
- * Глобальные элементы — рендерятся ВСЕГДА на корневом уровне:
- *   - SoundButton (один экземпляр — иначе при смене маршрута audio пересоздаётся)
- *   - Toast
- *   - StickyBar (условно)
+ * Изменение: вычисляет контекст комнаты (area, baseLm, currentLmWithoutThis)
+ * и передаёт в FxEditor для рекомендации размера (см. AUTOSIZE.md).
  */
 
 import { computed, onMounted, ref, watch, nextTick } from 'vue'
@@ -23,6 +11,8 @@ import { T } from '../theme/tokens'
 import { useConfigurator } from '../store/configurator'
 import type { Room } from '../data/rooms'
 import { getRT } from '../data/rooms'
+import { MD } from '../data/catalog'
+import { baseLm, fxLm, getArea } from '../engine/brightness'
 import { rw } from '../engine/i18n'
 import type { Fixture } from '../data/catalog'
 import Icon from './ui/Icons.vue'
@@ -56,13 +46,11 @@ const cfg = useConfigurator()
 /* ────────── Deeplinks ────────── */
 
 onMounted(() => {
-  // 1. Shared state (полный дом) — #s=...
   if (cfg.loadFromHash()) {
     cfg.dismissWelcome()
     return
   }
 
-  // 2. Shared fixture — #fx=...
   const fxEncoded = readHashFixture()
   if (fxEncoded) {
     const fx = decodeFixture(fxEncoded)
@@ -84,7 +72,6 @@ onMounted(() => {
     return
   }
 
-  // 3. Deeplink на модель — ?model=rotor_m
   const link = readModelLink()
   if (link) {
     let targetRoom = cfg.rooms.find((r: Room) => r.typeId === 'living') ?? null
@@ -104,9 +91,6 @@ onMounted(() => {
     return
   }
 
-  // 4. Возврат юзера, который раньше dismiss'нул welcome (localStorage),
-  //    но state не сохранён (мы ничего не персистим, кроме welcomeSeen).
-  //    Welcome больше не показывается, поэтому заполняем стандартными комнатами.
   if (cfg.welcomeSeen.value) {
     cfg.ensureStarterRooms()
   }
@@ -140,6 +124,24 @@ const activeFxData = computed(() => {
   const fx = room.fixtures[af.fxIdx]
   if (!fx) return null
   return { room, fx, roomId: af.roomId, fxIdx: af.fxIdx }
+})
+
+/**
+ * Контекст комнаты для FxEditor — площадь, baseLm, currentLm без этого светильника.
+ * Используется для рекомендации размера в шаге «Размер» (AUTOSIZE.md).
+ * null если нет активного светильника или комнаты.
+ */
+const fxEditorRoomContext = computed(() => {
+  if (!activeFxData.value) return null
+  const { room, fx } = activeFxData.value
+  const rt = getRT(room.typeId)
+  const roomArea = getArea(rt, room as Room)
+  const roomBaseLm = baseLm(rt, room as Room)
+  const roomCurrentLm = fxLm(room.fixtures)
+  const m = MD[fx.m]
+  const thisFxLm = m ? m.lmPer * (fx.l ?? m.lamps) * (fx.q ?? 1) : 0
+  const roomCurrentLmWithoutThis = roomCurrentLm - thisFxLm
+  return { roomArea, roomBaseLm, roomCurrentLmWithoutThis }
 })
 
 const fxBackLabel = computed(() => {
@@ -179,10 +181,6 @@ function onBuyEditFx(roomId: string, fxIdx: number, next: Fixture | null) {
   else cfg.updateFixture(roomId, fxIdx, next)
 }
 
-/**
- * «← Домой» из BuyModal — закрывает Мой лес И сбрасывает активную комнату,
- * чтобы юзер вернулся именно на главный экран, а не на ранее открытую комнату.
- */
 function onBuyClose() {
   cfg.showBuy.value = false
   cfg.active.value = null
@@ -223,18 +221,8 @@ function onColorPicked(color: string | undefined) {
   }
 }
 
-/* ────────── Сброс «Сменить дом» / «Начать заново» ──────────
- *
- * Двойное подтверждение через модалку — это safe-action, не destructive.
- * Кнопка confirm нейтральная (T.neutral), не красная.
- *
- * В модалке доступна опция «Сохранить эту ссылку» — буфер обмена + toast.
- * Юзер может скопировать ссылку, отменить сброс, и тогда он не теряет дом.
- *
- * Точки входа:
- *   - Footer ссылка «Начать заново»
- *   - HouseStats expand-панель → «Сменить дом»
- */
+/* ────────── Сброс ────────── */
+
 const showResetConfirm = ref(false)
 
 function onResetClick() {
@@ -250,22 +238,10 @@ function onResetCancel() {
   showResetConfirm.value = false
 }
 
-/**
- * Открывает ShareModal — ту же модалку, что открывается из StickyBar.
- * Используется кнопкой «Поделиться домом» в HouseStats.
- */
 function onSaveShareLink() {
   cfg.showShare.value = true
 }
 
-/**
- * Любая модалка открыта — скрываем SoundButton (визуально, через display).
- * Скрытие через v-if демонтирует <audio> и обрывает воспроизведение —
- * поэтому именно display, а не v-if.
- *
- * BuyModal («Мой лес») в этот список НЕ входит — там кнопка должна
- * оставаться видимой.
- */
 const anyModalOpen = computed<boolean>(() =>
   cfg.showFirst.value ||
   cfg.showName.value ||
@@ -277,7 +253,7 @@ const anyModalOpen = computed<boolean>(() =>
   showResetConfirm.value,
 )
 
-/* ────────── Scroll to top при смене маршрута/экрана ────────── */
+/* ────────── Scroll to top ────────── */
 
 watch(
   () => [cfg.active.value, cfg.activeFx.value, cfg.welcomeSeen.value, cfg.showBuy.value],
@@ -286,15 +262,8 @@ watch(
   },
 )
 
-/* ────────── Preloader перед WelcomeScreen ──────────
- *
- * Каждый раз, когда юзер выходит на welcome (включая reset),
- * сначала проигрывается брендовая интро-анимация. Когда Preloader
- * эмитит 'done', WelcomeScreen становится видимым.
- *
- * preloaderDone сбрасывается при welcomeSeen → false (reset/?welcome),
- * чтобы preloader проигрался заново.
- */
+/* ────────── Preloader ────────── */
+
 const preloaderDone = ref(false)
 
 watch(
@@ -317,6 +286,9 @@ function onPreloaderDone() {
       :item="activeFxData.fx"
       :def-wood="activeFxData.fx.wood ?? 'oak'"
       :back-label="fxBackLabel"
+      :room-area="fxEditorRoomContext?.roomArea"
+      :room-base-lm="fxEditorRoomContext?.roomBaseLm"
+      :room-current-lm-without-this="fxEditorRoomContext?.roomCurrentLmWithoutThis"
       @save="onFxSave"
       @delete="onFxDelete"
       @close="onFxClose"
@@ -335,8 +307,6 @@ function onPreloaderDone() {
     />
   </template>
 
-  <!-- Welcome screen — первая страница для нового юзера.
-       Это не overlay, а полноценный route наравне с остальными. -->
   <template v-else-if="!cfg.welcomeSeen.value">
     <Transition name="preloader-fade" mode="out-in">
       <Preloader v-if="!preloaderDone" key="preloader" @done="onPreloaderDone" />
@@ -398,8 +368,6 @@ function onPreloaderDone() {
         </div>
       </div>
 
-      <!-- Виджет дома: площадь / потолок / точки света.
-           Tap-to-expand → разбивка по комнатам + действия. -->
       <HouseStats
         @share-link="onSaveShareLink"
         @change-home="onResetClick"
@@ -461,7 +429,7 @@ function onPreloaderDone() {
     </div>
   </template>
 
-  <!-- ═══════ Модалки — НЕ показываются во время FxEditor ═══════ -->
+  <!-- ═══════ Модалки ═══════ -->
   <template v-if="!activeFxData">
     <TypePicker
       v-if="cfg.picker.value"
@@ -523,11 +491,6 @@ function onPreloaderDone() {
       @close="cfg.showMoodDetail.value = null"
     />
 
-    <!-- Подтверждение «Начать заново» — safe-action, не destructive.
-         Кнопка confirm нейтральная (T.neutral), не красная.
-         Сохранение ссылки доступно отдельно через виджет HouseStats →
-         «Дополнительно» → «Сохранить ссылку на дом», поэтому здесь
-         модалка простая: только подтверждение. -->
     <Modal v-if="showResetConfirm" @close="onResetCancel">
       <div :style="{ padding: '24px 20px', textAlign: 'center' }">
         <div
@@ -599,7 +562,7 @@ function onPreloaderDone() {
     />
   </template>
 
-  <!-- ═══════ ГЛОБАЛЬНЫЕ — ВСЕГДА (один экземпляр, чтобы audio не прерывался) ═══════ -->
+  <!-- ═══════ ГЛОБАЛЬНЫЕ ═══════ -->
   <div
     :style="{
       position: 'fixed',
@@ -631,10 +594,6 @@ textarea::placeholder {
   50% { transform: translateY(-4px); }
 }
 
-/* Crossfade Preloader → WelcomeScreen.
- * mode="out-in" гарантирует что Preloader сначала исчезает за 0.8s,
- * затем WelcomeScreen появляется за 0.6s. Между ними нет «пустого
- * промежутка» — браузер удерживает чёрный фон body. */
 .preloader-fade-leave-active {
   transition: opacity 0.8s ease;
 }

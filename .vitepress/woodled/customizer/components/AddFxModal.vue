@@ -1,13 +1,14 @@
 <script setup lang="ts">
 /**
- * AddFxModal.vue — Двухшаговый пикер светильника.
+ * AddFxModal.vue — Одношаговый пикер светильника.
  *
  * Источник: woodled-v42.jsx (AddFxModal).
- * Шаг 1: выбор модели/семейства (сетка 2×2).
- * Шаг 2 (для семейств >1): выбор размера (список с растущим кружком).
+ * Один шаг: выбор модели/семейства (сетка 2×2).
+ * Размер внутри семейства подбирается автоматически через pickBestSize
+ * на основе площади комнаты и дефицита люмен (см. AUTOSIZE.md).
  */
 
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { T, WCOL } from '../theme/tokens'
 import {
   MD, ALL_ZONES, FAMILIES,
@@ -15,12 +16,16 @@ import {
 } from '../data/catalog'
 import { type Wood } from '../data/materials'
 import { lw } from '../engine/i18n'
+import { pickBestSize } from '../engine/autosize'
 import Modal from './ui/Modal.vue'
 import Icon, { fxIcName } from './ui/Icons.vue'
 
 interface Props {
   zone: ZoneId
   defWood: Wood
+  roomArea: number
+  roomBaseLm: number
+  roomCurrentLm: number
 }
 const props = defineProps<Props>()
 const emit = defineEmits<{
@@ -71,26 +76,23 @@ const groups = computed<Group[]>(() => {
   return out
 })
 
-/* ──────────────── Шаг 2 ──────────────── */
-
-const selFamily = ref<string | null>(null)
-
-const familyGroup = computed<Group | null>(() => {
-  if (!selFamily.value) return null
-  return (
-    groups.value.find((g) => g.family === selFamily.value || g.models[0] === selFamily.value) ??
-    null
-  )
-})
+/* ──────────────── Действия ──────────────── */
 
 function pickModel(mid: ModelId) {
   emit('add', { m: mid, q: 1, wood: props.defWood, zone: props.zone })
   emit('close')
 }
 
+/**
+ * Клик по группе:
+ * - Семейство > 1 модели → pickBestSize автоматически подбирает размер
+ * - Одна модель → добавляем её напрямую
+ */
 function handleGroupClick(g: Group) {
   if (g.type === 'family' && g.models.length > 1) {
-    selFamily.value = g.family ?? g.models[0]
+    const deficit = props.roomBaseLm - props.roomCurrentLm
+    const bestMid = pickBestSize(g.models, props.roomArea, deficit)
+    pickModel(bestMid)
   } else {
     pickModel(g.models[0])
   }
@@ -108,111 +110,20 @@ function minSqOf(models: ModelId[]): number {
 function maxSqOf(models: ModelId[]): number {
   return Math.max(...models.map((id) => MD[id].sqMax))
 }
+
+/**
+ * Какой размер подберёт система — для подсказки под карточкой семейства.
+ */
+function autoPickName(g: Group): string | null {
+  if (g.type !== 'family' || g.models.length <= 1) return null
+  const deficit = props.roomBaseLm - props.roomCurrentLm
+  const bestMid = pickBestSize(g.models, props.roomArea, deficit)
+  return MD[bestMid]?.name ?? null
+}
 </script>
 
 <template>
-  <!-- Шаг 2: размер внутри семейства -->
-  <Modal v-if="selFamily && familyGroup" @close="emit('close')">
-    <div :style="{ padding: '20px' }">
-      <div :style="{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }">
-        <button
-          :style="{
-            background: 'none',
-            border: 'none',
-            color: T.textSec,
-            fontSize: '18px',
-            cursor: 'pointer',
-          }"
-          @click="selFamily = null"
-        >
-          ←
-        </button>
-        <span :style="{ fontSize: '14px', fontWeight: 700, color: T.text }">
-          {{ familyGroup.name }}
-        </span>
-      </div>
-
-      <div :style="{ display: 'flex', flexDirection: 'column', gap: '8px' }">
-        <button
-          v-for="(mid, idx) in familyGroup.models"
-          :key="mid"
-          :style="{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '12px 14px',
-            border: `1px solid ${T.border}`,
-            borderRadius: '8px',
-            background: T.card,
-            cursor: 'pointer',
-            textAlign: 'left',
-            width: '100%',
-          }"
-          @click="pickModel(mid)"
-        >
-          <div
-            :style="{
-              width: '40px',
-              flexShrink: 0,
-              display: 'flex',
-              justifyContent: 'center',
-            }"
-          >
-            <div
-              :style="{
-                width: `${12 + ((idx + 1) / familyGroup.models.length) * 24}px`,
-                height: `${12 + ((idx + 1) / familyGroup.models.length) * 24}px`,
-                borderRadius: '50%',
-                background: T.neutral + '25',
-                border: `2px solid ${T.neutral}55`,
-              }"
-            />
-          </div>
-          <div :style="{ flex: 1 }">
-            <div :style="{ fontSize: '14px', fontWeight: 700, color: T.text }">
-              {{ MD[mid].name }}
-            </div>
-            <div :style="{ fontSize: '11px', color: T.textSec }">
-              {{ MD[mid].lamps }} {{ lw(MD[mid].lamps) }} ·
-              {{ (MD[mid].lamps * MD[mid].lmPer).toLocaleString('ru-RU') }} лм
-            </div>
-          </div>
-          <span
-            :style="{
-              padding: '4px 10px',
-              borderRadius: '6px',
-              background: T.neutral + '15',
-              fontSize: '12px',
-              fontWeight: 700,
-              color: T.text,
-              flexShrink: 0,
-            }"
-          >
-            {{ MD[mid].sqMin }}–{{ MD[mid].sqMax }} м²
-          </span>
-        </button>
-      </div>
-
-      <button
-        :style="{
-          marginTop: '12px',
-          width: '100%',
-          padding: '10px',
-          background: 'none',
-          border: `1px solid ${T.border}`,
-          borderRadius: '6px',
-          cursor: 'pointer',
-          color: T.textSec,
-        }"
-        @click="selFamily = null"
-      >
-        Назад
-      </button>
-    </div>
-  </Modal>
-
-  <!-- Шаг 1: выбор модели/семейства -->
-  <Modal v-else @close="emit('close')">
+  <Modal @close="emit('close')">
     <div :style="{ padding: '20px' }">
       <div
         :style="{
@@ -257,7 +168,6 @@ function maxSqOf(models: ModelId[]): number {
             v-if="g.type === 'family' && g.models.length > 1"
             :style="{ fontSize: '10px', color: T.neutral, marginTop: '2px' }"
           >
-            {{ g.models.length }} {{ sizesLabel(g.models.length) }} ·
             {{ minSqOf(g.models) }}–{{ maxSqOf(g.models) }} м²
           </div>
           <div
@@ -268,6 +178,18 @@ function maxSqOf(models: ModelId[]): number {
             <template v-if="MD[g.models[0]].sqMin">
               · {{ MD[g.models[0]].sqMin }}–{{ MD[g.models[0]].sqMax }} м²
             </template>
+          </div>
+          <!-- Подсказка: какой размер подберёт система -->
+          <div
+            v-if="autoPickName(g)"
+            :style="{
+              fontSize: '9px',
+              color: T.green,
+              marginTop: '4px',
+              fontWeight: 600,
+            }"
+          >
+            → {{ autoPickName(g) }}
           </div>
         </button>
       </div>

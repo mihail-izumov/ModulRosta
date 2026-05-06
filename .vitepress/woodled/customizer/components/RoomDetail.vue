@@ -2,19 +2,8 @@
 /**
  * RoomDetail.vue — Полноэкранный редактор комнаты.
  *
- * Источник: woodled-v42.jsx (RoomDetail).
- * Компоновка сверху вниз:
- *   - Sticky header (← / название / кнопка размер-потолок)
- *   - MoodBlock (если есть свет)
- *   - LumenDashboard
- *   - Glow wrapper + 2×2 сетка ZoneCard
- *   - FurnitureBlock (если в rt есть furn)
- *   - «Удалить комнату»
- *   - Footer
- *
- * Плюс модалки: RoomSettings, AddFxModal, Confirm.
- * (FxEditor и MoodDetailModal — на корневом уровне App.vue, чтобы избежать
- *  stacking-context конфликта со StickyBar.)
+ * Единственное изменение: AddFxModal получает roomArea, roomBaseLm, roomCurrentLm
+ * для автоподбора размера светильника (см. AUTOSIZE.md).
  */
 
 import { computed, ref } from 'vue'
@@ -72,12 +61,10 @@ const bright = computed(() => getBright(ratio.value))
 const rW = computed(() => roomWood(props.room.fixtures))
 const furnPct = computed(() => furnPctFn(props.room.furniture))
 const zones = computed(() => roomZones(rt.value))
+const area = computed(() => getArea(rt.value, props.room))
 
-/* Endel glow: 4 слоя, интенсивность ∝ share каждой зоны. */
-interface GlowLayer {
-  pos: string
-  opacity: number
-}
+/* Endel glow */
+interface GlowLayer { pos: string; opacity: number }
 const glowLayers = computed<GlowLayer[]>(() =>
   zones.value.map((z) => ({
     pos: GLOW_POS[z.id] ?? GLOW_POS.center,
@@ -113,7 +100,6 @@ function addFx(fx: Fixture) {
   setFx([...props.room.fixtures, fx], `${MD[fx.m]?.name} добавлен`)
 }
 
-/* Settings-patch (с тостом). */
 function handleSettingsPatch(key: keyof Room, value: unknown, toast?: string) {
   emit('update', { ...props.room, [key]: value as Room[typeof key] })
   if (toast) emit('feedback', toast)
@@ -125,7 +111,6 @@ const addZone = ref<ZoneId | null>(null)
 const showSettings = ref(false)
 const confirmDel = ref(false)
 
-/* Hit-limit toast для ZoneCard. */
 function onLimitHit(zId: ZoneId) {
   const limit = (props.room.limits ?? rt.value.limits)?.[zId] ?? 99
   const zName = ALL_ZONES.find((z) => z.id === zId)?.name ?? zId
@@ -135,21 +120,17 @@ function onLimitHit(zId: ZoneId) {
   )
 }
 
-/* Мебель: передаёт новый массив. */
 function onFurnToggle(next: string[], toast: string) {
   patchRoom('furniture', next as Room['furniture'])
   emit('feedback', toast)
 }
 
-/* Удаление комнаты — через confirmDel модалку. */
 function confirmDelete() {
   confirmDel.value = false
   emit('delete')
   emit('close')
 }
 
-/* Открыть полноэкранный онбординг настроения — пишем в store напрямую,
- * чтобы App.vue (который рендерит модалку) увидел и мог скрыть StickyBar. */
 function onShowMoodDetail() {
   cfg.showMoodDetail.value = tintedMood.value
 }
@@ -323,7 +304,7 @@ function onShowMoodDetail() {
         @toggle="onFurnToggle"
       />
 
-      <!-- Удаление комнаты + woodNames -->
+      <!-- Удаление комнаты -->
       <div
         :style="{
           marginTop: '50px',
@@ -361,8 +342,6 @@ function onShowMoodDetail() {
       </div>
 
       <Footer />
-
-      <!-- Bottom spacer для global sticky bar -->
       <div :style="{ height: '80px' }" />
     </div>
 
@@ -376,10 +355,14 @@ function onShowMoodDetail() {
       @close="showSettings = false"
     />
 
+    <!-- AddFxModal: передаём данные комнаты для автоподбора размера -->
     <AddFxModal
       v-if="addZone"
       :zone="addZone"
       :def-wood="rW"
+      :room-area="area"
+      :room-base-lm="base"
+      :room-current-lm="actual"
       @add="(fx) => { addFx(fx); addZone = null }"
       @close="addZone = null"
     />
@@ -423,7 +406,6 @@ function onShowMoodDetail() {
       </div>
     </Modal>
 
-    <!-- tiny unused ref silencer -->
     <span v-show="false">{{ Icon }}</span>
   </div>
 </template>
