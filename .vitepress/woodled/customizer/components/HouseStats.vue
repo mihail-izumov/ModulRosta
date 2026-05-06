@@ -272,7 +272,8 @@ function onChangeHomeClick() {
 const PANEL_BG = T.text
 const PANEL_FG = T.bg
 const PANEL_FG_SEC = T.cardAlt
-const PANEL_FOCUS_BG = 'rgba(19,17,14,0.08)'
+const PANEL_FOCUS_BG = 'rgba(19,17,14,0.10)'
+const PANEL_PASSIVE_BG = 'rgba(19,17,14,0.03)'
 const PANEL_DIVIDER = 'rgba(19,17,14,0.10)'
 
 const tourCurrentField = computed<FieldId>(() => TOUR_FIELDS[tourStep.value].id)
@@ -280,12 +281,15 @@ const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
 
 /**
  * Стиль поля дашборда.
- * Tour v4: вместо рамки — фон-подсветка на активном поле + dimming остальных.
+ * v4: пассивный фон (subtle) показывает что поле кликабельно.
+ * При тапе — более яркий фон. При туре — dim остальных.
  */
 function fieldStyle(field: FieldId) {
   const isFocused = expanded.value && focusField.value === field
   const isTourField = tourActive.value && tourCurrentField.value === field
   const isDimmed = tourActive.value && !isTourField
+  let bg = PANEL_PASSIVE_BG
+  if (isFocused || isTourField) bg = PANEL_FOCUS_BG
   return {
     flex: 1,
     display: 'flex',
@@ -295,7 +299,7 @@ function fieldStyle(field: FieldId) {
     gap: '4px',
     padding: '8px 0',
     borderRadius: '8px',
-    background: (isFocused || isTourField) ? PANEL_FOCUS_BG : 'transparent',
+    background: bg,
     opacity: isDimmed ? 0.3 : 1,
     transition: 'all .3s',
     cursor: isEmpty.value ? 'default' : 'pointer',
@@ -519,8 +523,8 @@ function fieldStyle(field: FieldId) {
       <div
         v-if="focusField"
         :style="{
-          background: T.neutral + '10',
-          border: `1px solid ${T.neutral}22`,
+          background: T.text + '12',
+          border: `1px solid ${T.text}22`,
           borderRadius: '8px',
           padding: '10px 12px',
           marginBottom: '12px',
@@ -528,7 +532,7 @@ function fieldStyle(field: FieldId) {
       >
         <div
           :style="{
-            fontSize: '10px', fontWeight: 700, color: T.neutral,
+            fontSize: '10px', fontWeight: 700, color: T.text,
             textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px',
           }"
         >

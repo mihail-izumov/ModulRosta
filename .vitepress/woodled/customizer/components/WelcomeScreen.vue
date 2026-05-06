@@ -296,7 +296,7 @@ function treeStyle(wood: Wood, idx: number): Record<string, string | number> {
 }
 
 const ORB_DELAYS: Record<Wood, number> = { oak: 0, walnut: 1.5, black: 3 }
-const SECTION_LABEL = 'Любимые места'
+const SECTION_LABEL = 'Какой размер ближе?'
 </script>
 
 <template>
@@ -312,6 +312,32 @@ const SECTION_LABEL = 'Любимые места'
       boxSizing: 'border-box',
     }"
   >
+    <!-- ═══ Логотип WOODLED — наверху ═══ -->
+    <div
+      :style="{
+        marginBottom: '24px',
+        display: 'flex',
+        justifyContent: 'center',
+        opacity: 0.55,
+      }"
+    >
+      <div
+        :style="{
+          width: '130px',
+          height: '22px',
+          background: T.neutral,
+          maskImage: `url(${LOGO_URL})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          WebkitMaskImage: `url(${LOGO_URL})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+        }"
+      />
+    </div>
+
     <!-- ═══ H1 ═══ -->
     <div
       :style="{
@@ -339,9 +365,10 @@ const SECTION_LABEL = 'Любимые места'
         marginRight: 'auto',
       }"
     >
-      Один большой лес уже светит в
-      <span :style="{ color: T.text, fontWeight: 600 }">{{ COMMUNITY_TOTAL }} домах</span>.
-      Присоединяйтесь — посадите свой.
+      Каждый покупатель WOODLED сажает своё дерево.
+      <span :style="{ color: T.text, fontWeight: 600 }">
+        Присоединяйтесь — посадите свой.
+      </span>
     </div>
 
     <!-- ═══ HonorBoard — три деревянные сферы с цифрами ═══ -->
@@ -457,7 +484,7 @@ const SECTION_LABEL = 'Любимые места'
       }"
     >
       В тонкой ламели WOODLED остаётся свет настоящего дерева.
-      Каждый светильник — продолжение леса в&nbsp;вашем доме.
+      Выберите ближайший формат — настроите под себя на&nbsp;следующем шаге.
     </div>
 
     <!-- ═══ SubLabel ═══ -->
@@ -691,32 +718,6 @@ const SECTION_LABEL = 'Любимые места'
     >
       Создать с чистого листа
     </button>
-
-    <!-- ═══ Логотип WOODLED — SVG как CSS-mask, тонированный T.neutral ═══ -->
-    <div
-      :style="{
-        marginTop: '44px',
-        display: 'flex',
-        justifyContent: 'center',
-        opacity: 0.55,
-      }"
-    >
-      <div
-        :style="{
-          width: '130px',
-          height: '22px',
-          background: T.neutral,
-          maskImage: `url(${LOGO_URL})`,
-          maskSize: 'contain',
-          maskRepeat: 'no-repeat',
-          maskPosition: 'center',
-          WebkitMaskImage: `url(${LOGO_URL})`,
-          WebkitMaskSize: 'contain',
-          WebkitMaskRepeat: 'no-repeat',
-          WebkitMaskPosition: 'center',
-        }"
-      />
-    </div>
   </div>
 </template>
 

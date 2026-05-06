@@ -18,7 +18,7 @@
  *   - StickyBar (условно)
  */
 
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import { T } from '../theme/tokens'
 import { useConfigurator } from '../store/configurator'
 import type { Room } from '../data/rooms'
@@ -282,6 +282,15 @@ const anyModalOpen = computed<boolean>(() =>
   colorPickRoom.value !== null ||
   showResetConfirm.value,
 )
+
+/* ────────── Scroll to top при смене маршрута/экрана ────────── */
+
+watch(
+  () => [cfg.active.value, cfg.activeFx.value, cfg.welcomeSeen.value, cfg.showBuy.value],
+  () => {
+    nextTick(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+  },
+)
 </script>
 
 <template>
@@ -379,10 +388,12 @@ const anyModalOpen = computed<boolean>(() =>
 
       <div
         :style="{
-          fontSize: '14px',
+          fontSize: '16px',
           fontWeight: 600,
           color: T.text,
-          marginBottom: '10px',
+          marginBottom: '12px',
+          marginTop: '20px',
+          textAlign: 'center',
         }"
       >
         {{ subtitle }}
@@ -508,7 +519,7 @@ const anyModalOpen = computed<boolean>(() =>
             marginBottom: '10px',
           }"
         >
-          Начать заново?
+          Сбросить дом?
         </div>
         <div
           :style="{
@@ -521,7 +532,7 @@ const anyModalOpen = computed<boolean>(() =>
             marginRight: 'auto',
           }"
         >
-          Текущий дом и все настройки сбросятся. Вы вернётесь к выбору формата дома.
+          Текущий дом и все настройки сбросятся. Вы вернётесь к выбору формата.
         </div>
         <div :style="{ display: 'flex', gap: '8px' }">
           <button
@@ -556,7 +567,7 @@ const anyModalOpen = computed<boolean>(() =>
             }"
             @click="onResetConfirm"
           >
-            Начать заново
+            Да, сбросить
           </button>
         </div>
       </div>
