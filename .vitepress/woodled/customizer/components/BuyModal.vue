@@ -1,28 +1,33 @@
 <script setup lang="ts">
 /**
- * BuyModal.vue — «Мой лес».
+ * BuyModal.vue — «Мой лес» (v2).
+ *
+ * Редизайн шага list:
+ *   - StoryLink с warm pearl glass (inline, не компонент)
+ *   - «Освещение в доме» заголовок + объединённый блок итого/скидка
+ *   - Комнаты как accordion (свёрнуть/развернуть)
+ *   - Карточки: название модели + бейдж дерева + цена. Клик → openFx
+ *   - Скидка — toggle-опция, не основной фокус
+ *   - CTA-блок: «Лес собран» + кнопка + пояснение
  *
  * Шаги:
- *   1. list  — список комнат со светильниками; выбор одного для скидки
+ *   1. list  — комнаты со светильниками; опциональная скидка
  *   2. form  — имя, телефон, комментарий
  *   3. done  — «План отправлен»
- *
- * Светильник редактируется через emit('open-fx', roomId, fxIdx) —
- * App.vue открывает FxEditor поверх BuyModal.
- *
- * StoryLink («Посмотрите на свой лес») открывает StoryModal через
- * emit('story') — App.vue ставит cfg.showStory = true.
  */
 
-import { computed, ref } from 'vue'
+import { computed, ref, reactive } from 'vue'
 import { T, Z, WCOL } from '../theme/tokens'
 import { MD, type Fixture } from '../data/catalog'
 import { MATS } from '../data/materials'
 import { fxPrice, itemPrice } from '../data/price-engine'
-import { lw } from '../engine/i18n'
 import { getRT, type Room } from '../data/rooms'
 import Icon, { fxIcName } from './ui/Icons.vue'
-import StoryLink from './StoryLink.vue'
+
+/* ─── Constants ─── */
+
+const PANEL_BG = '#EAE0CA'
+const PANEL_FG = T.bg
 
 interface Props {
   rooms: Room[]
@@ -39,10 +44,50 @@ const emit = defineEmits<{
 type Step = 'list' | 'form' | 'done'
 
 const step = ref<Step>('list')
+const discountMode = ref(false)
 const discountFx = ref<{ roomId: string; fxIdx: number } | null>(null)
 const contact = ref({ name: '', phone: '', comment: '' })
 
 const filledRooms = computed(() => props.rooms.filter((r) => r.fixtures.length > 0))
+
+/* ─── Accordion state ─── */
+
+const expandedRooms = reactive<Record<string, boolean>>({})
+
+function isExpanded(roomId: string): boolean {
+  return expandedRooms[roomId] !== false // default: expanded
+}
+
+function toggleRoom(roomId: string) {
+  expandedRooms[roomId] = !isExpanded(roomId)
+}
+
+/* ─── Discount ─── */
+
+function toggleDiscountMode() {
+  if (discountMode.value) {
+    discountMode.value = false
+    discountFx.value = null
+  } else {
+    discountMode.value = true
+  }
+}
+
+function toggleDiscount(roomId: string, fxIdx: number) {
+  const sel = discountFx.value
+  if (sel && sel.roomId === roomId && sel.fxIdx === fxIdx) {
+    discountFx.value = null
+  } else {
+    discountFx.value = { roomId, fxIdx }
+  }
+}
+
+function isDiscounted(roomId: string, fxIdx: number): boolean {
+  const sel = discountFx.value
+  return !!sel && sel.roomId === roomId && sel.fxIdx === fxIdx
+}
+
+const discountApplied = computed(() => discountFx.value !== null)
 
 const discountDetails = computed(() => {
   if (!discountFx.value) return null
@@ -55,24 +100,37 @@ const discountDetails = computed(() => {
   return { room: r, fx, m, woodName }
 })
 
-function toggleDiscount(roomId: string, fxIdx: number) {
-  const sel = discountFx.value
-  if (sel && sel.roomId === roomId && sel.fxIdx === fxIdx) {
-    discountFx.value = null
-  } else {
-    discountFx.value = { roomId, fxIdx }
-  }
+/* ─── Totals ─── */
+
+const totalAll = computed(() =>
+  filledRooms.value.reduce((s, r) => s + fxPrice(r.fixtures), 0),
+)
+
+const grandTotal = computed(() =>
+  totalAll.value - (discountApplied.value ? 3000 : 0),
+)
+
+function roomTotal(r: Room): number {
+  const base = fxPrice(r.fixtures)
+  if (discountFx.value?.roomId === r.id) return Math.max(0, base - 3000)
+  return base
 }
 
-function openEdit(roomId: string, fxIdx: number) {
-  emit('openFx', roomId, fxIdx)
+function fxCount(r: Room): number {
+  return r.fixtures.reduce((s, fx) => s + (fx.q ?? 1), 0)
+}
+
+/* ─── Handlers ─── */
+
+function onFxClick(roomId: string, fxIdx: number) {
+  if (discountMode.value) {
+    toggleDiscount(roomId, fxIdx)
+  } else {
+    emit('openFx', roomId, fxIdx)
+  }
 }
 
 function submitList() {
-  if (!discountFx.value) {
-    emit('feedback', 'Выберите светильник для скидки')
-    return
-  }
   step.value = 'form'
 }
 
@@ -83,10 +141,68 @@ function submitForm() {
   }
   step.value = 'done'
 }
+
+/* ─── Style helpers ─── */
+
+function storyLinkStyle() {
+  return {
+    background: `
+      radial-gradient(ellipse 90% 70% at 20% 0%, rgba(255,255,255,0.38), transparent 55%),
+      radial-gradient(ellipse 70% 60% at 85% 95%, rgba(19,17,14,0.06), transparent 60%),
+      ${PANEL_BG}
+    `,
+    border: '1px solid rgba(255,255,255,0.22)',
+    boxShadow: `
+      inset 0 1px 0 rgba(255,255,255,0.5),
+      inset 0 -1px 3px rgba(19,17,14,0.04),
+      0 4px 20px rgba(0,0,0,0.28)
+    `,
+    borderRadius: '12px',
+    padding: '14px 16px',
+    marginBottom: '20px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  }
+}
+
+function fxCardStyle(roomId: string, fxIdx: number) {
+  const sel = isDiscounted(roomId, fxIdx)
+  return {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '9px 12px',
+    background: sel ? 'rgba(255,255,255,0.05)' : T.card,
+    border: `1px solid ${sel ? 'rgba(255,255,255,0.15)' : T.border}`,
+    borderRadius: '10px',
+    cursor: 'pointer',
+    textAlign: 'left',
+    fontFamily: 'inherit',
+    transition: 'background 0.15s, border-color 0.15s',
+  }
+}
+
+function woodBadgeStyle(woodColor: string) {
+  return {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '5px',
+    marginTop: '3px',
+    padding: '2px 7px 2px 5px',
+    borderRadius: '5px',
+    background: woodColor + '14',
+    fontSize: '11px',
+    color: woodColor,
+    fontWeight: 500,
+  }
+}
 </script>
 
 <template>
-  <!-- ШАГ 3: done -->
+  <!-- ═══ ШАГ 3: done ═══ -->
   <div
     v-if="step === 'done'"
     :style="{
@@ -140,6 +256,7 @@ function submitForm() {
         cursor: 'pointer',
         fontSize: '14px',
         fontWeight: 700,
+        fontFamily: 'inherit',
       }"
       @click="emit('close')"
     >
@@ -147,7 +264,7 @@ function submitForm() {
     </button>
   </div>
 
-  <!-- ШАГ 2: form -->
+  <!-- ═══ ШАГ 2: form ═══ -->
   <div
     v-else-if="step === 'form'"
     :style="{
@@ -174,6 +291,7 @@ function submitForm() {
           color: T.textSec,
           fontSize: '14px',
           cursor: 'pointer',
+          fontFamily: 'inherit',
         }"
         @click="step = 'list'"
       >
@@ -294,13 +412,14 @@ function submitForm() {
         :style="{
           width: '100%',
           padding: '14px',
-          background: T.neutral,
+          background: '#FFFFFF',
           color: T.bg,
           border: 'none',
-          borderRadius: '8px',
+          borderRadius: '10px',
           fontWeight: 700,
           cursor: 'pointer',
           fontSize: '14px',
+          fontFamily: 'inherit',
         }"
         @click="submitForm"
       >
@@ -312,7 +431,7 @@ function submitForm() {
     </div>
   </div>
 
-  <!-- ШАГ 1: list -->
+  <!-- ═══ ШАГ 1: list ═══ -->
   <div
     v-else
     :style="{
@@ -344,6 +463,7 @@ function submitForm() {
           color: T.textSec,
           fontSize: '14px',
           cursor: 'pointer',
+          fontFamily: 'inherit',
         }"
         @click="emit('close')"
       >
@@ -364,150 +484,300 @@ function submitForm() {
     </div>
 
     <div :style="{ padding: '16px', maxWidth: '480px', margin: '0 auto' }">
-      <!-- Посмотрите на свой лес — ведёт в StoryModal -->
-      <StoryLink v-if="filledRooms.length > 0" @click="emit('story')" />
 
-      <div :style="{ textAlign: 'center', marginBottom: '16px', marginTop: '8px' }">
-        <div :style="{ fontSize: '16px', fontWeight: 700, color: T.text }">
-          3 000 ₽ на любой светильник
+      <!-- ═══ StoryLink — warm pearl glass ═══ -->
+      <div
+        v-if="filledRooms.length > 0"
+        :style="storyLinkStyle()"
+        @click="emit('story')"
+      >
+        <div
+          :style="{
+            width: '40px',
+            height: '40px',
+            borderRadius: '10px',
+            background: 'rgba(19,17,14,0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }"
+        >
+          <Icon name="trees" :color="PANEL_FG" :size="22" />
         </div>
-        <div :style="{ fontSize: '12px', color: T.textSec, marginTop: '4px' }">
-          Нажмите на светильник, чтобы применить скидку
+        <div :style="{ flex: 1 }">
+          <div :style="{ fontSize: '13px', fontWeight: 600, color: PANEL_FG }">
+            Посмотрите на свой лес
+          </div>
+          <div :style="{ fontSize: '11px', color: PANEL_FG, opacity: 0.55 }">
+            Узнайте, какой свет вы создали
+          </div>
         </div>
+        <svg
+          width="20" height="20" viewBox="0 0 24 24" fill="none"
+          :stroke="PANEL_FG" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round"
+          :style="{ flexShrink: 0 }"
+        >
+          <polyline points="9 6 15 12 9 18" />
+        </svg>
       </div>
 
-      <div v-for="r in filledRooms" :key="r.id" :style="{ marginBottom: '16px' }">
+      <!-- ═══ Heading ═══ -->
+      <div
+        :style="{
+          textAlign: 'center',
+          marginBottom: '16px',
+          fontSize: '18px',
+          fontWeight: 700,
+          color: T.text,
+        }"
+      >
+        Освещение в доме
+      </div>
+
+      <!-- ═══ Total + Discount card ═══ -->
+      <div
+        v-if="filledRooms.length > 0"
+        :style="{
+          background: T.card,
+          border: `1px solid ${T.border}`,
+          borderRadius: '12px',
+          padding: '14px 16px',
+          marginBottom: '20px',
+        }"
+      >
+        <!-- Total row -->
         <div
           :style="{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '8px',
+            marginBottom: '12px',
           }"
         >
-          <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
-            {{ r.customName || getRT(r.typeId).name }}
-          </div>
-          <div
-            :style="{
-              fontSize: '13px',
-              fontWeight: 700,
-              color: T.text,
-              display: 'flex',
-              gap: '6px',
-              alignItems: 'baseline',
-            }"
-          >
+          <span :style="{ fontSize: '13px', color: T.textSec, fontWeight: 500 }">
+            Итого
+          </span>
+          <div :style="{ display: 'flex', alignItems: 'baseline', gap: '6px' }">
             <span
-              v-if="discountFx?.roomId === r.id"
+              v-if="discountApplied"
               :style="{
-                fontSize: '11px',
+                fontSize: '12px',
                 color: T.textDim,
                 textDecoration: 'line-through',
-                fontWeight: 400,
               }"
             >
-              {{ fxPrice(r.fixtures).toLocaleString('ru-RU') }} ₽
+              {{ totalAll.toLocaleString('ru-RU') }} ₽
             </span>
-            <span>
-              {{
-                (discountFx?.roomId === r.id
-                  ? Math.max(0, fxPrice(r.fixtures) - 3000)
-                  : fxPrice(r.fixtures)
-                ).toLocaleString('ru-RU')
-              }} ₽
+            <span :style="{ fontSize: '18px', fontWeight: 700, color: T.text }">
+              {{ grandTotal.toLocaleString('ru-RU') }} ₽
             </span>
           </div>
         </div>
 
-        <div v-for="(fx, i) in r.fixtures" :key="i" :style="{ marginBottom: '8px' }">
-          <button
+        <!-- Divider -->
+        <div :style="{ height: '1px', background: T.border, marginBottom: '12px' }" />
+
+        <!-- Discount toggle -->
+        <div
+          :style="{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: 'pointer',
+            padding: '4px 0',
+          }"
+          @click="toggleDiscountMode"
+        >
+          <div
             :style="{
-              width: '100%',
+              width: '30px',
+              height: '30px',
+              borderRadius: '7px',
+              background: discountMode ? 'rgba(255,255,255,0.1)' : T.neutral + '15',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
-              padding: '10px 12px',
-              background:
-                discountFx?.roomId === r.id && discountFx?.fxIdx === i
-                  ? T.green + '08'
-                  : T.card,
-              border: `1px solid ${
-                discountFx?.roomId === r.id && discountFx?.fxIdx === i
-                  ? T.green + '33'
-                  : T.border
-              }`,
-              borderRadius: '8px',
-              cursor: 'pointer',
-              textAlign: 'left',
+              justifyContent: 'center',
+              transition: 'background 0.2s',
             }"
-            @click="toggleDiscount(r.id, i)"
+          >
+            <Icon name="gift" :color="discountMode ? T.text : T.neutral" :size="15" />
+          </div>
+          <div :style="{ flex: 1 }">
+            <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
+              Скидка 3 000 ₽
+            </div>
+            <div :style="{ fontSize: '11px', color: T.textSec }">
+              {{ discountMode
+                ? (discountApplied ? 'Применена' : 'Выберите светильник')
+                : 'На первый светильник'
+              }}
+            </div>
+          </div>
+          <!-- Toggle switch -->
+          <div
+            :style="{
+              width: '38px',
+              height: '22px',
+              borderRadius: '11px',
+              background: discountMode ? T.text : T.textDim + '44',
+              position: 'relative',
+              transition: 'background 0.2s',
+              flexShrink: 0,
+            }"
           >
             <div
               :style="{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: WCOL[fx.wood ?? 'oak'] + '22',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
+                width: '16px',
+                height: '16px',
+                borderRadius: '50%',
+                background: discountMode ? T.bg : '#888',
+                position: 'absolute',
+                top: '3px',
+                left: discountMode ? '19px' : '3px',
+                transition: 'left 0.2s',
+              }"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Room accordions ═══ -->
+      <div v-for="(r, ri) in filledRooms" :key="r.id" :style="{ marginBottom: '2px' }">
+        <!-- Room header -->
+        <div
+          :style="{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 0',
+            cursor: 'pointer',
+          }"
+          @click="toggleRoom(r.id)"
+        >
+          <div :style="{ display: 'flex', alignItems: 'center', gap: '8px' }">
+            <span :style="{ fontSize: '14px', fontWeight: 600, color: T.text }">
+              {{ r.customName || getRT(r.typeId).name }}
+            </span>
+            <!-- Count badge -->
+            <span
+              :style="{
+                fontSize: '10px',
+                fontWeight: 500,
+                color: T.textDim,
+                border: `1px solid ${T.border}`,
+                borderRadius: '10px',
+                padding: '1px 7px',
+                lineHeight: '16px',
               }"
             >
-              <Icon :name="fxIcName(MD[fx.m].type)" :color="WCOL[fx.wood ?? 'oak']" :size="18" />
-            </div>
-            <div :style="{ flex: 1 }">
-              <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
-                {{ MATS.find((x) => x.id === (fx.wood ?? 'oak'))?.name }} ·
-                {{ MD[fx.m].name }}
-                <template v-if="(fx.q ?? 1) > 1">× {{ fx.q }}</template>
-              </div>
-              <div :style="{ fontSize: '11px', color: T.textSec }">
-                {{ (fx.l ?? MD[fx.m].lamps) * (fx.q ?? 1) }}
-                {{ lw((fx.l ?? MD[fx.m].lamps) * (fx.q ?? 1)) }}
-              </div>
-            </div>
-            <div :style="{ textAlign: 'right', flexShrink: 0, position: 'relative' }">
-              <!-- Pen-иконка → открыть страницу светильника -->
-              <span
+              {{ fxCount(r) }} шт
+            </span>
+          </div>
+          <div :style="{ display: 'flex', alignItems: 'center', gap: '8px' }">
+            <span :style="{ fontSize: '13px', fontWeight: 500, color: T.textDim }">
+              {{ roomTotal(r).toLocaleString('ru-RU') }} ₽
+            </span>
+            <svg
+              width="16" height="16" viewBox="0 0 24 24" fill="none"
+              :stroke="T.textDim" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"
+              :style="{
+                transition: 'transform 0.25s ease',
+                transform: isExpanded(r.id) ? 'rotate(180deg)' : 'rotate(0)',
+              }"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Fixtures -->
+        <div
+          :style="{
+            maxHeight: isExpanded(r.id) ? '800px' : '0',
+            overflow: 'hidden',
+            transition: 'max-height 0.3s ease',
+          }"
+        >
+          <div
+            :style="{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
+              paddingBottom: ri < filledRooms.length - 1 ? '12px' : '0',
+            }"
+          >
+            <button
+              v-for="(fx, i) in r.fixtures"
+              :key="i"
+              :style="fxCardStyle(r.id, i)"
+              @click="onFxClick(r.id, i)"
+            >
+              <!-- Discount radio -->
+              <div
+                v-if="discountMode"
                 :style="{
-                  position: 'absolute',
-                  top: '-4px',
-                  right: '-4px',
-                  width: '26px',
-                  height: '26px',
+                  width: '18px',
+                  height: '18px',
                   borderRadius: '50%',
-                  background: T.neutral + '22',
-                  display: 'inline-flex',
+                  border: `2px solid ${isDiscounted(r.id, i) ? T.text : T.textDim}`,
+                  display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer',
-                  zIndex: 1,
-                }"
-                @click.stop="openEdit(r.id, i)"
-              >
-                <Icon name="pen" :color="T.neutral" :size="13" />
-              </span>
-
-              <div :style="{ paddingTop: '24px' }">
-              <div
-                v-if="discountFx?.roomId === r.id && discountFx?.fxIdx === i"
-                :style="{
-                  display: 'inline-block',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  background: T.green + '22',
-                  fontSize: '9px',
-                  fontWeight: 700,
-                  color: T.text,
-                  marginBottom: '2px',
+                  flexShrink: 0,
                 }"
               >
-                СКИДКА
-              </div>
-              <template v-if="discountFx?.roomId === r.id && discountFx?.fxIdx === i">
                 <div
+                  v-if="isDiscounted(r.id, i)"
+                  :style="{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: T.text,
+                  }"
+                />
+              </div>
+
+              <!-- Info -->
+              <div :style="{ flex: 1, minWidth: 0 }">
+                <div
+                  :style="{
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: T.text,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }"
+                >
+                  <span>{{ MD[fx.m].name }}</span>
+                  <span
+                    v-if="(fx.q ?? 1) > 1"
+                    :style="{ color: T.textSec, fontWeight: 400, fontSize: '12px' }"
+                  >
+                    × {{ fx.q }}
+                  </span>
+                </div>
+                <!-- Wood badge -->
+                <div :style="woodBadgeStyle(WCOL[fx.wood ?? 'oak'])">
+                  <div
+                    :style="{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: WCOL[fx.wood ?? 'oak'],
+                    }"
+                  />
+                  {{ MATS.find((x) => x.id === (fx.wood ?? 'oak'))?.name }}
+                </div>
+              </div>
+
+              <!-- Price -->
+              <div :style="{ flexShrink: 0, textAlign: 'right' }">
+                <div
+                  v-if="isDiscounted(r.id, i)"
                   :style="{
                     fontSize: '10px',
                     color: T.textDim,
@@ -516,51 +786,84 @@ function submitForm() {
                 >
                   {{ itemPrice(fx).toLocaleString('ru-RU') }} ₽
                 </div>
-                <div :style="{ fontSize: '13px', fontWeight: 700, color: T.text }">
-                  {{ Math.max(0, itemPrice(fx) - 3000).toLocaleString('ru-RU') }} ₽
+                <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
+                  {{
+                    (isDiscounted(r.id, i)
+                      ? Math.max(0, itemPrice(fx) - 3000)
+                      : itemPrice(fx)
+                    ).toLocaleString('ru-RU')
+                  }} ₽
                 </div>
-              </template>
-              <div v-else :style="{ fontSize: '12px', fontWeight: 600, color: T.textSec }">
-                {{ itemPrice(fx).toLocaleString('ru-RU') }} ₽
               </div>
-              </div>
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
+
+        <!-- Separator (not on last room) -->
+        <div
+          v-if="ri < filledRooms.length - 1"
+          :style="{ height: '1px', background: T.border, opacity: 0.6 }"
+        />
       </div>
 
+      <!-- Empty state -->
       <div
         v-if="filledRooms.length === 0"
         :style="{ textAlign: 'center', padding: '40px', color: T.textDim }"
       >
         Добавьте светильники
       </div>
-    </div>
 
-    <div v-if="filledRooms.length > 0" :style="{ position: 'sticky', bottom: 0 }">
+      <!-- ═══ CTA block ═══ -->
       <div
-        :style="{
-          height: '24px',
-          background: `linear-gradient(to bottom, transparent, ${T.bg})`,
-        }"
-      />
-      <div :style="{ background: T.bg, padding: '0 16px 20px', maxWidth: '480px', margin: '0 auto' }">
+        v-if="filledRooms.length > 0"
+        :style="{ marginTop: '32px', textAlign: 'center', paddingBottom: '32px' }"
+      >
+        <div :style="{ fontSize: '18px', fontWeight: 700, color: T.text, marginBottom: '10px' }">
+          Лес собран
+        </div>
+        <div
+          :style="{
+            fontSize: '14px',
+            fontWeight: 600,
+            color: T.text,
+            lineHeight: 1.5,
+            marginBottom: '24px',
+          }"
+        >
+          Отправьте план —<br />дерево засветит у вас дома
+        </div>
+
         <button
           :style="{
             width: '100%',
             padding: '14px',
-            background: discountFx ? T.text : T.border,
-            color: discountFx ? T.bg : T.textDim,
+            background: '#FFFFFF',
+            color: T.bg,
             border: 'none',
-            borderRadius: '8px',
+            borderRadius: '10px',
             fontWeight: 700,
             cursor: 'pointer',
             fontSize: '14px',
+            fontFamily: 'inherit',
           }"
           @click="submitList"
         >
           Отправить план леса
         </button>
+
+        <div
+          :style="{
+            fontSize: '12px',
+            color: T.textSec,
+            lineHeight: 1.6,
+            maxWidth: '320px',
+            margin: '14px auto 0',
+          }"
+        >
+          Специалист WOODLED получит ваш план освещения
+          и комплектацию каждого светильника.
+        </div>
       </div>
     </div>
   </div>
