@@ -141,7 +141,8 @@ const fxEditorRoomContext = computed(() => {
   const m = MD[fx.m]
   const thisFxLm = m ? m.lmPer * (fx.l ?? m.lamps) * (fx.q ?? 1) : 0
   const roomCurrentLmWithoutThis = roomCurrentLm - thisFxLm
-  return { roomArea, roomBaseLm, roomCurrentLmWithoutThis }
+  const roomName = (room as Room).customName || rt.name
+  return { roomArea, roomBaseLm, roomCurrentLmWithoutThis, roomName }
 })
 
 const fxBackLabel = computed(() => {
@@ -289,6 +290,7 @@ function onPreloaderDone() {
       :room-area="fxEditorRoomContext?.roomArea"
       :room-base-lm="fxEditorRoomContext?.roomBaseLm"
       :room-current-lm-without-this="fxEditorRoomContext?.roomCurrentLmWithoutThis"
+      :room-name="fxEditorRoomContext?.roomName"
       @save="onFxSave"
       @delete="onFxDelete"
       @close="onFxClose"

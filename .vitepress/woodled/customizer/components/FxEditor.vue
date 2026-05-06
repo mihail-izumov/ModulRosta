@@ -17,7 +17,7 @@ import { computed, ref } from 'vue'
 import { T, WCOL } from '../theme/tokens'
 import { MD, FAMILIES, type Fixture, type ModelId } from '../data/catalog'
 import { MATS, BOWLS as ALL_BOWLS, BTEMPS, DEF_OPT, OPT_PRICE, WOOD_TIPS, OPT_TIPS, type Wood, type Bowl } from '../data/materials'
-import { getBright, autoMood } from '../data/moods'
+import { getBright } from '../data/moods'
 import { buildSizeRecommendation, type AreaFit, type SizeCandidate } from '../engine/autosize'
 import Icon, { type IconName } from './ui/Icons.vue'
 import { buildFixtureShareUrl } from '../engine/share'
@@ -25,6 +25,7 @@ import { buildFixtureShareUrl } from '../engine/share'
 interface Props {
   item: Fixture; defWood?: Wood; skipSize?: boolean; backLabel?: string
   roomArea?: number; roomBaseLm?: number; roomCurrentLmWithoutThis?: number
+  roomName?: string
 }
 const props = withDefaults(defineProps<Props>(), { skipSize: false, backLabel: '← Назад' })
 const emit = defineEmits<{ (e: 'save', fx: Fixture): void; (e: 'delete'): void; (e: 'close'): void; (e: 'feedback', msg: string): void }>()
@@ -128,11 +129,68 @@ const sizeRecs=computed<SizeCandidate[]|null>(()=>{
 })
 const recommendedMid=computed<ModelId|null>(()=>sizeRecs.value?.find(r=>r.recommended)?.mid??null)
 function getRecFor(fid:ModelId):SizeCandidate|null{return sizeRecs.value?.find(r=>r.mid===fid)??null}
-function brightLabel(fid:ModelId):string{const rec=getRecFor(fid);if(!rec)return'';const r=rec.projectedRatio;if(r<=0.5)return'мало';if(r<=0.8)return'мягко';if(r<=2.0)return'комфортно';if(r<=4.0)return'с запасом';return'много'}
+function brightLabel(fid:ModelId):string{const rec=getRecFor(fid);if(!rec)return'';return getBright(rec.projectedRatio).name}
 function brightColor(fid:ModelId):string{const rec=getRecFor(fid);if(!rec)return T.textDim;return getBright(rec.projectedRatio).color}
-function brightBarPct(fid:ModelId):number{const rec=getRecFor(fid);if(!rec)return 50;return Math.min(Math.max(rec.projectedRatio*50,2),100)}
-function brightFullLabel(fid:ModelId):string{const rec=getRecFor(fid);if(!rec)return'';const bright=getBright(rec.projectedRatio);if(rec.areaFit==='poor')return`${bright.name} — размер не рассчитан на ${props.roomArea} м²`;if(rec.recommended)return`${bright.name} для вашей комнаты`;return bright.name}
-const sizeStepDesc=computed(()=>hasRoomContext.value?`Мы подобрали размер для ${props.roomArea} м²`:'Подберите размер под комнату')
+
+/** Описание шага «Размер» — крупная плашка комнаты с площадью. */
+const roomLabel=computed(()=>{
+  if(!hasRoomContext.value)return null
+  const name=props.roomName??'Комната'
+  return `${name} · ${props.roomArea} м²`
+})
+
+/** Текст-совет «что делать» под сеткой. Зависит от состояния выбора. */
+interface SizeAdvice{text:string;tone:'good'|'warn'|'bad'|'neutral'}
+const sizeAdvice=computed<SizeAdvice|null>(()=>{
+  if(!sizeRecs.value||!hasRoomContext.value)return null
+  const recs=sizeRecs.value
+  const cats=recs.map(r=>getBright(r.projectedRatio).name)
+  const uniqueCats=[...new Set(cats)]
+
+  // Все варианты дают одинаковую яркость — выбор по дизайну
+  if(uniqueCats.length===1){
+    const cat=uniqueCats[0]
+    if(cat==='Не хватает'||cat==='Приглушённо'){
+      return{text:`Этой коллекции мало для ${props.roomArea} м². Возьмите крупнейший и добавьте бра или торшер позже.`,tone:'bad'}
+    }
+    if(cat==='Избыточно'){
+      return{text:`Будет очень много света — возьмите наименьший или поставьте диммер.`,tone:'warn'}
+    }
+    return{text:`Все размеры дают одинаковую яркость. Выбирайте по диаметру под потолок и общий дизайн.`,tone:'neutral'}
+  }
+
+  // Выбран рекомендованный
+  const rec=recs.find(r=>r.recommended)
+  const sel=recs.find(r=>r.mid===build.value.m)
+  if(rec&&sel&&rec.mid===sel.mid){
+    return{text:`Подходит для вашей комнаты — комфортный свет.`,tone:'good'}
+  }
+
+  // Выбран не рекомендованный
+  if(rec&&sel){
+    if(sel.modelLm<rec.modelLm){
+      return{text:`Может не хватить света. Возьмите ${MD[rec.mid].name} или добавьте бра/торшер после.`,tone:'warn'}
+    }
+    return{text:`Будет с запасом — поставьте диммер для управления яркостью.`,tone:'warn'}
+  }
+
+  // Нет рекомендации, но яркости разные — общий совет
+  const sb=sel?getBright(sel.projectedRatio).name:''
+  if(sb==='Не хватает'||sb==='Приглушённо'){
+    return{text:`Для ${props.roomArea} м² недостаточно. Возьмите крупнее или добавьте бра.`,tone:'bad'}
+  }
+  if(sb==='Избыточно'){
+    return{text:`Слишком много света — возьмите меньше или поставьте диммер.`,tone:'warn'}
+  }
+  return{text:`Хороший выбор для вашей комнаты.`,tone:'good'}
+})
+
+function adviceColor(tone:'good'|'warn'|'bad'|'neutral'):string{
+  if(tone==='good')return T.green
+  if(tone==='warn')return T.yellow
+  if(tone==='bad')return T.red
+  return T.neutral
+}
 
 /* ═══ MUTATIONS ═══ */
 function upBuild(patch:Partial<Build>){build.value={...build.value,...patch};touched.value=new Set([...touched.value,curStep.value])}
@@ -223,38 +281,66 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             <span :style="{flex:1}"/>
             <span :style="{fontSize:'11px',color:T.textDim}">{{ stepIdx+1 }} из {{ steps.length }}</span>
           </div>
-          <div :style="{fontSize:'12px',color:T.textSec}">{{ curStep==='size'?sizeStepDesc:(curStep==='bulbs'?`${build.lamps} ${spw(build.lamps)}`:meta.desc) }}</div>
+          <div :style="{
+            fontSize:curStep==='size'&&roomLabel?'14px':'12px',
+            fontWeight:curStep==='size'&&roomLabel?600:400,
+            color:curStep==='size'&&roomLabel?T.text:T.textSec,
+          }">{{ curStep==='size'?(roomLabel??meta.desc):(curStep==='bulbs'?`${build.lamps} ${spw(build.lamps)}`:meta.desc) }}</div>
         </div>
         <div :style="{background:T.card,border:`1px solid ${T.border}`,borderRadius:'12px',padding:'16px'}">
 
-          <!-- SIZE — компактные пилюли -->
+          <!-- SIZE — 2×2 сетка с бейджами и блоком «Что делать» -->
           <div v-if="curStep==='size'&&families">
-            <div v-if="hasRoomContext" :style="{textAlign:'center',marginBottom:'14px'}">
-              <div :style="{fontSize:'10px',fontWeight:700,color:T.neutral,textTransform:'uppercase',letterSpacing:'1px'}">Автоподбор WOODLED</div>
+            <!-- Объединённый заголовок -->
+            <div v-if="hasRoomContext" :style="{textAlign:'center',marginBottom:'16px'}">
+              <div :style="{fontSize:'10px',fontWeight:700,color:T.neutral,textTransform:'uppercase',letterSpacing:'1px',marginBottom:'4px'}">Автоподбор WOODLED</div>
+              <div v-if="recommendedMid" :style="{fontSize:'13px',color:T.text,fontWeight:500}">Подобрали <span :style="{fontWeight:700}">{{ MD[recommendedMid].name }}</span></div>
+              <div v-else :style="{fontSize:'12px',color:T.textSec}">Сравните варианты ниже</div>
             </div>
-            <div :style="{display:'flex',gap:'6px',marginBottom:'4px'}">
+
+            <!-- 2-колоночная сетка карточек -->
+            <div :style="{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px',marginBottom:'14px'}">
               <button v-for="fid in families" :key="fid"
-                :style="{flex:1,padding:'10px 4px',borderRadius:'8px',cursor:'pointer',textAlign:'center',
+                :style="{
+                  padding:'14px 10px',borderRadius:'10px',cursor:'pointer',textAlign:'center',
                   border:build.m===fid?`2px solid ${recommendedMid===fid?T.green:T.neutral}`:`1px solid ${T.border}`,
-                  background:build.m===fid?(recommendedMid===fid?T.green+'12':T.neutral+'12'):T.card,position:'relative'}"
-                @click="()=>{mid=fid;upBuild({m:fid,lamps:MD[fid].lamps})}">
-                <div v-if="recommendedMid===fid" :style="{position:'absolute',top:'-6px',right:'-2px',width:'14px',height:'14px',borderRadius:'50%',background:T.green,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'9px',color:T.bg,fontWeight:700}">✓</div>
-                <div :style="{fontSize:'14px',fontWeight:800,color:build.m===fid?T.text:T.textSec}">{{ MD[fid].letter }}</div>
-                <div v-if="hasRoomContext" :style="{fontSize:'9px',fontWeight:600,color:brightColor(fid),marginTop:'3px'}">{{ brightLabel(fid) }}</div>
-                <div v-else :style="{fontSize:'9px',color:T.textDim,marginTop:'3px'}">{{ MD[fid].sqMin }}–{{ MD[fid].sqMax }} м²</div>
+                  background:build.m===fid?(recommendedMid===fid?T.green+'10':T.neutral+'10'):T.cardAlt,
+                  position:'relative',display:'flex',flexDirection:'column',alignItems:'center',gap:'10px',
+                }"
+                @click="()=>{mid=fid;upBuild({m:fid,lamps:MD[fid].lamps})}"
+              >
+                <!-- Letter + check -->
+                <div :style="{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',gap:'6px'}">
+                  <span :style="{fontSize:'20px',fontWeight:800,color:build.m===fid?T.text:T.textSec}">{{ MD[fid].letter }}</span>
+                  <span v-if="recommendedMid===fid" :style="{width:'18px',height:'18px',borderRadius:'50%',background:T.green,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px',color:T.bg,fontWeight:700}">✓</span>
+                </div>
+
+                <!-- Brightness badge — крупно -->
+                <div v-if="hasRoomContext" :style="{padding:'5px 12px',borderRadius:'6px',background:brightColor(fid)+'22',color:brightColor(fid),fontSize:'12px',fontWeight:700,whiteSpace:'nowrap'}">
+                  {{ brightLabel(fid) }}
+                </div>
+
+                <!-- Параметры внутри карточки -->
+                <div :style="{fontSize:'11px',color:T.textSec,lineHeight:'1.6',width:'100%'}">
+                  <div>{{ MD[fid].dimD }} см</div>
+                  <div>{{ fmt(MD[fid].lmPer*MD[fid].lamps) }} лм</div>
+                  <div :style="{color:T.textDim}">для {{ MD[fid].sqMin }}–{{ MD[fid].sqMax }} м²</div>
+                </div>
               </button>
             </div>
-            <div v-if="hasRoomContext" :style="{display:'flex',justifyContent:'space-between',fontSize:'9px',color:T.textDim,padding:'0 4px',marginBottom:'14px'}"><span>мягче</span><span>ярче</span></div>
-            <div v-else :style="{height:'10px'}"/>
-            <div :style="{borderTop:`1px solid ${T.border}`,marginBottom:'14px'}"/>
-            <div :style="{textAlign:'center'}">
-              <div :style="{fontSize:'16px',fontWeight:700,color:T.text,marginBottom:'4px'}">{{ model.name }}</div>
-              <div :style="{fontSize:'12px',color:T.textSec,marginBottom:'8px'}">{{ model.dimD }} см · {{ fmt(model.lmPer*model.lamps) }} лм</div>
-              <div v-if="hasRoomContext&&getRecFor(build.m)" :style="{marginBottom:'8px'}">
-                <div :style="{height:'6px',background:T.border,borderRadius:'3px',overflow:'hidden',marginBottom:'6px'}"><div :style="{height:'100%',width:brightBarPct(build.m)+'%',borderRadius:'3px',background:brightColor(build.m),transition:'all .3s'}"/></div>
-                <div :style="{fontSize:'13px',fontWeight:600,color:brightColor(build.m)}">{{ brightFullLabel(build.m) }}</div>
+
+            <!-- Блок «Что делать» — совет на основе текущего выбора -->
+            <div v-if="sizeAdvice" :style="{
+              padding:'12px 14px',
+              background:adviceColor(sizeAdvice.tone)+'10',
+              border:`1px solid ${adviceColor(sizeAdvice.tone)}33`,
+              borderRadius:'8px',
+              display:'flex',gap:'10px',alignItems:'flex-start',
+            }">
+              <div :style="{flexShrink:0,width:'20px',height:'20px',borderRadius:'50%',background:adviceColor(sizeAdvice.tone)+'33',color:adviceColor(sizeAdvice.tone),display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:'12px',marginTop:'1px'}">
+                {{ sizeAdvice.tone==='good'?'✓':(sizeAdvice.tone==='bad'?'!':'i') }}
               </div>
-              <div :style="{fontSize:'11px',color:T.textDim,marginTop:'4px'}">Рассчитан на {{ model.sqMin }}–{{ model.sqMax }} м²<template v-if="hasRoomContext"> · ваша {{ props.roomArea }} м²</template></div>
+              <div :style="{fontSize:'12px',lineHeight:1.5,color:T.text,flex:1}">{{ sizeAdvice.text }}</div>
             </div>
           </div>
 
