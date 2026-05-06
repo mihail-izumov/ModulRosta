@@ -22,12 +22,15 @@ import { MD, type Fixture } from '../data/catalog'
 import { MATS } from '../data/materials'
 import { fxPrice, itemPrice } from '../data/price-engine'
 import { getRT, type Room } from '../data/rooms'
+import { useConfigurator } from '../store/configurator'
 import Icon, { fxIcName } from './ui/Icons.vue'
 
 /* ─── Constants ─── */
 
 const PANEL_BG = '#EAE0CA'
 const PANEL_FG = T.bg
+
+const cfg = useConfigurator()
 
 interface Props {
   rooms: Room[]
@@ -127,6 +130,15 @@ function onFxClick(roomId: string, fxIdx: number) {
     toggleDiscount(roomId, fxIdx)
   } else {
     emit('openFx', roomId, fxIdx)
+  }
+}
+
+function goToFirstRoom() {
+  if (cfg.rooms.length > 0) {
+    cfg.showBuy.value = false
+    cfg.active.value = cfg.rooms[0].id
+  } else {
+    emit('close')
   }
 }
 
@@ -809,9 +821,40 @@ function woodBadgeStyle(woodColor: string) {
       <!-- Empty state -->
       <div
         v-if="filledRooms.length === 0"
-        :style="{ textAlign: 'center', padding: '40px', color: T.textDim }"
+        :style="{
+          textAlign: 'center',
+          padding: '40px 20px',
+        }"
       >
-        Добавьте светильники
+        <div
+          :style="{
+            fontSize: '14px',
+            color: T.textSec,
+            lineHeight: 1.6,
+            maxWidth: '300px',
+            margin: '0 auto 24px',
+          }"
+        >
+          Здесь будет план освещения вашего дома —
+          светильники по комнатам с породами дерева и ценами.
+          Добавьте первый, и лес начнёт расти.
+        </div>
+        <button
+          :style="{
+            padding: '12px 28px',
+            background: '#FFFFFF',
+            color: T.bg,
+            border: 'none',
+            borderRadius: '10px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontFamily: 'inherit',
+          }"
+          @click="goToFirstRoom"
+        >
+          Добавить светильник
+        </button>
       </div>
 
       <!-- ═══ CTA block ═══ -->
