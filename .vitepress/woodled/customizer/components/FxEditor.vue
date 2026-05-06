@@ -25,7 +25,7 @@ import { buildFixtureShareUrl } from '../engine/share'
 interface Props {
   item: Fixture; defWood?: Wood; skipSize?: boolean; backLabel?: string
   roomArea?: number; roomBaseLm?: number; roomCurrentLmWithoutThis?: number
-  roomName?: string
+  roomName?: string; roomTint?: string
 }
 const props = withDefaults(defineProps<Props>(), { skipSize: false, backLabel: '← Назад' })
 const emit = defineEmits<{ (e: 'save', fx: Fixture): void; (e: 'delete'): void; (e: 'close'): void; (e: 'feedback', msg: string): void }>()
@@ -53,6 +53,8 @@ const hasExistingOpts = !!(props.item.opts && Object.keys(props.item.opts).lengt
 const existingDone = props.item.done ?? []
 const legacyAllDone = hasExistingOpts && existingDone.length === 0
 const isNewFixture = !hasExistingOpts && existingDone.length === 0
+/** Активен ли первичный онбординг. Выключается при первом выходе в summary. */
+const inOnboarding = ref(isNewFixture)
 const view = ref<'steps'|'summary'>(isNewFixture ? 'steps' : 'summary')
 const touched = ref(new Set<StepId>())
 const priceOpen = ref(false)
@@ -83,7 +85,7 @@ const build = ref<Build>((()=>{
 const model=computed(()=>MD[mid.value]); const steps=computed(()=>getSteps(mid.value))
 const curStep=computed(()=>steps.value[stepIdx.value]); const meta=computed(()=>SM[curStep.value]||{name:'',desc:''})
 const isTouched=computed(()=>touched.value.has(curStep.value))
-const canAdvance=computed(()=>isNewFixture&&stepIdx.value<steps.value.length-1)
+const canAdvance=computed(()=>inOnboarding.value&&stepIdx.value<steps.value.length-1)
 const families=computed(()=>{const m=model.value;return m.family?[...FAMILIES[m.family]].reverse():null})
 const availBowls=computed(()=>model.value.avBowls.map(id=>ALL_BOWLS.find(b=>b.id===id)).filter(Boolean) as Bowl[])
 const freeBowls=computed(()=>availBowls.value.filter(b=>b.price===0))
@@ -156,7 +158,7 @@ const sizeAdvice=computed<SizeAdvice|null>(()=>{
     if(cat==='Избыточно'){
       return{text:`Будет очень много света — возьмите наименьший или поставьте диммер.`,tone:'warn'}
     }
-    return{text:`Все размеры дают одинаковую яркость. Выбирайте по диаметру под потолок и общий дизайн.`,tone:'neutral'}
+    return{text:`Свет одинаковый. Крупнее — выразительнее, компактнее — деликатнее. Выбирайте под потолок и интерьер.`,tone:'neutral'}
   }
 
   // Выбран рекомендованный
@@ -193,14 +195,38 @@ function adviceColor(tone:'good'|'warn'|'bad'|'neutral'):string{
 }
 
 /* ═══ MUTATIONS ═══ */
-function upBuild(patch:Partial<Build>){build.value={...build.value,...patch};touched.value=new Set([...touched.value,curStep.value])}
+function upBuild(patch:Partial<Build>){
+  const cur=build.value
+  const isNoChange=Object.entries(patch).every(([k,v])=>cur[k as keyof Build]===v)
+  build.value={...cur,...patch}
+  const cs=curStep.value
+  if(isNoChange&&touched.value.has(cs)){
+    // Повторный тап по уже выбранному → снимаем touched (кнопка «Пропустить»)
+    const next=new Set(touched.value);next.delete(cs);touched.value=next
+  }else{
+    touched.value=new Set([...touched.value,cs])
+  }
+}
 function doCommit(isChoice:boolean){
   build.value={...build.value,steps:{...build.value.steps,[curStep.value]:isChoice?'chosen':'default'}}
   touched.value=new Set([...touched.value].filter(x=>x!==curStep.value))
-  if(canAdvance.value)stepIdx.value++;else view.value='summary'
+  if(canAdvance.value){
+    stepIdx.value++
+  }else{
+    // Первый выход в summary завершает онбординг — далее «Пропустить» всегда возвращает в summary
+    view.value='summary'
+    inOnboarding.value=false
+  }
 }
 function goToStep(i:number){stepIdx.value=i;view.value='steps'}
-function backFromStep(){if(isNewFixture&&stepIdx.value>0)stepIdx.value--;else view.value='summary'}
+function backFromStep(){
+  if(inOnboarding.value&&stepIdx.value>0){
+    stepIdx.value--
+  }else{
+    view.value='summary'
+    inOnboarding.value=false
+  }
+}
 function lampOpts():number[]{const r:number[]=[];for(let i=model.value.minL;i<=model.value.maxL;i++)r.push(i);return r}
 function diffMult():number{return build.value.diffuser&&model.value.diffLoss?1-model.value.diffLoss:1}
 function buildFixture():Fixture{const b=build.value;const done=(Object.entries(b.steps) as [StepId,StepStatus][]).filter(([,st])=>st==='chosen').map(([s])=>s as string);return{m:b.m,q:props.item.q??1,wood:b.wood,zone:props.item.zone,l:b.lamps,opts:{bowl:b.bowl,mount:b.mount,wire:b.wire,btemp:b.btemp,diffuser:b.diffuser,moisture:b.moisture,bulbs:b.bulbs,bulbOpt:b.bulbOpt,baseColor:b.baseColor},done}}
@@ -222,7 +248,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
     <div :style="{position:'sticky',top:0,background:T.bg,zIndex:2,borderBottom:`1px solid ${T.border}`}">
       <div :style="{maxWidth:'480px',margin:'0 auto',padding:'12px 80px 12px 16px',display:'flex',alignItems:'center',gap:'10px'}">
         <button :style="{background:'none',border:'none',color:T.textSec,cursor:'pointer',padding:'4px 8px 4px 0',fontSize:'14px',fontWeight:500,flexShrink:0}" @click="view==='summary'?emit('close'):backFromStep()">
-          {{ view==='summary'?props.backLabel:(isNewFixture&&stepIdx>0?'← Назад':'← К чек-листу') }}
+          {{ view==='summary'?props.backLabel:(inOnboarding&&stepIdx>0?'← Назад':'← К чек-листу') }}
         </button>
         <div :style="{flex:1,textAlign:'center',fontSize:'15px',fontWeight:700,color:T.text,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}">{{ model.name }}</div>
       </div>
@@ -281,11 +307,21 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             <span :style="{flex:1}"/>
             <span :style="{fontSize:'11px',color:T.textDim}">{{ stepIdx+1 }} из {{ steps.length }}</span>
           </div>
-          <div :style="{
-            fontSize:curStep==='size'&&roomLabel?'14px':'12px',
-            fontWeight:curStep==='size'&&roomLabel?600:400,
-            color:curStep==='size'&&roomLabel?T.text:T.textSec,
-          }">{{ curStep==='size'?(roomLabel??meta.desc):(curStep==='bulbs'?`${build.lamps} ${spw(build.lamps)}`:meta.desc) }}</div>
+          <!-- Подзаголовок: бейдж комнаты с её цветом для шага «Размер», обычный текст для остальных -->
+          <div v-if="curStep==='size'&&roomLabel" :style="{textAlign:'center',marginTop:'10px'}">
+            <div :style="{
+              display:'inline-block',
+              padding:'7px 16px',
+              borderRadius:'20px',
+              background:`linear-gradient(135deg, ${(props.roomTint??T.neutral)}33, ${(props.roomTint??T.neutral)}10)`,
+              border:`1px solid ${(props.roomTint??T.neutral)}55`,
+              fontSize:'14px',
+              fontWeight:600,
+              color:T.text,
+              letterSpacing:'.2px',
+            }">{{ roomLabel }}</div>
+          </div>
+          <div v-else :style="{fontSize:'12px',color:T.textSec}">{{ curStep==='bulbs'?`${build.lamps} ${spw(build.lamps)}`:meta.desc }}</div>
         </div>
         <div :style="{background:T.card,border:`1px solid ${T.border}`,borderRadius:'12px',padding:'16px'}">
 
@@ -294,8 +330,9 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             <!-- Объединённый заголовок -->
             <div v-if="hasRoomContext" :style="{textAlign:'center',marginBottom:'16px'}">
               <div :style="{fontSize:'10px',fontWeight:700,color:T.neutral,textTransform:'uppercase',letterSpacing:'1px',marginBottom:'4px'}">Автоподбор WOODLED</div>
-              <div v-if="recommendedMid" :style="{fontSize:'13px',color:T.text,fontWeight:500}">Подобрали <span :style="{fontWeight:700}">{{ MD[recommendedMid].name }}</span></div>
-              <div v-else :style="{fontSize:'12px',color:T.textSec}">Сравните варианты ниже</div>
+              <div v-if="recommendedMid" :style="{fontSize:'13px',color:T.text,fontWeight:500,marginBottom:'4px'}">Подобрали <span :style="{fontWeight:700}">{{ MD[recommendedMid].name }}</span></div>
+              <div v-else :style="{fontSize:'12px',color:T.textSec,marginBottom:'4px'}">Сравните варианты ниже</div>
+              <div :style="{fontSize:'11px',color:T.textDim,lineHeight:1.4,maxWidth:'280px',margin:'0 auto'}">Яркость учитывает все светильники и мебель в комнате</div>
             </div>
 
             <!-- 2-колоночная сетка карточек -->

@@ -142,7 +142,8 @@ const fxEditorRoomContext = computed(() => {
   const thisFxLm = m ? m.lmPer * (fx.l ?? m.lamps) * (fx.q ?? 1) : 0
   const roomCurrentLmWithoutThis = roomCurrentLm - thisFxLm
   const roomName = (room as Room).customName || rt.name
-  return { roomArea, roomBaseLm, roomCurrentLmWithoutThis, roomName }
+  const roomTint = (room as Room).cardColor ?? T.neutral
+  return { roomArea, roomBaseLm, roomCurrentLmWithoutThis, roomName, roomTint }
 })
 
 const fxBackLabel = computed(() => {
@@ -291,6 +292,7 @@ function onPreloaderDone() {
       :room-base-lm="fxEditorRoomContext?.roomBaseLm"
       :room-current-lm-without-this="fxEditorRoomContext?.roomCurrentLmWithoutThis"
       :room-name="fxEditorRoomContext?.roomName"
+      :room-tint="fxEditorRoomContext?.roomTint"
       @save="onFxSave"
       @delete="onFxDelete"
       @close="onFxClose"
