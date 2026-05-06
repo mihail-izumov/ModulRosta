@@ -564,7 +564,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
 </template>
 
 <style scoped>
-/* Мини-анимация ламелей — блок совета. Цикл ~6s (больше паузы). */
+/* Мини-анимация ламелей — блок совета. Висит собранным, кратко разбирается. */
 .rotor-mini { width: 32px; height: 32px; position: relative; flex-shrink: 0; }
 .rotor-mini-l {
   position: absolute; top: 50%; left: 50%;
@@ -572,14 +572,14 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
   border-radius: 1px;
   background: linear-gradient(to bottom, #d4b87a, #b4915a, #8a6e3e);
   transform-origin: 50% 50%;
-  animation: rotorMiniCycle 6000ms ease-in-out infinite;
+  animation: rotorMiniCycle 5000ms ease-in-out infinite;
   opacity: 0;
 }
 @keyframes rotorMiniCycle {
   0%   { transform: rotate(var(--rot)) translateY(-22px) scale(0.3); opacity: 0; }
-  8%   { transform: rotate(var(--rot)) translateY(-10px) scale(1);   opacity: 0.95; }
-  28%  { transform: rotate(var(--rot)) translateY(-10px) scale(1);   opacity: 0.95; }
-  38%  { transform: rotate(var(--rot)) translateY(-22px) scale(0.4); opacity: 0; }
+  5%   { transform: rotate(var(--rot)) translateY(-10px) scale(1);   opacity: 0.95; }
+  80%  { transform: rotate(var(--rot)) translateY(-10px) scale(1);   opacity: 0.95; }
+  90%  { transform: rotate(var(--rot)) translateY(-22px) scale(0.3); opacity: 0; }
   100% { transform: rotate(var(--rot)) translateY(-22px) scale(0.3); opacity: 0; }
 }
 /* Hero — модалка */
