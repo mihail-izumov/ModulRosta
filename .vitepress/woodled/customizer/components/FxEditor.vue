@@ -366,8 +366,8 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
 
             <!-- Заголовок -->
             <div v-if="hasRoomContext" :style="{textAlign:'center',marginBottom:'14px'}">
-              <div :style="{fontSize:'18px',fontWeight:800,color:T.neutral,letterSpacing:'.3px',marginBottom:'6px'}">Смарт-подбор</div>
-              <div v-if="recommendedMid" :style="{fontSize:'13px',color:T.text,fontWeight:500,marginBottom:'8px'}">Подобрали <span :style="{fontWeight:700}">{{ MD[recommendedMid].name }}</span></div>
+              <div :style="{fontSize:'18px',fontWeight:800,color:T.text,letterSpacing:'.3px',marginBottom:'6px'}">Смарт-подбор</div>
+              <div v-if="recommendedMid" :style="{fontSize:'13px',color:T.textSec,fontWeight:500,marginBottom:'8px'}">Рекомендация — <span :style="{fontWeight:700,color:T.text}">{{ MD[recommendedMid].name }}</span></div>
               <!-- Бабл «Как подбирается размер» — яркий -->
               <button :style="{display:'inline-flex',alignItems:'center',gap:'6px',padding:'6px 14px',borderRadius:'14px',background:T.neutral+'22',border:`1px solid ${T.neutral}55`,color:T.text,cursor:'pointer',fontSize:'12px',fontWeight:500}" @click="showHelp=true">
                 <span :style="{width:'16px',height:'16px',borderRadius:'50%',background:T.neutral,color:T.bg,display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:'10px',fontWeight:800}">?</span>
@@ -376,7 +376,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             </div>
 
             <!-- «Сравните размеры:» -->
-            <div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'10px'}">Сравните размеры:</div>
+            <div :style="{fontSize:'13px',fontWeight:600,color:T.textSec,marginBottom:'10px'}">Сравните размеры:</div>
 
             <!-- 2-колоночная сетка карточек -->
             <div :style="{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px',marginBottom:'14px'}">
@@ -400,11 +400,15 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
                   {{ brightLabel(fid) }}
                 </div>
 
-                <!-- Параметры ярче -->
-                <div :style="{fontSize:'12px',color:T.textSec,lineHeight:'1.6',marginTop:'2px'}">
-                  <div :style="{fontWeight:600}">{{ MD[fid].dimD }} см</div>
+                <!-- Диаметр — бабл с обводкой -->
+                <div :style="{padding:'5px 12px',borderRadius:'7px',border:`1px solid ${T.border}`,background:T.card,color:T.text,fontSize:'13px',fontWeight:700,whiteSpace:'nowrap'}">
+                  {{ MD[fid].dimD }} см
+                </div>
+
+                <!-- Лм и площадь -->
+                <div :style="{fontSize:'11px',color:T.textSec,lineHeight:'1.5'}">
                   <div>{{ fmt(MD[fid].lmPer*MD[fid].lamps) }} лм</div>
-                  <div>для {{ MD[fid].sqMin }}–{{ MD[fid].sqMax }} м²</div>
+                  <div>{{ MD[fid].sqMin }}–{{ MD[fid].sqMax }} м²</div>
                 </div>
               </button>
             </div>
@@ -444,7 +448,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
           <!-- bulbs rotorx --><div v-else-if="curStep==='bulbs'&&model.bulbOpts" :style="{display:'flex',flexDirection:'column',gap:'6px'}"><div :style="{fontSize:'12px',color:T.textSec,marginBottom:'2px'}">Включить в комплект?</div><button v-for="bo in model.bulbOpts" :key="bo.id" :style="{textAlign:'left',display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 16px',borderRadius:'8px',cursor:'pointer',border:build.bulbOpt===bo.id?(isTouched?'2px solid #fff':`2px solid ${T.neutral}`):`1px solid ${T.border}`,background:build.bulbOpt===bo.id?T.neutral+'18':T.card,color:build.bulbOpt===bo.id?T.text:T.textSec,fontSize:'14px'}" @click="upBuild({bulbOpt:bo.id})"><span :style="{fontWeight:600}">{{ bo.label }}</span><span v-if="bo.price>0" :style="{fontWeight:700,color:T.yellow}">+{{ fmt(bo.price) }} ₽</span></button></div>
           <!-- bulbs standard --><div v-else-if="curStep==='bulbs'" :style="{display:'flex',flexDirection:'column',gap:'8px'}"><button :style="{width:'100%',padding:'14px 16px',borderRadius:'10px',cursor:'pointer',textAlign:'left',border:build.bulbs?(isTouched?'2px solid #fff':`2px solid ${T.neutral}`):`1px solid ${T.border}`,background:build.bulbs?T.neutral+'12':T.cardAlt,color:T.text,display:'flex',alignItems:'center',justifyContent:'space-between'}" @click="upBuild({bulbs:true})"><div><div :style="{fontSize:'14px',fontWeight:700}">Да, {{ build.lamps }} {{ slw(build.lamps) }} в комплекте</div><div :style="{fontSize:'11px',color:T.textDim,marginTop:'4px'}">{{ build.lamps }} {{ spw(build.lamps) }} × {{ fmt(bulbPer()) }} ₽</div></div><span :style="{fontSize:'14px',fontWeight:700,color:T.yellow,flexShrink:0}">+{{ fmt(bulbTotal()) }} ₽</span></button><button :style="{width:'100%',padding:'14px 16px',borderRadius:'10px',cursor:'pointer',textAlign:'left',border:!build.bulbs?(isTouched?'2px solid #fff':`2px solid ${T.neutral}`):`1px solid ${T.border}`,background:!build.bulbs?T.neutral+'12':T.cardAlt,color:T.textSec,fontSize:'13px'}" @click="upBuild({bulbs:false})">Подберу свои лампочки</button></div>
         </div>
-        <button :style="{width:'100%',marginTop:'14px',padding:'14px',border:'none',borderRadius:'10px',cursor:'pointer',fontWeight:700,fontSize:'14px',background:isTouched?T.text:T.neutral+'33',color:isTouched?T.bg:T.neutral}" @click="doCommit(isTouched)">{{ isTouched?(canAdvance?'✓ Дальше →':'✓ Готово'):'Пропустить →' }}</button>
+        <button :style="{width:'100%',marginTop:'14px',padding:'14px',border:'none',borderRadius:'10px',cursor:'pointer',fontWeight:700,fontSize:'14px',background:isTouched?T.text:T.neutral+'33',color:isTouched?T.bg:T.neutral}" @click="doCommit(isTouched)">{{ isTouched?'Готово':'Пропустить' }}</button>
       </template>
     </div>
 
@@ -471,15 +475,15 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             <div :style="{fontSize:'12px',fontWeight:700,color:T.textSec,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'10px'}">Учитываем три фактора</div>
             <div :style="{display:'flex',flexDirection:'column',gap:'8px'}">
               <div :style="{padding:'14px',background:T.card,border:`1px solid ${T.border}`,borderRadius:'12px',display:'flex',gap:'12px',alignItems:'flex-start'}">
-                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.neutral+'22',display:'flex',alignItems:'center',justifyContent:'center'}"><Icon name="fxSize" :color="T.neutral" :size="18"/></div>
+                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.neutral+'22',display:'flex',alignItems:'center',justifyContent:'center'}"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" :stroke="T.neutral" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M14 15H9v-5"/><path d="M16 3h5v5"/><path d="M21 3 9 15"/></svg></div>
                 <div :style="{flex:1}"><div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'3px'}">Площадь и норма</div><div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}">Базовая норма — 100 лм/м². Для спальни мягче, для кухни ярче. Каждая модель Rotor рассчитана на свой диапазон м².</div></div>
               </div>
               <div :style="{padding:'14px',background:T.card,border:`1px solid ${T.border}`,borderRadius:'12px',display:'flex',gap:'12px',alignItems:'flex-start'}">
-                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.yellow+'22',display:'flex',alignItems:'center',justifyContent:'center'}"><Icon name="sun" :color="T.yellow" :size="18"/></div>
+                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.yellow+'22',display:'flex',alignItems:'center',justifyContent:'center'}"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" :stroke="T.yellow" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m20.9 18.55-8-15.98a1 1 0 0 0-1.8 0l-8 15.98"/><ellipse cx="12" cy="19" rx="9" ry="3"/></svg></div>
                 <div :style="{flex:1}"><div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'3px'}">Все светильники в комнате</div><div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}">Спот, бра, торшер — суммируем общий свет, и на этом фоне считаем, сколько добавит выбранный Rotor.</div></div>
               </div>
               <div :style="{padding:'14px',background:T.card,border:`1px solid ${T.border}`,borderRadius:'12px',display:'flex',gap:'12px',alignItems:'flex-start'}">
-                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.green+'22',display:'flex',alignItems:'center',justifyContent:'center'}"><Icon name="leafy" :color="T.green" :size="18"/></div>
+                <div :style="{flexShrink:0,width:'36px',height:'36px',borderRadius:'10px',background:T.green+'22',display:'flex',alignItems:'center',justifyContent:'center'}"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" :stroke="T.green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M5 18v2"/><path d="M19 18v2"/></svg></div>
                 <div :style="{flex:1}"><div :style="{fontSize:'13px',fontWeight:700,color:T.text,marginBottom:'3px'}">Мебель и зоны</div><div :style="{fontSize:'12px',color:T.textSec,lineHeight:1.5}">Стол, диван, кухонный гарнитур поднимают локальную норму — рабочей зоне нужно больше света, чем проходу.</div></div>
               </div>
             </div>
