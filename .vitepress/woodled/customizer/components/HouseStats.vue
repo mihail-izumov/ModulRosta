@@ -277,6 +277,11 @@ const PANEL_FG_SEC = T.cardAlt
 const PANEL_FOCUS_BG = 'rgba(19,17,14,0.18)'
 const PANEL_PASSIVE_BG = 'rgba(19,17,14,0.07)'
 const PANEL_DIVIDER = 'rgba(19,17,14,0.10)'
+/* Цвет активной плашки в дашборде — пресчитанный blend PANEL_BG + 0.18 dark.
+ * Используется в expand-блоке как фон info/rooms плашек, чтобы создать
+ * двойную преемственность: контейнер expand = PANEL_BG, плашки внутри =
+ * как у активной плашки. */
+const PANEL_FIELD_ACTIVE = '#C3BBA8'
 /* Кнопки внизу панели — светлее плашек (белый поверх жемчужного фона). */
 const PANEL_BTN_BG = 'rgba(255,255,255,0.45)'
 const PANEL_BTN_BG_HOVER = 'rgba(255,255,255,0.65)'
@@ -517,24 +522,32 @@ function fieldStyle(field: FieldId) {
       </button>
     </div>
 
-    <!-- ═══════ Expand-панель (разбивка по комнатам) ═══════ -->
+    <!-- ═══════ Expand-панель (разбивка по комнатам) ═══════
+         Двойная преемственность с дашбордом:
+           - Контейнер expand = PANEL_BG (как сама панель дашборда)
+           - 2 равнозначные плашки внутри = PANEL_FIELD_ACTIVE
+             (как фон активной выбранной плашки в дашборде).
+         Плашка 1 — пояснение тапнутого поля (если есть focus).
+         Плашка 2 — данные «по комнатам».                        -->
     <div
       v-if="expanded && !isEmpty"
       :style="{
-        background: T.card,
-        border: `1px solid ${T.border}`,
+        background: PANEL_BG,
         borderRadius: '12px',
-        padding: '14px',
+        padding: '6px',
         marginBottom: '8px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '6px',
       }"
     >
+      <!-- Плашка 1 — пояснение тапнутого поля -->
       <div
         v-if="focusField"
         :style="{
-          background: PANEL_BG,
+          background: PANEL_FIELD_ACTIVE,
           borderRadius: '8px',
-          padding: '10px 12px',
-          marginBottom: '12px',
+          padding: '12px 14px',
         }"
       >
         <div
@@ -551,101 +564,111 @@ function fieldStyle(field: FieldId) {
         </div>
       </div>
 
+      <!-- Плашка 2 — список по комнатам -->
       <div
         :style="{
-          fontSize: '10px', fontWeight: 700, color: T.textDim,
-          textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px',
+          background: PANEL_FIELD_ACTIVE,
+          borderRadius: '8px',
+          padding: '12px 14px',
         }"
       >
-        по комнатам
+        <div
+          :style="{
+            fontSize: '10px', fontWeight: 700, color: PANEL_FG,
+            textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px',
+            opacity: 0.7,
+          }"
+        >
+          по комнатам
+        </div>
+
+        <!-- Без фокуса — общая таблица -->
+        <template v-if="focusField === null">
+          <div
+            v-for="(r, i) in roomsAll"
+            :key="r.id"
+            :style="{
+              display: 'flex', justifyContent: 'space-between',
+              alignItems: 'baseline', padding: '8px 0',
+              fontSize: '13px', color: PANEL_FG,
+              borderBottom: i < roomsAll.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none',
+              gap: '12px',
+            }"
+          >
+            <span :style="{ flexShrink: 0 }">{{ r.name }}</span>
+            <span
+              :style="{
+                color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums',
+                fontSize: '12px', textAlign: 'right',
+              }"
+            >
+              {{ r.area }} м² · {{ r.ceiling.toFixed(1) }} м · {{ r.fxCount }}/{{ r.pointsMax }}
+            </span>
+          </div>
+        </template>
+
+        <!-- area -->
+        <template v-else-if="focusField === 'area'">
+          <div
+            v-for="(r, i) in roomsByArea"
+            :key="r.id"
+            :style="{
+              display: 'flex', justifyContent: 'space-between',
+              padding: '8px 0', fontSize: '13px', color: PANEL_FG,
+              borderBottom: i < roomsByArea.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none',
+            }"
+          >
+            <span>{{ r.name }}</span>
+            <span :style="{ color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums' }">
+              {{ r.display }}
+            </span>
+          </div>
+        </template>
+
+        <!-- ceiling -->
+        <template v-else-if="focusField === 'ceiling'">
+          <div
+            v-for="(r, i) in roomsByCeiling"
+            :key="r.id"
+            :style="{
+              display: 'flex', justifyContent: 'space-between',
+              padding: '8px 0', fontSize: '13px', color: PANEL_FG,
+              borderBottom: i < roomsByCeiling.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none',
+            }"
+          >
+            <span>{{ r.name }}</span>
+            <span :style="{ color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums' }">
+              {{ r.ceiling.toFixed(1) }} м
+            </span>
+          </div>
+        </template>
+
+        <!-- light -->
+        <template v-else-if="focusField === 'light'">
+          <div
+            v-for="(r, i) in roomsByLight"
+            :key="r.id"
+            :style="{
+              display: 'flex', justifyContent: 'space-between',
+              alignItems: 'baseline', padding: '8px 0',
+              fontSize: '13px', color: PANEL_FG,
+              borderBottom: i < roomsByLight.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none',
+              gap: '8px',
+            }"
+          >
+            <span>{{ r.name }}</span>
+            <span
+              :style="{
+                color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums', fontSize: '12px',
+              }"
+            >
+              {{ r.fxCount }}
+              <span :style="{ opacity: 0.6 }">из</span>
+              {{ r.pointsMax }} точек
+            </span>
+          </div>
+        </template>
       </div>
-
-      <!-- Без фокуса — общая таблица -->
-      <template v-if="focusField === null">
-        <div
-          v-for="(r, i) in roomsAll"
-          :key="r.id"
-          :style="{
-            display: 'flex', justifyContent: 'space-between',
-            alignItems: 'baseline', padding: '8px 0',
-            fontSize: '13px', color: T.text,
-            borderBottom: i < roomsAll.length - 1 ? `1px solid ${T.border}` : 'none',
-            gap: '12px',
-          }"
-        >
-          <span :style="{ flexShrink: 0 }">{{ r.name }}</span>
-          <span
-            :style="{
-              color: T.textSec, fontVariantNumeric: 'tabular-nums',
-              fontSize: '12px', textAlign: 'right',
-            }"
-          >
-            {{ r.area }} м² · {{ r.ceiling.toFixed(1) }} м · {{ r.fxCount }}/{{ r.pointsMax }}
-          </span>
-        </div>
-      </template>
-
-      <!-- area -->
-      <template v-else-if="focusField === 'area'">
-        <div
-          v-for="(r, i) in roomsByArea"
-          :key="r.id"
-          :style="{
-            display: 'flex', justifyContent: 'space-between',
-            padding: '8px 0', fontSize: '13px', color: T.text,
-            borderBottom: i < roomsByArea.length - 1 ? `1px solid ${T.border}` : 'none',
-          }"
-        >
-          <span>{{ r.name }}</span>
-          <span :style="{ color: T.textSec, fontVariantNumeric: 'tabular-nums' }">
-            {{ r.display }}
-          </span>
-        </div>
-      </template>
-
-      <!-- ceiling -->
-      <template v-else-if="focusField === 'ceiling'">
-        <div
-          v-for="(r, i) in roomsByCeiling"
-          :key="r.id"
-          :style="{
-            display: 'flex', justifyContent: 'space-between',
-            padding: '8px 0', fontSize: '13px', color: T.text,
-            borderBottom: i < roomsByCeiling.length - 1 ? `1px solid ${T.border}` : 'none',
-          }"
-        >
-          <span>{{ r.name }}</span>
-          <span :style="{ color: T.textSec, fontVariantNumeric: 'tabular-nums' }">
-            {{ r.ceiling.toFixed(1) }} м
-          </span>
-        </div>
-      </template>
-
-      <!-- light -->
-      <template v-else-if="focusField === 'light'">
-        <div
-          v-for="(r, i) in roomsByLight"
-          :key="r.id"
-          :style="{
-            display: 'flex', justifyContent: 'space-between',
-            alignItems: 'baseline', padding: '8px 0',
-            fontSize: '13px', color: T.text,
-            borderBottom: i < roomsByLight.length - 1 ? `1px solid ${T.border}` : 'none',
-            gap: '8px',
-          }"
-        >
-          <span>{{ r.name }}</span>
-          <span
-            :style="{
-              color: T.textSec, fontVariantNumeric: 'tabular-nums', fontSize: '12px',
-            }"
-          >
-            {{ r.fxCount }}
-            <span :style="{ color: T.textDim }">из</span>
-            {{ r.pointsMax }} точек
-          </span>
-        </div>
-      </template>
     </div>
 
     <!-- ═══════ Toast ═══════ -->
