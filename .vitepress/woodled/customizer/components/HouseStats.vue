@@ -274,17 +274,18 @@ function onChangeHomeClick() {
 const PANEL_BG = '#EAE0CA'
 const PANEL_FG = T.bg
 const PANEL_FG_SEC = T.cardAlt
-const PANEL_FOCUS_BG = 'rgba(19,17,14,0.18)'
 const PANEL_PASSIVE_BG = 'rgba(19,17,14,0.07)'
 const PANEL_DIVIDER = 'rgba(19,17,14,0.10)'
-/* Цвет активной плашки в дашборде — пресчитанный blend PANEL_BG + 0.18 dark.
- * Используется в expand-блоке как фон info/rooms плашек, чтобы создать
- * двойную преемственность: контейнер expand = PANEL_BG, плашки внутри =
- * как у активной плашки. */
-const PANEL_FIELD_ACTIVE = '#C3BBA8'
-/* Кнопки внизу панели — светлее плашек (белый поверх жемчужного фона). */
-const PANEL_BTN_BG = 'rgba(255,255,255,0.45)'
-const PANEL_BTN_BG_HOVER = 'rgba(255,255,255,0.65)'
+/* Активное состояние — БЕЛАЯ плашка (светлее жемчужного фона).
+ * Используется и для активной плашки в дашборде, и для двух плашек
+ * внутри expand-блока. Инверсия яркости: активное = свет, фон = жемчуг.
+ * Это переворачивает иерархию: акцент уходит из кнопок (которые раньше
+ * были белыми) в выбранное состояние данных. */
+const PANEL_FIELD_ACTIVE = '#FFFFFF'
+/* Кнопки внизу панели — тон-в-тон с пассивными плашками,
+ * чтобы НЕ перетягивать визуальный акцент с активной (белой) плашки. */
+const PANEL_BTN_BG = 'rgba(19,17,14,0.07)'
+const PANEL_BTN_BG_HOVER = 'rgba(19,17,14,0.12)'
 
 const tourCurrentField = computed<FieldId>(() => TOUR_FIELDS[tourStep.value].id)
 const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
@@ -298,8 +299,8 @@ function fieldStyle(field: FieldId) {
   const isFocused = expanded.value && focusField.value === field
   const isTourField = tourActive.value && tourCurrentField.value === field
   const isDimmed = tourActive.value && !isTourField
-  let bg = PANEL_PASSIVE_BG
-  if (isFocused || isTourField) bg = PANEL_FOCUS_BG
+  let bg: string = PANEL_PASSIVE_BG
+  if (isFocused || isTourField) bg = PANEL_FIELD_ACTIVE
   return {
     flex: 1,
     display: 'flex',
