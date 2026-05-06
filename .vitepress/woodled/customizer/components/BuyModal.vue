@@ -506,10 +506,10 @@ function woodBadgeStyle(woodColor: string) {
           <Icon name="trees" :color="PANEL_FG" :size="22" />
         </div>
         <div :style="{ flex: 1 }">
-          <div :style="{ fontSize: '13px', fontWeight: 600, color: PANEL_FG }">
+          <div :style="{ fontSize: '15px', fontWeight: 600, color: PANEL_FG }">
             Посмотрите на свой лес
           </div>
-          <div :style="{ fontSize: '11px', color: PANEL_FG, opacity: 0.55 }">
+          <div :style="{ fontSize: '11px', color: PANEL_FG, opacity: 0.55, marginTop: '-1px' }">
             Узнайте, какой свет вы создали
           </div>
         </div>
