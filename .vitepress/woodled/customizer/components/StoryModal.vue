@@ -5,6 +5,8 @@
  * ТЗ-3: Переработка из 9 слайдов в 8 с нарративной аркой.
  * Новые блоки: moodIntro (слайд 3), обогащённый moodMap с pills (слайд 4),
  * zoneSubtitle и zoneLabel в зонах (слайд 6).
+ *
+ * Кнопка «Дальше» — сплошная заливка цветом активного слайда.
  */
 
 import { computed, ref } from 'vue'
@@ -444,22 +446,25 @@ function zoneLabel(zid: string): string {
 
     <!-- Кнопка + ссылка «пропустить» -->
     <div :style="{ padding: '0 28px 28px', textAlign: 'center', flexShrink: 0 }">
+      <!-- «Дальше» — заливка цветом слайда -->
       <button
         v-if="slide < slides.length - 1"
         :style="{
           padding: '12px 40px',
-          background: RGBA.white10,
-          border: `1px solid ${RGBA.white20}`,
+          background: s.color ?? T.neutral,
+          border: 'none',
           borderRadius: '8px',
-          color: T.text,
+          color: T.bg,
           cursor: 'pointer',
           fontSize: '14px',
-          fontWeight: 600,
+          fontWeight: 700,
+          transition: 'background .3s',
         }"
         @click="next"
       >
         Дальше
       </button>
+      <!-- «Домой» -->
       <button
         v-else
         :style="{
