@@ -313,12 +313,11 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             <div :style="{flex:1,minWidth:0}">
               <div :style="{fontSize:'15px',fontWeight:700,color:T.text,marginBottom:'4px'}">{{ model.name }}</div>
               <div :style="{display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}">
-                <!-- Дерево — ярко, с кружком -->
                 <span :style="{display:'inline-flex',alignItems:'center',gap:'5px',padding:'2px 10px 2px 4px',borderRadius:'12px',background:WCOL[build.wood]+'22',fontSize:'11px',fontWeight:600,color:T.text}">
                   <span :style="{width:'14px',height:'14px',borderRadius:'50%',background:WCOL[build.wood],flexShrink:0}"/>
                   {{ simMats.find(x=>x.id===build.wood)?.name }}
                 </span>
-                <span :style="{display:'inline-block',padding:'2px 8px',borderRadius:'4px',background:sc+'22',fontSize:'10px',fontWeight:700,color:sc}">{{ status }}</span>
+                <span :style="{display:'inline-block',padding:'2px 10px',borderRadius:'12px',border:`1px solid ${sc}55`,background:'transparent',fontSize:'11px',fontWeight:600,color:sc}">{{ status }}</span>
               </div>
             </div>
             <button :style="{background:'none',border:'none',cursor:'pointer',padding:'4px',display:'flex',flexDirection:'column',alignItems:'flex-end',color:T.neutral,flexShrink:0}" @click="priceOpen=!priceOpen">
@@ -338,17 +337,17 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             <div :style="{fontSize:'10px',fontWeight:700,color:T.neutral,textTransform:'uppercase',letterSpacing:'.8px',marginBottom:'8px'}">Мой выбор</div>
 
             <!-- Свет — баблы -->
-            <div :style="{display:'flex',flexWrap:'wrap',gap:'6px',marginBottom:'8px'}">
+            <div :style="{display:'flex',flexWrap:'wrap',gap:'6px',marginBottom:'10px'}">
               <span :style="{padding:'4px 10px',borderRadius:'6px',background:T.neutral+'18',fontSize:'11px',fontWeight:600,color:T.text}">{{ build.lamps }} {{ spw(build.lamps) }}</span>
               <span :style="{padding:'4px 10px',borderRadius:'6px',background:T.neutral+'18',fontSize:'11px',fontWeight:600,color:T.text}">{{ fmt(Math.round(build.lamps*model.lmPer*diffMult())) }} лм</span>
               <span :style="{padding:'4px 10px',borderRadius:'6px',background:T.neutral+'18',fontSize:'11px',fontWeight:600,color:T.text}">{{ btempK() }}</span>
             </div>
 
-            <!-- Остальные опции — колонка -->
-            <div :style="{display:'flex',flexDirection:'column',gap:'4px'}">
-              <div v-for="([k,v]) in myChoicesNoLight" :key="k" :style="{display:'flex',justifyContent:'space-between',fontSize:'12px',gap:'8px'}">
-                <span :style="{color:T.textSec,flexShrink:0}">{{ k }}</span>
-                <span :style="{fontWeight:600,color:T.text,textAlign:'right',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}">{{ v }}</span>
+            <!-- Остальные опции — компактная 2-колоночная сетка -->
+            <div :style="{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px'}">
+              <div v-for="([k,v]) in myChoicesNoLight" :key="k" :style="{padding:'8px 10px',background:T.cardAlt,borderRadius:'8px'}">
+                <div :style="{fontSize:'10px',color:T.textDim,marginBottom:'2px'}">{{ k }}</div>
+                <div :style="{fontSize:'12px',fontWeight:600,color:T.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}">{{ v }}</div>
               </div>
             </div>
           </div>
