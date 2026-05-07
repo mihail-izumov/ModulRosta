@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /**
- * StoryModal.vue — 9 слайдов сториз Spotify-Wrapped-style.
+ * StoryModal.vue — 8 слайдов сториз Spotify-Wrapped-style.
  *
- * Источник: woodled-v42.jsx (StoryModal).
- * Слайды собираются через story-engine.buildStorySlides().
- * Особые блоки: blocks (2 карточки), moodMap (список), zoneMap (2×2 glow).
+ * ТЗ-3: Переработка из 9 слайдов в 8 с нарративной аркой.
+ * Новые блоки: moodIntro (слайд 3), обогащённый moodMap с pills (слайд 4),
+ * zoneSubtitle и zoneLabel в зонах (слайд 6).
  */
 
 import { computed, ref } from 'vue'
@@ -13,6 +13,8 @@ import {
   buildStorySlides, buildStoryContext,
   type StorySlide,
 } from '../engine/story-engine'
+import { MOODS } from '../data/moods'
+import { pillStyle, treeStyle } from '../theme/styles'
 import { opacityToHex } from '../engine/zone-engine'
 import type { Room } from '../data/rooms'
 import Icon, { type IconName } from './ui/Icons.vue'
@@ -40,6 +42,14 @@ function next() {
   if (slide.value < slides.value.length - 1) slide.value++
 }
 
+/* ──────────────── moodIntro: маппинг id → иконка ──────────────── */
+
+const MOOD_ICON: Record<string, string> = {
+  dusk: 'arrowDownRight',
+  morning: 'arrowRight',
+  zenith: 'arrowUpRight',
+}
+
 /* ──────────────── zoneMap: glow-слои ──────────────── */
 
 const glowZones: [string, string, string][] = [
@@ -52,6 +62,22 @@ const glowZones: [string, string, string][] = [
 function zoneGlowAlpha(zoneId: string): string {
   const share = ctx.value.zoneShare(zoneId as 'ceiling' | 'wall' | 'floor' | 'table') / 100
   return opacityToHex(Math.min(share * 0.7 + 0.05, 0.5))
+}
+
+/* ──────────────── zoneMap: тексты зон ──────────────── */
+
+const ZONE_LABELS: Record<string, { active: string; empty: string }> = {
+  ceiling: { active: 'основа освещения', empty: 'не задействован' },
+  wall:    { active: 'объём и акценты', empty: 'не задействован' },
+  floor:   { active: 'мягкий нижний свет', empty: 'не задействован' },
+  table:   { active: 'точечный рабочий свет', empty: 'не задействован' },
+}
+
+function zoneLabel(zid: string): string {
+  const labels = ZONE_LABELS[zid]
+  if (!labels) return ''
+  const share = ctx.value.zoneShare(zid as 'ceiling' | 'wall' | 'floor' | 'table')
+  return share > 0 ? labels.active : labels.empty
 }
 </script>
 
@@ -66,7 +92,7 @@ function zoneGlowAlpha(zoneId: string): string {
       flexDirection: 'column',
     }"
   >
-    <!-- Прогресс-бар (без кнопки закрытия — пропустить внизу) -->
+    <!-- Прогресс-бар -->
     <div
       :style="{
         display: 'flex',
@@ -100,6 +126,7 @@ function zoneGlowAlpha(zoneId: string): string {
         justifyContent: 'center',
         padding: '0 28px',
         textAlign: 'center',
+        overflow: 'auto',
       }"
     >
       <div
@@ -115,6 +142,7 @@ function zoneGlowAlpha(zoneId: string): string {
           marginBottom: '20px',
           boxShadow: `0 0 40px ${s.color ?? T.neutral}33`,
           animation: 'float 3s ease-in-out infinite',
+          flexShrink: 0,
         }"
       >
         <Icon :name="s.iconKey as IconName" :color="s.color ?? T.neutral" :size="44" />
@@ -126,6 +154,7 @@ function zoneGlowAlpha(zoneId: string): string {
           fontWeight: 700,
           color: s.bigSub ? T.textSec : (s.color ?? T.neutral),
           marginBottom: '8px',
+          flexShrink: 0,
         }"
       >
         {{ s.title }}
@@ -133,19 +162,19 @@ function zoneGlowAlpha(zoneId: string): string {
 
       <div
         v-if="s.bigSub && s.sub"
-        :style="{ fontSize: '32px', fontWeight: 800, color: s.color }"
+        :style="{ fontSize: '32px', fontWeight: 800, color: s.color, flexShrink: 0 }"
       >
         {{ s.sub }}
       </div>
 
       <div
         v-if="s.sub && !s.bigSub"
-        :style="{ fontSize: '14px', color: T.textSec, lineHeight: 1.7, maxWidth: '340px' }"
+        :style="{ fontSize: '14px', color: T.textSec, lineHeight: 1.7, maxWidth: '340px', flexShrink: 0 }"
       >
         {{ s.sub }}
       </div>
 
-      <!-- Блоки данных (слайд 2: Площадь / Плотность) -->
+      <!-- Блоки данных -->
       <div
         v-if="s.blocks"
         :style="{
@@ -154,6 +183,7 @@ function zoneGlowAlpha(zoneId: string): string {
           marginTop: '20px',
           width: '100%',
           maxWidth: '340px',
+          flexShrink: 0,
         }"
       >
         <div
@@ -189,9 +219,9 @@ function zoneGlowAlpha(zoneId: string): string {
         </div>
       </div>
 
-      <!-- moodMap (слайд 4) -->
+      <!-- ═══ moodIntro (слайд 3) — три строки настроений ═══ -->
       <div
-        v-if="s.moodMap"
+        v-if="s.moodIntro"
         :style="{
           display: 'flex',
           flexDirection: 'column',
@@ -199,110 +229,213 @@ function zoneGlowAlpha(zoneId: string): string {
           marginTop: '20px',
           width: '100%',
           maxWidth: '340px',
+          flexShrink: 0,
         }"
       >
         <div
-          v-for="(m, i) in ctx.moodMap"
-          :key="i"
+          v-for="m in MOODS"
+          :key="m.id"
           :style="{
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
-            background: m.mood.color + '15',
+            background: m.color + '15',
             borderRadius: '8px',
             padding: '10px 14px',
           }"
         >
-          <span
-            :style="{
-              flex: 1,
-              fontSize: '13px',
-              color: T.text,
-              textAlign: 'left',
-              fontWeight: 500,
-            }"
-          >
-            {{ m.name }}
-          </span>
-          <span
-            :style="{
-              fontSize: '12px',
-              fontWeight: 700,
-              color: m.mood.color,
-            }"
-          >
-            {{ m.mood.name }}
-          </span>
+          <Icon
+            :name="(MOOD_ICON[m.id] ?? 'sun') as IconName"
+            :color="m.color"
+            :size="18"
+          />
+          <div :style="{ flex: 1 }">
+            <div :style="{ fontSize: '13px', fontWeight: 700, color: T.text }">
+              {{ m.name }}
+            </div>
+            <div :style="{ fontSize: '11px', color: T.textSec, marginTop: '2px' }">
+              {{ m.quote }}
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- zoneMap (слайд 6) — 2×2 glow -->
+      <!-- ═══ moodMap (слайд 4) — pills с деревьями и mood-бейджем ═══ -->
+      <div
+        v-if="s.moodMap"
+        :style="{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+          marginTop: '20px',
+          width: '100%',
+          maxWidth: '340px',
+          flexShrink: 0,
+        }"
+      >
+        <div v-for="(m, i) in ctx.moodMap" :key="i">
+          <!-- Pill -->
+          <div
+            :style="[pillStyle(m.tint), {
+              width: '100%',
+              boxSizing: 'border-box',
+              justifyContent: 'flex-start',
+            }]"
+          >
+            <span
+              :style="{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: T.text,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                lineHeight: '1',
+                maxWidth: '120px',
+              }"
+            >
+              {{ m.name }}
+            </span>
+            <div
+              :style="{
+                display: 'flex',
+                alignItems: 'center',
+                lineHeight: '1',
+                paddingLeft: '3px',
+              }"
+            >
+              <span
+                v-for="(w, ti) in m.woods"
+                :key="ti"
+                :style="treeStyle(w, ti)"
+              />
+            </div>
+            <span
+              :style="{
+                fontSize: '12px',
+                fontWeight: 700,
+                color: m.mood.color,
+                marginLeft: 'auto',
+                whiteSpace: 'nowrap',
+                lineHeight: '1',
+              }"
+            >
+              {{ m.mood.name }}
+            </span>
+          </div>
+          <!-- Quote под pill -->
+          <div
+            :style="{
+              fontSize: '11px',
+              color: T.textSec,
+              marginTop: '4px',
+              paddingLeft: '12px',
+              lineHeight: 1.4,
+            }"
+          >
+            {{ m.mood.quote }}
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ zoneMap (слайд 6) — 2×2 glow с подзаголовком и текстами ═══ -->
       <div
         v-if="s.zoneMap"
         :style="{
           marginTop: '20px',
           width: '100%',
           maxWidth: '340px',
-          background: (s.color ?? T.neutral) + '08',
-          borderRadius: '16px',
-          border: `1px solid ${s.color ?? T.neutral}18`,
-          padding: '8px',
-          position: 'relative',
+          flexShrink: 0,
         }"
       >
+        <!-- Подзаголовок по распределению -->
         <div
-          v-for="[zid, , pos] in glowZones"
-          :key="zid"
+          v-if="s.zoneSubtitle"
           :style="{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: '16px',
-            pointerEvents: 'none',
-            background: `radial-gradient(ellipse 55% 55% at ${pos}, ${s.color ?? T.neutral}${zoneGlowAlpha(zid)}, transparent 65%)`,
+            fontSize: '12px',
+            color: T.textSec,
+            textAlign: 'center',
+            marginBottom: '12px',
+            lineHeight: 1.5,
           }"
-        />
+        >
+          {{ s.zoneSubtitle }}
+        </div>
+
+        <!-- Glow wrapper -->
         <div
           :style="{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '8px',
+            background: (s.color ?? T.neutral) + '08',
+            borderRadius: '16px',
+            border: `1px solid ${s.color ?? T.neutral}18`,
+            padding: '8px',
             position: 'relative',
-            zIndex: 2,
           }"
         >
           <div
-            v-for="[zid, zname] in glowZones"
+            v-for="[zid, , pos] in glowZones"
             :key="zid"
             :style="{
-              background: T.card + '88',
-              borderRadius: '10px',
-              padding: '14px 10px',
-              textAlign: 'left',
+              position: 'absolute',
+              inset: 0,
+              borderRadius: '16px',
+              pointerEvents: 'none',
+              background: `radial-gradient(ellipse 55% 55% at ${pos}, ${s.color ?? T.neutral}${zoneGlowAlpha(zid)}, transparent 65%)`,
+            }"
+          />
+          <div
+            :style="{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '8px',
+              position: 'relative',
+              zIndex: 2,
             }"
           >
             <div
+              v-for="[zid, zname] in glowZones"
+              :key="zid"
               :style="{
-                fontSize: '10px',
-                fontWeight: 700,
-                color: T.text,
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
+                background: T.card + '88',
+                borderRadius: '10px',
+                padding: '14px 10px',
+                textAlign: 'left',
               }"
             >
-              {{ zname }}
-              <span
+              <div
                 :style="{
-                  marginLeft: '4px',
-                  padding: '1px 5px',
-                  borderRadius: '4px',
-                  background: (s.color ?? T.neutral) + '20',
-                  fontSize: '9px',
-                  fontWeight: 600,
-                  color: s.color ?? T.neutral,
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  color: T.text,
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
                 }"
               >
-                {{ ctx.zoneShare(zid as 'ceiling' | 'wall' | 'floor' | 'table') }}%
-              </span>
+                {{ zname }}
+                <span
+                  :style="{
+                    marginLeft: '4px',
+                    padding: '1px 5px',
+                    borderRadius: '4px',
+                    background: (s.color ?? T.neutral) + '20',
+                    fontSize: '9px',
+                    fontWeight: 600,
+                    color: s.color ?? T.neutral,
+                  }"
+                >
+                  {{ ctx.zoneShare(zid as 'ceiling' | 'wall' | 'floor' | 'table') }}%
+                </span>
+              </div>
+              <!-- Текст-описание зоны -->
+              <div
+                :style="{
+                  fontSize: '9px',
+                  color: T.textSec,
+                  marginTop: '4px',
+                }"
+              >
+                {{ zoneLabel(zid) }}
+              </div>
             </div>
           </div>
         </div>
@@ -310,7 +443,7 @@ function zoneGlowAlpha(zoneId: string): string {
     </div>
 
     <!-- Кнопка + ссылка «пропустить» -->
-    <div :style="{ padding: '0 28px 28px', textAlign: 'center' }">
+    <div :style="{ padding: '0 28px 28px', textAlign: 'center', flexShrink: 0 }">
       <button
         v-if="slide < slides.length - 1"
         :style="{
@@ -344,7 +477,6 @@ function zoneGlowAlpha(zoneId: string): string {
         Домой
       </button>
 
-      <!-- Ссылка «пропустить» — закрывает story (только пока не последний слайд) -->
       <div v-if="slide < slides.length - 1" :style="{ marginTop: '14px' }">
         <button
           :style="{

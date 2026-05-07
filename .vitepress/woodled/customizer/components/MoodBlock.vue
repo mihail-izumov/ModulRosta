@@ -1,59 +1,179 @@
 <script setup lang="ts">
 /**
- * MoodBlock.vue — Блок настроения внутри RoomDetail.
+ * MoodBlock.vue — Блок настроения с MoodArc.
  *
- * Источник: woodled-v42.jsx (секция mood в RoomDetail).
- * Показывается только когда в комнате есть хотя бы один светильник.
+ * v7: Градиентное полукольцо с прогрессом.
+ *   - Трек (filled band) + прогресс (stroked arc, stroke-linecap:round)
+ *   - Градиент прогресса: слева прозрачно → справа непрозрачно
+ *   - Иконка mood в центре
+ *   - Свечение обрезано по горизонту (низ полукруга)
+ *   - Заголовок: «НАСТРОЕНИЕ В ГОСТИНОЙ» — uppercase, разрядка, mood-цвет
+ *   - Кнопка mood-цветом, без обводки
  */
 
-import { T, RGBA } from '../theme/tokens'
+import { computed } from 'vue'
+import { T } from '../theme/tokens'
 import type { Mood } from '../data/moods'
+import { ratioToAngle } from '../engine/brightness'
+import Icon, { type IconName } from './ui/Icons.vue'
 
 interface Props {
   mood: Mood
+  ratio: number
+  roomPrepName: string
 }
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<{ showDetail: [] }>()
+
+/* ──────────────── Геометрия ──────────────── */
+
+const CX = 140
+const CY = 140
+const R = 120
+const W = 10
+const OR = R + W / 2
+const IR = R - W / 2
+const SVG_H = CY + 4
+
+function pt(deg: number, radius: number) {
+  const rad = (deg * Math.PI) / 180
+  return { x: CX - radius * Math.cos(rad), y: CY - radius * Math.sin(rad) }
+}
+
+/** Filled band path (для трека) */
+function bandPath(d1: number, d2: number): string {
+  const oA = pt(d1, OR), oB = pt(d2, OR)
+  const iA = pt(d1, IR), iB = pt(d2, IR)
+  const lg = (d2 - d1) > 180 ? 1 : 0
+  return `M${oA.x.toFixed(2)},${oA.y.toFixed(2)} A${OR},${OR},0,${lg},1,${oB.x.toFixed(2)},${oB.y.toFixed(2)} L${iB.x.toFixed(2)},${iB.y.toFixed(2)} A${IR},${IR},0,${lg},0,${iA.x.toFixed(2)},${iA.y.toFixed(2)}Z`
+}
+
+/** Stroked arc path (для прогресса с round linecap) */
+function strokeArc(d1: number, d2: number): string {
+  const a = pt(d1, R), b = pt(d2, R)
+  const lg = (d2 - d1) > 180 ? 1 : 0
+  return `M${a.x.toFixed(2)},${a.y.toFixed(2)} A${R},${R},0,${lg},1,${b.x.toFixed(2)},${b.y.toFixed(2)}`
+}
+
+const fullBand = bandPath(0, 180)
+
+const progressArc = computed(() => {
+  const angle = Math.max(ratioToAngle(props.ratio), 0.5)
+  return strokeArc(0, Math.min(angle, 179.5))
+})
 </script>
 
 <template>
-  <div
-    :style="{
-      background: mood.color + '30',
-      borderRadius: '10px',
-      padding: '14px',
-      marginBottom: '16px',
-      textAlign: 'center',
-    }"
-  >
-    <div :style="{ fontSize: '16px', fontWeight: 700, color: '#fff' }">
-      {{ mood.name }}
+  <div class="mood-block">
+    <!-- Заголовок -->
+    <div class="mood-header" :style="{ color: mood.color + 'bb' }">
+      Настроение {{ roomPrepName }}
     </div>
-    <div
-      :style="{
-        fontSize: '12px',
-        color: 'rgba(255,255,255,.7)',
-        marginTop: '4px',
-        lineHeight: 1.5,
-      }"
-    >
-      {{ mood.desc }}
+
+    <!-- MoodArc -->
+    <div :style="{ display: 'flex', justifyContent: 'center', margin: '4px 0' }">
+      <svg
+        :viewBox="`0 0 280 ${SVG_H}`"
+        :style="{ width: '280px', height: SVG_H + 'px' }"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <linearGradient id="moodProgressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" :stop-color="mood.color" stop-opacity="0.05" />
+            <stop offset="100%" :stop-color="mood.color" stop-opacity="1.0" />
+          </linearGradient>
+          <clipPath id="moodHorizonClip">
+            <rect x="0" y="0" width="280" :height="CY" />
+          </clipPath>
+        </defs>
+
+        <!-- Свечение — обрезано по горизонту -->
+        <g clip-path="url(#moodHorizonClip)">
+          <ellipse :cx="CX" :cy="CY - 10" rx="130" ry="100"
+            :fill="mood.color" opacity="0.06" :style="{ filter: 'blur(30px)' }" />
+          <ellipse :cx="CX" :cy="CY - 30" rx="90" ry="70"
+            :fill="mood.color" opacity="0.08" :style="{ filter: 'blur(20px)' }" />
+        </g>
+
+        <!-- Трек -->
+        <path :d="fullBand" fill="rgba(255,255,255,0.07)" />
+
+        <!-- Прогресс — stroke с round linecap -->
+        <path
+          :d="progressArc"
+          fill="none"
+          stroke="url(#moodProgressGrad)"
+          :stroke-width="W"
+          stroke-linecap="round"
+        />
+
+        <!-- Иконка -->
+        <circle :cx="CX" :cy="CY - 36" r="26" fill="transparent" :stroke="mood.color + '33'" stroke-width="1" />
+        <circle :cx="CX" :cy="CY - 36" r="22" :fill="mood.color + '08'" stroke="none" />
+        <g :transform="`translate(${CX - 14}, ${CY - 36 - 14})`">
+          <foreignObject width="28" height="28">
+            <Icon :name="(mood.iconKey ?? 'sun') as IconName" :color="mood.color" :size="28" />
+          </foreignObject>
+        </g>
+      </svg>
     </div>
+
+    <!-- Название -->
+    <div class="mood-name">{{ mood.name }}</div>
+
+    <!-- Описание -->
+    <div class="mood-desc">{{ mood.desc }}</div>
+
+    <!-- Кнопка -->
     <button
-      :style="{
-        marginTop: '10px',
-        padding: '8px 18px',
-        background: RGBA.white12,
-        border: `1px solid ${RGBA.white20}`,
-        borderRadius: '8px',
-        color: '#fff',
-        cursor: 'pointer',
-        fontSize: '12px',
-        fontWeight: 600,
-      }"
+      class="mood-detail-btn"
+      :style="{ background: mood.color, color: T.bg }"
       @click="emit('showDetail')"
     >
       Больше о настроении
     </button>
   </div>
 </template>
+
+<style scoped>
+.mood-block {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px 20px 20px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.mood-header {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  margin-bottom: 4px;
+}
+.mood-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: v-bind('T.text');
+  margin-top: 8px;
+}
+.mood-desc {
+  font-size: 12px;
+  color: v-bind('T.textSec');
+  line-height: 1.5;
+  margin-top: 4px;
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.mood-detail-btn {
+  margin-top: 16px;
+  padding: 9px 22px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+}
+</style>

@@ -1,9 +1,11 @@
 <script lang="ts">
 /**
- * Icons.vue — Все 28 Lucide-иконки как единый компонент-обёртка.
+ * Icons.vue — Все Lucide-иконки как единый компонент-обёртка.
  *
  * Реализация: один <svg> + v-html с путями из таблицы ICONS.
  * Источник: woodled-v42.jsx (объект IC) + SuperApp ICP (fxSize, fxMount, fxBowl, fxDiffuser, fxWire).
+ *
+ * ТЗ-1: Добавлены arrowDownRight, arrowRight, arrowUpRight для MoodArc.
  */
 
 import type { FxType } from '../../data/catalog'
@@ -18,6 +20,9 @@ export type IconName =
   | 'fxMoveUp' | 'fxSunMed'
   | 'palette'
   | 'slidersH'
+  | 'arrowDownRight'
+  | 'arrowRight'
+  | 'arrowUpRight'
 
 export const ICON_NAMES: readonly IconName[] = [
   'ceiling', 'table', 'floor', 'spot', 'bra', 'bulb', 'up', 'pen', 'leaf',
@@ -28,6 +33,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'fxMoveUp', 'fxSunMed',
   'palette',
   'slidersH',
+  'arrowDownRight', 'arrowRight', 'arrowUpRight',
 ] as const
 
 /** Маппинг типа светильника на имя иконки. */
@@ -295,6 +301,24 @@ export const ICONS: Record<IconName, IconData> = {
     paths:
       '<path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/>' +
       '<path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/>',
+  },
+
+  /* ── ТЗ-1: MoodArc иконки стрелок ── */
+
+  arrowDownRight: {
+    paths:
+      '<path d="m7 7 10 10"/>' +
+      '<path d="M17 7v10H7"/>',
+  },
+  arrowRight: {
+    paths:
+      '<path d="M5 12h14"/>' +
+      '<path d="m12 5 7 7-7 7"/>',
+  },
+  arrowUpRight: {
+    paths:
+      '<path d="M7 7h10v10"/>' +
+      '<path d="M7 17 17 7"/>',
   },
 }
 </script>

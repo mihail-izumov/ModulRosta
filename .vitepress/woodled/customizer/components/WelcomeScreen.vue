@@ -2,27 +2,9 @@
 /**
  * WelcomeScreen.vue — Welcome-страница «7 185 деревьев продолжают светить».
  *
- * Концепция: живая доска почёта сообщества WOODLED.
- * Точные цифры из аналитики (customization_report.pdf): 14 353 товарных
- * позиции из 13 899 заказов 2020-2026, материал определён однозначно
- * у 7 185. «10 000+ покупателей» — округление вниз.
- *
- * Структура (сверху вниз):
- *   1. H1 «7 185 деревьев продолжают светить в ваших домах»
- *   2. Подзаголовок-приглашение (10 000+ домов · посадите свой)
- *   3. HonorBoard — три деревянные сферы (oak/walnut/black) с pulse-glow
- *   4. OnboardingLinkCard «Как рождается свет»
- *   5. SectionTitle «Пространство для света»
- *   6. SubLabel «Любимые места»
- *   7. 3 карточки шаблонов с tint-glass pills комнат
- *   8. «или»
- *   9. EmptyButton «Создать с чистого листа»
- *   10. Логотип WOODLED
- *
- * ВАЖНО про стили: каждая визуальная роль вынесена в отдельную
- * style-функцию (pillStyle / templateCardStyle / etc.) и возвращает
- * единый объект. Это надёжнее spread'а внутри :style — Vue template
- * иногда теряет вложенные свойства при `{...base, ...glass}`.
+ * ТЗ-3: pillStyle() и treeStyle() вынесены в theme/styles.ts.
+ * Локальные копии удалены, заменены на импорт.
+ * hexToRgb оставлен — используется в orbStyle() и honorBoardStyle().
  */
 
 import { computed } from 'vue'
@@ -31,6 +13,7 @@ import { TEMPLATES, type HomeTemplate } from '../data/templates'
 import { getRT, type RoomTypeId } from '../data/rooms'
 import type { Wood } from '../data/materials'
 import { useConfigurator } from '../store/configurator'
+import { pillStyle, treeStyle } from '../theme/styles'
 
 const cfg = useConfigurator()
 
@@ -116,6 +99,10 @@ function formatNum(n: number): string {
   return n.toLocaleString('ru-RU')
 }
 
+/**
+ * hexToRgb — оставлен локально, используется в orbStyle() и honorBoardStyle().
+ * theme/styles.ts имеет свою копию для pillStyle/treeStyle.
+ */
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const r = parseInt(hex.slice(1, 3), 16)
   const g = parseInt(hex.slice(3, 5), 16)
@@ -168,32 +155,10 @@ function honorBoardStyle() {
   }
 }
 
-/**
- * Pill комнаты — все стили в одном объекте, БЕЗ spread.
- * Это убирает риск что Vue потеряет background/boxShadow при компиляции
- * `{...base, ...tintGlass(...)}` — что и было причиной плоских pills.
+/*
+ * pillStyle и treeStyle — импортируются из theme/styles.ts
+ * Локальные копии УДАЛЕНЫ (ТЗ-3).
  */
-function pillStyle(hex: string) {
-  const { r, g, b } = hexToRgb(hex)
-  return {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '11px',
-    padding: '8px 14px 8px 12px',
-    borderRadius: '999px',
-    lineHeight: '1',
-    background: `
-      radial-gradient(ellipse 100% 80% at 25% 0%, rgba(${r},${g},${b},0.42), transparent 70%),
-      radial-gradient(ellipse 80% 60% at 100% 100%, rgba(${r},${g},${b},0.18), transparent 70%),
-      rgba(${r},${g},${b},0.10)
-    `,
-    border: `1px solid rgba(${r},${g},${b},0.32)`,
-    boxShadow: `
-      inset 0 1px 0 rgba(255,255,255,0.15),
-      0 1px 4px rgba(0,0,0,0.18)
-    `,
-  }
-}
 
 /** Карточка-шаблон. */
 function templateCardStyle() {
@@ -258,40 +223,10 @@ function orbStyle(wood: Wood, delay: number): Record<string, string> {
       0 6px 18px rgba(0,0,0,0.45)
     `,
     animation: `orbPulse 4.5s ease-in-out ${delay}s infinite`,
-    /* Per-orb glow цвета — keyframes использует var(--orb-glow*) */
     '--orb-glow': `rgba(${r},${g},${b},0.45)`,
     '--orb-glow-soft': `rgba(${r},${g},${b},0.18)`,
     '--orb-glow-peak': `rgba(${r},${g},${b},0.55)`,
     '--orb-glow-peak-soft': `rgba(${r},${g},${b},0.22)`,
-  }
-}
-
-/** Tree — 18px 3D-сфера с radial highlight и micro-glow цвета породы.
- *  Точная копия из welcome-orb.jsx. */
-function treeStyle(wood: Wood, idx: number): Record<string, string | number> {
-  const color = WCOL[wood]
-  const { r, g, b } = hexToRgb(color)
-  return {
-    width: '18px',
-    height: '18px',
-    borderRadius: '50%',
-    background: `
-      radial-gradient(circle at 32% 28%, rgba(255,255,255,0.45), transparent 50%),
-      radial-gradient(circle at 65% 70%, rgba(0,0,0,0.15), transparent 55%),
-      ${color}
-    `,
-    flexShrink: '0',
-    display: 'inline-block',
-    border: wood === 'black' ? '1px solid rgba(19,17,14,0.5)' : 'none',
-    boxShadow: `
-      inset 0 -1px 1.5px rgba(0,0,0,0.18),
-      inset 0 1px 1px rgba(255,255,255,0.15),
-      0 0 8px rgba(${r},${g},${b},0.35),
-      0 1px 3px rgba(0,0,0,0.35)
-    `,
-    marginLeft: idx === 0 ? '0' : '-5px',
-    zIndex: 100 - idx,
-    position: 'relative',
   }
 }
 
@@ -606,7 +541,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
             </div>
           </div>
 
-          <!-- Pills комнат с tint glass + tree-кружки -->
+          <!-- Pills комнат с tint glass + tree-кружки (из shared styles.ts) -->
           <div :style="{ display: 'flex', flexWrap: 'wrap', gap: '6px' }">
             <div
               v-for="(r, ri) in c.rooms"

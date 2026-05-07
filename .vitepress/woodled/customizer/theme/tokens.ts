@@ -3,6 +3,10 @@
  *
  * Источник: woodled-v42.jsx (объект T, WCOL).
  * Тёмная тема в тёплых тонах.
+ *
+ * ТЗ-2 v4: обновлены цвета настроений noon и clearing —
+ *   noon:     #C9B86C → #EDD84A  (чистый жёлтый)
+ *   clearing: #8BAA6B → #A4D65E  (чистый зелёный)
  */
 
 export const T = {
@@ -33,8 +37,8 @@ export const T = {
 
   // Настроения
   dawn: '#D4956B',
-  noon: '#C9B86C',
-  clearing: '#8BAA6B',
+  noon: '#EDD84A',
+  clearing: '#A4D65E',
 } as const
 
 export type TokenKey = keyof typeof T

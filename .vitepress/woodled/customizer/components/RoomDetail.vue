@@ -10,7 +10,7 @@ import { computed, ref } from 'vue'
 import { T, Z } from '../theme/tokens'
 import { ALL_ZONES, type Fixture, type ZoneId } from '../data/catalog'
 import { autoMood, type Mood } from '../data/moods'
-import { getRT, type Room, type ZoneLimits } from '../data/rooms'
+import { getRT, ROOM_PREP, type Room, type ZoneLimits } from '../data/rooms'
 import {
   baseLm, fxLm, fxLamps, getArea, furnPct as furnPctFn,
 } from '../engine/brightness'
@@ -61,6 +61,13 @@ const rW = computed(() => roomWood(props.room.fixtures))
 const furnPct = computed(() => furnPctFn(props.room.furniture))
 const zones = computed(() => roomZones(rt.value))
 const area = computed(() => getArea(rt.value, props.room))
+
+/** Склонение для MoodBlock: «в Гостиной», «на Кухне» */
+const roomPrepName = computed(() =>
+  props.room.customName
+    ? `в ${props.room.customName}`
+    : ROOM_PREP[props.room.typeId] ?? `в ${rt.value.name}`
+)
 
 /* Endel glow */
 interface GlowLayer { pos: string; opacity: number }
@@ -397,6 +404,8 @@ function onShowMoodDetail() {
       <MoodBlock
         v-if="props.room.fixtures.length > 0"
         :mood="tintedMood"
+        :ratio="ratio"
+        :room-prep-name="roomPrepName"
         @show-detail="onShowMoodDetail"
       />
 

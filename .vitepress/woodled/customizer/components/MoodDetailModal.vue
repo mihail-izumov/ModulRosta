@@ -5,6 +5,12 @@
  * Источник: woodled-v42.jsx (MoodDetailModal).
  * Прогресс-бар сверху (без ✕), большая иконка с float-анимацией,
  * кнопка «Дальше/Домой» + ссылка «Пропустить».
+ *
+ * ТЗ-2 v4 стилевые изменения:
+ *   - Текст на слайдах: T.text (белый) вместо T.textSec
+ *   - Кнопка «Дальше»: сплошная заливка mood.color, цвет T.bg
+ *   - Блоки «Атмосфера»: текст по левому краю, 12px, обычная жирность
+ *   - Заголовки блоков: uppercase, letter-spacing 2px, цвет mood.color
  */
 
 import { computed, ref } from 'vue'
@@ -21,6 +27,9 @@ const emit = defineEmits<{ close: [] }>()
 const slide = ref(0)
 const slides = computed(() => buildMoodSlides(props.mood))
 const s = computed(() => slides.value[slide.value] ?? slides.value[0])
+
+/** Слайд «Атмосфера» — особый стиль блоков. */
+const isAtmo = computed(() => slide.value === 2)
 
 function next() {
   if (slide.value < slides.value.length - 1) {
@@ -76,6 +85,7 @@ function next() {
         textAlign: 'center',
       }"
     >
+      <!-- Иконка с float-анимацией -->
       <div
         :style="{
           width: '90px',
@@ -93,6 +103,7 @@ function next() {
         <Icon :name="s.iconKey as IconName" :color="props.mood.color" :size="44" />
       </div>
 
+      <!-- Заголовок слайда -->
       <div
         :style="{
           fontSize: '22px',
@@ -104,11 +115,12 @@ function next() {
         {{ s.title }}
       </div>
 
+      <!-- Текст — белый (T.text) -->
       <div
         v-if="s.text"
         :style="{
           fontSize: '14px',
-          color: T.textSec,
+          color: T.text,
           lineHeight: 1.7,
           maxWidth: '340px',
         }"
@@ -116,22 +128,43 @@ function next() {
         {{ s.text }}
       </div>
 
+      <!-- Блоки данных -->
       <div
         v-if="s.blocks"
-        :style="{ display: 'flex', gap: '10px', marginTop: '8px' }"
+        :style="{ display: 'flex', gap: '10px', marginTop: '8px', width: '100%', maxWidth: '360px' }"
       >
         <div
           v-for="[k, v] in s.blocks"
           :key="k"
-          :style="{ flex: 1, background: T.card, borderRadius: '10px', padding: '14px' }"
+          :style="{
+            flex: 1,
+            background: T.card,
+            borderRadius: '10px',
+            padding: '14px',
+            border: `1px solid ${T.border}`,
+            textAlign: isAtmo ? 'left' : 'center',
+          }"
         >
-          <div :style="{ fontSize: '10px', color: T.textDim }">{{ k }}</div>
+          <!-- Заголовок блока: uppercase, letter-spacing, цвет настроения -->
           <div
             :style="{
-              fontSize: '16px',
+              fontSize: '9px',
               fontWeight: 700,
+              color: props.mood.color,
+              textTransform: 'uppercase',
+              letterSpacing: '2px',
+              marginBottom: '8px',
+            }"
+          >
+            {{ k }}
+          </div>
+          <!-- Значение: Атмосфера — 12px обычный, остальные — 15px bold -->
+          <div
+            :style="{
+              fontSize: isAtmo ? '12px' : '15px',
+              fontWeight: isAtmo ? 400 : 700,
               color: T.text,
-              marginTop: '4px',
+              lineHeight: 1.5,
             }"
           >
             {{ v }}
@@ -142,27 +175,29 @@ function next() {
 
     <!-- Кнопка + ссылка «Пропустить» -->
     <div :style="{ padding: '0 28px 28px', textAlign: 'center' }">
+      <!-- «Дальше» — сплошная заливка цветом настроения -->
       <button
         v-if="slide < slides.length - 1"
         :style="{
           padding: '12px 40px',
-          background: RGBA.white10,
-          border: `1px solid ${RGBA.white20}`,
+          background: props.mood.color,
+          border: 'none',
           borderRadius: '8px',
-          color: T.text,
+          color: T.bg,
           cursor: 'pointer',
           fontSize: '14px',
-          fontWeight: 600,
+          fontWeight: 700,
         }"
         @click="next"
       >
         Дальше
       </button>
+      <!-- «Домой» — та же заливка -->
       <button
         v-else
         :style="{
           padding: '12px 40px',
-          background: T.text,
+          background: props.mood.color,
           border: 'none',
           borderRadius: '8px',
           color: T.bg,

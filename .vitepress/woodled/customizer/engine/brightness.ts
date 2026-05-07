@@ -3,6 +3,8 @@
  *
  * Источник: woodled-v42.jsx (baseLm, fxLm, fxLamps, getArea).
  *
+ * ТЗ-1: Добавлена функция ratioToAngle() для MoodArc.
+ *
  * baseLm = lux × area × (ceilingH/2.7) × (1 + Σfurniture.ab)
  * fxLm = Σ lmPer × l × q
  */
@@ -68,4 +70,22 @@ export function ratioOf(base: number, actual: number): number {
  */
 export function furnPct(furniture: Room['furniture']): number {
   return Math.round(furniture.reduce((s, f) => s + (FURN[f]?.ab ?? 0) * 100, 0))
+}
+
+/**
+ * Конвертирует ratio в угол (0—180°) для MoodArc.
+ *
+ * ТЗ-1: Каждый mood занимает 60° на полукруге:
+ *   - 0—60°  : Тёплые сумерки  (ratio 0—0.8)
+ *   - 60—120°: Утро в лесу     (ratio 0.8—1.4)
+ *   - 120—180°: Ясный полдень  (ratio 1.4—3.0+)
+ *
+ * Cap на 180° для очень яркого света (ratio > 3.0).
+ */
+export function ratioToAngle(ratio: number): number {
+  if (ratio <= 0)   return 0
+  if (ratio <= 0.8) return (ratio / 0.8) * 60
+  if (ratio < 1.4)  return 60 + ((ratio - 0.8) / 0.6) * 60
+  if (ratio < 3.0)  return 120 + ((ratio - 1.4) / 1.6) * 60
+  return 180
 }
