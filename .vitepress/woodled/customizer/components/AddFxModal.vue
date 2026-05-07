@@ -177,45 +177,54 @@ onMounted(() => {
 })
 onUnmounted(() => { if (photoTimer) clearInterval(photoTimer) })
 
-/** Трекинг загрузки фото — показываем после полного цикла анимации. */
+/** Трекинг загрузки — показываем фото на границе цикла анимации (5с). */
 const loadedPhotos = ref(new Set<string>())
 const readyGroups = ref(new Set<string>())
 
 function onPhotoLoad(src: string) {
-  const next = new Set([...loadedPhotos.value, src])
-  loadedPhotos.value = next
-  // Проверяем все группы — если оба фото загружены, ставим таймер на завершение цикла анимации
-  for (const g of groups.value) {
-    const [a, b] = collectionPhotos(g)
-    const key = g.family ?? g.models[0]
-    if (next.has(a) && next.has(b) && !readyGroups.value.has(key)) {
-      setTimeout(() => {
-        readyGroups.value = new Set([...readyGroups.value, key])
-      }, 2000) // даём анимации завершить цикл
-    }
-  }
+  loadedPhotos.value = new Set([...loadedPhotos.value, src])
+}
+
+function photosLoaded(g: Group): boolean {
+  const [a, b] = collectionPhotos(g)
+  return loadedPhotos.value.has(a) && loadedPhotos.value.has(b)
 }
 
 function isReady(g: Group): boolean {
-  const key = g.family ?? g.models[0]
-  return readyGroups.value.has(key)
+  return readyGroups.value.has(g.family ?? g.models[0])
 }
 
-/** Фаза фото: ротация на выбранной ИЛИ активной (видимой) карточке. */
+// Каждые 5с (= конец цикла анимации) проверяем загруженные группы
+let cycleTimer: ReturnType<typeof setInterval> | null = null
+
+onMounted(() => {
+  cycleTimer = setInterval(() => {
+    let changed = false
+    for (const g of groups.value) {
+      const key = g.family ?? g.models[0]
+      if (photosLoaded(g) && !readyGroups.value.has(key)) {
+        readyGroups.value = new Set([...readyGroups.value, key])
+        changed = true
+      }
+    }
+  }, 5000) // точно на границе цикла анимации
+})
+onUnmounted(() => { if (cycleTimer) clearInterval(cycleTimer) })
+
+/** Фаза фото: ротация на выбранной ИЛИ активной карточке. */
 function cardPhase(idx: number): number {
   if (selected.value !== null) {
-    // Есть выбранная — ротация только на ней
     return idx === selected.value ? photoPhase.value : 0
   }
-  // Нет выбранной — ротация на видимой
   return idx === activeIdx.value ? photoPhase.value : 0
 }
 </script>
 
 <template>
+  <Teleport to="body">
   <!-- Fullscreen overlay -->
   <div :style="{
-    position: 'fixed', inset: 0, zIndex: 9999,
+    position: 'fixed', inset: 0, zIndex: 99999,
     background: '#000',
     display: 'flex', flexDirection: 'column',
     alignItems: 'center', justifyContent: 'center',
@@ -343,13 +352,13 @@ function cardPhase(idx: number): number {
               position: 'absolute', inset: 0, borderRadius: '14px',
               background: 'rgba(10,9,8,0.3)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }" @click.stop="doAdd">
+            }" @click.stop>
               <div :style="{
                 padding: '10px 28px', borderRadius: '12px',
                 background: T.text, color: T.bg,
                 fontSize: '14px', fontWeight: 700,
                 cursor: 'pointer',
-              }">
+              }" @click.stop="doAdd">
                 Выбрать
               </div>
             </div>
@@ -386,6 +395,7 @@ function cardPhase(idx: number): number {
       </div>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <style scoped>
