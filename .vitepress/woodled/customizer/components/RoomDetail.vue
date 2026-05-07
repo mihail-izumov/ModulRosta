@@ -307,7 +307,7 @@ function onShowMoodDetail() {
               flexShrink: 0,
             }"
           >
-            {{ bright.label }}
+            {{ bright.name }}
           </div>
         </div>
 
