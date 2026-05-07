@@ -26,7 +26,6 @@ import { useConfigurator } from '../store/configurator'
 import Icon from './ui/Icons.vue'
 import Modal from './ui/Modal.vue'
 import MoodBlock from './MoodBlock.vue'
-import LumenDashboard from './LumenDashboard.vue'
 import ZoneCard from './ZoneCard.vue'
 import FurnitureBlock from './FurnitureBlock.vue'
 import Footer from './Footer.vue'
@@ -245,54 +244,104 @@ function onShowMoodDetail() {
         </svg>
       </div>
 
-      <!-- Дашборд люмен -->
-      <LumenDashboard
-        :mood="tintedMood"
-        :bright="bright"
-        :lamps="lamps"
-        :actual="actual"
-        :base="base"
-        :ratio="ratio"
-      />
-
-      <!-- Смарт-подбор: компактная плашка внутри дашборда -->
+      <!-- Дашборд + Смарт-подбор в одной карточке -->
       <div
-        v-if="actual > 0"
         :style="{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '5px 10px',
-          marginTop: '-10px',
-          marginBottom: '8px',
-          marginLeft: '1px',
-          marginRight: '1px',
-          borderRadius: '0 0 13px 13px',
           background: T.card,
-          borderLeft: `1px solid ${bright.color}33`,
-          borderRight: `1px solid ${bright.color}33`,
-          borderBottom: `1px solid ${bright.color}33`,
-          position: 'relative',
-          zIndex: 1,
+          border: `1px solid ${tintedMood.color}33`,
+          borderRadius: '14px',
+          padding: '12px 14px',
+          marginBottom: '8px',
         }"
       >
-        <div class="rotor-dash" :style="{ '--rc': bright.color }" aria-hidden="true">
-          <div v-for="i in 10" :key="i" class="rotor-dash-l" :style="{ '--rot': ((i - 1) / 10 * 360) + 'deg', animationDelay: ((i - 1) * 30) + 'ms' }" />
+        <!-- Главная строка -->
+        <div :style="{ display: 'flex', alignItems: 'center', gap: '12px' }">
+          <!-- Иконка лампочек + счётчик -->
+          <div
+            :style="{
+              width: '44px',
+              height: '44px',
+              borderRadius: '10px',
+              background: tintedMood.color + '18',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px',
+              flexShrink: 0,
+            }"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" :stroke="tintedMood.color" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+              <path d="M9 18h6"/><path d="M10 22h4"/>
+            </svg>
+            <span :style="{ fontSize: '14px', fontWeight: 700, color: tintedMood.color }">{{ lamps }}</span>
+          </div>
+
+          <!-- Лм текст + бар -->
+          <div :style="{ flex: 1, minWidth: 0 }">
+            <div :style="{ fontSize: '15px', fontWeight: 700, color: T.text, marginBottom: '4px' }">
+              {{ actual.toLocaleString('ru-RU') }}<span :style="{ fontWeight: 400, color: T.textSec }"> из {{ base.toLocaleString('ru-RU') }} лм</span>
+            </div>
+            <div :style="{ height: '5px', background: T.border, borderRadius: '3px', overflow: 'hidden' }">
+              <div
+                :style="{
+                  height: '100%',
+                  width: Math.min((actual / base) * 100, 100) + '%',
+                  background: tintedMood.color,
+                  borderRadius: '3px',
+                  transition: 'width .3s',
+                }"
+              />
+            </div>
+          </div>
+
+          <!-- Бейдж статуса -->
+          <div
+            :style="{
+              padding: '6px 12px',
+              borderRadius: '8px',
+              background: bright.color + '22',
+              fontSize: '12px',
+              fontWeight: 700,
+              color: bright.color,
+              flexShrink: 0,
+            }"
+          >
+            {{ bright.label }}
+          </div>
         </div>
-        <div :style="{ fontSize: '10px', color: bright.color + 'bb', flex: 1, fontWeight: 500 }">
-          {{ smartLine }}
-        </div>
-        <button
+
+        <!-- Смарт-подбор плашка ВНУТРИ карточки -->
+        <div
+          v-if="actual > 0"
           :style="{
-            padding: '3px 8px', borderRadius: '6px',
-            background: bright.color + '18',
-            border: `1px solid ${bright.color}33`,
-            color: bright.color,
-            cursor: 'pointer', fontSize: '9px', fontWeight: 600,
-            flexShrink: 0, whiteSpace: 'nowrap',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginTop: '10px',
+            padding: '5px 10px',
+            borderRadius: '8px',
+            background: tintedMood.color + '10',
           }"
-          @click="showSmartHelp = true"
-        >Смарт-подбор</button>
+        >
+          <div class="rotor-dash" :style="{ '--rc': tintedMood.color }" aria-hidden="true">
+            <div v-for="i in 10" :key="i" class="rotor-dash-l" :style="{ '--rot': ((i - 1) / 10 * 360) + 'deg', animationDelay: ((i - 1) * 30) + 'ms' }" />
+          </div>
+          <div :style="{ fontSize: '10px', color: tintedMood.color + 'bb', flex: 1, fontWeight: 500 }">
+            {{ smartLine }}
+          </div>
+          <button
+            :style="{
+              padding: '3px 8px', borderRadius: '6px',
+              background: tintedMood.color + '18',
+              border: `1px solid ${tintedMood.color}33`,
+              color: tintedMood.color,
+              cursor: 'pointer', fontSize: '9px', fontWeight: 600,
+              flexShrink: 0, whiteSpace: 'nowrap',
+            }"
+            @click="showSmartHelp = true"
+          >Смарт-подбор</button>
+        </div>
       </div>
 
       <!-- Glow wrapper + 2×2 сетка зон -->
