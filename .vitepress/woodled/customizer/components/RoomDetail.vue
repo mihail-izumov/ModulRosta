@@ -309,41 +309,42 @@ function onShowMoodDetail() {
         @toggle="onFurnToggle"
       />
 
-      <!-- Удаление комнаты -->
+      <!-- Опасная зона -->
       <div
         :style="{
-          marginTop: '50px',
-          paddingTop: '16px',
-          borderTop: `1px solid ${T.border}`,
+          marginTop: '32px',
+          padding: '14px',
+          background: T.red + '14',
+          border: `1px solid ${T.red}33`,
+          borderRadius: '10px',
         }"
       >
-        <div :style="{ textAlign: 'center' }">
-          <button
-            :style="{
-              padding: '8px 20px',
-              background: 'none',
-              border: `1px solid ${T.red}55`,
-              borderRadius: '6px',
-              color: T.red,
-              cursor: 'pointer',
-              fontSize: '12px',
-            }"
-            @click="confirmDel = true"
-          >
-            Удалить комнату
-          </button>
-        </div>
         <div
-          v-if="props.room.fixtures.length > 0"
           :style="{
-            fontSize: '11px',
-            color: T.textDim,
-            marginTop: '8px',
-            textAlign: 'center',
+            fontSize: '12px',
+            color: T.textSec,
+            marginBottom: '10px',
+            lineHeight: '1.5',
           }"
         >
-          Потеряете {{ actual.toLocaleString('ru-RU') }} лм — {{ woodNames(props.room.fixtures) }}
+          Комната будет удалена со всеми светильниками и настройками.<template v-if="props.room.fixtures.length > 0"> Потеряете {{ actual.toLocaleString('ru-RU') }} лм и {{ woodNames(props.room.fixtures) }}.</template>
         </div>
+        <button
+          :style="{
+            width: '100%',
+            padding: '10px',
+            background: 'none',
+            border: `1px solid ${T.red}44`,
+            borderRadius: '8px',
+            color: T.red,
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 600,
+          }"
+          @click="confirmDel = true"
+        >
+          Удалить комнату
+        </button>
       </div>
 
       <Footer />

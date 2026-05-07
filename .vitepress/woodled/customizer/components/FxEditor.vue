@@ -322,7 +322,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             </div>
             <button :style="{background:'none',border:'none',cursor:'pointer',padding:'4px',display:'flex',flexDirection:'column',alignItems:'flex-end',color:T.neutral,flexShrink:0}" @click="priceOpen=!priceOpen">
               <span :style="{fontSize:'15px',fontWeight:800,fontVariantNumeric:'tabular-nums'}">{{ fmt(price) }} ₽</span>
-              <span :style="{fontSize:'12px',color:T.textSec,display:'flex',alignItems:'center',gap:'3px',marginTop:'2px',fontWeight:500}">{{ priceOpen?'Скрыть':'Детали' }}<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" :style="{transform:priceOpen?'rotate(180deg)':'none',transition:'transform .2s'}"><polyline points="6 9 12 15 18 9"/></svg></span>
+              <span :style="{fontSize:'12px',color:T.textSec,display:'flex',alignItems:'center',gap:'4px',marginTop:'2px',fontWeight:500}">{{ priceOpen?'Скрыть':'Детали' }}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" :style="{transform:priceOpen?'rotate(180deg)':'none',transition:'transform .2s'}"><polyline points="6 9 12 15 18 9"/></svg></span>
             </button>
           </div>
 
@@ -345,9 +345,9 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
 
             <!-- Остальные опции — компактная 2-колоночная сетка -->
             <div :style="{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px'}">
-              <div v-for="([k,v]) in myChoicesNoLight" :key="k" :style="{padding:'8px 10px',background:T.cardAlt,borderRadius:'8px'}">
-                <div :style="{fontSize:'10px',color:T.textDim,marginBottom:'2px'}">{{ k }}</div>
-                <div :style="{fontSize:'12px',fontWeight:600,color:T.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}">{{ v }}</div>
+              <div v-for="([k,v]) in myChoicesNoLight" :key="k" :style="{padding:'5px 8px',background:T.cardAlt,borderRadius:'6px'}">
+                <div :style="{fontSize:'9px',color:T.textDim,marginBottom:'1px'}">{{ k }}</div>
+                <div :style="{fontSize:'11px',fontWeight:600,color:T.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}">{{ v }}</div>
               </div>
             </div>
           </div>
@@ -365,11 +365,11 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
         </div>
 
         <!-- Actions -->
-        <button :style="{width:'100%',padding:'14px',background:isDone?sc:T.neutral,color:T.bg,border:'none',borderRadius:'10px',cursor:'pointer',fontSize:'14px',fontWeight:700,marginBottom:'8px'}" @click="doSave">Сохранить</button>
+        <button :style="{width:'100%',padding:'14px',background:T.text,color:T.bg,border:'none',borderRadius:'10px',cursor:'pointer',fontSize:'14px',fontWeight:700,marginBottom:'8px'}" @click="doSave">Сохранить</button>
         <button :style="{width:'100%',padding:'12px',background:'none',border:`1px solid ${T.border}`,borderRadius:'8px',color:T.textSec,cursor:'pointer',fontSize:'13px',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'6px',marginBottom:'20px'}" @click="shareFx"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Поделиться ссылкой на светильник</button>
 
         <!-- Опасная зона -->
-        <div :style="{background:T.red+'08',border:`1px solid ${T.red}25`,borderRadius:'10px',padding:'14px',marginTop:'12px'}">
+        <div :style="{background:T.red+'14',border:`1px solid ${T.red}33`,borderRadius:'10px',padding:'14px',marginTop:'12px'}">
           <div :style="{fontSize:'12px',color:T.textSec,marginBottom:'10px',lineHeight:1.5}">Светильник будет удалён из комнаты. Настройки не сохранятся — при повторном добавлении нужно будет собрать заново.</div>
           <button :style="{width:'100%',padding:'10px',background:'none',border:`1px solid ${T.red}44`,borderRadius:'8px',color:T.red,cursor:'pointer',fontSize:'12px',fontWeight:600}" @click="showDeleteConfirm=true">Удалить светильник</button>
         </div>
