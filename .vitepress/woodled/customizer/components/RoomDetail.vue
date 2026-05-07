@@ -115,6 +115,18 @@ function handleSettingsPatch(key: keyof Room, value: unknown, toast?: string) {
 const addZone = ref<ZoneId | null>(null)
 const showSettings = ref(false)
 const confirmDel = ref(false)
+const showSmartHelp = ref(false)
+
+/** Текст для Смарт-подбор — действие, не повтор статуса. */
+const smartLine = computed(() => {
+  const r = ratio.value
+  const rx = r.toFixed(2).replace(/\.?0+$/, '')
+  if (r <= 0.5) return `${rx}× — добавьте светильники`
+  if (r <= 0.8) return `${rx}× — добавьте бра или торшер`
+  if (r <= 2.0) return `${rx}× — ничего менять не нужно`
+  if (r <= 4.0) return `${rx}× — поставьте диммер`
+  return `${rx}× — уберите лишнее или диммер`
+})
 
 function onLimitHit(zId: ZoneId) {
   const limit = (props.room.limits ?? rt.value.limits)?.[zId] ?? 99
@@ -243,6 +255,44 @@ function onShowMoodDetail() {
         :ratio="ratio"
       />
 
+      <!-- Смарт-подбор: компактная плашка внутри дашборда -->
+      <div
+        v-if="actual > 0"
+        :style="{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '5px 10px',
+          marginTop: '-6px',
+          marginBottom: '8px',
+          marginLeft: '1px',
+          marginRight: '1px',
+          borderRadius: '0 0 13px 13px',
+          background: T.card,
+          borderLeft: `1px solid ${bright.color}33`,
+          borderRight: `1px solid ${bright.color}33`,
+          borderBottom: `1px solid ${bright.color}33`,
+        }"
+      >
+        <div class="rotor-dash" :style="{ '--rc': bright.color }" aria-hidden="true">
+          <div v-for="i in 10" :key="i" class="rotor-dash-l" :style="{ '--rot': ((i - 1) / 10 * 360) + 'deg', animationDelay: ((i - 1) * 30) + 'ms' }" />
+        </div>
+        <div :style="{ fontSize: '10px', color: bright.color + 'bb', flex: 1, fontWeight: 500 }">
+          {{ smartLine }}
+        </div>
+        <button
+          :style="{
+            padding: '3px 8px', borderRadius: '6px',
+            background: bright.color + '18',
+            border: `1px solid ${bright.color}33`,
+            color: bright.color,
+            cursor: 'pointer', fontSize: '9px', fontWeight: 600,
+            flexShrink: 0, whiteSpace: 'nowrap',
+          }"
+          @click="showSmartHelp = true"
+        >Смарт-подбор</button>
+      </div>
+
       <!-- Glow wrapper + 2×2 сетка зон -->
       <div
         :style="{
@@ -369,6 +419,8 @@ function onShowMoodDetail() {
       :room-area="area"
       :room-base-lm="base"
       :room-current-lm="actual"
+      :room-fixtures="props.room.fixtures"
+      :room-name="props.room.customName || rt.name"
       @add="(fx) => { addFx(fx); addZone = null }"
       @close="addZone = null"
     />
@@ -413,5 +465,57 @@ function onShowMoodDetail() {
     </Modal>
 
     <span v-show="false">{{ Icon }}</span>
+
+    <!-- Смарт-подбор модалка -->
+    <Teleport to="body">
+      <div v-if="showSmartHelp" :style="{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,.75)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }" @click.self="showSmartHelp = false">
+        <div :style="{ width: '100%', maxWidth: '480px', maxHeight: '88vh', overflow: 'auto', background: T.bg, borderTopLeftRadius: '18px', borderTopRightRadius: '18px', borderTop: `1px solid ${T.border}` }">
+          <div :style="{ padding: '24px 20px 16px', textAlign: 'center' }">
+            <div :style="{ fontSize: '10px', fontWeight: 700, color: T.neutral, letterSpacing: '1.5px', marginBottom: '8px' }">СМАРТ-ПОДБОР</div>
+            <div :style="{ fontSize: '20px', fontWeight: 800, color: T.text, lineHeight: 1.2, marginBottom: '10px' }">Как рассчитывается яркость</div>
+            <div :style="{ fontSize: '13px', color: T.textSec, lineHeight: 1.6, maxWidth: '340px', margin: '0 auto', marginBottom: '20px' }">Алгоритм WOODLED суммирует свет всех светильников в комнате и сравнивает с нормой, учитывая площадь, назначение и мебель.</div>
+
+            <div :style="{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left', marginBottom: '20px' }">
+              <div v-for="row in [
+                { label: 'Не хватает', color: T.red, desc: '< 50% нормы. Тёмная комната.' },
+                { label: 'Приглушённо', color: T.yellow, desc: '50–80%. Для атмосферы, но не для работы.' },
+                { label: 'Комфортно', color: T.green, desc: '80–200%. Целевой диапазон для жизни.' },
+                { label: 'С запасом', color: T.neutral, desc: '200–400%. Хорошо с диммером.' },
+                { label: 'Избыточно', color: T.textDim, desc: '> 400%. Слишком ярко без диммера.' },
+              ]" :key="row.label" :style="{ padding: '8px 12px', background: T.card, border: `1px solid ${T.border}`, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '10px' }">
+                <div :style="{ padding: '3px 8px', borderRadius: '6px', background: row.color + '22', color: row.color, fontSize: '10px', fontWeight: 700, whiteSpace: 'nowrap', minWidth: '80px', textAlign: 'center' }">{{ row.label }}</div>
+                <div :style="{ fontSize: '11px', color: T.textSec, lineHeight: 1.4, flex: 1 }">{{ row.desc }}</div>
+              </div>
+            </div>
+
+            <div :style="{ fontSize: '12px', color: T.textSec, lineHeight: 1.6, textAlign: 'left', marginBottom: '20px' }">
+              Число вроде <b :style="{ color: T.text }">0.85×</b> — это отношение текущего света к норме. 1.0× = ровно норма. Всё от 0.8× до 2.0× — комфортно для жизни.
+            </div>
+
+            <button :style="{ width: '100%', padding: '14px', background: T.text, color: T.bg, border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '14px', fontWeight: 700 }" @click="showSmartHelp = false">Супер!</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
+
+<style scoped>
+.rotor-dash { width: 20px; height: 20px; position: relative; flex-shrink: 0; }
+.rotor-dash-l {
+  position: absolute; top: 50%; left: 50%;
+  width: 1.5px; height: 5px; margin: -2.5px 0 0 -.75px;
+  border-radius: 1px;
+  background: var(--rc, #b4915a);
+  transform-origin: 50% 50%;
+  animation: rotorDashCycle 5000ms ease-in-out infinite;
+  opacity: 0;
+}
+@keyframes rotorDashCycle {
+  0%   { transform: rotate(var(--rot)) translateY(-14px) scale(0.3); opacity: 0; }
+  5%   { transform: rotate(var(--rot)) translateY(-7px) scale(1);   opacity: 0.7; }
+  80%  { transform: rotate(var(--rot)) translateY(-7px) scale(1);   opacity: 0.7; }
+  90%  { transform: rotate(var(--rot)) translateY(-14px) scale(0.3); opacity: 0; }
+  100% { transform: rotate(var(--rot)) translateY(-14px) scale(0.3); opacity: 0; }
+}
+</style>
