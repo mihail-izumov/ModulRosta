@@ -130,12 +130,12 @@ const selected = ref<number | null>(null)
 function handleSelect(idx: number) {
   const g = groups.value[idx]
   if (isAdded(g)) return
-  if (selected.value === idx) {
-    // Подтверждение — добавить
-    confirmAdd(g)
-  } else {
-    selected.value = idx
-  }
+  selected.value = selected.value === idx ? null : idx
+}
+
+function doAdd() {
+  if (selected.value === null) return
+  confirmAdd(groups.value[selected.value])
 }
 
 function confirmAdd(g: Group) {
@@ -167,7 +167,7 @@ function scrollTo(idx: number) {
   scrollEl.value?.scrollTo({ left: idx * (CARD_W + GAP), behavior: 'smooth' })
 }
 
-/* ──────────── Фото-слайдер (CSS-driven) ──────────── */
+/* ──────────── Фото-слайдер ──────────── */
 
 const photoPhase = ref(0)
 let photoTimer: ReturnType<typeof setInterval> | null = null
@@ -176,13 +176,30 @@ onMounted(() => {
   photoTimer = setInterval(() => { photoPhase.value = (photoPhase.value + 1) % 2 }, 3500)
 })
 onUnmounted(() => { if (photoTimer) clearInterval(photoTimer) })
+
+/** Трекинг загрузки фото — не показываем пока оба не загрузятся. */
+const loadedPhotos = ref(new Set<string>())
+
+function onPhotoLoad(src: string) {
+  loadedPhotos.value = new Set([...loadedPhotos.value, src])
+}
+
+function bothLoaded(g: Group): boolean {
+  const [a, b] = collectionPhotos(g)
+  return loadedPhotos.value.has(a) && loadedPhotos.value.has(b)
+}
+
+/** Фаза фото для конкретной карточки: ротация только на активной. */
+function cardPhase(idx: number): number {
+  return idx === activeIdx.value ? photoPhase.value : 0
+}
 </script>
 
 <template>
   <!-- Fullscreen overlay -->
   <div :style="{
     position: 'fixed', inset: 0, zIndex: 40,
-    background: 'rgba(0,0,0,.7)',
+    background: '#000',
     display: 'flex', flexDirection: 'column',
     alignItems: 'center', justifyContent: 'center',
     gap: '16px', padding: '0 16px',
@@ -232,6 +249,7 @@ onUnmounted(() => { if (photoTimer) clearInterval(photoTimer) })
           display: 'flex', gap: GAP + 'px',
           padding: `0 ${GAP}px 20px 24px`,
           WebkitOverflowScrolling: 'touch',
+          justifyContent: groups.length === 1 ? 'center' : 'flex-start',
         }"
         @scroll="onScroll"
       >
@@ -259,45 +277,64 @@ onUnmounted(() => { if (photoTimer) clearInterval(photoTimer) })
             <div :style="{
               width: '100%', aspectRatio: '3 / 4', borderRadius: '14px',
               overflow: 'hidden', position: 'relative',
-              background: 'linear-gradient(170deg, #E8DFD0 0%, #D4C4A8 40%, #C8B894 100%)',
+              background: '#fff',
             }">
-              <!-- Photo layer 1 -->
-              <img
-                :src="collectionPhotos(g)[0]"
-                alt=""
-                :style="{
+              <!-- Loading: rotor animation -->
+              <div v-if="!bothLoaded(g)" :style="{
+                position: 'absolute', inset: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: '#fff',
+                zIndex: 2,
+              }">
+                <div class="rotor-load" aria-hidden="true">
+                  <div v-for="j in 12" :key="j" class="rotor-load-l" :style="{'--rot': ((j-1)/12*360)+'deg', animationDelay: ((j-1)*30)+'ms'}" />
+                </div>
+              </div>
+              <!-- Hidden preload imgs -->
+              <img :src="collectionPhotos(g)[0]" alt="" :style="{display:'none'}" @load="onPhotoLoad(collectionPhotos(g)[0])" @error="onPhotoLoad(collectionPhotos(g)[0])" />
+              <img :src="collectionPhotos(g)[1]" alt="" :style="{display:'none'}" @load="onPhotoLoad(collectionPhotos(g)[1])" @error="onPhotoLoad(collectionPhotos(g)[1])" />
+              <!-- Visible photos — only when both loaded -->
+              <template v-if="bothLoaded(g)">
+                <img :src="collectionPhotos(g)[0]" alt="" :style="{
                   position: 'absolute', inset: 0, width: '100%', height: '100%',
                   objectFit: 'cover',
-                  opacity: photoPhase === 0 ? 1 : 0,
+                  opacity: cardPhase(i) === 0 ? 1 : 0,
                   transition: 'opacity 1.2s ease-in-out',
-                }"
-                @error="($event.target as HTMLImageElement).style.display='none'"
-              />
-              <!-- Photo layer 2 -->
-              <img
-                :src="collectionPhotos(g)[1]"
-                alt=""
-                :style="{
+                }" />
+                <img :src="collectionPhotos(g)[1]" alt="" :style="{
                   position: 'absolute', inset: 0, width: '100%', height: '100%',
                   objectFit: 'cover',
-                  opacity: photoPhase === 1 ? 1 : 0,
+                  opacity: cardPhase(i) === 1 ? 1 : 0,
                   transition: 'opacity 1.2s ease-in-out',
-                }"
-                @error="($event.target as HTMLImageElement).style.display='none'"
-              />
+                }" />
+              </template>
             </div>
 
             <!-- Overlay: «Уже в ...» -->
-            <div
-              v-if="isAdded(g) && props.roomName"
-              :style="{
-                position: 'absolute', inset: 0, borderRadius: '14px',
-                background: 'rgba(10,9,8,0.65)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }"
-            >
+            <div v-if="isAdded(g) && props.roomName" :style="{
+              position: 'absolute', inset: 0, borderRadius: '14px',
+              background: 'rgba(10,9,8,0.65)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }">
               <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
                 Уже в {{ inRoom(props.roomName) }}
+              </div>
+            </div>
+
+            <!-- Кнопка «Выбрать» поверх выбранной карточки -->
+            <div v-if="selected === i && !isAdded(g)" :style="{
+              position: 'absolute', inset: 0, borderRadius: '14px',
+              background: 'rgba(10,9,8,0.3)',
+              display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+              padding: '16px',
+            }" @click.stop="doAdd">
+              <div :style="{
+                padding: '10px 28px', borderRadius: '12px',
+                background: T.text, color: T.bg,
+                fontSize: '14px', fontWeight: 700,
+                cursor: 'pointer',
+              }">
+                Выбрать
               </div>
             </div>
           </div>
@@ -307,34 +344,27 @@ onUnmounted(() => { if (photoTimer) clearInterval(photoTimer) })
             <div :style="{ fontSize: '16px', fontWeight: 700, color: T.text, marginBottom: '6px' }">
               {{ g.name }}
             </div>
-            <span
-              v-if="sqRange(g.models)"
-              :style="{
-                display: 'inline-block',
-                padding: '3px 12px', borderRadius: '10px',
-                background: T.neutral + '22',
-                border: `1px solid ${T.neutral}44`,
-                fontSize: '12px', fontWeight: 600, color: T.neutral,
-              }"
-            >
+            <span v-if="sqRange(g.models)" :style="{
+              display: 'inline-block',
+              padding: '3px 12px', borderRadius: '10px',
+              background: T.neutral + '22',
+              border: `1px solid ${T.neutral}44`,
+              fontSize: '12px', fontWeight: 600, color: T.neutral,
+            }">
               {{ sqRange(g.models) }}
             </span>
           </div>
         </button>
-        <!-- Right spacer -->
-        <div :style="{ flexShrink: 0, width: '12px' }" />
+        <div v-if="groups.length > 1" :style="{ flexShrink: 0, width: '12px' }" />
       </div>
 
       <!-- Cancel -->
       <div :style="{ padding: '0 24px 18px' }">
-        <button
-          :style="{
-            width: '100%', padding: '12px', background: 'none',
-            border: `1px solid ${T.border}`, borderRadius: '10px',
-            cursor: 'pointer', color: T.textSec, fontSize: '13px',
-          }"
-          @click="emit('close')"
-        >
+        <button :style="{
+          width: '100%', padding: '12px', background: 'none',
+          border: `1px solid ${T.border}`, borderRadius: '10px',
+          cursor: 'pointer', color: T.textSec, fontSize: '13px',
+        }" @click="emit('close')">
           Отмена
         </button>
       </div>
@@ -345,4 +375,23 @@ onUnmounted(() => { if (photoTimer) clearInterval(photoTimer) })
 <style scoped>
 .fx-add-slider::-webkit-scrollbar { display: none; }
 .fx-add-slider { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Загрузочная анимация ламелей */
+.rotor-load { width: 40px; height: 40px; position: relative; }
+.rotor-load-l {
+  position: absolute; top: 50%; left: 50%;
+  width: 2.5px; height: 10px; margin: -5px 0 0 -1.25px;
+  border-radius: 1px;
+  background: linear-gradient(to bottom, #d4b87a, #b4915a, #8a6e3e);
+  transform-origin: 50% 50%;
+  animation: rotorLoadCycle 5000ms ease-in-out infinite;
+  opacity: 0;
+}
+@keyframes rotorLoadCycle {
+  0%   { transform: rotate(var(--rot)) translateY(-26px) scale(0.3); opacity: 0; }
+  5%   { transform: rotate(var(--rot)) translateY(-14px) scale(1);   opacity: 0.95; }
+  80%  { transform: rotate(var(--rot)) translateY(-14px) scale(1);   opacity: 0.95; }
+  90%  { transform: rotate(var(--rot)) translateY(-26px) scale(0.3); opacity: 0; }
+  100% { transform: rotate(var(--rot)) translateY(-26px) scale(0.3); opacity: 0; }
+}
 </style>
