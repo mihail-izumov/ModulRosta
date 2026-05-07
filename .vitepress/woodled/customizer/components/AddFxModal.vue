@@ -159,8 +159,8 @@ const activeIdx = ref(0)
 
 function onScroll() {
   if (!scrollEl.value) return
-  const idx = Math.round(scrollEl.value.scrollLeft / (CARD_W + GAP))
-  activeIdx.value = Math.min(idx, groups.value.length - 1)
+  const idx = Math.round((scrollEl.value.scrollLeft + 12) / (CARD_W + GAP))
+  activeIdx.value = Math.max(0, Math.min(idx, groups.value.length - 1))
 }
 
 function scrollTo(idx: number) {
@@ -177,20 +177,37 @@ onMounted(() => {
 })
 onUnmounted(() => { if (photoTimer) clearInterval(photoTimer) })
 
-/** Трекинг загрузки фото — не показываем пока оба не загрузятся. */
+/** Трекинг загрузки фото — показываем после полного цикла анимации. */
 const loadedPhotos = ref(new Set<string>())
+const readyGroups = ref(new Set<string>())
 
 function onPhotoLoad(src: string) {
-  loadedPhotos.value = new Set([...loadedPhotos.value, src])
+  const next = new Set([...loadedPhotos.value, src])
+  loadedPhotos.value = next
+  // Проверяем все группы — если оба фото загружены, ставим таймер на завершение цикла анимации
+  for (const g of groups.value) {
+    const [a, b] = collectionPhotos(g)
+    const key = g.family ?? g.models[0]
+    if (next.has(a) && next.has(b) && !readyGroups.value.has(key)) {
+      setTimeout(() => {
+        readyGroups.value = new Set([...readyGroups.value, key])
+      }, 2000) // даём анимации завершить цикл
+    }
+  }
 }
 
-function bothLoaded(g: Group): boolean {
-  const [a, b] = collectionPhotos(g)
-  return loadedPhotos.value.has(a) && loadedPhotos.value.has(b)
+function isReady(g: Group): boolean {
+  const key = g.family ?? g.models[0]
+  return readyGroups.value.has(key)
 }
 
-/** Фаза фото для конкретной карточки: ротация только на активной. */
+/** Фаза фото: ротация на выбранной ИЛИ активной (видимой) карточке. */
 function cardPhase(idx: number): number {
+  if (selected.value !== null) {
+    // Есть выбранная — ротация только на ней
+    return idx === selected.value ? photoPhase.value : 0
+  }
+  // Нет выбранной — ротация на видимой
   return idx === activeIdx.value ? photoPhase.value : 0
 }
 </script>
@@ -198,7 +215,7 @@ function cardPhase(idx: number): number {
 <template>
   <!-- Fullscreen overlay -->
   <div :style="{
-    position: 'fixed', inset: 0, zIndex: 40,
+    position: 'fixed', inset: 0, zIndex: 9999,
     background: '#000',
     display: 'flex', flexDirection: 'column',
     alignItems: 'center', justifyContent: 'center',
@@ -225,8 +242,8 @@ function cardPhase(idx: number): number {
         Коллекции WOODLED
       </div>
 
-      <!-- Segment indicators -->
-      <div :style="{ display: 'flex', justifyContent: 'center', gap: '5px', padding: '0 24px 14px' }">
+      <!-- Segment indicators — скрываем при одной карточке -->
+      <div v-if="groups.length > 1" :style="{ display: 'flex', justifyContent: 'center', gap: '5px', padding: '0 24px 14px' }">
         <button
           v-for="(_, i) in groups"
           :key="i"
@@ -280,11 +297,13 @@ function cardPhase(idx: number): number {
               background: '#fff',
             }">
               <!-- Loading: rotor animation -->
-              <div v-if="!bothLoaded(g)" :style="{
+              <div :style="{
                 position: 'absolute', inset: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: '#fff',
-                zIndex: 2,
+                background: '#fff', zIndex: 2,
+                opacity: isReady(g) ? 0 : 1,
+                transition: 'opacity .6s ease',
+                pointerEvents: isReady(g) ? 'none' : 'auto',
               }">
                 <div class="rotor-load" aria-hidden="true">
                   <div v-for="j in 12" :key="j" class="rotor-load-l" :style="{'--rot': ((j-1)/12*360)+'deg', animationDelay: ((j-1)*30)+'ms'}" />
@@ -293,21 +312,19 @@ function cardPhase(idx: number): number {
               <!-- Hidden preload imgs -->
               <img :src="collectionPhotos(g)[0]" alt="" :style="{display:'none'}" @load="onPhotoLoad(collectionPhotos(g)[0])" @error="onPhotoLoad(collectionPhotos(g)[0])" />
               <img :src="collectionPhotos(g)[1]" alt="" :style="{display:'none'}" @load="onPhotoLoad(collectionPhotos(g)[1])" @error="onPhotoLoad(collectionPhotos(g)[1])" />
-              <!-- Visible photos — only when both loaded -->
-              <template v-if="bothLoaded(g)">
-                <img :src="collectionPhotos(g)[0]" alt="" :style="{
-                  position: 'absolute', inset: 0, width: '100%', height: '100%',
-                  objectFit: 'cover',
-                  opacity: cardPhase(i) === 0 ? 1 : 0,
-                  transition: 'opacity 1.2s ease-in-out',
-                }" />
-                <img :src="collectionPhotos(g)[1]" alt="" :style="{
-                  position: 'absolute', inset: 0, width: '100%', height: '100%',
-                  objectFit: 'cover',
-                  opacity: cardPhase(i) === 1 ? 1 : 0,
-                  transition: 'opacity 1.2s ease-in-out',
-                }" />
-              </template>
+              <!-- Visible photos -->
+              <img :src="collectionPhotos(g)[0]" alt="" :style="{
+                position: 'absolute', inset: 0, width: '100%', height: '100%',
+                objectFit: 'cover',
+                opacity: cardPhase(i) === 0 ? 1 : 0,
+                transition: 'opacity 1.2s ease-in-out',
+              }" />
+              <img :src="collectionPhotos(g)[1]" alt="" :style="{
+                position: 'absolute', inset: 0, width: '100%', height: '100%',
+                objectFit: 'cover',
+                opacity: cardPhase(i) === 1 ? 1 : 0,
+                transition: 'opacity 1.2s ease-in-out',
+              }" />
             </div>
 
             <!-- Overlay: «Уже в ...» -->
@@ -325,8 +342,7 @@ function cardPhase(idx: number): number {
             <div v-if="selected === i && !isAdded(g)" :style="{
               position: 'absolute', inset: 0, borderRadius: '14px',
               background: 'rgba(10,9,8,0.3)',
-              display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-              padding: '16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
             }" @click.stop="doAdd">
               <div :style="{
                 padding: '10px 28px', borderRadius: '12px',
