@@ -344,10 +344,10 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             </div>
 
             <!-- Остальные опции — компактная 2-колоночная сетка -->
-            <div :style="{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'4px'}">
-              <div v-for="([k,v]) in myChoicesNoLight" :key="k" :style="{padding:'4px 8px',background:T.cardAlt,borderRadius:'6px'}">
-                <div :style="{fontSize:'11px',color:T.textDim}">{{ k }}</div>
-                <div :style="{fontSize:'12px',fontWeight:600,color:T.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}">{{ v }}</div>
+            <div :style="{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'3px'}">
+              <div v-for="([k,v]) in myChoicesNoLight" :key="k" :style="{padding:'3px 8px 4px',background:T.cardAlt,borderRadius:'5px'}">
+                <div :style="{fontSize:'10px',color:T.textDim,lineHeight:1.2}">{{ k }}</div>
+                <div :style="{fontSize:'12px',fontWeight:600,color:T.text,lineHeight:1.2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}">{{ v }}</div>
               </div>
             </div>
           </div>
