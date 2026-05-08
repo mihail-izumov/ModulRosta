@@ -2,8 +2,7 @@
 /**
  * FurnitureBlock.vue — Секция «Обстановка» в RoomDetail.
  *
- * Источник: woodled-v42.jsx (блок furn с чипами + бейджем потерь).
- * Toggle-чип на каждую мебель, бейдж с % потерь, текст furnText.
+ * Fix 5: Тост при добавлении мебели — только факт, без «нужно ещё».
  */
 
 import { computed } from 'vue'
@@ -27,9 +26,6 @@ const emit = defineEmits<{
 const text = computed(() => furnText(props.room.furniture, props.furnPct))
 const status = computed(() => furnStatus(props.furnPct))
 
-/**
- * Тост по добавлению/удалению. Количество лм — «сколько мебель съедает».
- */
 function handleToggle(id: FurnId) {
   const f = FURN[id]
   if (!f) return
@@ -42,9 +38,7 @@ function handleToggle(id: FurnId) {
   if (isIn) {
     toast = `${f.name} убрана — вернулось ${Math.round(f.ab * 100)}% света`
   } else {
-    const baseNoFurn = baseLm(props.rt, { ...props.room, furniture: [] })
-    const lm = Math.round(f.ab * baseNoFurn)
-    toast = `${f.name}: −${Math.round(f.ab * 100)}% света, нужно ещё ${lm} лм`
+    toast = `${f.name}: −${Math.round(f.ab * 100)}% света`
   }
   emit('toggle', next, toast)
 }
@@ -63,7 +57,7 @@ function handleToggle(id: FurnId) {
   >
     <div
       :style="{
-        fontSize: '11px',
+        fontSize: '14px',
         fontWeight: 600,
         color: T.text,
         marginBottom: '8px',

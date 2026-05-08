@@ -2,9 +2,8 @@
 /**
  * WelcomeScreen.vue — Welcome-страница «7 185 деревьев продолжают светить».
  *
- * ТЗ-3: pillStyle() и treeStyle() вынесены в theme/styles.ts.
- * Локальные копии удалены, заменены на импорт.
- * hexToRgb оставлен — используется в orbStyle() и honorBoardStyle().
+ * Fix 9: Убран текст «Система освещения...», «Делитесь...» белым жирным,
+ *         заменён subtitle раздела «Пространство для света».
  */
 
 import { computed } from 'vue'
@@ -16,8 +15,6 @@ import { useConfigurator } from '../store/configurator'
 import { pillStyle, treeStyle } from '../theme/styles'
 
 const cfg = useConfigurator()
-
-/* ─────────── Аналитика (точные цифры из customization_report.pdf) ─────────── */
 
 const WOOD_COUNTS: Record<Wood, number> = { oak: 4674, walnut: 1960, black: 551 }
 const WOOD_TOTAL = 7185
@@ -35,8 +32,6 @@ const ROOM_DISPLAY_ORDER: readonly RoomTypeId[] = [
 ] as const
 
 const LOGO_URL = 'https://runscale.ru/woodled/customizer/woodled-logo.svg'
-
-/* ─────────── Производные данные карточек ─────────── */
 
 interface PillRoom {
   type: RoomTypeId
@@ -83,8 +78,6 @@ function buildCard(tpl: HomeTemplate): TplCard {
 
 const cards = computed<TplCard[]>(() => TEMPLATES.map(buildCard))
 
-/* ─────────── Handlers ─────────── */
-
 function pickTemplate(id: string) {
   cfg.loadTemplate(id)
 }
@@ -93,16 +86,10 @@ function startEmpty() {
   cfg.dismissWelcome()
 }
 
-/* ─────────── Helpers ─────────── */
-
 function formatNum(n: number): string {
   return n.toLocaleString('ru-RU')
 }
 
-/**
- * hexToRgb — оставлен локально, используется в orbStyle() и honorBoardStyle().
- * theme/styles.ts имеет свою копию для pillStyle/treeStyle.
- */
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const r = parseInt(hex.slice(1, 3), 16)
   const g = parseInt(hex.slice(3, 5), 16)
@@ -110,11 +97,8 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
   return { r, g, b }
 }
 
-/* ─────────── Style-функции (полные объекты, без spread в template) ─────────── */
-
 const TEXT_RGB = hexToRgb(T.text)
 
-/** Карточка-шаблон или OnboardingLinkCard на тёмном фоне. */
 function darkGlassCard(extra: Record<string, string | number> = {}) {
   return {
     background: `
@@ -131,7 +115,6 @@ function darkGlassCard(extra: Record<string, string | number> = {}) {
   }
 }
 
-/** HonorBoard — тёплое стекло. */
 function honorBoardStyle() {
   const { r, g, b } = TEXT_RGB
   return {
@@ -155,12 +138,6 @@ function honorBoardStyle() {
   }
 }
 
-/*
- * pillStyle и treeStyle — импортируются из theme/styles.ts
- * Локальные копии УДАЛЕНЫ (ТЗ-3).
- */
-
-/** Карточка-шаблон. */
 function templateCardStyle() {
   return darkGlassCard({
     width: '100%',
@@ -177,7 +154,6 @@ function templateCardStyle() {
   })
 }
 
-/** OnboardingLinkCard. */
 function onboardingLinkStyle() {
   return darkGlassCard({
     textDecoration: 'none',
@@ -196,10 +172,6 @@ function onboardingLinkStyle() {
   })
 }
 
-/**
- * 3D-сфера дерева 56px — оригинальные стили из welcome-orb.jsx
- * + CSS-variables для per-orb pulse glow в keyframes.
- */
 function orbStyle(wood: Wood, delay: number): Record<string, string> {
   const color = WCOL[wood]
   const { r, g, b } = hexToRgb(color)
@@ -247,7 +219,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
       boxSizing: 'border-box',
     }"
   >
-    <!-- ═══ Логотип WOODLED — наверху ═══ -->
+    <!-- Логотип -->
     <div
       :style="{
         marginBottom: '24px',
@@ -273,7 +245,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
       />
     </div>
 
-    <!-- ═══ H1 ═══ -->
+    <!-- H1 -->
     <div
       :style="{
         textAlign: 'center',
@@ -287,7 +259,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
       {{ formatNum(WOOD_TOTAL) }} деревьев<br />продолжают светить<br />в&nbsp;ваших домах
     </div>
 
-    <!-- ═══ Подзаголовок-приглашение ═══ -->
+    <!-- Подзаголовок — Fix 9: убран «Система освещения...», «Делитесь...» белый жирный -->
     <div
       :style="{
         textAlign: 'center',
@@ -301,13 +273,10 @@ const SECTION_LABEL = 'Какой размер ближе?'
       }"
     >
       Каждое дерево здесь уже светит в чьём-то доме.
-      <span :style="{ color: T.text, fontWeight: 600 }">
-        Система освещения Вашего Дома — просто и быстро.
-      </span>
-      Делитесь с друзьями. Возвращайтесь когда удобно.
+      <span :style="{ color: '#fff', fontWeight: 700 }">Делитесь с друзьями. Возвращайтесь когда удобно.</span>
     </div>
 
-    <!-- ═══ HonorBoard — три деревянные сферы с цифрами ═══ -->
+    <!-- HonorBoard -->
     <div :style="honorBoardStyle()">
       <div
         v-for="w in WOOD_ORDER"
@@ -355,7 +324,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
       </div>
     </div>
 
-    <!-- ═══ OnboardingLinkCard «Как рождается свет» — открываем в том же окне ═══ -->
+    <!-- OnboardingLinkCard -->
     <a
       href="https://runscale.ru/woodled/onboarding"
       :style="onboardingLinkStyle()"
@@ -377,21 +346,16 @@ const SECTION_LABEL = 'Какой размер ближе?'
         </div>
       </div>
       <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        :stroke="T.textSec"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        width="18" height="18" viewBox="0 0 24 24" fill="none"
+        :stroke="T.textSec" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"
         :style="{ flexShrink: 0 }"
       >
         <polyline points="9 18 15 12 9 6" />
       </svg>
     </a>
 
-    <!-- ═══ SectionTitle ═══ -->
+    <!-- SectionTitle -->
     <div
       :style="{
         textAlign: 'center',
@@ -406,7 +370,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
       Пространство для света
     </div>
 
-    <!-- ═══ SectionSubtitle ═══ -->
+    <!-- SectionSubtitle — Fix 9: новый текст -->
     <div
       :style="{
         textAlign: 'center',
@@ -419,11 +383,11 @@ const SECTION_LABEL = 'Какой размер ближе?'
         marginRight: 'auto',
       }"
     >
-      Так свет домой выбирают 10 000+ покупателей WOODLED — три формата
-      с метражом, комнатами и светильниками. Настроите под себя на&nbsp;следующем шаге.
+      Подобрали для вас самые частые сочетания параметров светильников
+      и их расположение в доме. Начните с выбора площади – остальное настроете под себя дальше.
     </div>
 
-    <!-- ═══ SubLabel ═══ -->
+    <!-- SubLabel -->
     <div
       :style="{
         fontSize: '10px',
@@ -438,7 +402,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
       {{ SECTION_LABEL }}
     </div>
 
-    <!-- ═══ Карточки шаблонов ═══ -->
+    <!-- Карточки шаблонов -->
     <div :style="{ display: 'flex', flexDirection: 'column' }">
       <button
         v-for="c in cards"
@@ -456,7 +420,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
             padding: '14px',
           }"
         >
-          <!-- Метраж + капсула с подсчётом пород -->
           <div
             :style="{
               display: 'flex',
@@ -541,7 +504,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
             </div>
           </div>
 
-          <!-- Pills комнат с tint glass + tree-кружки (из shared styles.ts) -->
           <div :style="{ display: 'flex', flexWrap: 'wrap', gap: '6px' }">
             <div
               v-for="(r, ri) in c.rooms"
@@ -577,7 +539,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
           </div>
         </div>
 
-        <!-- Стрелка-affordance -->
         <div
           :style="{
             flexShrink: 0,
@@ -590,14 +551,9 @@ const SECTION_LABEL = 'Какой размер ближе?'
           }"
         >
           <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            :stroke="T.textSec"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            width="22" height="22" viewBox="0 0 24 24" fill="none"
+            :stroke="T.textSec" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
           >
             <polyline points="9 18 15 12 9 6" />
           </svg>
@@ -605,7 +561,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
       </button>
     </div>
 
-    <!-- ═══ Симметричный «или» ═══ -->
+    <!-- «или» -->
     <div
       :style="{
         display: 'flex',
@@ -629,7 +585,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
       <div :style="{ flex: 1, height: '1px', background: T.border }" />
     </div>
 
-    <!-- ═══ EmptyButton — primary CTA ═══ -->
+    <!-- EmptyButton -->
     <button
       :style="{
         display: 'flex',
@@ -658,9 +614,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
 </template>
 
 <style>
-/* Pulse-анимация деревянных сфер. Box-shadow с CSS-variables: каждая
-   сфера передаёт через inline style свой цвет породы (--orb-glow и
-   --orb-glow-peak), поэтому keyframes общая, но glow разный. */
 @keyframes orbPulse {
   0%,
   100% {

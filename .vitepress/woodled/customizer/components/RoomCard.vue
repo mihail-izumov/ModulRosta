@@ -2,10 +2,7 @@
 /**
  * RoomCard.vue — Карточка комнаты на главном экране.
  *
- * Источник: woodled-v42.jsx (RoomCard).
- * Два состояния:
- *   - empty: hint + leafy icon
- *   - with mood: цветной бейдж + круги деревьев
+ * Fix 13: Убраны тексты-подсказки из пустых карточек.
  */
 
 import { computed } from 'vue'
@@ -14,7 +11,7 @@ import { MD } from '../data/catalog'
 import { MATS } from '../data/materials'
 import { autoMood } from '../data/moods'
 import { baseLm, fxLm } from '../engine/brightness'
-import { getRT, type Room, ROOM_HINTS } from '../data/rooms'
+import { getRT, type Room } from '../data/rooms'
 import Icon, { fxIcName } from './ui/Icons.vue'
 
 interface Props {
@@ -66,9 +63,6 @@ const badgeStyle = computed(() => {
   }
 })
 
-/**
- * Разворачиваем каждую единицу светильника (учитывая q > 1) в отдельный круг.
- */
 interface Circle {
   key: string
   type: string
@@ -147,9 +141,6 @@ const circles = computed<Circle[]>(() => {
         }"
       >
         <Icon name="leafy" :color="props.room.cardColor ?? T.textSec" :size="40" />
-      </div>
-      <div :style="{ fontSize: '12px', color: T.textSec }">
-        {{ ROOM_HINTS[props.room.typeId] ?? 'Добавьте свет' }}
       </div>
     </template>
 

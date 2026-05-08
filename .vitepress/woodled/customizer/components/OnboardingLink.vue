@@ -2,8 +2,7 @@
 /**
  * OnboardingLink.vue — Блок «Дерево продолжает светить».
  *
- * Источник: woodled-v42.jsx (главный экран, блок с IC.mirror).
- * Ведёт на внешний онбординг, всегда виден на главной.
+ * Fix 8: Ссылка открывается в том же окне (убран target="_blank").
  */
 
 import { T } from '../theme/tokens'
@@ -15,8 +14,6 @@ const ONBOARDING_URL = 'https://runscale.ru/woodled/onboarding'
 <template>
   <a
     :href="ONBOARDING_URL"
-    target="_blank"
-    rel="noopener noreferrer"
     :style="{
       textDecoration: 'none',
       background: `linear-gradient(135deg, ${T.neutral}15, ${T.neutral}05)`,

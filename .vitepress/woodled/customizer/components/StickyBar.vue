@@ -2,9 +2,7 @@
 /**
  * StickyBar.vue — Закреплённая нижняя панель с двумя кнопками.
  *
- * Источник: woodled-v42.jsx (sticky bar на главной).
- * Показывается когда есть хотя бы один светильник.
- * Кнопки: «Поделиться» (ShareModal) и «Получить подарок» (BuyModal).
+ * Fix 3: Кнопка «Мой лес» — белый фон, без обводки, тёмный текст.
  */
 
 import { T, Z } from '../theme/tokens'
@@ -23,7 +21,6 @@ const emit = defineEmits<{ share: []; buy: [] }>()
       zIndex: Z.stickyBar,
     }"
   >
-    <!-- Градиент transparent → T.bg над самой панелью -->
     <div
       :style="{
         height: '32px',
@@ -57,7 +54,6 @@ const emit = defineEmits<{ share: []; buy: [] }>()
           }"
           @click="emit('share')"
         >
-          <!-- Inline share icon (не из Lucide-23, отдельный SVG, как в v42) -->
           <svg
             width="16" height="16" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2"
@@ -74,21 +70,21 @@ const emit = defineEmits<{ share: []; buy: [] }>()
           :style="{
             flex: 1,
             padding: '12px 0',
-            background: T.neutral + '22',
-            border: `1px solid ${T.neutral}44`,
+            background: '#FFFFFF',
+            border: 'none',
             borderRadius: '10px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
-            color: T.neutral,
+            color: T.bg,
             fontSize: '13px',
             fontWeight: 600,
           }"
           @click="emit('buy')"
         >
-          <Icon name="trees" :color="T.neutral" :size="16" />
+          <Icon name="trees" :color="T.bg" :size="16" />
           Мой лес
         </button>
       </div>
