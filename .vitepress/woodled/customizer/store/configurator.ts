@@ -1,8 +1,9 @@
 /**
  * configurator.ts — Состояние конфигуратора
  *
- * Fix 8+: persistState / restorePersistedState — state переживает
- * навигацию на внешние URL и перезагрузку страницы.
+ * Fix 2: flatMap q>1 → отдельные светильники.
+ * Fix 8+: Автоперсистенция — state сохраняется в localStorage
+ *         после КАЖДОЙ мутации. Переживает F5, навигацию, закрытие.
  */
 
 import { ref, computed, reactive } from 'vue'
@@ -39,6 +40,59 @@ function makeRoom(typeId: RoomTypeId): Room {
 
 function starterRooms(): Room[] {
   return STARTER_ROOM_TYPES.map((tid) => makeRoom(tid))
+}
+
+/* ──────────────── State persistence ──────────────── */
+
+const STATE_KEY = 'woodled.state'
+
+/**
+ * Сохраняет полный state в localStorage.
+ * Вызывается после КАЖДОЙ мутации — state всегда актуален.
+ */
+function persistState(): void {
+  if (typeof window === 'undefined') return
+  if (rooms.length === 0) {
+    // Не стираем сохранённое при пустых rooms (это сброс, он чистит явно)
+    return
+  }
+  try {
+    const data = {
+      v: 1,
+      name: name.value,
+      rooms: JSON.parse(JSON.stringify(rooms)),
+    }
+    localStorage.setItem(STATE_KEY, JSON.stringify(data))
+  } catch { /* quota exceeded */ }
+}
+
+/**
+ * Восстанавливает state из localStorage.
+ * Возвращает true если восстановлено.
+ */
+function restorePersistedState(): boolean {
+  if (typeof window === 'undefined') return false
+  try {
+    const raw = localStorage.getItem(STATE_KEY)
+    if (!raw) return false
+    const data = JSON.parse(raw)
+    if (!data?.rooms?.length) return false
+    name.value = data.name ?? 'Живой Дом'
+    rooms.splice(0, rooms.length, ...data.rooms)
+    // Bump _id past restored IDs to avoid collisions
+    for (const r of data.rooms) {
+      const num = parseInt(String(r.id ?? '').replace('r', '') || '0')
+      if (num >= _id) _id = num + 1
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
+function clearPersistedState(): void {
+  if (typeof window === 'undefined') return
+  try { localStorage.removeItem(STATE_KEY) } catch {}
 }
 
 /* ──────────────── State (singleton) ──────────────── */
@@ -90,10 +144,11 @@ const hasFixtures = computed<boolean>(() =>
   rooms.some((r) => r.fixtures.length > 0),
 )
 
-/* ──────────────── Мутации ──────────────── */
+/* ──────────────── Мутации (каждая вызывает persistState) ──────────────── */
 
 function setName(v: string) {
   name.value = v
+  persistState()
 }
 
 function add(typeId: RoomTypeId): string {
@@ -102,6 +157,7 @@ function add(typeId: RoomTypeId): string {
   picker.value = false
   const rt = getRT(typeId)
   showFB(`${rt.name} — добавьте свет`)
+  persistState()
   setTimeout(() => {
     active.value = nr.id
   }, 80)
@@ -114,12 +170,14 @@ function removeRoom(id: string) {
   rooms.splice(idx, 1)
   if (firstId.value === id) firstId.value = null
   if (active.value === id) active.value = null
+  persistState()
 }
 
 function updateRoom(next: Room) {
   const idx = rooms.findIndex((r) => r.id === next.id)
   if (idx === -1) return
   rooms[idx] = next
+  persistState()
 }
 
 function patchRoom<K extends keyof Room>(id: string, key: K, value: Room[K], toast?: string) {
@@ -127,6 +185,7 @@ function patchRoom<K extends keyof Room>(id: string, key: K, value: Room[K], toa
   if (!room) return
   ;(room as Room)[key] = value
   if (toast) showFB(toast)
+  persistState()
 }
 
 function addFixture(roomId: string, fx: Fixture): boolean {
@@ -142,6 +201,7 @@ function addFixture(roomId: string, fx: Fixture): boolean {
   if (current >= limit) return false
 
   room.fixtures.push(fx)
+  persistState()
   return true
 }
 
@@ -149,12 +209,14 @@ function removeFixture(roomId: string, idx: number) {
   const room = rooms.find((r) => r.id === roomId)
   if (!room) return
   room.fixtures.splice(idx, 1)
+  persistState()
 }
 
 function updateFixture(roomId: string, idx: number, next: Fixture) {
   const room = rooms.find((r) => r.id === roomId)
   if (!room) return
   room.fixtures[idx] = next
+  persistState()
 }
 
 /* ──────────────── Toast ──────────────── */
@@ -176,6 +238,7 @@ function loadFromHash(): boolean {
   if (!decoded) return false
   if (decoded.name) name.value = decoded.name
   rooms.splice(0, rooms.length, ...decoded.rooms)
+  persistState()
   return true
 }
 
@@ -183,7 +246,6 @@ function loadFromHash(): boolean {
 
 const WELCOME_KEY = 'woodled.welcomeSeen'
 const DASHBOARD_TOUR_KEY = 'woodled.dashboardTourSeen'
-const STATE_KEY = 'woodled.state'
 
 function shouldForceWelcome(): boolean {
   if (typeof window === 'undefined') return false
@@ -223,9 +285,13 @@ function dismissWelcome(): void {
 function ensureStarterRooms(): void {
   if (rooms.length === 0) {
     rooms.push(...starterRooms())
+    persistState()
   }
 }
 
+/**
+ * Fix 2: flatMap — каждый fixture с q>1 → отдельные записи q=1.
+ */
 function loadTemplate(templateId: string): void {
   const tpl = TEMPLATES.find((t) => t.id === templateId)
   if (!tpl) return
@@ -239,15 +305,18 @@ function loadTemplate(templateId: string): void {
       sizeIndex: tr.sizeIndex,
       customArea: null,
       ceilingH: tr.ceilingH,
-      fixtures: tr.fixtures.map((f) => ({
-        m: f.m,
-        q: f.q,
-        wood: f.wood,
-        zone: f.zone,
-        l: f.l,
-        opts: f.opts,
-        done: f.done ?? allStepsForModel(f.m),
-      })),
+      fixtures: tr.fixtures.flatMap((f) => {
+        const base = {
+          m: f.m,
+          q: 1,
+          wood: f.wood,
+          zone: f.zone,
+          l: f.l,
+          opts: f.opts,
+          done: f.done ?? allStepsForModel(f.m),
+        }
+        return Array.from({ length: f.q }, () => ({ ...base }))
+      }),
       furniture: [...tr.furniture],
       limits: { ...rt.limits },
       cardColor: ROOM_TINTS[tr.typeId],
@@ -256,6 +325,10 @@ function loadTemplate(templateId: string): void {
 
   rooms.splice(0, rooms.length, ...newRooms)
   dismissWelcome()
+  // persistState вызовется внутри dismissWelcome → ensureStarterRooms
+  // но rooms уже не пустые, поэтому ensureStarterRooms не пушит.
+  // Вызываем явно:
+  persistState()
 }
 
 function resetAll(): void {
@@ -278,53 +351,6 @@ function resetAll(): void {
       localStorage.removeItem(STATE_KEY)
     } catch {}
   }
-}
-
-/* ──────────────── State persistence ──────────────── */
-
-/**
- * Сохраняет полный state в localStorage.
- * Вызывается из beforeunload — переживает навигацию и перезагрузку.
- */
-function persistState(): void {
-  if (typeof window === 'undefined' || rooms.length === 0) return
-  try {
-    const state = {
-      v: 1,
-      name: name.value,
-      rooms: JSON.parse(JSON.stringify(rooms)),
-    }
-    localStorage.setItem(STATE_KEY, JSON.stringify(state))
-  } catch { /* quota exceeded — не критично */ }
-}
-
-/**
- * Восстанавливает state из localStorage.
- * Возвращает true если восстановлено, false если нечего.
- */
-function restorePersistedState(): boolean {
-  if (typeof window === 'undefined') return false
-  try {
-    const raw = localStorage.getItem(STATE_KEY)
-    if (!raw) return false
-    const state = JSON.parse(raw)
-    if (!state?.rooms?.length) return false
-    name.value = state.name ?? 'Живой Дом'
-    rooms.splice(0, rooms.length, ...state.rooms)
-    // Bump _id past restored IDs to avoid collisions
-    for (const r of state.rooms) {
-      const num = parseInt(r.id?.replace('r', '') ?? '0')
-      if (num >= _id) _id = num + 1
-    }
-    return true
-  } catch {
-    return false
-  }
-}
-
-function clearPersistedState(): void {
-  if (typeof window === 'undefined') return
-  try { localStorage.removeItem(STATE_KEY) } catch {}
 }
 
 /* ──────────────── Экспорт singleton ──────────────── */
