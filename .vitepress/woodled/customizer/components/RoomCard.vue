@@ -2,11 +2,17 @@
 /**
  * RoomCard.vue — Карточка комнаты на главном экране.
  *
- * Fix v4 (empty state):
- *   - Дубовый лист крупный (130px), прозрачный (opacity 0.18),
- *     с drop-shadow для объёма. Сидит фоном по центру карточки.
- *   - Кнопка «Больше Света» — glassmorphism: subtle bg, backdrop-blur,
- *     pill-форма, цвет в тон карточки. Лежит над листом (zIndex 1).
+ * Fix v5 (empty state):
+ *   - Дубовый лист заменён на анимацию сборки ротора (12 ламелей).
+ *     Та же логика, что в Preloader (assemble) и RoomDetail dashboard
+ *     (rotor-dash) — ламели циклично собираются в круг и медленно
+ *     вращаются. Размер/положение/прозрачность/тени — как у листа.
+ *   - Ламели всегда в дубовом градиенте (бренд rotor); цвет карточки
+ *     передаётся через тонирующий drop-shadow.
+ *   - НЕ трогается лист в ZoneCard на странице комнаты — он остаётся.
+ *
+ * Кнопка «Больше Света» — glassmorphism: subtle bg, backdrop-blur,
+ * pill-форма, цвет в тон карточки. Лежит над ротором (zIndex 2).
  */
 
 import { computed } from 'vue'
@@ -73,7 +79,8 @@ const badgeStyle = computed(() => {
 // Цвета для empty state
 const accentColor = computed(() => props.room.cardColor ?? T.textSec)
 const accentText = computed(() => props.room.cardColor ?? T.text)
-const leafShadowColor = computed(() => {
+// Цвет тонирующей тени — карточный, либо нейтральный тёмный
+const bgShadowColor = computed(() => {
   const cc = props.room.cardColor
   return cc ? cc + '50' : '#00000080'
 })
@@ -101,23 +108,35 @@ const circles = computed<Circle[]>(() => {
 
 <template>
   <div :style="cardStyle" @click="emit('click')">
-    <!-- ═══ BG-лист (только в empty state) ═══ -->
-    <Icon
+    <!-- ═══ BG-ротор: анимация сборки ламелей (только в empty) ═══ -->
+    <div
       v-if="mood.id === 'empty'"
-      name="leafy"
-      :color="accentColor"
-      :size="130"
       :style="{
         position: 'absolute',
         top: '54%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        opacity: 0.16,
-        filter: `drop-shadow(0 8px 18px ${leafShadowColor}) drop-shadow(0 2px 4px rgba(0,0,0,0.3))`,
+        width: '130px',
+        height: '130px',
+        opacity: 0.18,
+        filter: `drop-shadow(0 8px 18px ${bgShadowColor}) drop-shadow(0 2px 4px rgba(0,0,0,0.3))`,
         pointerEvents: 'none',
         zIndex: 0,
       }"
-    />
+      aria-hidden="true"
+    >
+      <div class="rotor-card">
+        <div
+          v-for="i in 12"
+          :key="i"
+          class="rotor-card-l"
+          :style="{
+            '--rot': ((i - 1) / 12 * 360) + 'deg',
+            animationDelay: ((i - 1) * 60) + 'ms',
+          }"
+        />
+      </div>
+    </div>
 
     <!-- ═══ Палитра (выбор цвета) ═══ -->
     <button
@@ -154,7 +173,7 @@ const circles = computed<Circle[]>(() => {
       {{ props.room.customName || rt.name }}
     </div>
 
-    <!-- ═══ Empty state: pill-кнопка над листом ═══ -->
+    <!-- ═══ Empty state: pill-кнопка над ротором ═══ -->
     <template v-if="mood.id === 'empty'">
       <div
         :style="{
@@ -248,3 +267,53 @@ const circles = computed<Circle[]>(() => {
     </template>
   </div>
 </template>
+
+<style scoped>
+/**
+ * Анимация сборки ротора для empty-карточки.
+ *
+ * Логика:
+ *   - .rotor-card — внешний wrapper, медленно вращается (30s).
+ *   - .rotor-card-l — каждая ламель циклично собирается из scattered (далеко
+ *     от центра, scale 0.3) в assembled (на радиусе, scale 1) и обратно
+ *     каждые 5s, с шахматной задержкой по индексу.
+ *
+ * Геометрия: контейнер 130×130, ламель 4×36px, сборка на translateY(-45px),
+ * scattered на translateY(-60px). Всё внутри 130×130 без overflow.
+ *
+ * Брендовый дубовый градиент — как в Preloader (--pl-oakL/oak/oakD).
+ */
+
+.rotor-card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  animation: rotorCardSpin 30s linear infinite;
+}
+
+.rotor-card-l {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 36px;
+  margin: -18px 0 0 -2px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, #d4b87a, #b4915a, #8a6e3e);
+  transform-origin: 50% 50%;
+  animation: rotorCardCycle 5000ms ease-in-out infinite;
+  opacity: 0;
+}
+
+@keyframes rotorCardSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotorCardCycle {
+  0%   { transform: rotate(var(--rot)) translateY(-60px) scale(0.3); opacity: 0; }
+  5%   { transform: rotate(var(--rot)) translateY(-45px) scale(1);   opacity: 0.95; }
+  80%  { transform: rotate(var(--rot)) translateY(-45px) scale(1);   opacity: 0.95; }
+  90%  { transform: rotate(var(--rot)) translateY(-60px) scale(0.3); opacity: 0; }
+  100% { transform: rotate(var(--rot)) translateY(-60px) scale(0.3); opacity: 0; }
+}
+</style>
