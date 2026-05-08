@@ -2,7 +2,7 @@
 /**
  * RoomSettings.vue — Полноэкранный экран настроек комнаты.
  *
- * Fix 10: SVG arrow-back вместо ←.
+ * Fix 7: Хедер заменён на NavHeader (единый стиль), pen в #right слоте.
  */
 
 import { computed, ref } from 'vue'
@@ -15,6 +15,7 @@ import { roomZones } from '../engine/zone-engine'
 import Chip from './ui/Chip.vue'
 import Sec from './ui/Sec.vue'
 import Icon from './ui/Icons.vue'
+import NavHeader from './ui/NavHeader.vue'
 
 interface Props {
   rt: RoomType
@@ -27,24 +28,16 @@ const emit = defineEmits<{
 }>()
 
 const editName = ref(false)
-
 const zones = computed(() => roomZones(props.rt))
 
 function updateSize(i: 0 | 1 | 2) {
   const label = SZ[i]
-  const lm = Math.round(
-    props.rt.lux * props.rt.sizes[i] * (props.room.ceilingH / 2.7),
-  )
+  const lm = Math.round(props.rt.lux * props.rt.sizes[i] * (props.room.ceilingH / 2.7))
   emit('patch', 'sizeIndex', i, `${label}: нужно ${lm.toLocaleString('ru-RU')} лм`)
 }
 
-function updateCustomSize() {
-  emit('patch', 'sizeIndex', 3)
-}
-
-function updateCustomArea(v: number) {
-  emit('patch', 'customArea', v, `${v} м²`)
-}
+function updateCustomSize() { emit('patch', 'sizeIndex', 3) }
+function updateCustomArea(v: number) { emit('patch', 'customArea', v, `${v} м²`) }
 
 function updateCeiling(h: number) {
   const lm = Math.round(props.rt.lux * getArea(props.rt, props.room) * (h / 2.7))
@@ -78,57 +71,30 @@ void baseLm
       overflow: 'auto',
     }"
   >
-    <div :style="{ padding: '20px', maxWidth: '480px', margin: '0 auto' }">
-      <!-- Header — Fix 10: SVG arrow -->
-      <div
-        :style="{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          marginBottom: '20px',
-        }"
-      >
-        <button
-          :style="{
-            background: 'none',
-            border: 'none',
-            color: T.textSec,
-            fontSize: '14px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '2px',
-            padding: '2px 4px',
-          }"
-          @click="emit('close')"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13.83 19a1 1 0 0 1-.78-.37l-4.83-6a1 1 0 0 1 0-1.27l5-6a1 1 0 0 1 1.54 1.28L10.29 12l4.32 5.36a1 1 0 0 1-.78 1.64z"/></svg>
-          Назад
-        </button>
-        <span
-          :style="{
-            flex: 1,
-            fontSize: '16px',
-            fontWeight: 700,
-            color: T.text,
-          }"
-        >
-          {{ props.room.customName || props.rt.name }}
-        </span>
+    <NavHeader
+      :title="props.room.customName || props.rt.name"
+      back="Назад"
+      @back="emit('close')"
+    >
+      <template #right>
         <button
           :style="{
             background: 'none',
             border: 'none',
             cursor: 'pointer',
             padding: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }"
           @click="editName = !editName"
         >
           <Icon name="pen" :color="T.textSec" :size="16" />
         </button>
-      </div>
+      </template>
+    </NavHeader>
 
-      <!-- Редактирование имени -->
+    <div :style="{ padding: '20px', maxWidth: '480px', margin: '0 auto' }">
       <div
         v-if="editName"
         :style="{

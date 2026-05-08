@@ -1,9 +1,8 @@
 <script setup lang="ts">
 /**
- * BuyModal.vue — «Мой лес» (v2).
+ * BuyModal.vue — «Мой лес» (v3).
  *
- * Fix 7: Заголовки 16px (единый размер).
- * Fix 10: SVG arrow-back.
+ * Fix 7: Хедеры заменены на NavHeader (единый стиль).
  */
 
 import { computed, ref, reactive } from 'vue'
@@ -14,6 +13,7 @@ import { fxPrice, itemPrice } from '../data/price-engine'
 import { getRT, type Room } from '../data/rooms'
 import { useConfigurator } from '../store/configurator'
 import Icon, { fxIcName } from './ui/Icons.vue'
+import NavHeader from './ui/NavHeader.vue'
 
 const PANEL_BG = '#EAE0CA'
 const PANEL_FG = T.bg
@@ -64,9 +64,6 @@ function fxCardStyle(roomId: string, fxIdx: number) {
 function woodBadgeStyle(woodColor: string) {
   return { display: 'inline-flex', alignItems: 'center', gap: '5px', marginTop: '3px', padding: '2px 7px 2px 5px', borderRadius: '5px', background: woodColor + '14', fontSize: '11px', color: woodColor, fontWeight: 500 }
 }
-
-/* SVG arrow-back inline */
-const arrowSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;flex-shrink:0"><path d="M13.83 19a1 1 0 0 1-.78-.37l-4.83-6a1 1 0 0 1 0-1.27l5-6a1 1 0 0 1 1.54 1.28L10.29 12l4.32 5.36a1 1 0 0 1-.78 1.64z"/></svg>'
 </script>
 
 <template>
@@ -83,16 +80,7 @@ const arrowSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentC
 
   <!-- ═══ ШАГ 2: form ═══ -->
   <div v-else-if="step === 'form'" :style="{ position: 'fixed', inset: 0, background: T.bg, zIndex: Z.fullscreenModal, overflow: 'auto' }">
-    <!-- Fix 10: SVG arrow -->
-    <div :style="{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: '8px' }">
-      <button :style="{ background: 'none', border: 'none', color: T.textSec, fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '2px' }" @click="step = 'list'">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13.83 19a1 1 0 0 1-.78-.37l-4.83-6a1 1 0 0 1 0-1.27l5-6a1 1 0 0 1 1.54 1.28L10.29 12l4.32 5.36a1 1 0 0 1-.78 1.64z"/></svg>
-        Мой лес
-      </button>
-      <!-- Fix 7: 16px -->
-      <span :style="{ flex: 1, fontWeight: 700, fontSize: '16px', color: T.text, textAlign: 'center' }">Оставить заявку</span>
-      <span :style="{ width: '70px' }" />
-    </div>
+    <NavHeader title="Оставить заявку" back="Мой лес" @back="step = 'list'" />
     <div :style="{ padding: '20px', maxWidth: '400px', margin: '0 auto' }">
       <div v-if="discountDetails" :style="{ background: T.green + '12', borderRadius: '10px', padding: '14px', marginBottom: '20px', border: `1px solid ${T.green}22` }">
         <div :style="{ display: 'flex', alignItems: 'center', gap: '10px' }">
@@ -110,28 +98,17 @@ const arrowSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentC
 
   <!-- ═══ ШАГ 1: list ═══ -->
   <div v-else :style="{ position: 'fixed', inset: 0, background: T.bg, zIndex: Z.fullscreenModal, overflow: 'auto' }">
-    <!-- Sticky header — Fix 7: 16px, Fix 10: SVG arrow -->
-    <div :style="{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: '8px', position: 'sticky', top: 0, background: T.bg, zIndex: 1 }">
-      <button :style="{ background: 'none', border: 'none', color: T.textSec, fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '2px' }" @click="emit('close')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13.83 19a1 1 0 0 1-.78-.37l-4.83-6a1 1 0 0 1 0-1.27l5-6a1 1 0 0 1 1.54 1.28L10.29 12l4.32 5.36a1 1 0 0 1-.78 1.64z"/></svg>
-        Домой
-      </button>
-      <span :style="{ flex: 1, fontWeight: 700, fontSize: '16px', color: T.text, textAlign: 'center' }">Мой лес</span>
-      <span :style="{ width: '70px' }" />
-    </div>
+    <NavHeader title="Мой лес" back="Домой" @back="emit('close')" />
 
     <div :style="{ padding: '16px', maxWidth: '480px', margin: '0 auto' }">
-      <!-- StoryLink -->
       <div v-if="filledRooms.length > 0" :style="storyLinkStyle()" @click="emit('story')">
         <div :style="{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(19,17,14,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }"><Icon name="trees" :color="PANEL_FG" :size="22" /></div>
         <div :style="{ flex: 1 }"><div :style="{ fontSize: '15px', fontWeight: 600, color: PANEL_FG }">Посмотрите на свой лес</div><div :style="{ fontSize: '11px', color: PANEL_FG, opacity: 0.55, marginTop: '-1px' }">Узнайте, какой свет вы создали</div></div>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" :stroke="PANEL_FG" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" :style="{ flexShrink: 0 }"><polyline points="9 6 15 12 9 18" /></svg>
       </div>
 
-      <!-- Fix 7: Heading 16px -->
       <div :style="{ textAlign: 'center', marginBottom: '16px', fontSize: '16px', fontWeight: 700, color: T.text }">Освещение в доме</div>
 
-      <!-- Total + Discount -->
       <div v-if="filledRooms.length > 0" :style="{ background: T.card, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '14px 16px', marginBottom: '20px' }">
         <div :style="{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }">
           <span :style="{ fontSize: '13px', color: T.textSec, fontWeight: 500 }">Итого</span>
@@ -148,7 +125,6 @@ const arrowSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentC
         </div>
       </div>
 
-      <!-- Room accordions -->
       <div v-for="(r, ri) in filledRooms" :key="r.id" :style="{ marginBottom: '2px' }">
         <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', cursor: 'pointer' }" @click="toggleRoom(r.id)">
           <div :style="{ display: 'flex', alignItems: 'center', gap: '8px' }">
@@ -178,13 +154,11 @@ const arrowSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentC
         <div v-if="ri < filledRooms.length - 1" :style="{ height: '1px', background: T.border, opacity: 0.6 }" />
       </div>
 
-      <!-- Empty state -->
       <div v-if="filledRooms.length === 0" :style="{ textAlign: 'center', padding: '40px 20px' }">
         <div :style="{ fontSize: '14px', color: T.textSec, lineHeight: 1.6, maxWidth: '300px', margin: '0 auto 24px' }">Здесь будет план освещения вашего дома — светильники по комнатам с породами дерева и ценами. Добавьте первый, и лес начнёт расти.</div>
         <button :style="{ padding: '12px 28px', background: '#FFFFFF', color: T.bg, border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }" @click="goToFirstRoom">Добавить светильник</button>
       </div>
 
-      <!-- CTA -->
       <div v-if="filledRooms.length > 0" :style="{ marginTop: '32px', textAlign: 'center', paddingBottom: '32px' }">
         <div :style="{ fontSize: '18px', fontWeight: 700, color: T.text, marginBottom: '10px' }">Лес собран</div>
         <div :style="{ fontSize: '14px', fontWeight: 600, color: T.text, lineHeight: 1.5, marginBottom: '24px' }">Отправьте план —<br />дерево засветит у вас дома</div>

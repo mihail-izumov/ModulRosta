@@ -1,11 +1,13 @@
 <script setup lang="ts">
 /**
  * ColorPickerModal.vue — Hue-style color picker.
- * Fix 1: Круги — solid bg + border-box, маска покрывает полностью.
+ * Fix 7: Хедер заменён на NavHeader (единый стиль).
+ * Fix 1 (ранее): solid bg + border-box на кругах.
  */
 
 import { ref, computed, nextTick } from 'vue'
 import { T, Z } from '../theme/tokens'
+import NavHeader from './ui/NavHeader.vue'
 
 interface Props {
   current: string | undefined
@@ -23,8 +25,6 @@ const wheelCanvas = ref<HTMLCanvasElement | null>(null)
 const wheelSize = 280
 const pickerPos = ref<{ x: number; y: number } | null>(null)
 
-/* ──── Presets ──── */
-
 const PRESETS: { color: string; name: string }[] = [
   { color: '#D4956B', name: 'Закат' },
   { color: '#C9A84C', name: 'Янтарь' },
@@ -39,8 +39,6 @@ const PRESETS: { color: string; name: string }[] = [
   { color: '#B85C4C', name: 'Глина' },
   { color: '#8B6242', name: 'Орех' },
 ]
-
-/* ──── Color wheel ──── */
 
 function drawWheel() {
   const cvs = wheelCanvas.value
@@ -150,25 +148,9 @@ function reset() { picked.value = undefined; pickerPos.value = null }
       overflow: 'auto',
     }"
   >
-    <!-- Fixed top: back + title + preview + toggle -->
+    <NavHeader title="Цвет комнаты" back="Назад" @back="emit('close')" />
+
     <div :style="{ padding: '16px 24px 0', flexShrink: 0 }">
-      <!-- Back -->
-      <button
-        :style="{
-          background: 'none', border: 'none', color: T.textSec,
-          fontSize: '14px', cursor: 'pointer', padding: '0 4px',
-          marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '2px',
-        }"
-        @click="emit('close')"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13.83 19a1 1 0 0 1-.78-.37l-4.83-6a1 1 0 0 1 0-1.27l5-6a1 1 0 0 1 1.54 1.28L10.29 12l4.32 5.36a1 1 0 0 1-.78 1.64z"/></svg>
-        Назад
-      </button>
-
-      <div :style="{ fontSize: '22px', fontWeight: 700, color: T.text, textAlign: 'center', marginBottom: '16px' }">
-        Цвет комнаты
-      </div>
-
       <!-- Preview -->
       <div
         :style="{
@@ -191,7 +173,6 @@ function reset() { picked.value = undefined; pickerPos.value = null }
         </div>
       </div>
 
-      <!-- Tesla toggle -->
       <div
         :style="{
           display: 'flex', width: '100%', maxWidth: '340px', margin: '0 auto',
@@ -214,14 +195,12 @@ function reset() { picked.value = undefined; pickerPos.value = null }
       </div>
     </div>
 
-    <!-- Content area -->
     <div
       :style="{
         flex: 1, display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', padding: '0 24px',
       }"
     >
-      <!-- PRESETS — Fix 1: solid bg + border-box -->
       <template v-if="tab === 'presets'">
         <div
           :style="{
@@ -246,7 +225,6 @@ function reset() { picked.value = undefined; pickerPos.value = null }
         </div>
       </template>
 
-      <!-- WHEEL -->
       <template v-if="tab === 'wheel'">
         <div
           :style="{
@@ -290,7 +268,6 @@ function reset() { picked.value = undefined; pickerPos.value = null }
       </template>
     </div>
 
-    <!-- Footer -->
     <div :style="{ padding: '16px 24px 28px', maxWidth: '400px', width: '100%', margin: '0 auto', flexShrink: 0 }">
       <button
         :style="{

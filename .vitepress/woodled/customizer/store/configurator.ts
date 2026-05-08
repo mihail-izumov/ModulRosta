@@ -1,9 +1,8 @@
 /**
  * configurator.ts — Состояние конфигуратора
  *
- * Fix 2: flatMap q>1 → отдельные светильники.
- * Fix 8+: Автоперсистенция — state сохраняется в localStorage
- *         после КАЖДОЙ мутации. Переживает F5, навигацию, закрытие.
+ * Fix 2: flatMap q>1 → отдельные светильники (с deep clone opts/done).
+ * Fix 8+: Автоперсистенция после каждой мутации.
  */
 
 import { ref, computed, reactive } from 'vue'
@@ -46,16 +45,9 @@ function starterRooms(): Room[] {
 
 const STATE_KEY = 'woodled.state'
 
-/**
- * Сохраняет полный state в localStorage.
- * Вызывается после КАЖДОЙ мутации — state всегда актуален.
- */
 function persistState(): void {
   if (typeof window === 'undefined') return
-  if (rooms.length === 0) {
-    // Не стираем сохранённое при пустых rooms (это сброс, он чистит явно)
-    return
-  }
+  if (rooms.length === 0) return
   try {
     const data = {
       v: 1,
@@ -66,10 +58,6 @@ function persistState(): void {
   } catch { /* quota exceeded */ }
 }
 
-/**
- * Восстанавливает state из localStorage.
- * Возвращает true если восстановлено.
- */
 function restorePersistedState(): boolean {
   if (typeof window === 'undefined') return false
   try {
@@ -79,7 +67,6 @@ function restorePersistedState(): boolean {
     if (!data?.rooms?.length) return false
     name.value = data.name ?? 'Живой Дом'
     rooms.splice(0, rooms.length, ...data.rooms)
-    // Bump _id past restored IDs to avoid collisions
     for (const r of data.rooms) {
       const num = parseInt(String(r.id ?? '').replace('r', '') || '0')
       if (num >= _id) _id = num + 1
@@ -113,15 +100,11 @@ const fb = ref<string | null>(null)
 
 const showMoodDetail = ref<Mood | null>(null)
 
-/* ──────────────── BuyModal state ──────────────── */
-
 interface DiscountFx {
   roomId: string
   fxIdx: number
 }
 const discountFx = ref<DiscountFx | null>(null)
-
-/* ──────────────── FxEditor state ──────────────── */
 
 const activeFx = ref<{ roomId: string; fxIdx: number } | null>(null)
 
@@ -132,8 +115,6 @@ function openFx(roomId: string, fxIdx: number) {
 function closeFx() {
   activeFx.value = null
 }
-
-/* ──────────────── Производные значения ──────────────── */
 
 const activeRoom = computed<Room | null>(() => {
   if (!active.value) return null
@@ -219,8 +200,6 @@ function updateFixture(roomId: string, idx: number, next: Fixture) {
   persistState()
 }
 
-/* ──────────────── Toast ──────────────── */
-
 function showFB(msg: string | null) {
   fb.value = msg
 }
@@ -228,8 +207,6 @@ function showFB(msg: string | null) {
 function clearFB() {
   fb.value = null
 }
-
-/* ──────────────── Загрузка из URL hash ──────────────── */
 
 function loadFromHash(): boolean {
   const encoded = readHashState()
@@ -241,8 +218,6 @@ function loadFromHash(): boolean {
   persistState()
   return true
 }
-
-/* ──────────────── Welcome screen ──────────────── */
 
 const WELCOME_KEY = 'woodled.welcomeSeen'
 const DASHBOARD_TOUR_KEY = 'woodled.dashboardTourSeen'
@@ -290,7 +265,8 @@ function ensureStarterRooms(): void {
 }
 
 /**
- * Fix 2: flatMap — каждый fixture с q>1 → отдельные записи q=1.
+ * Fix 2: flatMap с deep clone — каждый fixture с q>1 → отдельные записи q=1.
+ * Deep clone opts/done чтобы они не шарились по ссылке между копиями.
  */
 function loadTemplate(templateId: string): void {
   const tpl = TEMPLATES.find((t) => t.id === templateId)
@@ -306,16 +282,17 @@ function loadTemplate(templateId: string): void {
       customArea: null,
       ceilingH: tr.ceilingH,
       fixtures: tr.fixtures.flatMap((f) => {
-        const base = {
+        const doneList = f.done ?? allStepsForModel(f.m)
+        return Array.from({ length: f.q }, () => ({
           m: f.m,
           q: 1,
           wood: f.wood,
           zone: f.zone,
           l: f.l,
-          opts: f.opts,
-          done: f.done ?? allStepsForModel(f.m),
-        }
-        return Array.from({ length: f.q }, () => ({ ...base }))
+          // Deep clone opts/done — иначе копии шарят ссылку
+          opts: f.opts ? { ...f.opts } : undefined,
+          done: [...doneList],
+        }))
       }),
       furniture: [...tr.furniture],
       limits: { ...rt.limits },
@@ -325,9 +302,6 @@ function loadTemplate(templateId: string): void {
 
   rooms.splice(0, rooms.length, ...newRooms)
   dismissWelcome()
-  // persistState вызовется внутри dismissWelcome → ensureStarterRooms
-  // но rooms уже не пустые, поэтому ensureStarterRooms не пушит.
-  // Вызываем явно:
   persistState()
 }
 
@@ -353,11 +327,8 @@ function resetAll(): void {
   }
 }
 
-/* ──────────────── Экспорт singleton ──────────────── */
-
 export function useConfigurator() {
   return {
-    /* state */
     name,
     rooms,
     picker,
@@ -372,12 +343,8 @@ export function useConfigurator() {
     discountFx,
     activeFx,
     showMoodDetail,
-
-    /* computed */
     activeRoom,
     hasFixtures,
-
-    /* mutations */
     setName,
     add,
     removeRoom,
@@ -388,26 +355,16 @@ export function useConfigurator() {
     updateFixture,
     openFx,
     closeFx,
-
-    /* toast */
     showFB,
     clearFB,
-
-    /* url state */
     loadFromHash,
-
-    /* welcome / templates */
     welcomeSeen,
     dismissWelcome,
     loadTemplate,
     ensureStarterRooms,
     resetAll,
-
-    /* dashboard onboarding */
     dashboardTourSeen,
     markDashboardTourSeen,
-
-    /* state persistence */
     persistState,
     restorePersistedState,
     clearPersistedState,

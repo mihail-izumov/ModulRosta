@@ -2,9 +2,7 @@
 /**
  * RoomDetail.vue — Полноэкранный редактор комнаты.
  *
- * Fix 4: Обстановка ПЕРЕД Настроением.
- * Fix 10: arrow-back SVG вместо ←.
- * Fix 11: gap между зонами и настроением (marginBottom 16px).
+ * Fix 2: Хедер заменён на NavHeader (единый стиль).
  */
 
 import { computed, ref } from 'vue'
@@ -26,6 +24,7 @@ import { useConfigurator } from '../store/configurator'
 
 import Icon from './ui/Icons.vue'
 import Modal from './ui/Modal.vue'
+import NavHeader from './ui/NavHeader.vue'
 import MoodBlock from './MoodBlock.vue'
 import ZoneCard from './ZoneCard.vue'
 import FurnitureBlock from './FurnitureBlock.vue'
@@ -160,42 +159,11 @@ function onShowMoodDetail() {
       overflow: 'auto',
     }"
   >
-    <!-- Sticky header — Fix 10: arrow SVG -->
-    <div
-      :style="{
-        padding: '12px 16px',
-        borderBottom: `1px solid ${T.border}`,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        position: 'sticky',
-        top: 0,
-        background: T.bg,
-        zIndex: Z.stickyHeader,
-      }"
-    >
-      <button
-        :style="{
-          background: 'none',
-          border: 'none',
-          color: T.textSec,
-          fontSize: '14px',
-          cursor: 'pointer',
-          padding: '2px 4px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '2px',
-        }"
-        @click="emit('close')"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13.83 19a1 1 0 0 1-.78-.37l-4.83-6a1 1 0 0 1 0-1.27l5-6a1 1 0 0 1 1.54 1.28L10.29 12l4.32 5.36a1 1 0 0 1-.78 1.64z"/></svg>
-        Домой
-      </button>
-      <span :style="{ flex: 1, fontWeight: 700, fontSize: '16px', color: T.text, textAlign: 'center' }">
-        {{ props.room.customName || rt.name }}
-      </span>
-      <span :style="{ width: '70px' }" />
-    </div>
+    <NavHeader
+      :title="props.room.customName || rt.name"
+      back="Домой"
+      @back="emit('close')"
+    />
 
     <div :style="{ padding: '16px', maxWidth: '480px', margin: '0 auto' }">
       <!-- Параметры комнаты -->
@@ -341,7 +309,7 @@ function onShowMoodDetail() {
         </div>
       </div>
 
-      <!-- Glow wrapper + 2×2 зоны — Fix 11: marginBottom 16px -->
+      <!-- Glow wrapper + 2×2 зоны -->
       <div
         :style="{
           position: 'relative',
@@ -390,7 +358,6 @@ function onShowMoodDetail() {
         </div>
       </div>
 
-      <!-- Fix 4: Обстановка ПЕРЕД Настроением -->
       <FurnitureBlock
         v-if="rt.furn.length > 0"
         :rt="rt"
@@ -400,7 +367,6 @@ function onShowMoodDetail() {
         @toggle="onFurnToggle"
       />
 
-      <!-- Настроение — после обстановки -->
       <MoodBlock
         v-if="props.room.fixtures.length > 0"
         :mood="tintedMood"
@@ -409,7 +375,6 @@ function onShowMoodDetail() {
         @show-detail="onShowMoodDetail"
       />
 
-      <!-- Опасная зона -->
       <div
         :style="{
           marginTop: '32px',
@@ -450,8 +415,6 @@ function onShowMoodDetail() {
       <Footer />
       <div :style="{ height: '80px' }" />
     </div>
-
-    <!-- Модалки -->
 
     <RoomSettings
       v-if="showSettings"
@@ -515,42 +478,20 @@ function onShowMoodDetail() {
 
     <span v-show="false">{{ Icon }}</span>
 
-    <!-- Смарт-подбор модалка -->
     <Teleport to="body">
       <div v-if="showSmartHelp" :style="{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,.75)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }" @click.self="showSmartHelp = false">
         <div :style="{ width: '100%', maxWidth: '480px', maxHeight: '92vh', overflow: 'auto', background: T.bg, borderTopLeftRadius: '18px', borderTopRightRadius: '18px', borderTop: `1px solid ${T.border}` }">
           <div :style="{ padding: '20px 20px 16px' }">
-
             <div :style="{ display: 'flex', justifyContent: 'center', padding: '20px 0 14px' }">
               <div class="rotor-hero" aria-hidden="true">
                 <div v-for="i in 16" :key="i" class="rotor-hero-l" :style="{ '--rot': ((i-1)/16*360) + 'deg', animationDelay: ((i-1)*40) + 'ms' }" />
               </div>
             </div>
-
             <div :style="{ textAlign: 'center', marginBottom: '24px' }">
               <div :style="{ fontSize: '10px', fontWeight: 700, color: T.neutral, letterSpacing: '1.5px', marginBottom: '8px' }">СМАРТ-ПОДБОР</div>
               <div :style="{ fontSize: '22px', fontWeight: 800, color: T.text, lineHeight: 1.2, marginBottom: '10px' }">Как подбирается<br/>размер светильника</div>
               <div :style="{ fontSize: '13px', color: T.textSec, lineHeight: 1.6, maxWidth: '340px', margin: '0 auto' }">Алгоритм WOODLED сравнивает яркость всех светильников в комнате с нормой и подсказывает лучшее сочетание.</div>
             </div>
-
-            <div :style="{ marginBottom: '24px' }">
-              <div :style="{ fontSize: '12px', fontWeight: 700, color: T.textSec, textTransform: 'uppercase', letterSpacing: '.8px', marginBottom: '10px' }">Учитываем три фактора</div>
-              <div :style="{ display: 'flex', flexDirection: 'column', gap: '8px' }">
-                <div :style="{ padding: '14px', background: T.card, border: `1px solid ${T.border}`, borderRadius: '12px', display: 'flex', gap: '12px', alignItems: 'flex-start' }">
-                  <div :style="{ flexShrink: 0, width: '36px', height: '36px', borderRadius: '10px', background: T.neutral + '22', display: 'flex', alignItems: 'center', justifyContent: 'center' }"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" :stroke="T.neutral" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M14 15H9v-5"/><path d="M16 3h5v5"/><path d="M21 3 9 15"/></svg></div>
-                  <div :style="{ flex: 1 }"><div :style="{ fontSize: '13px', fontWeight: 700, color: T.text, marginBottom: '3px' }">Площадь и норма</div><div :style="{ fontSize: '12px', color: T.textSec, lineHeight: 1.5 }">Базовая норма — 100 лм/м². Для спальни мягче, для кухни ярче.</div></div>
-                </div>
-                <div :style="{ padding: '14px', background: T.card, border: `1px solid ${T.border}`, borderRadius: '12px', display: 'flex', gap: '12px', alignItems: 'flex-start' }">
-                  <div :style="{ flexShrink: 0, width: '36px', height: '36px', borderRadius: '10px', background: T.yellow + '22', display: 'flex', alignItems: 'center', justifyContent: 'center' }"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" :stroke="T.yellow" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m20.9 18.55-8-15.98a1 1 0 0 0-1.8 0l-8 15.98"/><ellipse cx="12" cy="19" rx="9" ry="3"/></svg></div>
-                  <div :style="{ flex: 1 }"><div :style="{ fontSize: '13px', fontWeight: 700, color: T.text, marginBottom: '3px' }">Все светильники в комнате</div><div :style="{ fontSize: '12px', color: T.textSec, lineHeight: 1.5 }">Суммируем общий свет и считаем, сколько добавит выбранный Rotor.</div></div>
-                </div>
-                <div :style="{ padding: '14px', background: T.card, border: `1px solid ${T.border}`, borderRadius: '12px', display: 'flex', gap: '12px', alignItems: 'flex-start' }">
-                  <div :style="{ flexShrink: 0, width: '36px', height: '36px', borderRadius: '10px', background: T.green + '22', display: 'flex', alignItems: 'center', justifyContent: 'center' }"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" :stroke="T.green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M5 18v2"/><path d="M19 18v2"/></svg></div>
-                  <div :style="{ flex: 1 }"><div :style="{ fontSize: '13px', fontWeight: 700, color: T.text, marginBottom: '3px' }">Мебель и зоны</div><div :style="{ fontSize: '12px', color: T.textSec, lineHeight: 1.5 }">Рабочей зоне нужно больше света, чем проходу.</div></div>
-                </div>
-              </div>
-            </div>
-
             <div :style="{ marginBottom: '24px' }">
               <div :style="{ fontSize: '12px', fontWeight: 700, color: T.textSec, textTransform: 'uppercase', letterSpacing: '.8px', marginBottom: '10px' }">Что означают статусы</div>
               <div :style="{ display: 'flex', flexDirection: 'column', gap: '6px' }">
@@ -566,7 +507,6 @@ function onShowMoodDetail() {
                 </div>
               </div>
             </div>
-
             <button :style="{ width: '100%', padding: '14px', background: T.text, color: T.bg, border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '14px', fontWeight: 700, marginBottom: '12px' }" @click="showSmartHelp = false">Супер!</button>
           </div>
         </div>

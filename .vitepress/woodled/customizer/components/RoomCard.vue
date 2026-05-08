@@ -2,8 +2,7 @@
 /**
  * RoomCard.vue — Карточка комнаты на главном экране.
  *
- * Fix 13: Убраны тексты-подсказки из пустых карточек.
- * NEW: Кнопка «Больше Света» по центру пустой карточки.
+ * NEW v2: Кнопка «Больше Света» — прозрачный фон, только обводка.
  */
 
 import { computed } from 'vue'
@@ -99,7 +98,6 @@ const circles = computed<Circle[]>(() => {
 
 <template>
   <div :style="cardStyle" @click="emit('click')">
-    <!-- Palette icon -->
     <button
       :style="{
         position: 'absolute',
@@ -139,15 +137,15 @@ const circles = computed<Circle[]>(() => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '8px',
+          gap: '10px',
         }"
       >
         <Icon name="leafy" :color="props.room.cardColor ?? T.textSec" :size="32" :style="{ opacity: props.room.cardColor ? 0.5 : 0.35 }" />
-        <!-- Кнопка «Больше Света» как в ZoneCard -->
+        <!-- Прозрачная кнопка с обводкой -->
         <div
           :style="{
             padding: '6px 12px',
-            background: RGBA.white10,
+            background: 'transparent',
             border: `1px solid ${RGBA.white18}`,
             borderRadius: '6px',
             color: T.text,
