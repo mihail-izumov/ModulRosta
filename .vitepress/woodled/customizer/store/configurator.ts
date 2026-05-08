@@ -1,14 +1,8 @@
 /**
  * configurator.ts — Состояние конфигуратора
  *
- * Источник: woodled-v42.jsx (useState хуки в компоненте App).
- * Экспортирует composable useConfigurator() — singleton для всего приложения.
- *
- * Использование:
- *   const cfg = useConfigurator()
- *   cfg.rooms.value        // массив комнат
- *   cfg.showFB('Привет')   // тост
- *   cfg.add('bedroom')     // добавить комнату
+ * Fix 8+: persistState / restorePersistedState — state переживает
+ * навигацию на внешние URL и перезагрузку страницы.
  */
 
 import { ref, computed, reactive } from 'vue'
@@ -43,22 +37,13 @@ function makeRoom(typeId: RoomTypeId): Room {
   }
 }
 
-/** Стартовый набор: 4 типовые комнаты. */
 function starterRooms(): Room[] {
   return STARTER_ROOM_TYPES.map((tid) => makeRoom(tid))
 }
 
 /* ──────────────── State (singleton) ──────────────── */
 
-/* Названию и фидбеку хватает ref, но для массивов используем reactive —
-   так мутации (push/splice) сразу реактивны без особых правил. */
-
 const name = ref('Живой Дом')
-/* rooms стартует пустым. Заполняется одним из:
- *   - loadTemplate (при выборе шаблона в WelcomeScreen)
- *   - ensureStarterRooms (при «Начать с пустого дома» / возврате после dismiss)
- *   - loadFromHash / deeplinks (shared-сценарии)
- */
 const rooms = reactive<Room[]>([])
 
 const picker = ref(false)
@@ -72,14 +57,6 @@ const showShare = ref(false)
 
 const fb = ref<string | null>(null)
 
-/* ──────────────── Полноэкранный онбординг настроения ────────────────
- *
- * Когда != null — поверх роутов рендерится MoodDetailModal (5 слайдов).
- * Открывается из RoomDetail (тап на MoodBlock), закрывается «Домой/Пропустить».
- * Должен быть в store (а не локально в RoomDetail), чтобы App.vue мог
- * скрыть StickyBar на время показа — иначе кнопка «Дальше/Пропустить»
- * уезжает под StickyBar и недоступна для тапа.
- */
 const showMoodDetail = ref<Mood | null>(null)
 
 /* ──────────────── BuyModal state ──────────────── */
@@ -92,13 +69,6 @@ const discountFx = ref<DiscountFx | null>(null)
 
 /* ──────────────── FxEditor state ──────────────── */
 
-/**
- * Глобальный «открытый светильник». Если не null — поверх всего рендерится
- * страница FxEditor. Открывается из:
- *   - RoomDetail (клик на ZoneCard fixture)
- *   - BuyModal («Настроить»)
- *   - Deeplink #fx=… или ?model=…
- */
 const activeFx = ref<{ roomId: string; fxIdx: number } | null>(null)
 
 function openFx(roomId: string, fxIdx: number) {
@@ -152,9 +122,6 @@ function updateRoom(next: Room) {
   rooms[idx] = next
 }
 
-/**
- * Мутирует поле комнаты, опционально показывает тост.
- */
 function patchRoom<K extends keyof Room>(id: string, key: K, value: Room[K], toast?: string) {
   const room = rooms.find((r) => r.id === id)
   if (!room) return
@@ -162,9 +129,6 @@ function patchRoom<K extends keyof Room>(id: string, key: K, value: Room[K], toa
   if (toast) showFB(toast)
 }
 
-/**
- * Добавить светильник в конкретную комнату, проверяя лимит зоны.
- */
 function addFixture(roomId: string, fx: Fixture): boolean {
   const room = rooms.find((r) => r.id === roomId)
   if (!room) return false
@@ -195,9 +159,6 @@ function updateFixture(roomId: string, idx: number, next: Fixture) {
 
 /* ──────────────── Toast ──────────────── */
 
-/**
- * Устанавливает текст тоста. Сам Toast-компонент отвечает за setTimeout → clearFB.
- */
 function showFB(msg: string | null) {
   fb.value = msg
 }
@@ -208,10 +169,6 @@ function clearFB() {
 
 /* ──────────────── Загрузка из URL hash ──────────────── */
 
-/**
- * Читает #s=... из URL и подменяет state, если ссылка валидна.
- * Должно вызываться из App.vue в onMounted — только на клиенте.
- */
 function loadFromHash(): boolean {
   const encoded = readHashState()
   if (!encoded) return false
@@ -226,8 +183,8 @@ function loadFromHash(): boolean {
 
 const WELCOME_KEY = 'woodled.welcomeSeen'
 const DASHBOARD_TOUR_KEY = 'woodled.dashboardTourSeen'
+const STATE_KEY = 'woodled.state'
 
-/** На клиенте: ?welcome в URL → принудительно показать welcome (для теста). */
 function shouldForceWelcome(): boolean {
   if (typeof window === 'undefined') return false
   return new URLSearchParams(window.location.search).has('welcome')
@@ -239,21 +196,6 @@ const welcomeSeen = ref<boolean>(
     && localStorage.getItem(WELCOME_KEY) === 'true',
 )
 
-/**
- * Флаг прохождения/закрытия онбординга виджета HouseStats.
- *
- * Пока false:
- *   - под виджетом видна скрываемая подсказка «Тапните для деталей →»
- *   - при первом показе главного с заполненным домом запускается
- *     затемняющий 3-шаговый spotlight tour
- *
- * После true (юзер прошёл/пропустил/закрыл подсказку):
- *   - подсказка не показывается
- *   - тур не запускается
- *
- * Один флаг для двух механизмов — иначе юзер видел бы и тур, и подсказку
- * с одинаковым посылом, что создаёт дубль.
- */
 const dashboardTourSeen = ref<boolean>(
   typeof window !== 'undefined'
     && localStorage.getItem(DASHBOARD_TOUR_KEY) === 'true',
@@ -264,9 +206,7 @@ function markDashboardTourSeen(): void {
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(DASHBOARD_TOUR_KEY, 'true')
-    } catch {
-      /* private mode / quota exceeded — не критично */
-    }
+    } catch {}
   }
 }
 
@@ -275,44 +215,17 @@ function dismissWelcome(): void {
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(WELCOME_KEY, 'true')
-    } catch {
-      /* private mode / quota exceeded — не критично */
-    }
+    } catch {}
   }
-  // «Начать с пустого дома» / ✕ — заполняем стандартными 4 пустыми комнатами,
-  // если ничего другого ещё не загружено (loadTemplate сам вызывает dismissWelcome
-  // уже после splice — там rooms.length > 0, поэтому ensureStarterRooms ничего
-  // не делает).
   ensureStarterRooms()
 }
 
-/**
- * Если массив комнат пустой — заполняет стандартным starter-набором.
- * Используется после dismissWelcome и при возврате юзера, который раньше
- * уже видел welcome (welcomeSeen=true в localStorage), но state не сохранился.
- */
 function ensureStarterRooms(): void {
   if (rooms.length === 0) {
     rooms.push(...starterRooms())
   }
 }
 
-/**
- * Заменяет все комнаты на шаблон.
- *
- * Каждая комната получает:
- *   - cardColor из ROOM_TINTS по typeId (пастельная палитра 2026)
- *   - limits копируется из RTS
- *
- * Каждый светильник получает:
- *   - opts (если задан в шаблоне) — дефолтная чаша wood_8 и т.д.
- *   - l (если задан) — override стандартного количества патронов
- *   - done — список выполненных шагов чек-листа. Если шаблон не указал явно,
- *     автоматически проставляются все применимые шаги через allStepsForModel.
- *     Это даёт юзеру «6/6 готово» в каждом светильнике.
- *
- * Также закрывает welcome screen (welcomeSeen=true).
- */
 function loadTemplate(templateId: string): void {
   const tpl = TEMPLATES.find((t) => t.id === templateId)
   if (!tpl) return
@@ -345,15 +258,6 @@ function loadTemplate(templateId: string): void {
   dismissWelcome()
 }
 
-/**
- * Полный сброс state и welcomeSeen — пользователь возвращается к welcome screen.
- *
- * Это НЕ destructive действие: используется когда юзер хочет попробовать
- * другой шаблон или начать заново. Все state-флаги сбрасываются автоматически
- * через v-if при пустых rooms (showBuy/active/showStory и т.п.).
- *
- * Вызывается из Footer → «Начать заново» после двойного подтверждения.
- */
 function resetAll(): void {
   rooms.splice(0, rooms.length)
   welcomeSeen.value = false
@@ -371,18 +275,60 @@ function resetAll(): void {
     try {
       localStorage.removeItem(WELCOME_KEY)
       localStorage.removeItem(DASHBOARD_TOUR_KEY)
-    } catch {
-      /* private mode — не критично */
-    }
+      localStorage.removeItem(STATE_KEY)
+    } catch {}
   }
+}
+
+/* ──────────────── State persistence ──────────────── */
+
+/**
+ * Сохраняет полный state в localStorage.
+ * Вызывается из beforeunload — переживает навигацию и перезагрузку.
+ */
+function persistState(): void {
+  if (typeof window === 'undefined' || rooms.length === 0) return
+  try {
+    const state = {
+      v: 1,
+      name: name.value,
+      rooms: JSON.parse(JSON.stringify(rooms)),
+    }
+    localStorage.setItem(STATE_KEY, JSON.stringify(state))
+  } catch { /* quota exceeded — не критично */ }
+}
+
+/**
+ * Восстанавливает state из localStorage.
+ * Возвращает true если восстановлено, false если нечего.
+ */
+function restorePersistedState(): boolean {
+  if (typeof window === 'undefined') return false
+  try {
+    const raw = localStorage.getItem(STATE_KEY)
+    if (!raw) return false
+    const state = JSON.parse(raw)
+    if (!state?.rooms?.length) return false
+    name.value = state.name ?? 'Живой Дом'
+    rooms.splice(0, rooms.length, ...state.rooms)
+    // Bump _id past restored IDs to avoid collisions
+    for (const r of state.rooms) {
+      const num = parseInt(r.id?.replace('r', '') ?? '0')
+      if (num >= _id) _id = num + 1
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
+function clearPersistedState(): void {
+  if (typeof window === 'undefined') return
+  try { localStorage.removeItem(STATE_KEY) } catch {}
 }
 
 /* ──────────────── Экспорт singleton ──────────────── */
 
-/**
- * Глобальный store конфигуратора.
- * Все компоненты импортируют `useConfigurator()` и получают одно и то же состояние.
- */
 export function useConfigurator() {
   return {
     /* state */
@@ -434,5 +380,10 @@ export function useConfigurator() {
     /* dashboard onboarding */
     dashboardTourSeen,
     markDashboardTourSeen,
+
+    /* state persistence */
+    persistState,
+    restorePersistedState,
+    clearPersistedState,
   }
 }

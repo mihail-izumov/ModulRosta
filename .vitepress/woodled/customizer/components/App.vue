@@ -2,11 +2,10 @@
 /**
  * App.vue — Корневой роутер.
  *
- * Изменение: вычисляет контекст комнаты (area, baseLm, currentLmWithoutThis)
- * и передаёт в FxEditor для рекомендации размера (см. AUTOSIZE.md).
+ * Fix 8+: beforeunload → persistState, onMounted → restorePersistedState.
  */
 
-import { computed, onMounted, ref, watch, nextTick } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import { T } from '../theme/tokens'
 import { useConfigurator } from '../store/configurator'
 import type { Room } from '../data/rooms'
@@ -46,6 +45,9 @@ const cfg = useConfigurator()
 /* ────────── Deeplinks ────────── */
 
 onMounted(() => {
+  // Сохраняем state при любом уходе со страницы
+  window.addEventListener('beforeunload', cfg.persistState)
+
   if (cfg.loadFromHash()) {
     cfg.dismissWelcome()
     return
@@ -92,8 +94,15 @@ onMounted(() => {
   }
 
   if (cfg.welcomeSeen.value) {
-    cfg.ensureStarterRooms()
+    // Восстанавливаем state из localStorage (переживает навигацию на внешние URL)
+    if (!cfg.restorePersistedState()) {
+      cfg.ensureStarterRooms()
+    }
   }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('beforeunload', cfg.persistState)
 })
 
 /* ────────── Computed ────────── */
@@ -126,11 +135,6 @@ const activeFxData = computed(() => {
   return { room, fx, roomId: af.roomId, fxIdx: af.fxIdx }
 })
 
-/**
- * Контекст комнаты для FxEditor — площадь, baseLm, currentLm без этого светильника.
- * Используется для рекомендации размера в шаге «Размер» (AUTOSIZE.md).
- * null если нет активного светильника или комнаты.
- */
 const fxEditorRoomContext = computed(() => {
   if (!activeFxData.value) return null
   const { room, fx } = activeFxData.value
