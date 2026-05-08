@@ -8,8 +8,15 @@
  *     (rotor-dash) — ламели циклично собираются в круг и медленно
  *     вращаются. Размер/положение/прозрачность/тени — как у листа.
  *   - Ламели всегда в дубовом градиенте (бренд rotor); цвет карточки
- *     передаётся через тонирующий drop-shadow.
+ *     передаётся через тонирующую drop-shadow.
  *   - НЕ трогается лист в ZoneCard на странице комнаты — он остаётся.
+ *
+ * Fix v6 (batch6 — desync + slowdown):
+ *   - Spin: 30s → 90s (почти неощутимое вращение)
+ *   - Cycle: 5s → 12s (спокойное «дыхание»)
+ *   - Stagger: 60ms → 144ms (пропорционально, wave-эффект тот же)
+ *   - Per-instance random negative delays — 4 карточки на главной
+ *     никогда не в одной фазе, гипноз убран.
  *
  * Кнопка «Больше Света» — glassmorphism: subtle bg, backdrop-blur,
  * pill-форма, цвет в тон карточки. Лежит над ротором (zIndex 2).
@@ -35,6 +42,11 @@ const base = computed(() => baseLm(rt.value, props.room))
 const actual = computed(() => fxLm(props.room.fixtures))
 const ratio = computed(() => (base.value > 0 ? actual.value / base.value : 0))
 const mood = computed(() => autoMood(ratio.value))
+
+// ── batch6: per-instance random offsets для десинхронизации ──
+// Negative delay = анимация стартует «уже в процессе», без паузы.
+const cardSpinOffset = `-${(Math.random() * 90).toFixed(2)}s`
+const cardCycleOffset = `-${(Math.random() * 12).toFixed(2)}s`
 
 const cardStyle = computed(() => {
   const isEmpty = mood.value.id === 'empty'
@@ -125,14 +137,17 @@ const circles = computed<Circle[]>(() => {
       }"
       aria-hidden="true"
     >
-      <div class="rotor-card">
+      <div
+        class="rotor-card"
+        :style="{ animationDelay: cardSpinOffset }"
+      >
         <div
           v-for="i in 12"
           :key="i"
           class="rotor-card-l"
           :style="{
             '--rot': ((i - 1) / 12 * 360) + 'deg',
-            animationDelay: ((i - 1) * 60) + 'ms',
+            animationDelay: `calc(${cardCycleOffset} + ${((i - 1) * 0.144).toFixed(3)}s)`,
           }"
         />
       </div>
@@ -272,11 +287,11 @@ const circles = computed<Circle[]>(() => {
 /**
  * Анимация сборки ротора для empty-карточки.
  *
- * Логика:
- *   - .rotor-card — внешний wrapper, медленно вращается (30s).
- *   - .rotor-card-l — каждая ламель циклично собирается из scattered (далеко
- *     от центра, scale 0.3) в assembled (на радиусе, scale 1) и обратно
- *     каждые 5s, с шахматной задержкой по индексу.
+ * batch6: замедление (spin 90s, cycle 12s) + десинхронизация
+ * (random negative animation-delay через inline :style).
+ *
+ * Все animation-delay управляются inline — здесь только
+ * animation shorthand без delay-компоненты.
  *
  * Геометрия: контейнер 130×130, ламель 4×36px, сборка на translateY(-45px),
  * scattered на translateY(-60px). Всё внутри 130×130 без overflow.
@@ -288,7 +303,7 @@ const circles = computed<Circle[]>(() => {
   width: 100%;
   height: 100%;
   position: relative;
-  animation: rotorCardSpin 30s linear infinite;
+  animation: rotorCardSpin 90s linear infinite;
 }
 
 .rotor-card-l {
@@ -301,7 +316,7 @@ const circles = computed<Circle[]>(() => {
   border-radius: 2px;
   background: linear-gradient(to bottom, #d4b87a, #b4915a, #8a6e3e);
   transform-origin: 50% 50%;
-  animation: rotorCardCycle 5000ms ease-in-out infinite;
+  animation: rotorCardCycle 12s ease-in-out infinite;
   opacity: 0;
 }
 
