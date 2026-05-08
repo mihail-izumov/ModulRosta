@@ -2,8 +2,7 @@
 /**
  * RoomSettings.vue — Полноэкранный экран настроек комнаты.
  *
- * Источник: woodled-v42.jsx (showSettings ветка в RoomDetail).
- * Содержит: название, размер (3 пресета + своя), потолок, лимиты точек по зонам.
+ * Fix 10: SVG arrow-back вместо ←.
  */
 
 import { computed, ref } from 'vue'
@@ -65,10 +64,7 @@ function saveName(nextName: string) {
   editName.value = false
 }
 
-/* Базовый расчёт для подсказки */
 const areaForHint = computed(() => getArea(props.rt, props.room))
-
-/* Заглушка, используется чтобы избежать ошибки линтера. */
 void baseLm
 </script>
 
@@ -83,7 +79,7 @@ void baseLm
     }"
   >
     <div :style="{ padding: '20px', maxWidth: '480px', margin: '0 auto' }">
-      <!-- Header -->
+      <!-- Header — Fix 10: SVG arrow -->
       <div
         :style="{
           display: 'flex',
@@ -97,12 +93,17 @@ void baseLm
             background: 'none',
             border: 'none',
             color: T.textSec,
-            fontSize: '20px',
+            fontSize: '14px',
             cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '2px',
+            padding: '2px 4px',
           }"
           @click="emit('close')"
         >
-          ←
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13.83 19a1 1 0 0 1-.78-.37l-4.83-6a1 1 0 0 1 0-1.27l5-6a1 1 0 0 1 1.54 1.28L10.29 12l4.32 5.36a1 1 0 0 1-.78 1.64z"/></svg>
+          Назад
         </button>
         <span
           :style="{
@@ -176,7 +177,6 @@ void baseLm
         </div>
       </div>
 
-      <!-- Размер -->
       <Sec label="Размер">
         <div :style="{ display: 'flex', gap: '5px' }">
           <Chip
@@ -231,7 +231,6 @@ void baseLm
         </button>
       </Sec>
 
-      <!-- Потолок -->
       <Sec :label="`Потолок: ${props.room.ceilingH} м`">
         <input
           type="range"
@@ -244,7 +243,6 @@ void baseLm
         />
       </Sec>
 
-      <!-- Лимиты точек -->
       <Sec label="Точки для света">
         <div :style="{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }">
           <div
@@ -321,7 +319,6 @@ void baseLm
         Сохранить
       </button>
 
-      <!-- hidden — для избегания warnings -->
       <span v-show="false">{{ areaForHint }}</span>
     </div>
   </div>

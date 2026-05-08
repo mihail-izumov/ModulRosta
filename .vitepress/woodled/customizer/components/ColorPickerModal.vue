@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * ColorPickerModal.vue — Hue-style color picker.
- * Fixed top layout, default cursor on wheel, touch-friendly.
+ * Fix 1: Круги — solid bg + border-box, маска покрывает полностью.
  */
 
 import { ref, computed, nextTick } from 'vue'
@@ -76,10 +76,8 @@ function drawWheel() {
   ctx.fill()
   ctx.globalCompositeOperation = 'source-over'
 
-  // Set default cursor if none yet
   if (!pickerPos.value) {
     if (!picked.value) picked.value = T.neutral
-    // Default position: warm area (~40°), 65% from center
     const angle = 40 * Math.PI / 180
     const dist = 0.65
     pickerPos.value = {
@@ -159,14 +157,14 @@ function reset() { picked.value = undefined; pickerPos.value = null }
         :style="{
           background: 'none', border: 'none', color: T.textSec,
           fontSize: '14px', cursor: 'pointer', padding: '0 4px',
-          marginBottom: '16px',
+          marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '2px',
         }"
         @click="emit('close')"
       >
-        ← Назад
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13.83 19a1 1 0 0 1-.78-.37l-4.83-6a1 1 0 0 1 0-1.27l5-6a1 1 0 0 1 1.54 1.28L10.29 12l4.32 5.36a1 1 0 0 1-.78 1.64z"/></svg>
+        Назад
       </button>
 
-      <!-- Title -->
       <div :style="{ fontSize: '22px', fontWeight: 700, color: T.text, textAlign: 'center', marginBottom: '16px' }">
         Цвет комнаты
       </div>
@@ -223,7 +221,7 @@ function reset() { picked.value = undefined; pickerPos.value = null }
         alignItems: 'center', justifyContent: 'center', padding: '0 24px',
       }"
     >
-      <!-- PRESETS -->
+      <!-- PRESETS — Fix 1: solid bg + border-box -->
       <template v-if="tab === 'presets'">
         <div
           :style="{
@@ -235,8 +233,9 @@ function reset() { picked.value = undefined; pickerPos.value = null }
             v-for="p in PRESETS" :key="p.color"
             :style="{
               width: '42px', height: '42px', borderRadius: '50%',
-              background: `linear-gradient(135deg, ${p.color}, ${p.color}cc)`,
+              background: p.color,
               border: picked === p.color ? '3px solid #fff' : '2px solid transparent',
+              boxSizing: 'border-box',
               cursor: 'pointer',
               boxShadow: picked === p.color ? `0 0 14px ${p.color}55` : 'none',
               transition: 'all .2s', padding: 0,
@@ -267,7 +266,6 @@ function reset() { picked.value = undefined; pickerPos.value = null }
             @mouseup="onUp" @mouseleave="onUp"
             @touchstart.prevent="onDown" @touchmove="onMove" @touchend="onUp"
           />
-          <!-- Picker cursor -->
           <div
             v-if="pickerPos && picked"
             :style="{

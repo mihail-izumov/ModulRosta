@@ -3,10 +3,11 @@
  * RoomCard.vue — Карточка комнаты на главном экране.
  *
  * Fix 13: Убраны тексты-подсказки из пустых карточек.
+ * NEW: Кнопка «Больше Света» по центру пустой карточки.
  */
 
 import { computed } from 'vue'
-import { T, WCOL } from '../theme/tokens'
+import { T, WCOL, RGBA } from '../theme/tokens'
 import { MD } from '../data/catalog'
 import { MATS } from '../data/materials'
 import { autoMood } from '../data/moods'
@@ -135,12 +136,32 @@ const circles = computed<Circle[]>(() => {
         :style="{
           flex: 1,
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          opacity: props.room.cardColor ? 0.5 : 0.35,
+          gap: '8px',
         }"
       >
-        <Icon name="leafy" :color="props.room.cardColor ?? T.textSec" :size="40" />
+        <Icon name="leafy" :color="props.room.cardColor ?? T.textSec" :size="32" :style="{ opacity: props.room.cardColor ? 0.5 : 0.35 }" />
+        <!-- Кнопка «Больше Света» как в ZoneCard -->
+        <div
+          :style="{
+            padding: '6px 12px',
+            background: RGBA.white10,
+            border: `1px solid ${RGBA.white18}`,
+            borderRadius: '6px',
+            color: T.text,
+            fontSize: '11px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px',
+          }"
+        >
+          <Icon name="up" :color="T.text" :size="14" />
+          Больше Света
+        </div>
       </div>
     </template>
 

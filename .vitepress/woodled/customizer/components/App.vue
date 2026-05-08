@@ -94,7 +94,6 @@ onMounted(() => {
   }
 
   if (cfg.welcomeSeen.value) {
-    // Восстанавливаем state из localStorage (переживает навигацию на внешние URL)
     if (!cfg.restorePersistedState()) {
       cfg.ensureStarterRooms()
     }

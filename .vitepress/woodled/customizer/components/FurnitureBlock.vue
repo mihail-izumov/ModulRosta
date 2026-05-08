@@ -3,6 +3,7 @@
  * FurnitureBlock.vue — Секция «Обстановка» в RoomDetail.
  *
  * Fix 5: Тост при добавлении мебели — только факт, без «нужно ещё».
+ * Fix 11: marginBottom 16px — разлепить от MoodBlock.
  */
 
 import { computed } from 'vue'
@@ -51,6 +52,7 @@ function handleToggle(id: FurnId) {
       borderRadius: '10px',
       padding: '12px',
       marginTop: '16px',
+      marginBottom: '16px',
       textAlign: 'center',
       border: `1px solid ${props.tint}18`,
     }"
