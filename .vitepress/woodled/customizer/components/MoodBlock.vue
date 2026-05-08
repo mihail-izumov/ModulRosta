@@ -2,13 +2,8 @@
 /**
  * MoodBlock.vue — Блок настроения с MoodArc.
  *
- * v7: Градиентное полукольцо с прогрессом.
- *   - Трек (filled band) + прогресс (stroked arc, stroke-linecap:round)
- *   - Градиент прогресса: слева прозрачно → справа непрозрачно
- *   - Иконка mood в центре
- *   - Свечение обрезано по горизонту (низ полукруга)
- *   - Заголовок: «НАСТРОЕНИЕ В ГОСТИНОЙ» — uppercase, разрядка, mood-цвет
- *   - Кнопка mood-цветом, без обводки
+ * Fix 12: Прогресс-дуга обрезается по горизонту (clipPath) —
+ *         убран артефакт свечения внизу слева от stroke-linecap:round.
  */
 
 import { computed } from 'vue'
@@ -25,8 +20,6 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits<{ showDetail: [] }>()
 
-/* ──────────────── Геометрия ──────────────── */
-
 const CX = 140
 const CY = 140
 const R = 120
@@ -40,7 +33,6 @@ function pt(deg: number, radius: number) {
   return { x: CX - radius * Math.cos(rad), y: CY - radius * Math.sin(rad) }
 }
 
-/** Filled band path (для трека) */
 function bandPath(d1: number, d2: number): string {
   const oA = pt(d1, OR), oB = pt(d2, OR)
   const iA = pt(d1, IR), iB = pt(d2, IR)
@@ -48,7 +40,6 @@ function bandPath(d1: number, d2: number): string {
   return `M${oA.x.toFixed(2)},${oA.y.toFixed(2)} A${OR},${OR},0,${lg},1,${oB.x.toFixed(2)},${oB.y.toFixed(2)} L${iB.x.toFixed(2)},${iB.y.toFixed(2)} A${IR},${IR},0,${lg},0,${iA.x.toFixed(2)},${iA.y.toFixed(2)}Z`
 }
 
-/** Stroked arc path (для прогресса с round linecap) */
 function strokeArc(d1: number, d2: number): string {
   const a = pt(d1, R), b = pt(d2, R)
   const lg = (d2 - d1) > 180 ? 1 : 0
@@ -65,12 +56,10 @@ const progressArc = computed(() => {
 
 <template>
   <div class="mood-block">
-    <!-- Заголовок -->
     <div class="mood-header" :style="{ color: mood.color + 'bb' }">
       Настроение {{ roomPrepName }}
     </div>
 
-    <!-- MoodArc -->
     <div :style="{ display: 'flex', justifyContent: 'center', margin: '4px 0' }">
       <svg
         :viewBox="`0 0 280 ${SVG_H}`"
@@ -82,6 +71,7 @@ const progressArc = computed(() => {
             <stop offset="0%" :stop-color="mood.color" stop-opacity="0.05" />
             <stop offset="100%" :stop-color="mood.color" stop-opacity="1.0" />
           </linearGradient>
+          <!-- Fix 12: clipPath обрезает и свечение, и прогресс-дугу -->
           <clipPath id="moodHorizonClip">
             <rect x="0" y="0" width="280" :height="CY" />
           </clipPath>
@@ -98,14 +88,16 @@ const progressArc = computed(() => {
         <!-- Трек -->
         <path :d="fullBand" fill="rgba(255,255,255,0.07)" />
 
-        <!-- Прогресс — stroke с round linecap -->
-        <path
-          :d="progressArc"
-          fill="none"
-          stroke="url(#moodProgressGrad)"
-          :stroke-width="W"
-          stroke-linecap="round"
-        />
+        <!-- Прогресс — Fix 12: обрезан тем же clipPath, round cap не вылезает -->
+        <g clip-path="url(#moodHorizonClip)">
+          <path
+            :d="progressArc"
+            fill="none"
+            stroke="url(#moodProgressGrad)"
+            :stroke-width="W"
+            stroke-linecap="round"
+          />
+        </g>
 
         <!-- Иконка -->
         <circle :cx="CX" :cy="CY - 36" r="26" fill="transparent" :stroke="mood.color + '33'" stroke-width="1" />
@@ -118,13 +110,9 @@ const progressArc = computed(() => {
       </svg>
     </div>
 
-    <!-- Название -->
     <div class="mood-name">{{ mood.name }}</div>
-
-    <!-- Описание -->
     <div class="mood-desc">{{ mood.desc }}</div>
 
-    <!-- Кнопка -->
     <button
       class="mood-detail-btn"
       :style="{ background: mood.color, color: T.bg }"
