@@ -2,7 +2,8 @@
 /**
  * RoomSettings.vue — Полноэкранный экран настроек комнаты.
  *
- * Fix 7: Хедер заменён на NavHeader (единый стиль), pen в #right слоте.
+ * Fix v2: Pen-icon перенесён ВНУТРЬ title (через слот #title NavHeader),
+ *         больше не накладывается на глобальный SoundButton.
  */
 
 import { computed, ref } from 'vue'
@@ -29,6 +30,7 @@ const emit = defineEmits<{
 
 const editName = ref(false)
 const zones = computed(() => roomZones(props.rt))
+const displayName = computed(() => props.room.customName || props.rt.name)
 
 function updateSize(i: 0 | 1 | 2) {
   const label = SZ[i]
@@ -71,25 +73,29 @@ void baseLm
       overflow: 'auto',
     }"
   >
-    <NavHeader
-      :title="props.room.customName || props.rt.name"
-      back="Назад"
-      @back="emit('close')"
-    >
-      <template #right>
+    <NavHeader :title="displayName" back="Назад" @back="emit('close')">
+      <template #title>
+        <span
+          :style="{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }"
+        >{{ displayName }}</span>
         <button
           :style="{
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            padding: '4px',
-            display: 'flex',
+            padding: '2px',
+            display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
+            flexShrink: 0,
           }"
           @click="editName = !editName"
         >
-          <Icon name="pen" :color="T.textSec" :size="16" />
+          <Icon name="pen" :color="T.textSec" :size="13" />
         </button>
       </template>
     </NavHeader>

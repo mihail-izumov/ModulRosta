@@ -2,7 +2,11 @@
 /**
  * RoomCard.vue — Карточка комнаты на главном экране.
  *
- * NEW v2: Кнопка «Больше Света» — прозрачный фон, только обводка.
+ * Fix v4 (empty state):
+ *   - Дубовый лист крупный (130px), прозрачный (opacity 0.18),
+ *     с drop-shadow для объёма. Сидит фоном по центру карточки.
+ *   - Кнопка «Больше Света» — glassmorphism: subtle bg, backdrop-blur,
+ *     pill-форма, цвет в тон карточки. Лежит над листом (zIndex 1).
  */
 
 import { computed } from 'vue'
@@ -41,9 +45,10 @@ const cardStyle = computed(() => {
     display: 'flex',
     flexDirection: 'column' as const,
     alignItems: 'center',
-    minHeight: '140px',
+    minHeight: '160px',
     textAlign: 'center' as const,
     position: 'relative' as const,
+    overflow: 'hidden' as const,
   }
 })
 
@@ -60,16 +65,21 @@ const badgeStyle = computed(() => {
     fontSize: '11px',
     fontWeight: 600,
     color: '#fff',
+    position: 'relative' as const,
+    zIndex: 2,
   }
 })
 
+// Цвета для empty state
+const accentColor = computed(() => props.room.cardColor ?? T.textSec)
+const accentText = computed(() => props.room.cardColor ?? T.text)
+const leafShadowColor = computed(() => {
+  const cc = props.room.cardColor
+  return cc ? cc + '50' : '#00000080'
+})
+
 interface Circle {
-  key: string
-  type: string
-  wood: string
-  color: string
-  matName: string
-  isBlack: boolean
+  key: string; type: string; wood: string; color: string; matName: string; isBlack: boolean
 }
 
 const circles = computed<Circle[]>(() => {
@@ -82,14 +92,7 @@ const circles = computed<Circle[]>(() => {
     const matName = MATS.find((x) => x.id === wood)?.name ?? 'Дуб'
     const q = it.q ?? 1
     for (let j = 0; j < q; j++) {
-      out.push({
-        key: `${i}-${j}`,
-        type: md.type,
-        wood,
-        color: col,
-        matName,
-        isBlack: wood === 'black',
-      })
+      out.push({ key: `${i}-${j}`, type: md.type, wood, color: col, matName, isBlack: wood === 'black' })
     }
   })
   return out
@@ -98,6 +101,25 @@ const circles = computed<Circle[]>(() => {
 
 <template>
   <div :style="cardStyle" @click="emit('click')">
+    <!-- ═══ BG-лист (только в empty state) ═══ -->
+    <Icon
+      v-if="mood.id === 'empty'"
+      name="leafy"
+      :color="accentColor"
+      :size="130"
+      :style="{
+        position: 'absolute',
+        top: '54%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        opacity: 0.16,
+        filter: `drop-shadow(0 8px 18px ${leafShadowColor}) drop-shadow(0 2px 4px rgba(0,0,0,0.3))`,
+        pointerEvents: 'none',
+        zIndex: 0,
+      }"
+    />
+
+    <!-- ═══ Палитра (выбор цвета) ═══ -->
     <button
       :style="{
         position: 'absolute',
@@ -114,6 +136,7 @@ const circles = computed<Circle[]>(() => {
         justifyContent: 'center',
         padding: 0,
         transition: 'all .2s',
+        zIndex: 3,
       }"
       @click.stop="emit('pickColor')"
     >
@@ -125,10 +148,13 @@ const circles = computed<Circle[]>(() => {
         <circle cx="8.5" cy="7.5" r="1.5" :fill="props.room.cardColor ?? T.textSec" stroke="none"/>
       </svg>
     </button>
+
+    <!-- ═══ Badge с названием ═══ -->
     <div :style="badgeStyle">
       {{ props.room.customName || rt.name }}
     </div>
 
+    <!-- ═══ Empty state: pill-кнопка над листом ═══ -->
     <template v-if="mood.id === 'empty'">
       <div
         :style="{
@@ -136,33 +162,41 @@ const circles = computed<Circle[]>(() => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
-          gap: '10px',
+          justifyContent: 'flex-end',
+          width: '100%',
+          position: 'relative',
+          zIndex: 2,
         }"
       >
-        <Icon name="leafy" :color="props.room.cardColor ?? T.textSec" :size="32" :style="{ opacity: props.room.cardColor ? 0.5 : 0.35 }" />
-        <!-- Прозрачная кнопка с обводкой -->
+        <!-- Glassmorphism pill -->
         <div
           :style="{
-            padding: '6px 12px',
-            background: 'transparent',
-            border: `1px solid ${RGBA.white18}`,
-            borderRadius: '6px',
-            color: T.text,
-            fontSize: '11px',
+            padding: '4px 12px',
+            background: props.room.cardColor
+              ? props.room.cardColor + '14'
+              : 'rgba(255,255,255,0.04)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            border: `1px solid ${accentColor}66`,
+            borderRadius: '999px',
+            color: accentText,
+            fontSize: '10px',
             fontWeight: 600,
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '4px',
+            lineHeight: 1.4,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
           }"
         >
-          <Icon name="up" :color="T.text" :size="14" />
+          <Icon name="up" :color="accentText" :size="12" />
           Больше Света
         </div>
       </div>
     </template>
 
+    <!-- ═══ Filled state: круги светильников ═══ -->
     <template v-else>
       <div
         :style="{
@@ -171,6 +205,8 @@ const circles = computed<Circle[]>(() => {
           marginTop: '12px',
           flexWrap: 'wrap',
           justifyContent: 'center',
+          position: 'relative',
+          zIndex: 2,
         }"
       >
         <div v-if="circles.length === 0" :style="{ fontSize: '11px', color: T.textDim, padding: '12px 0' }">

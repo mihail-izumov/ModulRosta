@@ -3,6 +3,7 @@
  * App.vue — Корневой роутер.
  *
  * Fix 8+: beforeunload → persistState, onMounted → restorePersistedState.
+ * Fix v2: SoundButton wrapper top: 10px → 8px (центрирование в 48px NavHeader).
  */
 
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
@@ -42,10 +43,9 @@ import { decodeFixture, readHashFixture } from '../engine/share'
 
 const cfg = useConfigurator()
 
-/* ────────── Deeplinks ────────── */
+/* ─────────── Deeplinks ─────────── */
 
 onMounted(() => {
-  // Сохраняем state при любом уходе со страницы
   window.addEventListener('beforeunload', cfg.persistState)
 
   if (cfg.loadFromHash()) {
@@ -104,7 +104,7 @@ onUnmounted(() => {
   window.removeEventListener('beforeunload', cfg.persistState)
 })
 
-/* ────────── Computed ────────── */
+/* ─────────── Computed ─────────── */
 
 const rooms = computed<Room[]>(() => cfg.rooms as Room[])
 
@@ -163,7 +163,7 @@ const stickyVisible = computed(
     !cfg.showMoodDetail.value,
 )
 
-/* ────────── Handlers ────────── */
+/* ─────────── Handlers ─────────── */
 
 function onPromoClick() {
   cfg.showBuy.value = true
@@ -211,7 +211,7 @@ function onFxClose() {
   cfg.closeFx()
 }
 
-/* ────────── Цвет карточки ────────── */
+/* ─────────── Цвет карточки ─────────── */
 
 const colorPickRoom = ref<Room | null>(null)
 
@@ -226,7 +226,7 @@ function onColorPicked(color: string | undefined) {
   }
 }
 
-/* ────────── Сброс ────────── */
+/* ─────────── Сброс ─────────── */
 
 const showResetConfirm = ref(false)
 
@@ -258,7 +258,7 @@ const anyModalOpen = computed<boolean>(() =>
   showResetConfirm.value,
 )
 
-/* ────────── Scroll to top ────────── */
+/* ─────────── Scroll to top ─────────── */
 
 watch(
   () => [cfg.active.value, cfg.activeFx.value, cfg.welcomeSeen.value, cfg.showBuy.value],
@@ -267,7 +267,7 @@ watch(
   },
 )
 
-/* ────────── Preloader ────────── */
+/* ─────────── Preloader ─────────── */
 
 const preloaderDone = ref(false)
 
@@ -412,7 +412,7 @@ function onPreloaderDone() {
           :style="{
             border: `1px dashed ${T.border}`,
             borderRadius: '12px',
-            minHeight: '140px',
+            minHeight: '160px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -570,10 +570,11 @@ function onPreloaderDone() {
   </template>
 
   <!-- ═══════ ГЛОБАЛЬНЫЕ ═══════ -->
+  <!-- top: 8px → центр кнопки совпадает с центром 48px NavHeader -->
   <div
     :style="{
       position: 'fixed',
-      top: '10px',
+      top: '8px',
       right: '16px',
       zIndex: 90,
       display: anyModalOpen ? 'none' : 'block',

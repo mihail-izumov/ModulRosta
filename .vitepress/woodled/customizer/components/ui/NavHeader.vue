@@ -1,11 +1,15 @@
 <script setup lang="ts">
 /**
- * NavHeader.vue — Единый sticky-хедер для всех экранов.
+ * NavHeader.vue — Единый sticky-хедер.
  *
- * iOS-style: высота 48px, back-кнопка слева, заголовок по центру (absolute).
- * Слот #right для дополнительных действий (pen в RoomSettings).
+ * iOS-style: 48px, back-кнопка слева, title по центру (absolute).
  *
- * Используется в: RoomDetail, FxEditor, BuyModal (×2), RoomSettings, ColorPickerModal.
+ * Слоты:
+ *   - #title — кастомный заголовок с inline-элементами (например, pen-icon).
+ *              Если не задан, рендерится prop `title` как обычный текст.
+ *   - #right — НЕ ИСПОЛЬЗУЕТСЯ в текущей версии (резерв на будущее).
+ *              Раньше использовался в RoomSettings, но накладывался
+ *              на глобальный SoundButton (top:10 right:16 fixed).
  */
 
 import { T, Z } from '../../theme/tokens'
@@ -70,13 +74,12 @@ defineEmits<{ back: [] }>()
         maxWidth: '60%',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
       }"
     >
-      {{ title }}
-    </div>
-
-    <div :style="{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }">
-      <slot name="right" />
+      <slot name="title">{{ title }}</slot>
     </div>
   </div>
 </template>
