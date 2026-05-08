@@ -2,12 +2,18 @@
 /**
  * NameModal.vue — Редактирование названия дома.
  *
- * Источник: woodled-v42.jsx (NameModal).
+ * batch7 #9:
+ *   - Полное затемнение страницы (solid overlay, без прозрачности).
+ *     Не используем общий Modal.vue — у него полупрозрачный фон,
+ *     а тут нужен полностью непрозрачный, плюс белая карточка
+ *     модалки. Делаем самостоятельный teleport-overlay.
+ *   - Заголовок изменён: «Название» → «Какой дом — такое настроение».
+ *   - Карточка модалки белая, без обводки.
+ *   - Скролл body блокируется на время показа (как в Modal.vue).
  */
 
-import { ref } from 'vue'
-import { T } from '../theme/tokens'
-import Modal from './ui/Modal.vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { T, Z } from '../theme/tokens'
 
 interface Props {
   value: string
@@ -20,6 +26,15 @@ const emit = defineEmits<{
 
 const v = ref(props.value)
 
+let prevOverflow = ''
+onMounted(() => {
+  prevOverflow = document.body.style.overflow
+  document.body.style.overflow = 'hidden'
+})
+onUnmounted(() => {
+  document.body.style.overflow = prevOverflow
+})
+
 function save() {
   emit('save', v.value)
   emit('close')
@@ -27,50 +42,79 @@ function save() {
 </script>
 
 <template>
-  <Modal @close="emit('close')">
-    <div :style="{ padding: '20px' }">
+  <Teleport to="body">
+    <div
+      :style="{
+        position: 'fixed',
+        inset: 0,
+        background: T.bg,
+        zIndex: Z.modalOverlay,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+      }"
+      @click.self="emit('close')"
+    >
       <div
         :style="{
-          fontSize: '14px',
-          fontWeight: 700,
-          color: T.text,
-          marginBottom: '12px',
-        }"
-      >
-        Название
-      </div>
-      <input
-        v-model="v"
-        autofocus
-        :style="{
           width: '100%',
-          padding: '10px 12px',
-          background: T.bg,
-          border: `1px solid ${T.border}`,
-          borderRadius: '6px',
-          color: T.text,
-          fontSize: '15px',
-          outline: 'none',
-          boxSizing: 'border-box',
-        }"
-        @keydown.enter="save"
-      />
-      <button
-        :style="{
-          marginTop: '12px',
-          width: '100%',
-          padding: '10px',
-          background: T.neutral,
-          color: T.bg,
+          maxWidth: '380px',
+          background: '#FFFFFF',
+          borderRadius: '14px',
+          padding: '24px 22px',
           border: 'none',
-          borderRadius: '6px',
-          fontWeight: 700,
-          cursor: 'pointer',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
         }"
-        @click="save"
       >
-        Сохранить
-      </button>
+        <div
+          :style="{
+            fontSize: '15px',
+            fontWeight: 700,
+            color: T.bg,
+            marginBottom: '14px',
+            textAlign: 'center',
+            lineHeight: 1.4,
+          }"
+        >
+          Какой дом — такое настроение
+        </div>
+        <input
+          v-model="v"
+          autofocus
+          :style="{
+            width: '100%',
+            padding: '12px 14px',
+            background: '#F5F0E8',
+            border: 'none',
+            borderRadius: '8px',
+            color: T.bg,
+            fontSize: '15px',
+            fontWeight: 500,
+            outline: 'none',
+            boxSizing: 'border-box',
+          }"
+          @keydown.enter="save"
+        />
+        <button
+          :style="{
+            marginTop: '14px',
+            width: '100%',
+            padding: '12px',
+            background: T.bg,
+            color: '#FFFFFF',
+            border: 'none',
+            borderRadius: '8px',
+            fontWeight: 700,
+            fontSize: '14px',
+            fontFamily: 'inherit',
+            cursor: 'pointer',
+          }"
+          @click="save"
+        >
+          Сохранить
+        </button>
+      </div>
     </div>
-  </Modal>
+  </Teleport>
 </template>

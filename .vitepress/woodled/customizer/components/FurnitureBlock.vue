@@ -4,13 +4,18 @@
  *
  * Fix 5: Тост при добавлении мебели — только факт, без «нужно ещё».
  * Fix 11: marginBottom 16px — разлепить от MoodBlock.
+ *
+ * batch7 #11:
+ *   - Чипы переведены в pill-режим (Chip prop `pill`):
+ *     borderRadius 999px, padding 7px 14px, 13px / weight 600.
+ *   - Текст-рекомендация увеличен 11px → 13px.
+ *   - Gap между чипами увеличен 5px → 7px для воздуха между pills.
  */
 
 import { computed } from 'vue'
 import { T } from '../theme/tokens'
 import { FURN, furnText, furnStatus } from '../data/furniture'
 import type { FurnId, Room, RoomType } from '../data/rooms'
-import { baseLm } from '../engine/brightness'
 import Chip from './ui/Chip.vue'
 
 interface Props {
@@ -62,7 +67,7 @@ function handleToggle(id: FurnId) {
         fontSize: '14px',
         fontWeight: 600,
         color: T.text,
-        marginBottom: '8px',
+        marginBottom: '10px',
       }"
     >
       Обстановка
@@ -72,13 +77,14 @@ function handleToggle(id: FurnId) {
       :style="{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '5px',
+        gap: '7px',
         justifyContent: 'center',
       }"
     >
       <Chip
         v-for="id in props.rt.furn"
         :key="id"
+        pill
         :active="props.room.furniture.includes(id)"
         :tint="props.tint"
         @click="handleToggle(id)"
@@ -87,14 +93,14 @@ function handleToggle(id: FurnId) {
       </Chip>
     </div>
 
-    <div v-if="props.furnPct !== 0" :style="{ marginTop: '8px' }">
+    <div v-if="props.furnPct !== 0" :style="{ marginTop: '10px' }">
       <span
         :style="{
           display: 'inline-block',
-          padding: '3px 10px',
-          borderRadius: '10px',
+          padding: '4px 12px',
+          borderRadius: '999px',
           background: props.tint + '18',
-          fontSize: '11px',
+          fontSize: '12px',
           fontWeight: 600,
           color: props.tint,
         }"
@@ -107,10 +113,10 @@ function handleToggle(id: FurnId) {
 
     <div
       :style="{
-        fontSize: '11px',
+        fontSize: '13px',
         color: T.text,
-        marginTop: '8px',
-        lineHeight: 1.5,
+        marginTop: '10px',
+        lineHeight: 1.55,
       }"
     >
       {{ text }}

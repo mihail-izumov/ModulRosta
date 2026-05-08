@@ -3,6 +3,9 @@
  * RoomDetail.vue — Полноэкранный редактор комнаты.
  *
  * Fix 2: Хедер заменён на NavHeader (единый стиль).
+ *
+ * batch7 #2: «Смарт-подбор» → «WOODLED Smart» (в кнопке + заголовке модалки).
+ * batch7 #10: текст параметров комнаты 11px → 13px, fontWeight 600.
  */
 
 import { computed, ref } from 'vue'
@@ -199,7 +202,7 @@ function onShowMoodDetail() {
           <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
             Параметры комнаты
           </div>
-          <div :style="{ fontSize: '11px', color: tint, marginTop: '2px' }">
+          <div :style="{ fontSize: '13px', fontWeight: 600, color: tint, marginTop: '3px' }">
             {{ props.room.sizeIndex === 3 ? (props.room.customArea ?? '') + ' м²' : rt.ranges[props.room.sizeIndex] + ' м²' }}
             · потолок {{ props.room.ceilingH }} м
           </div>
@@ -305,7 +308,7 @@ function onShowMoodDetail() {
               flexShrink: 0, whiteSpace: 'nowrap',
             }"
             @click="showSmartHelp = true"
-          >Смарт-подбор</button>
+          >WOODLED Smart</button>
         </div>
       </div>
 
@@ -488,7 +491,7 @@ function onShowMoodDetail() {
               </div>
             </div>
             <div :style="{ textAlign: 'center', marginBottom: '24px' }">
-              <div :style="{ fontSize: '10px', fontWeight: 700, color: T.neutral, letterSpacing: '1.5px', marginBottom: '8px' }">СМАРТ-ПОДБОР</div>
+              <div :style="{ fontSize: '10px', fontWeight: 700, color: T.neutral, letterSpacing: '1.5px', marginBottom: '8px' }">WOODLED SMART</div>
               <div :style="{ fontSize: '22px', fontWeight: 800, color: T.text, lineHeight: 1.2, marginBottom: '10px' }">Как подбирается<br/>размер светильника</div>
               <div :style="{ fontSize: '13px', color: T.textSec, lineHeight: 1.6, maxWidth: '340px', margin: '0 auto' }">Алгоритм WOODLED сравнивает яркость всех светильников в комнате с нормой и подсказывает лучшее сочетание.</div>
             </div>

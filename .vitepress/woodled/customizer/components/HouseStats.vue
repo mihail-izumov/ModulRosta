@@ -2,30 +2,16 @@
 /**
  * HouseStats.vue — Виджет дома (приборная панель).
  *
- * v4 — переработка по фидбеку:
+ * v4 — переработка по фидбеку (см. предыдущие версии).
  *
- *   ┌──────────────────────────────────┐
- *   │  S комнат    потолок    свет     │  ← без разделителей, подсветка
- *   │   26          2.7      5/16     │     фоном при тапе/туре
- *   ├──────────────────────────────────┤
- *   │  🔗 Сохранить   🔄 Заново       │  ← 2 кнопки в ряд, всегда видны
- *   └──────────────────────────────────┘
- *
- *   Expand-панель (при тапе на поле):
- *   ┌──────────────────────────────────┐
- *   │  [пояснение]                     │
- *   │  по комнатам:                    │
- *   │  Кухня                 6–12 м²   │  ← без border-bottom на последнем
- *   │  Спальня               8–14 м²   │
- *   └──────────────────────────────────┘
- *
- * Изменения v4:
- *   1. «Дополнительно» убран — кнопки внутри панели.
- *   2. Два действия в один ряд: «Сохранить ссылку» + «Начать заново».
- *   3. Разделители между полями убраны — подсветка фоном.
- *   4. Border-bottom убран у последнего элемента в expand-списке.
- *   5. Свет: при 0 used → показываем «—» (не «0/22»).
- *   6. Tour: вместо рамки — подсветка фоном + dimming остальных полей.
+ * batch7 #12: «S комнат» теперь показывает диапазон min–max,
+ * как поле «потолок». Логика:
+ *   - Каждая комната по дефолту имеет ranges (например '12–20').
+ *     Парсим и складываем min/max отдельно.
+ *   - Если sizeIndex === 3 (custom area), эта комната даёт min === max.
+ *   - Если итоговая сумма min === max (все комнаты — custom либо у
+ *     всех ranges одна цифра) — показываем одну цифру.
+ *   - Иначе — формат «X–Y».
  *
  * Эмиты: shareLink, changeHome.
  */
@@ -47,11 +33,31 @@ const emit = defineEmits<{
 
 /* ────────── Производные данные ────────── */
 
-const totalArea = computed<number | null>(() => {
+/** Парсит строку вида '12–20' или '12-20' в [min, max]. */
+function parseRange(s: string): [number, number] {
+  const parts = s.split(/[–\-]/).map((x) => parseInt(x.trim()))
+  if (parts.length === 1 || isNaN(parts[1])) return [parts[0], parts[0]]
+  return [parts[0], parts[1]]
+}
+
+const totalAreaDisplay = computed<string | null>(() => {
   if (cfg.rooms.length === 0) return null
-  return Math.round(
-    cfg.rooms.reduce((s, r) => s + getArea(getRT(r.typeId), r as Room), 0),
-  )
+  let sumMin = 0
+  let sumMax = 0
+  for (const r of cfg.rooms) {
+    const rt = getRT(r.typeId)
+    if (r.sizeIndex === 3) {
+      const a = r.customArea ?? rt.sizes[2]
+      sumMin += a
+      sumMax += a
+    } else {
+      const [mn, mx] = parseRange(rt.ranges[r.sizeIndex])
+      sumMin += mn
+      sumMax += mx
+    }
+  }
+  if (sumMin === sumMax) return String(sumMin)
+  return `${sumMin}–${sumMax}`
 })
 
 const ceilingDisplay = computed<string | null>(() => {
@@ -82,7 +88,6 @@ const lightPoints = computed<{ used: number; max: number } | null>(() => {
   return { used, max }
 })
 
-/** Есть ли хотя бы один светильник во всех комнатах. */
 const hasAnyFixtures = computed(() =>
   cfg.rooms.some((r) => r.fixtures.length > 0),
 )
@@ -269,34 +274,17 @@ function onChangeHomeClick() {
 
 /* ────────── Стили ────────── */
 
-/* Тёплая жемчужная гамма WOODLED — ближе к онбордингу/основным страницам.
- * Чуть теплее и золотистее чем T.text (#E8E0D4). */
 const PANEL_BG = '#EAE0CA'
 const PANEL_FG = T.bg
 const PANEL_FG_SEC = T.cardAlt
 const PANEL_PASSIVE_BG = 'rgba(19,17,14,0.07)'
 const PANEL_DIVIDER = 'rgba(19,17,14,0.10)'
-/* Активное состояние — БЕЛАЯ плашка (светлее жемчужного фона).
- * Используется и для активной плашки в дашборде, и для двух плашек
- * внутри expand-блока. Инверсия яркости: активное = свет, фон = жемчуг.
- * Это переворачивает иерархию: акцент уходит из кнопок (которые раньше
- * были белыми) в выбранное состояние данных. */
 const PANEL_FIELD_ACTIVE = '#FFFFFF'
-/* Кнопки внизу панели — чуть темнее пассивных плашек.
- * Меньшая высота визуально «съедает» 0.07 фон, поэтому 0.12 даёт
- * кнопкам чёткую форму, не перетягивая акцент с белой активной плашки.
- * Иерархия по фону: активная (белая) > пассивные (0.07) > кнопки (0.12). */
 const PANEL_BTN_BG = 'rgba(19,17,14,0.12)'
-const PANEL_BTN_BG_HOVER = 'rgba(19,17,14,0.18)'
 
 const tourCurrentField = computed<FieldId>(() => TOUR_FIELDS[tourStep.value].id)
 const tourCurrentText = computed(() => TOUR_FIELDS[tourStep.value])
 
-/**
- * Стиль поля дашборда.
- * v4: пассивный фон (subtle) показывает что поле кликабельно.
- * При тапе — более яркий фон. При туре — dim остальных.
- */
 function fieldStyle(field: FieldId) {
   const isFocused = expanded.value && focusField.value === field
   const isTourField = tourActive.value && tourCurrentField.value === field
@@ -318,6 +306,17 @@ function fieldStyle(field: FieldId) {
     cursor: isEmpty.value ? 'default' : 'pointer',
   }
 }
+
+/**
+ * Динамический размер шрифта для значения «S комнат» —
+ * чтобы диапазон вида «120–180» влезал в плашку на узких экранах.
+ */
+const areaFontSize = computed(() => {
+  const v = totalAreaDisplay.value ?? '—'
+  if (v.length <= 4) return '28px'
+  if (v.length <= 6) return '22px'
+  return '18px'
+})
 </script>
 
 <template>
@@ -340,7 +339,6 @@ function fieldStyle(field: FieldId) {
       }"
       @click.self="onWidgetTap"
     >
-      <!-- Три поля — равные gap, без разделителей -->
       <div
         :style="{
           display: 'flex',
@@ -359,12 +357,13 @@ function fieldStyle(field: FieldId) {
           </div>
           <div
             :style="{
-              fontSize: '28px', fontWeight: 800,
+              fontSize: areaFontSize, fontWeight: 800,
               color: isEmpty ? PANEL_FG_SEC : PANEL_FG,
               fontVariantNumeric: 'tabular-nums', lineHeight: 1,
+              whiteSpace: 'nowrap',
             }"
           >
-            {{ totalArea ?? '—' }}
+            {{ totalAreaDisplay ?? '—' }}
           </div>
           <div :style="{ fontSize: '11px', color: PANEL_FG_SEC, opacity: 0.7 }">м²</div>
         </div>
@@ -407,7 +406,6 @@ function fieldStyle(field: FieldId) {
               display: 'flex', alignItems: 'baseline',
             }"
           >
-            <!-- При 0 используемых — показываем «—», не «0/22» -->
             <template v-if="lightPoints && hasAnyFixtures">
               <span>{{ lightPoints.used }}</span>
               <span
@@ -425,7 +423,6 @@ function fieldStyle(field: FieldId) {
         </div>
       </div>
 
-      <!-- Две кнопки — без разделителей, светлее плашек, тот же gap -->
       <div
         :style="{
           display: 'flex',
@@ -451,7 +448,6 @@ function fieldStyle(field: FieldId) {
           }"
           @click.stop="onShareClick"
         >
-          <!-- Иконка share -->
           <svg
             width="13" height="13" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2"
@@ -482,7 +478,6 @@ function fieldStyle(field: FieldId) {
           }"
           @click.stop="onChangeHomeClick"
         >
-          <!-- Иконка iteration-cw -->
           <svg
             width="13" height="13" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2"
@@ -525,13 +520,7 @@ function fieldStyle(field: FieldId) {
       </button>
     </div>
 
-    <!-- ═══════ Expand-панель (разбивка по комнатам) ═══════
-         Двойная преемственность с дашбордом:
-           - Контейнер expand = PANEL_BG (как сама панель дашборда)
-           - 2 равнозначные плашки внутри = PANEL_FIELD_ACTIVE
-             (как фон активной выбранной плашки в дашборде).
-         Плашка 1 — пояснение тапнутого поля (если есть focus).
-         Плашка 2 — данные «по комнатам».                        -->
+    <!-- ═══════ Expand-панель ═══════ -->
     <div
       v-if="expanded && !isEmpty"
       :style="{
@@ -544,7 +533,6 @@ function fieldStyle(field: FieldId) {
         gap: '6px',
       }"
     >
-      <!-- Плашка 1 — пояснение тапнутого поля -->
       <div
         v-if="focusField"
         :style="{
@@ -567,7 +555,6 @@ function fieldStyle(field: FieldId) {
         </div>
       </div>
 
-      <!-- Плашка 2 — список по комнатам -->
       <div
         :style="{
           background: PANEL_FIELD_ACTIVE,
@@ -585,7 +572,6 @@ function fieldStyle(field: FieldId) {
           по комнатам
         </div>
 
-        <!-- Без фокуса — общая таблица -->
         <template v-if="focusField === null">
           <div
             v-for="(r, i) in roomsAll"
@@ -610,7 +596,6 @@ function fieldStyle(field: FieldId) {
           </div>
         </template>
 
-        <!-- area -->
         <template v-else-if="focusField === 'area'">
           <div
             v-for="(r, i) in roomsByArea"
@@ -628,7 +613,6 @@ function fieldStyle(field: FieldId) {
           </div>
         </template>
 
-        <!-- ceiling -->
         <template v-else-if="focusField === 'ceiling'">
           <div
             v-for="(r, i) in roomsByCeiling"
@@ -646,7 +630,6 @@ function fieldStyle(field: FieldId) {
           </div>
         </template>
 
-        <!-- light -->
         <template v-else-if="focusField === 'light'">
           <div
             v-for="(r, i) in roomsByLight"
@@ -775,7 +758,5 @@ function fieldStyle(field: FieldId) {
         </button>
       </div>
     </div>
-
-    <!-- Tour: подсветка поля убрана (v4) — вместо рамки dim/focus в fieldStyle -->
   </div>
 </template>

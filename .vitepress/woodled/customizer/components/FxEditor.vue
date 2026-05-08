@@ -4,6 +4,9 @@
  *
  * Fix 6: Патроны — repeat(3, 1fr).
  * Fix 7: Хедер заменён на NavHeader (единый стиль).
+ *
+ * batch7 #2: «Смарт-подбор» → «WOODLED Smart» (заголовок секции в шаге size,
+ *            заголовок help-модалки).
  */
 
 import { computed, ref } from 'vue'
@@ -247,7 +250,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
         <div :style="{background:T.card,border:`1px solid ${T.border}`,borderRadius:'12px',padding:'16px'}">
           <div v-if="curStep==='size'&&families">
             <div v-if="hasRoomContext" :style="{textAlign:'center',marginBottom:'14px'}">
-              <div :style="{fontSize:'18px',fontWeight:800,color:T.text,letterSpacing:'.3px',marginBottom:'6px'}">Смарт-подбор</div>
+              <div :style="{fontSize:'18px',fontWeight:800,color:T.text,letterSpacing:'.3px',marginBottom:'6px'}">WOODLED Smart</div>
               <div v-if="recommendedMid" :style="{fontSize:'13px',color:T.textSec,fontWeight:500,marginBottom:'8px'}">Рекомендация — <span :style="{fontWeight:700,color:T.text}">{{ MD[recommendedMid].name }}</span></div>
               <button :style="{display:'inline-flex',alignItems:'center',gap:'6px',padding:'6px 14px',borderRadius:'14px',background:T.neutral+'22',border:`1px solid ${T.neutral}55`,color:T.text,cursor:'pointer',fontSize:'12px',fontWeight:500}" @click="showHelp=true"><span :style="{width:'16px',height:'16px',borderRadius:'50%',background:T.neutral,color:T.bg,display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:'10px',fontWeight:800}">?</span><span>Как подбирается размер</span></button>
             </div>
@@ -298,7 +301,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
         <div :style="{padding:'20px 20px 16px'}">
           <div :style="{display:'flex',justifyContent:'center',padding:'20px 0 14px'}"><div class="rotor-hero" aria-hidden="true"><div v-for="i in 16" :key="i" class="rotor-hero-l" :style="{'--rot': ((i-1)/16*360)+'deg', animationDelay: ((i-1)*40)+'ms'}" /></div></div>
           <div :style="{textAlign:'center',marginBottom:'24px'}">
-            <div :style="{fontSize:'10px',fontWeight:700,color:T.neutral,letterSpacing:'1.5px',marginBottom:'8px'}">СМАРТ-ПОДБОР</div>
+            <div :style="{fontSize:'10px',fontWeight:700,color:T.neutral,letterSpacing:'1.5px',marginBottom:'8px'}">WOODLED SMART</div>
             <div :style="{fontSize:'22px',fontWeight:800,color:T.text,lineHeight:1.2,marginBottom:'10px'}">Как подбирается<br/>размер светильника</div>
             <div :style="{fontSize:'13px',color:T.textSec,lineHeight:1.6,maxWidth:'340px',margin:'0 auto'}">Алгоритм WOODLED сравнивает яркость всех светильников в комнате с нормой и подсказывает лучшее сочетание.</div>
           </div>
