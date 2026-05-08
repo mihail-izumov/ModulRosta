@@ -28,6 +28,7 @@ import { useConfigurator } from '../store/configurator'
 import Icon from './ui/Icons.vue'
 import Modal from './ui/Modal.vue'
 import NavHeader from './ui/NavHeader.vue'
+import SmartHelpModal from './ui/SmartHelpModal.vue'
 import MoodBlock from './MoodBlock.vue'
 import ZoneCard from './ZoneCard.vue'
 import FurnitureBlock from './FurnitureBlock.vue'
@@ -120,11 +121,11 @@ const showSmartHelp = ref(false)
 const smartLine = computed(() => {
   const r = ratio.value
   const rx = r.toFixed(2).replace(/\.?0+$/, '')
-  if (r <= 0.5) return `${rx}× — добавьте светильники`
-  if (r <= 0.8) return `${rx}× — добавьте бра или торшер`
-  if (r <= 2.0) return `${rx}× — ничего менять не нужно`
-  if (r <= 4.0) return `${rx}× — поставьте диммер`
-  return `${rx}× — уберите лишнее или диммер`
+  if (r <= 0.5) return `${rx} — добавьте светильники`
+  if (r <= 0.8) return `${rx} — добавьте бра или торшер`
+  if (r <= 2.0) return `${rx} — ничего менять не нужно`
+  if (r <= 4.0) return `${rx} — поставьте диммер`
+  return `${rx} — уберите лишнее или диммер`
 })
 
 function onLimitHit(zId: ZoneId) {
@@ -269,10 +270,10 @@ function onShowMoodDetail() {
             :style="{
               padding: '6px 12px',
               borderRadius: '8px',
-              background: bright.color + '22',
+              background: tintedMood.color + '22',
               fontSize: '12px',
               fontWeight: 700,
-              color: bright.color,
+              color: tintedMood.color,
               flexShrink: 0,
             }"
           >
@@ -285,30 +286,40 @@ function onShowMoodDetail() {
           :style="{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '10px',
             marginTop: '10px',
-            padding: '5px 10px',
-            borderRadius: '8px',
+            padding: '5px 6px 5px 5px',
+            borderRadius: '999px',
             background: tintedMood.color + '10',
           }"
         >
-          <div class="rotor-dash" :style="{ '--rc': tintedMood.color }" aria-hidden="true">
-            <div v-for="i in 10" :key="i" class="rotor-dash-l" :style="{ '--rot': ((i - 1) / 10 * 360) + 'deg', animationDelay: ((i - 1) * 30) + 'ms' }" />
-          </div>
-          <div :style="{ fontSize: '10px', color: tintedMood.color + 'bb', flex: 1, fontWeight: 500 }">
-            {{ smartLine }}
-          </div>
           <button
             :style="{
-              padding: '3px 8px', borderRadius: '6px',
-              background: tintedMood.color + '18',
-              border: `1px solid ${tintedMood.color}33`,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '7px',
+              padding: '6px 14px 6px 9px',
+              borderRadius: '999px',
+              background: tintedMood.color + '22',
+              border: 'none',
               color: tintedMood.color,
-              cursor: 'pointer', fontSize: '9px', fontWeight: 600,
-              flexShrink: 0, whiteSpace: 'nowrap',
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontWeight: 700,
+              fontFamily: 'inherit',
+              flexShrink: 0,
+              whiteSpace: 'nowrap',
             }"
             @click="showSmartHelp = true"
-          >WOODLED Smart</button>
+          >
+            <div class="rotor-dash" :style="{ '--rc': tintedMood.color }" aria-hidden="true">
+              <div v-for="i in 10" :key="i" class="rotor-dash-l" :style="{ '--rot': ((i - 1) / 10 * 360) + 'deg', animationDelay: ((i - 1) * 30) + 'ms' }" />
+            </div>
+            WOODLED Smart
+          </button>
+          <div :style="{ fontSize: '12px', color: tintedMood.color + 'cc', flex: 1, fontWeight: 500, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }">
+            {{ smartLine }}
+          </div>
         </div>
       </div>
 
@@ -481,40 +492,7 @@ function onShowMoodDetail() {
 
     <span v-show="false">{{ Icon }}</span>
 
-    <Teleport to="body">
-      <div v-if="showSmartHelp" :style="{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,.75)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }" @click.self="showSmartHelp = false">
-        <div :style="{ width: '100%', maxWidth: '480px', maxHeight: '92vh', overflow: 'auto', background: T.bg, borderTopLeftRadius: '18px', borderTopRightRadius: '18px', borderTop: `1px solid ${T.border}` }">
-          <div :style="{ padding: '20px 20px 16px' }">
-            <div :style="{ display: 'flex', justifyContent: 'center', padding: '20px 0 14px' }">
-              <div class="rotor-hero" aria-hidden="true">
-                <div v-for="i in 16" :key="i" class="rotor-hero-l" :style="{ '--rot': ((i-1)/16*360) + 'deg', animationDelay: ((i-1)*40) + 'ms' }" />
-              </div>
-            </div>
-            <div :style="{ textAlign: 'center', marginBottom: '24px' }">
-              <div :style="{ fontSize: '10px', fontWeight: 700, color: T.neutral, letterSpacing: '1.5px', marginBottom: '8px' }">WOODLED SMART</div>
-              <div :style="{ fontSize: '22px', fontWeight: 800, color: T.text, lineHeight: 1.2, marginBottom: '10px' }">Как подбирается<br/>размер светильника</div>
-              <div :style="{ fontSize: '13px', color: T.textSec, lineHeight: 1.6, maxWidth: '340px', margin: '0 auto' }">Алгоритм WOODLED сравнивает яркость всех светильников в комнате с нормой и подсказывает лучшее сочетание.</div>
-            </div>
-            <div :style="{ marginBottom: '24px' }">
-              <div :style="{ fontSize: '12px', fontWeight: 700, color: T.textSec, textTransform: 'uppercase', letterSpacing: '.8px', marginBottom: '10px' }">Что означают статусы</div>
-              <div :style="{ display: 'flex', flexDirection: 'column', gap: '6px' }">
-                <div v-for="row in [
-                  { label: 'Не хватает', color: T.red, desc: '< 50% нормы. Тёмная комната.' },
-                  { label: 'Приглушённо', color: T.yellow, desc: '50–80%. Для атмосферы, но не для работы.' },
-                  { label: 'Комфортно', color: T.green, desc: '80–200%. Целевой диапазон для жизни.' },
-                  { label: 'С запасом', color: T.neutral, desc: '200–400%. Хорошо с диммером.' },
-                  { label: 'Избыточно', color: T.textDim, desc: '> 400%. Слишком ярко без диммера.' },
-                ]" :key="row.label" :style="{ padding: '10px 12px', background: T.card, border: `1px solid ${T.border}`, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '10px' }">
-                  <div :style="{ padding: '4px 10px', borderRadius: '6px', background: row.color + '22', color: row.color, fontSize: '11px', fontWeight: 700, whiteSpace: 'nowrap', minWidth: '92px', textAlign: 'center' }">{{ row.label }}</div>
-                  <div :style="{ fontSize: '12px', color: T.textSec, lineHeight: 1.4, flex: 1 }">{{ row.desc }}</div>
-                </div>
-              </div>
-            </div>
-            <button :style="{ width: '100%', padding: '14px', background: T.text, color: T.bg, border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '14px', fontWeight: 700, marginBottom: '12px' }" @click="showSmartHelp = false">Супер!</button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <SmartHelpModal v-if="showSmartHelp" @close="showSmartHelp = false" />
   </div>
 </template>
 
@@ -536,19 +514,6 @@ function onShowMoodDetail() {
   90%  { transform: rotate(var(--rot)) translateY(-14px) scale(0.3); opacity: 0; }
   100% { transform: rotate(var(--rot)) translateY(-14px) scale(0.3); opacity: 0; }
 }
-.rotor-hero { width: 100px; height: 100px; position: relative; animation: rotorHeroSpin 18s linear infinite; }
-.rotor-hero-l {
-  position: absolute; top: 50%; left: 50%;
-  width: 3px; height: 22px; margin: -11px 0 0 -1.5px;
-  border-radius: 2px;
-  background: linear-gradient(to bottom, #d4b87a, #b4915a, #8a6e3e);
-  transform-origin: 50% 50%;
-  animation: rotorHeroAssemble 3500ms ease-in-out infinite;
-  opacity: 0;
-}
-@keyframes rotorHeroSpin { to { transform: rotate(360deg); } }
-@keyframes rotorHeroAssemble {
-  0%   { transform: rotate(var(--rot)) translateY(-70px) scale(0.4); opacity: 0; }
   20%  { transform: rotate(var(--rot)) translateY(-32px) scale(1);   opacity: 0.9; }
   70%  { transform: rotate(var(--rot)) translateY(-32px) scale(1);   opacity: 0.9; }
   85%  { transform: rotate(var(--rot)) translateY(-70px) scale(0.4); opacity: 0; }

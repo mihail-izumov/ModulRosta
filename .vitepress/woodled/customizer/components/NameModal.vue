@@ -77,7 +77,7 @@ function save() {
             lineHeight: 1.4,
           }"
         >
-          Какой дом — такое настроение
+          Какой свет — такой дом
         </div>
         <input
           v-model="v"

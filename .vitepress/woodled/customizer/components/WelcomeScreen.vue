@@ -4,6 +4,11 @@
  *
  * Fix 9: Убран текст «Система освещения...», «Делитесь...» белым жирным,
  *         заменён subtitle раздела «Пространство для света».
+ *
+ * batch8 #4: В кнопке «Создать с чистого листа» справа от текста добавлена
+ *            анимация rotor-dash (тот же паттерн что в кнопке WOODLED Smart
+ *            на dashboard-блоке RoomDetail). Цвет ламелей — T.bg (тёмный),
+ *            чтобы читался на бежевой кнопке T.text.
  */
 
 import { computed } from 'vue'
@@ -18,7 +23,6 @@ const cfg = useConfigurator()
 
 const WOOD_COUNTS: Record<Wood, number> = { oak: 4674, walnut: 1960, black: 551 }
 const WOOD_TOTAL = 7185
-const COMMUNITY_TOTAL = '10 000+'
 const WOOD_ORDER: readonly Wood[] = ['oak', 'walnut', 'black'] as const
 const WOOD_NAMES: Record<Wood, string> = {
   oak: 'Дуб',
@@ -219,7 +223,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
       boxSizing: 'border-box',
     }"
   >
-    <!-- Логотип -->
     <div
       :style="{
         marginBottom: '24px',
@@ -245,7 +248,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
       />
     </div>
 
-    <!-- H1 -->
     <div
       :style="{
         textAlign: 'center',
@@ -259,7 +261,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
       {{ formatNum(WOOD_TOTAL) }} деревьев<br />продолжают светить<br />в&nbsp;ваших домах
     </div>
 
-    <!-- Подзаголовок — Fix 9: убран «Система освещения...», «Делитесь...» белый жирный -->
     <div
       :style="{
         textAlign: 'center',
@@ -276,7 +277,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
       <span :style="{ color: '#fff', fontWeight: 700 }">Делитесь с друзьями. Возвращайтесь когда удобно.</span>
     </div>
 
-    <!-- HonorBoard -->
     <div :style="honorBoardStyle()">
       <div
         v-for="w in WOOD_ORDER"
@@ -324,7 +324,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
       </div>
     </div>
 
-    <!-- OnboardingLinkCard -->
     <a
       href="https://runscale.ru/woodled/onboarding"
       :style="onboardingLinkStyle()"
@@ -355,7 +354,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
       </svg>
     </a>
 
-    <!-- SectionTitle -->
     <div
       :style="{
         textAlign: 'center',
@@ -370,7 +368,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
       Пространство для света
     </div>
 
-    <!-- SectionSubtitle — Fix 9: новый текст -->
     <div
       :style="{
         textAlign: 'center',
@@ -387,7 +384,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
       и их расположение в доме. Начните с выбора площади – остальное настроете под себя дальше.
     </div>
 
-    <!-- SubLabel -->
     <div
       :style="{
         fontSize: '10px',
@@ -402,7 +398,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
       {{ SECTION_LABEL }}
     </div>
 
-    <!-- Карточки шаблонов -->
     <div :style="{ display: 'flex', flexDirection: 'column' }">
       <button
         v-for="c in cards"
@@ -561,7 +556,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
       </button>
     </div>
 
-    <!-- «или» -->
     <div
       :style="{
         display: 'flex',
@@ -585,12 +579,14 @@ const SECTION_LABEL = 'Какой размер ближе?'
       <div :style="{ flex: 1, height: '1px', background: T.border }" />
     </div>
 
-    <!-- EmptyButton -->
+    <!-- batch8 #4: rotor-dash иконка справа от текста.
+         Цвет ламелей T.bg (тёмный) — читается на бежевой кнопке T.text. -->
     <button
       :style="{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: '12px',
         width: '100%',
         padding: '16px',
         background: T.text,
@@ -609,6 +605,17 @@ const SECTION_LABEL = 'Какой размер ближе?'
       @click="startEmpty"
     >
       Создать с чистого листа
+      <div class="welcome-rotor" :style="{ '--rc': T.bg }" aria-hidden="true">
+        <div
+          v-for="i in 10"
+          :key="i"
+          class="welcome-rotor-l"
+          :style="{
+            '--rot': ((i - 1) / 10 * 360) + 'deg',
+            animationDelay: ((i - 1) * 30) + 'ms',
+          }"
+        />
+      </div>
     </button>
   </div>
 </template>
@@ -632,5 +639,37 @@ const SECTION_LABEL = 'Какой размер ближе?'
       0 0 56px var(--orb-glow-peak-soft, rgba(196, 164, 108, 0.22)),
       0 6px 18px rgba(0, 0, 0, 0.45);
   }
+}
+</style>
+
+<style scoped>
+/* batch8 #4: rotor-dash anim для CTA-кнопки. Тот же паттерн что в
+   dashboard-блоке RoomDetail, но локально в этом файле — общего
+   shared CSS у проекта нет (конвенция inline :style). */
+.welcome-rotor {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  flex-shrink: 0;
+}
+.welcome-rotor-l {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.5px;
+  height: 5px;
+  margin: -2.5px 0 0 -.75px;
+  border-radius: 1px;
+  background: var(--rc, #b4915a);
+  transform-origin: 50% 50%;
+  animation: welcomeRotorCycle 5000ms ease-in-out infinite;
+  opacity: 0;
+}
+@keyframes welcomeRotorCycle {
+  0%   { transform: rotate(var(--rot)) translateY(-14px) scale(0.3); opacity: 0; }
+  5%   { transform: rotate(var(--rot)) translateY(-7px)  scale(1);   opacity: 0.85; }
+  80%  { transform: rotate(var(--rot)) translateY(-7px)  scale(1);   opacity: 0.85; }
+  90%  { transform: rotate(var(--rot)) translateY(-14px) scale(0.3); opacity: 0; }
+  100% { transform: rotate(var(--rot)) translateY(-14px) scale(0.3); opacity: 0; }
 }
 </style>
