@@ -318,9 +318,4 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
   90%  { transform: rotate(var(--rot)) translateY(-22px) scale(0.3); opacity: 0; }
   100% { transform: rotate(var(--rot)) translateY(-22px) scale(0.3); opacity: 0; }
 }
-  20%  { transform: rotate(var(--rot)) translateY(-32px) scale(1);   opacity: 0.9; }
-  70%  { transform: rotate(var(--rot)) translateY(-32px) scale(1);   opacity: 0.9; }
-  85%  { transform: rotate(var(--rot)) translateY(-70px) scale(0.4); opacity: 0; }
-  100% { transform: rotate(var(--rot)) translateY(-70px) scale(0.4); opacity: 0; }
-}
 </style>
