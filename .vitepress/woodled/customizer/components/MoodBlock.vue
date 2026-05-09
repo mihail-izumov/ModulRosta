@@ -79,8 +79,6 @@ const progressArc = computed(() => {
         :viewBox="`0 0 280 ${SVG_H}`"
         :style="{
           width: '100%',
-          height: 'auto',
-          aspectRatio: `280 / ${SVG_H}`,
           display: 'block',
           overflow: 'visible',
         }"

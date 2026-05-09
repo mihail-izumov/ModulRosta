@@ -36,7 +36,7 @@ const btnStyle = computed(() => {
   if (isScrolled.value) {
     return {
       background: T.neutral,
-      border: 'none',
+      border: '1px solid transparent',
       borderRadius: '8px',
       padding: '6px 8px',
       cursor: 'pointer',
