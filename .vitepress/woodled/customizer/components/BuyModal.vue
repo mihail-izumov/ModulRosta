@@ -1,8 +1,19 @@
 <script setup lang="ts">
 /**
- * BuyModal.vue — «Мой лес» (v3).
+ * BuyModal.vue — «Мой Лес» (v3).
  *
  * Fix 7: Хедеры заменены на NavHeader (единый стиль).
+ *
+ * batch10 #5: Блок «Посмотрите на свой лес» обёрнут в GradientRing —
+ *   тонкий вращающийся colored ring 3px по периметру кремового панеля.
+ *
+ * batch10 #5 v2:
+ *   - Градиент перенесён ВНУТРЬ панеля (ring=0) — обводки больше нет,
+ *     conic-gradient является фоном панеля. Кремовый PANEL_BG убран,
+ *     остались только полупрозрачные radial-sheen для glass-эффекта,
+ *     сквозь них просвечивает вращающийся conic.
+ *   - Подзаголовок «Узнайте, какой свет вы создали» приведён к стилю
+ *     подписи в блоке параметров комнаты: 13px, fontWeight 600.
  */
 
 import { computed, ref, reactive } from 'vue'
@@ -14,8 +25,8 @@ import { getRT, type Room } from '../data/rooms'
 import { useConfigurator } from '../store/configurator'
 import Icon, { fxIcName } from './ui/Icons.vue'
 import NavHeader from './ui/NavHeader.vue'
+import GradientRing from './ui/GradientRing.vue'
 
-const PANEL_BG = '#EAE0CA'
 const PANEL_FG = T.bg
 
 const cfg = useConfigurator()
@@ -38,6 +49,11 @@ const expandedRooms = reactive<Record<string, boolean>>({})
 function isExpanded(roomId: string): boolean { return expandedRooms[roomId] !== false }
 function toggleRoom(roomId: string) { expandedRooms[roomId] = !isExpanded(roomId) }
 
+/** batch10 #5: цвета всех комнат для GradientRing. */
+const roomColors = computed<string[]>(() =>
+  props.rooms.map((r) => r.cardColor).filter((c): c is string => !!c),
+)
+
 function toggleDiscountMode() { if (discountMode.value) { discountMode.value = false; discountFx.value = null } else { discountMode.value = true } }
 function toggleDiscount(roomId: string, fxIdx: number) { const sel = discountFx.value; if (sel && sel.roomId === roomId && sel.fxIdx === fxIdx) { discountFx.value = null } else { discountFx.value = { roomId, fxIdx } } }
 function isDiscounted(roomId: string, fxIdx: number): boolean { const sel = discountFx.value; return !!sel && sel.roomId === roomId && sel.fxIdx === fxIdx }
@@ -54,8 +70,23 @@ function goToFirstRoom() { if (cfg.rooms.length > 0) { cfg.showBuy.value = false
 function submitList() { step.value = 'form' }
 function submitForm() { if (!contact.value.phone) { emit('feedback', 'Укажите телефон'); return }; step.value = 'done' }
 
+/**
+ * batch10 #5 v2: PANEL_BG (#EAE0CA) убран — фон формирует вращающийся
+ * conic-gradient из GradientRing. Остались только полупрозрачные
+ * radial-sheen для glass-эффекта поверх него.
+ */
 function storyLinkStyle() {
-  return { background: `radial-gradient(ellipse 90% 70% at 20% 0%, rgba(255,255,255,0.38), transparent 55%), radial-gradient(ellipse 70% 60% at 85% 95%, rgba(19,17,14,0.06), transparent 60%), ${PANEL_BG}`, border: '1px solid rgba(255,255,255,0.22)', boxShadow: `inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 3px rgba(19,17,14,0.04), 0 4px 20px rgba(0,0,0,0.28)`, borderRadius: '12px', padding: '14px 16px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }
+  return {
+    background: `radial-gradient(ellipse 90% 70% at 20% 0%, rgba(255,255,255,0.38), transparent 55%), radial-gradient(ellipse 70% 60% at 85% 95%, rgba(19,17,14,0.06), transparent 60%)`,
+    border: '1px solid rgba(255,255,255,0.22)',
+    boxShadow: `inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 3px rgba(19,17,14,0.04), 0 4px 20px rgba(0,0,0,0.28)`,
+    borderRadius: '12px',
+    padding: '14px 16px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  }
 }
 function fxCardStyle(roomId: string, fxIdx: number) {
   const sel = isDiscounted(roomId, fxIdx)
@@ -80,7 +111,7 @@ function woodBadgeStyle(woodColor: string) {
 
   <!-- ═══ ШАГ 2: form ═══ -->
   <div v-else-if="step === 'form'" :style="{ position: 'fixed', inset: 0, background: T.bg, zIndex: Z.fullscreenModal, overflow: 'auto' }">
-    <NavHeader title="Оставить заявку" back="Мой лес" @back="step = 'list'" />
+    <NavHeader title="Оставить заявку" back="Мой Лес" @back="step = 'list'" />
     <div :style="{ padding: '20px', maxWidth: '400px', margin: '0 auto' }">
       <div v-if="discountDetails" :style="{ background: T.green + '12', borderRadius: '10px', padding: '14px', marginBottom: '20px', border: `1px solid ${T.green}22` }">
         <div :style="{ display: 'flex', alignItems: 'center', gap: '10px' }">
@@ -98,13 +129,21 @@ function woodBadgeStyle(woodColor: string) {
 
   <!-- ═══ ШАГ 1: list ═══ -->
   <div v-else :style="{ position: 'fixed', inset: 0, background: T.bg, zIndex: Z.fullscreenModal, overflow: 'auto' }">
-    <NavHeader title="Мой лес" back="Домой" @back="emit('close')" />
+    <NavHeader title="Мой Лес" back="Домой" @back="emit('close')" />
 
     <div :style="{ padding: '16px', maxWidth: '480px', margin: '0 auto' }">
-      <div v-if="filledRooms.length > 0" :style="storyLinkStyle()" @click="emit('story')">
-        <div :style="{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(19,17,14,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }"><Icon name="trees" :color="PANEL_FG" :size="22" /></div>
-        <div :style="{ flex: 1 }"><div :style="{ fontSize: '15px', fontWeight: 600, color: PANEL_FG }">Посмотрите на свой лес</div><div :style="{ fontSize: '11px', color: PANEL_FG, opacity: 0.55, marginTop: '-1px' }">Узнайте, какой свет вы создали</div></div>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" :stroke="PANEL_FG" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" :style="{ flexShrink: 0 }"><polyline points="9 6 15 12 9 18" /></svg>
+      <!-- batch10 #5 v2: GradientRing с ring=0 — градиент ВНУТРИ панеля. -->
+      <div v-if="filledRooms.length > 0" :style="{ marginBottom: '20px' }">
+        <GradientRing :colors="roomColors" :border-radius="12" :ring="0">
+          <div :style="storyLinkStyle()" @click="emit('story')">
+            <div :style="{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(19,17,14,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }"><Icon name="trees" :color="PANEL_FG" :size="22" /></div>
+            <div :style="{ flex: 1 }">
+              <div :style="{ fontSize: '15px', fontWeight: 600, color: PANEL_FG }">Посмотрите на свой лес</div>
+              <div :style="{ fontSize: '13px', fontWeight: 600, color: PANEL_FG, opacity: 0.55, marginTop: '-1px' }">Узнайте, какой свет вы создали</div>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" :stroke="PANEL_FG" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" :style="{ flexShrink: 0 }"><polyline points="9 6 15 12 9 18" /></svg>
+          </div>
+        </GradientRing>
       </div>
 
       <div :style="{ textAlign: 'center', marginBottom: '16px', fontSize: '16px', fontWeight: 700, color: T.text }">Освещение в доме</div>
