@@ -87,8 +87,8 @@ function storyLinkStyle() {
 }
 function fxCardStyle(roomId: string, fxIdx: number) {
   const sel = isDiscounted(roomId, fxIdx)
-  /* batch11 #1 v5: borderRadius 12 (как у иконки/панелей), padding right удвоен (6→12) */
-  return { width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 12px 6px 6px', background: sel ? 'rgba(255,255,255,0.05)' : T.card, border: `1px solid ${sel ? 'rgba(255,255,255,0.15)' : T.border}`, borderRadius: '12px', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'background 0.15s, border-color 0.15s' }
+  /* batch11 #2: borderRadius 8 — заметно меньше панели «Итого» (12) */
+  return { width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 12px 6px 6px', background: sel ? 'rgba(255,255,255,0.05)' : T.card, border: `1px solid ${sel ? 'rgba(255,255,255,0.15)' : T.border}`, borderRadius: '8px', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'background 0.15s, border-color 0.15s' }
 }
 function woodBadgeStyle(woodColor: string) {
   /* batch11 #1 v5: padding 0px вертикальный + 6/4 горизонтальный — бейдж ещё компактнее */
@@ -121,7 +121,8 @@ function woodBadgeStyle(woodColor: string) {
       <div :style="{ marginBottom: '14px' }"><div :style="{ fontSize: '11px', color: T.text, marginBottom: '6px', fontWeight: 600 }">Имя</div><input v-model="contact.name" placeholder="Как к вам обращаться" :style="{ width: '100%', padding: '10px 12px', background: T.card, border: `1px solid ${T.border}`, borderRadius: '6px', color: T.text, fontSize: '14px', outline: 'none', boxSizing: 'border-box' }" /></div>
       <div :style="{ marginBottom: '14px' }"><div :style="{ fontSize: '11px', color: T.text, marginBottom: '6px', fontWeight: 600 }">Телефон</div><input v-model="contact.phone" type="tel" placeholder="+7" :style="{ width: '100%', padding: '10px 12px', background: T.card, border: `1px solid ${T.border}`, borderRadius: '6px', color: T.text, fontSize: '14px', outline: 'none', boxSizing: 'border-box' }" /></div>
       <div :style="{ marginBottom: '20px' }"><div :style="{ fontSize: '11px', color: T.text, marginBottom: '6px', fontWeight: 600 }">Комментарий</div><textarea v-model="contact.comment" placeholder="Вопросы, пожелания" rows="3" :style="{ width: '100%', padding: '10px 12px', background: T.card, border: `1px solid ${T.border}`, borderRadius: '6px', color: T.text, fontSize: '14px', outline: 'none', boxSizing: 'border-box', resize: 'none' }" /></div>
-      <button :style="{ width: '100%', padding: '14px', background: '#FFFFFF', color: T.bg, border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }" @click="submitForm">Отправить план леса</button>
+      <!-- batch11 #2 (#9): кнопка +3 кегля, padding пропорционально -->
+      <button :style="{ width: '100%', padding: '18px', background: '#FFFFFF', color: T.bg, border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '17px', fontFamily: 'inherit' }" @click="submitForm">Отправить план леса</button>
       <div :style="{ fontSize: '11px', color: T.textDim, marginTop: '10px', textAlign: 'center' }">Консультант свяжется в течение часа</div>
     </div>
   </div>
@@ -145,7 +146,8 @@ function woodBadgeStyle(woodColor: string) {
         </GradientFill>
       </div>
 
-      <div :style="{ textAlign: 'center', marginBottom: '16px', fontSize: '16px', fontWeight: 700, color: T.text }">Освещение в доме</div>
+      <!-- batch11 #2 (#10): 2 строки, font ~2x — доминирует на странице, но воздух остаётся -->
+      <div :style="{ textAlign: 'center', marginTop: '8px', marginBottom: '24px', fontSize: '32px', fontWeight: 700, color: T.text, lineHeight: 1.1 }">Освещение<br/>в доме</div>
 
       <div v-if="filledRooms.length > 0" :style="{ background: T.card, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '14px 16px', marginBottom: '20px' }">
         <div :style="{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }">
@@ -156,10 +158,14 @@ function woodBadgeStyle(woodColor: string) {
           </div>
         </div>
         <div :style="{ height: '1px', background: T.border, marginBottom: '12px' }" />
-        <div :style="{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '4px 0' }" @click="toggleDiscountMode">
-          <div :style="{ width: '30px', height: '30px', borderRadius: '7px', background: discountMode ? 'rgba(255,255,255,0.1)' : T.neutral + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }"><Icon name="gift" :color="discountMode ? T.text : T.neutral" :size="15" /></div>
-          <div :style="{ flex: 1 }"><div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">Скидка 3 000 ₽</div><div :style="{ fontSize: '11px', color: T.textSec }">{{ discountMode ? (discountApplied ? 'Применена' : 'Выберите светильник') : 'На первый светильник' }}</div></div>
-          <div :style="{ width: '38px', height: '22px', borderRadius: '11px', background: discountMode ? T.text : T.textDim + '44', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }"><div :style="{ width: '16px', height: '16px', borderRadius: '50%', background: discountMode ? T.bg : '#888', position: 'absolute', top: '3px', left: discountMode ? '19px' : '3px', transition: 'left 0.2s' }" /></div>
+        <!-- batch11 #2 (#4-#8): иконка подарка 48×48 как у светильников, тексты в стиле «Посмотрите на свой лес», слайдер 2x жемчужный -->
+        <div :style="{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', padding: '4px 0' }" @click="toggleDiscountMode">
+          <div :style="{ width: '48px', height: '48px', borderRadius: '12px', background: discountMode ? 'rgba(255,255,255,0.1)' : T.neutral + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s', flexShrink: 0 }"><Icon name="gift" :color="discountMode ? T.text : T.neutral" :size="24" /></div>
+          <div :style="{ flex: 1 }">
+            <div :style="{ fontSize: '15px', fontWeight: 600, color: T.text }">Скидка 3 000 ₽</div>
+            <div :style="{ fontSize: '13px', fontWeight: 600, color: T.textSec, marginTop: '-1px' }">{{ discountMode ? (discountApplied ? 'Применена' : 'Выберите светильник') : 'На первый светильник' }}</div>
+          </div>
+          <div :style="{ width: '76px', height: '44px', borderRadius: '22px', background: discountMode ? T.text : T.text + '22', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }"><div :style="{ width: '32px', height: '32px', borderRadius: '50%', background: discountMode ? T.bg : T.text + '88', position: 'absolute', top: '6px', left: discountMode ? '38px' : '6px', transition: 'left 0.2s' }" /></div>
         </div>
       </div>
 
@@ -167,10 +173,12 @@ function woodBadgeStyle(woodColor: string) {
         <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', cursor: 'pointer' }" @click="toggleRoom(r.id)">
           <div :style="{ display: 'flex', alignItems: 'center', gap: '8px' }">
             <span :style="{ fontSize: '14px', fontWeight: 600, color: T.text }">{{ r.customName || getRT(r.typeId).name }}</span>
-            <span :style="{ fontSize: '10px', fontWeight: 500, color: T.textDim, border: `1px solid ${T.border}`, borderRadius: '10px', padding: '1px 7px', lineHeight: '16px' }">{{ fxCount(r) }} шт</span>
+            <!-- batch11 #2: бабл шт крупнее, font +2 кегля -->
+            <span :style="{ fontSize: '12px', fontWeight: 500, color: T.textDim, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '2px 10px', lineHeight: '18px' }">{{ fxCount(r) }} шт</span>
           </div>
           <div :style="{ display: 'flex', alignItems: 'center', gap: '8px' }">
-            <span :style="{ fontSize: '13px', fontWeight: 500, color: T.textDim }">{{ roomTotal(r).toLocaleString('ru-RU') }} ₽</span>
+            <!-- batch11 #2: цена комнаты +2 кегля -->
+            <span :style="{ fontSize: '15px', fontWeight: 500, color: T.textDim }">{{ roomTotal(r).toLocaleString('ru-RU') }} ₽</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" :stroke="T.textDim" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :style="{ transition: 'transform 0.25s ease', transform: isExpanded(r.id) ? 'rotate(180deg)' : 'rotate(0)' }"><polyline points="6 9 12 15 18 9" /></svg>
           </div>
         </div>
@@ -204,7 +212,8 @@ function woodBadgeStyle(woodColor: string) {
       <div v-if="filledRooms.length > 0" :style="{ marginTop: '32px', textAlign: 'center', paddingBottom: '32px' }">
         <div :style="{ fontSize: '18px', fontWeight: 700, color: T.text, marginBottom: '10px' }">Лес собран</div>
         <div :style="{ fontSize: '14px', fontWeight: 600, color: T.text, lineHeight: 1.5, marginBottom: '24px' }">Отправьте план —<br />дерево засветит у вас дома</div>
-        <button :style="{ width: '100%', padding: '14px', background: '#FFFFFF', color: T.bg, border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit' }" @click="submitList">Отправить план леса</button>
+        <!-- batch11 #2 (#9): кнопка +3 кегля, padding пропорционально -->
+        <button :style="{ width: '100%', padding: '18px', background: '#FFFFFF', color: T.bg, border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '17px', fontFamily: 'inherit' }" @click="submitList">Отправить план леса</button>
         <div :style="{ fontSize: '12px', color: T.textSec, lineHeight: 1.6, maxWidth: '320px', margin: '14px auto 0' }">Специалист WOODLED получит ваш план освещения и комплектацию каждого светильника.</div>
       </div>
     </div>
