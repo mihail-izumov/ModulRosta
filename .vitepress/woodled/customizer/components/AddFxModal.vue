@@ -4,9 +4,13 @@
  *
  * v3: Вертикальные карточки 3:4 с фото, автослайдер,
  *     сегменты, «Уже в {комнате}» оверлей.
+ *
+ * batch9 #7: Убраны hidden preload <img> из шаблона — на iOS Safari
+ *   display:none img иногда резервирует место, создавая белую полосу.
+ *   Заменено на JS-preload через new Image() в watch на groups.
  */
 
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
 import { T } from '../theme/tokens'
 import {
   MD, ALL_ZONES, FAMILIES,
@@ -194,6 +198,27 @@ function isReady(g: Group): boolean {
   return readyGroups.value.has(g.family ?? g.models[0])
 }
 
+/**
+ * batch9 #7: JS-preload вместо hidden <img> в DOM.
+ * new Image() не создаёт DOM-элемент → нет белой полосы на iOS Safari.
+ * onload/onerror оба вызывают onPhotoLoad чтобы не блокировать UI.
+ */
+function preloadGroupPhotos(groupList: Group[]) {
+  for (const g of groupList) {
+    const [src1, src2] = collectionPhotos(g)
+    for (const src of [src1, src2]) {
+      if (loadedPhotos.value.has(src)) continue
+      const img = new Image()
+      img.onload = () => onPhotoLoad(src)
+      img.onerror = () => onPhotoLoad(src)
+      img.src = src
+    }
+  }
+}
+
+// Запуск preload при появлении групп
+watch(groups, (gs) => { preloadGroupPhotos(gs) }, { immediate: true })
+
 // Каждые 5с (= конец цикла анимации) проверяем загруженные группы
 let cycleTimer: ReturnType<typeof setInterval> | null = null
 
@@ -207,7 +232,7 @@ onMounted(() => {
         changed = true
       }
     }
-  }, 5000) // точно на границе цикла анимации
+  }, 5000)
 })
 onUnmounted(() => { if (cycleTimer) clearInterval(cycleTimer) })
 
@@ -251,7 +276,7 @@ function cardPhase(idx: number): number {
         Коллекции WOODLED
       </div>
 
-      <!-- Segment indicators — скрываем при одной карточке -->
+      <!-- Segment indicators -->
       <div v-if="groups.length > 1" :style="{ display: 'flex', justifyContent: 'center', gap: '5px', padding: '0 24px 14px' }">
         <button
           v-for="(_, i) in groups"
@@ -318,9 +343,7 @@ function cardPhase(idx: number): number {
                   <div v-for="j in 12" :key="j" class="rotor-load-l" :style="{'--rot': ((j-1)/12*360)+'deg', animationDelay: ((j-1)*30)+'ms'}" />
                 </div>
               </div>
-              <!-- Hidden preload imgs -->
-              <img :src="collectionPhotos(g)[0]" alt="" :style="{display:'none'}" @load="onPhotoLoad(collectionPhotos(g)[0])" @error="onPhotoLoad(collectionPhotos(g)[0])" />
-              <img :src="collectionPhotos(g)[1]" alt="" :style="{display:'none'}" @load="onPhotoLoad(collectionPhotos(g)[1])" @error="onPhotoLoad(collectionPhotos(g)[1])" />
+              <!-- batch9 #7: hidden preload imgs УДАЛЕНЫ — заменены на JS new Image() -->
               <!-- Visible photos -->
               <img :src="collectionPhotos(g)[0]" alt="" :style="{
                 position: 'absolute', inset: 0, width: '100%', height: '100%',
@@ -402,7 +425,6 @@ function cardPhase(idx: number): number {
 .fx-add-slider::-webkit-scrollbar { display: none; }
 .fx-add-slider { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Загрузочная анимация ламелей */
 .rotor-load { width: 40px; height: 40px; position: relative; }
 .rotor-load-l {
   position: absolute; top: 50%; left: 50%;

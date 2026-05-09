@@ -2,8 +2,11 @@
 /**
  * MoodBlock.vue — Блок настроения с MoodArc.
  *
- * Fix 12: Прогресс-дуга обрезается по горизонту (clipPath) —
- *         убран артефакт свечения внизу слева от stroke-linecap:round.
+ * Fix 12: Прогресс-дуга обрезается по горизонту (clipPath).
+ * batch9 #6: SVG responsive для iPhone —
+ *   - Убраны фиксированные width/height в пользу viewBox + CSS
+ *   - width: 100%, maxWidth: 280px, height: auto, aspectRatio
+ *   - foreignObject для иконки скейлится вместе с SVG
  */
 
 import { computed } from 'vue'
@@ -63,7 +66,13 @@ const progressArc = computed(() => {
     <div :style="{ display: 'flex', justifyContent: 'center', margin: '4px 0' }">
       <svg
         :viewBox="`0 0 280 ${SVG_H}`"
-        :style="{ width: '280px', height: SVG_H + 'px' }"
+        :style="{
+          width: '100%',
+          maxWidth: '280px',
+          height: 'auto',
+          aspectRatio: `280 / ${SVG_H}`,
+          display: 'block',
+        }"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
@@ -71,13 +80,11 @@ const progressArc = computed(() => {
             <stop offset="0%" :stop-color="mood.color" stop-opacity="0.05" />
             <stop offset="100%" :stop-color="mood.color" stop-opacity="1.0" />
           </linearGradient>
-          <!-- Fix 12: clipPath обрезает и свечение, и прогресс-дугу -->
           <clipPath id="moodHorizonClip">
             <rect x="0" y="0" width="280" :height="CY" />
           </clipPath>
         </defs>
 
-        <!-- Свечение — обрезано по горизонту -->
         <g clip-path="url(#moodHorizonClip)">
           <ellipse :cx="CX" :cy="CY - 10" rx="130" ry="100"
             :fill="mood.color" opacity="0.06" :style="{ filter: 'blur(30px)' }" />
@@ -85,10 +92,8 @@ const progressArc = computed(() => {
             :fill="mood.color" opacity="0.08" :style="{ filter: 'blur(20px)' }" />
         </g>
 
-        <!-- Трек -->
         <path :d="fullBand" fill="rgba(255,255,255,0.07)" />
 
-        <!-- Прогресс — Fix 12: обрезан тем же clipPath, round cap не вылезает -->
         <g clip-path="url(#moodHorizonClip)">
           <path
             :d="progressArc"
@@ -99,7 +104,6 @@ const progressArc = computed(() => {
           />
         </g>
 
-        <!-- Иконка -->
         <circle :cx="CX" :cy="CY - 36" r="26" fill="transparent" :stroke="mood.color + '33'" stroke-width="1" />
         <circle :cx="CX" :cy="CY - 36" r="22" :fill="mood.color + '08'" stroke="none" />
         <g :transform="`translate(${CX - 14}, ${CY - 36 - 14})`">

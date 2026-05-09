@@ -2,15 +2,15 @@
 /**
  * SoundButton.vue — Кнопка звука леса.
  *
- * ТРИ состояния, ТРИ разные иконки:
- *   1. muted   — volume-x       (звук выключен; клик включает).
- *   2. loading — эквалайзер     (включено, ждём playback;
- *                               6 rect'ов с CSS scaleY-анимацией —
- *                               надёжнее SMIL внутри Vue-template).
- *   3. playing — volume-2       (играет; клик выключает).
+ * batch9 #8: scroll-detect + бежевая заливка.
+ *   При scrollY > 0 (на главной без sticky NavHeader):
+ *     background: #EAE0CA, icon color: #fff, без border.
+ *   При scrollY === 0: прозрачный фон + border (как было).
  *
- * loading длится минимум MIN_LOADING_MS — даже если play() резолвится
- * мгновенно (файл в кэше), эквалайзер видно секунду.
+ * ТРИ состояния, ТРИ разные иконки:
+ *   1. muted   — volume-x
+ *   2. loading — эквалайзер
+ *   3. playing — volume-2
  */
 
 import { computed, ref, onMounted, onUnmounted } from 'vue'
@@ -25,9 +25,50 @@ const playing = ref(false)
 const showHint = ref(true)
 const audioRef = ref<HTMLAudioElement | null>(null)
 
+/* ──────────── batch9 #8: scroll-detect ──────────── */
+const isScrolled = ref(false)
+
+function onScroll() {
+  isScrolled.value = window.scrollY > 0
+}
+
+const PANEL_BG = '#EAE0CA'
+
+const btnStyle = computed(() => {
+  if (isScrolled.value) {
+    return {
+      background: PANEL_BG,
+      border: 'none',
+      borderRadius: '8px',
+      padding: '6px 8px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#fff',
+      transition: 'all .3s',
+    }
+  }
+  return {
+    background: 'none',
+    border: `1px solid ${T.border}`,
+    borderRadius: '8px',
+    padding: '6px 8px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: iconColor.value,
+    transition: 'all .3s',
+  }
+})
+
+/* ──────────── Состояния ──────────── */
+
 const loading = computed(() => !muted.value && !playing.value)
 
 const iconColor = computed(() => {
+  if (isScrolled.value) return '#fff'
   if (muted.value) return T.textDim
   if (loading.value) return T.textSec
   return T.neutral
@@ -101,25 +142,20 @@ function onError() {
 
 onMounted(() => {
   hintTimer = setTimeout(() => { showHint.value = false }, 8000)
+  window.addEventListener('scroll', onScroll, { passive: true })
+  onScroll()
 })
 
 onUnmounted(() => {
   if (hintTimer) clearTimeout(hintTimer)
   if (pendingPlayingTimer) clearTimeout(pendingPlayingTimer)
+  window.removeEventListener('scroll', onScroll)
   if (audioRef.value) {
     audioRef.value.pause()
     audioRef.value.currentTime = 0
   }
 })
 
-/* Стили палочек эквалайзера. Каждая со своим dur/delay → асинхронная
- * пульсация. transform-box: fill-box нужен чтобы scaleY шёл от центра
- * самого rect, а не от 0,0 svg.
- *
- * Координаты — те же, что у Lucide audio-lines: палочки на x=2,6,10,14,
- * 18,22 с разной высотой. Шириной 2 (как stroke-width=2) с rx=1 для
- * скруглённых концов.
- */
 function barStyle(dur: number, delay: number) {
   return {
     animation: `wlSoundBar ${dur}s ease-in-out ${delay}s infinite`,
@@ -141,18 +177,7 @@ function barStyle(dur: number, delay: number) {
     />
 
     <button
-      :style="{
-        background: 'none',
-        border: `1px solid ${T.border}`,
-        borderRadius: '8px',
-        padding: '6px 8px',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: iconColor,
-        transition: 'color .3s',
-      }"
+      :style="btnStyle"
       :aria-label="muted ? 'Включить звук' : 'Выключить звук'"
       @click="toggleSound"
     >
@@ -164,7 +189,7 @@ function barStyle(dur: number, delay: number) {
         <line x1="16" y1="9" x2="22" y2="15"/>
       </svg>
 
-      <!-- 2. Loading: 6 rect-палочек с CSS-эквалайзером -->
+      <!-- 2. Loading: эквалайзер -->
       <svg v-else-if="loading" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
         <rect x="1"  y="10" width="2" height="3"  rx="1" :style="barStyle(0.55, 0)" />
         <rect x="5"  y="6"  width="2" height="11" rx="1" :style="barStyle(0.7,  0.08)" />
