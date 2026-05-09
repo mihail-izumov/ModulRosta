@@ -191,6 +191,7 @@ const helpStatuses = [
 </template>
 
 <style scoped>
+/* FIX-2026-05-09-deploy — если этой строки нет в репо после загрузки, значит залился старый файл */
 .rotor-hero {
   width: 100px;
   height: 100px;
