@@ -6,6 +6,7 @@
  * Источник: woodled-v42.jsx (объект IC) + SuperApp ICP (fxSize, fxMount, fxBowl, fxDiffuser, fxWire).
  *
  * ТЗ-1: Добавлены arrowDownRight, arrowRight, arrowUpRight для MoodArc.
+ * batch11 #8 (#3): Добавлен circleEllipsis — замена pen для заголовка дома.
  */
 
 import type { FxType } from '../../data/catalog'
@@ -23,6 +24,7 @@ export type IconName =
   | 'arrowDownRight'
   | 'arrowRight'
   | 'arrowUpRight'
+  | 'circleEllipsis'
 
 export const ICON_NAMES: readonly IconName[] = [
   'ceiling', 'table', 'floor', 'spot', 'bra', 'bulb', 'up', 'pen', 'leaf',
@@ -34,6 +36,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'palette',
   'slidersH',
   'arrowDownRight', 'arrowRight', 'arrowUpRight',
+  'circleEllipsis',
 ] as const
 
 /** Маппинг типа светильника на имя иконки. */
@@ -319,6 +322,15 @@ export const ICONS: Record<IconName, IconData> = {
     paths:
       '<path d="M7 7h10v10"/>' +
       '<path d="M7 17 17 7"/>',
+  },
+
+  /* batch11 #8 (#3): circle-ellipsis — замена pen для редактирования названия */
+  circleEllipsis: {
+    paths:
+      '<circle cx="12" cy="12" r="10"/>' +
+      '<path d="M17 12h.01"/>' +
+      '<path d="M12 12h.01"/>' +
+      '<path d="M7 12h.01"/>',
   },
 }
 </script>
