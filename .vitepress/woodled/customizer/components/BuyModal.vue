@@ -4,16 +4,18 @@
  *
  * Fix 7: Хедеры заменены на NavHeader (единый стиль).
  *
- * batch10 #5: Блок «Посмотрите на свой лес» обёрнут в GradientRing —
- *   тонкий вращающийся colored ring 3px по периметру кремового панеля.
+ * batch10 #5 v3:
+ *   Блок «Посмотрите на свой лес» использует НОВЫЙ компонент GradientFill —
+ *   аврора-фон из дышащих радиальных blob-ов вместо крутящегося conic.
+ *   Conic давал видимый центр схождения (плохо для fill-режима);
+ *   blob-ы перекрываются и переливаются без видимого направления.
  *
- * batch10 #5 v2:
- *   - Градиент перенесён ВНУТРЬ панеля (ring=0) — обводки больше нет,
- *     conic-gradient является фоном панеля. Кремовый PANEL_BG убран,
- *     остались только полупрозрачные radial-sheen для glass-эффекта,
- *     сквозь них просвечивает вращающийся conic.
- *   - Подзаголовок «Узнайте, какой свет вы создали» приведён к стилю
- *     подписи в блоке параметров комнаты: 13px, fontWeight 600.
+ *   Цвета берутся из cardColor всех комнат — раз у стартовых rooms
+ *   ROOM_TINTS из разных hue-семейств (sage/mauve/yellow/cream),
+ *   аврора получается контрастной и переливающейся.
+ *
+ *   Подзаголовок «Узнайте, какой свет вы создали» — 13px, fontWeight 600
+ *   (как подпись параметров комнаты).
  */
 
 import { computed, ref, reactive } from 'vue'
@@ -25,7 +27,7 @@ import { getRT, type Room } from '../data/rooms'
 import { useConfigurator } from '../store/configurator'
 import Icon, { fxIcName } from './ui/Icons.vue'
 import NavHeader from './ui/NavHeader.vue'
-import GradientRing from './ui/GradientRing.vue'
+import GradientFill from './ui/GradientFill.vue'
 
 const PANEL_FG = T.bg
 
@@ -49,7 +51,7 @@ const expandedRooms = reactive<Record<string, boolean>>({})
 function isExpanded(roomId: string): boolean { return expandedRooms[roomId] !== false }
 function toggleRoom(roomId: string) { expandedRooms[roomId] = !isExpanded(roomId) }
 
-/** batch10 #5: цвета всех комнат для GradientRing. */
+/** batch10 #5: цвета всех комнат для GradientFill. */
 const roomColors = computed<string[]>(() =>
   props.rooms.map((r) => r.cardColor).filter((c): c is string => !!c),
 )
@@ -71,9 +73,9 @@ function submitList() { step.value = 'form' }
 function submitForm() { if (!contact.value.phone) { emit('feedback', 'Укажите телефон'); return }; step.value = 'done' }
 
 /**
- * batch10 #5 v2: PANEL_BG (#EAE0CA) убран — фон формирует вращающийся
- * conic-gradient из GradientRing. Остались только полупрозрачные
- * radial-sheen для glass-эффекта поверх него.
+ * batch10 #5 v3: PANEL_BG (#EAE0CA) убран — фон формирует GradientFill
+ * (cream base + аврора-blob-ы). Здесь остались только полупрозрачные
+ * radial-sheen для glass-эффекта поверх blob-ов.
  */
 function storyLinkStyle() {
   return {
@@ -132,9 +134,9 @@ function woodBadgeStyle(woodColor: string) {
     <NavHeader title="Мой Лес" back="Домой" @back="emit('close')" />
 
     <div :style="{ padding: '16px', maxWidth: '480px', margin: '0 auto' }">
-      <!-- batch10 #5 v2: GradientRing с ring=0 — градиент ВНУТРИ панеля. -->
+      <!-- batch10 #5 v3: GradientFill с аврора-blob-ами вместо conic. -->
       <div v-if="filledRooms.length > 0" :style="{ marginBottom: '20px' }">
-        <GradientRing :colors="roomColors" :border-radius="12" :ring="0">
+        <GradientFill :colors="roomColors" :border-radius="12">
           <div :style="storyLinkStyle()" @click="emit('story')">
             <div :style="{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(19,17,14,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }"><Icon name="trees" :color="PANEL_FG" :size="22" /></div>
             <div :style="{ flex: 1 }">
@@ -143,7 +145,7 @@ function woodBadgeStyle(woodColor: string) {
             </div>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" :stroke="PANEL_FG" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" :style="{ flexShrink: 0 }"><polyline points="9 6 15 12 9 18" /></svg>
           </div>
-        </GradientRing>
+        </GradientFill>
       </div>
 
       <div :style="{ textAlign: 'center', marginBottom: '16px', fontSize: '16px', fontWeight: 700, color: T.text }">Освещение в доме</div>
