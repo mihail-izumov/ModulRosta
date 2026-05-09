@@ -146,12 +146,13 @@ function woodBadgeStyle(woodColor: string) {
         </GradientFill>
       </div>
 
-      <!-- batch11 #2 (#10): 2 строки, font ~2x — доминирует на странице, но воздух остаётся -->
-      <div :style="{ textAlign: 'center', marginTop: '8px', marginBottom: '24px', fontSize: '32px', fontWeight: 700, color: T.text, lineHeight: 1.1 }">Освещение<br/>в доме</div>
+      <!-- batch11 #2 (#10) + batch11 #3 (#4): 2 строки, font 32, weight 600 (было 700) -->
+      <div :style="{ textAlign: 'center', marginTop: '8px', marginBottom: '24px', fontSize: '32px', fontWeight: 600, color: T.text, lineHeight: 1.1 }">Освещение<br/>в доме</div>
 
       <div v-if="filledRooms.length > 0" :style="{ background: T.card, border: `1px solid ${T.border}`, borderRadius: '12px', padding: '14px 16px', marginBottom: '20px' }">
         <div :style="{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }">
-          <span :style="{ fontSize: '13px', color: T.textSec, fontWeight: 500 }">Итого</span>
+          <!-- batch11 #3 (#2): «Итого» font 15 — как «Скидка 3000» -->
+          <span :style="{ fontSize: '15px', color: T.textSec, fontWeight: 500 }">Итого</span>
           <div :style="{ display: 'flex', alignItems: 'baseline', gap: '6px' }">
             <span v-if="discountApplied" :style="{ fontSize: '12px', color: T.textDim, textDecoration: 'line-through' }">{{ totalAll.toLocaleString('ru-RU') }} ₽</span>
             <span :style="{ fontSize: '18px', fontWeight: 700, color: T.text }">{{ grandTotal.toLocaleString('ru-RU') }} ₽</span>
@@ -165,7 +166,8 @@ function woodBadgeStyle(woodColor: string) {
             <div :style="{ fontSize: '15px', fontWeight: 600, color: T.text }">Скидка 3 000 ₽</div>
             <div :style="{ fontSize: '13px', fontWeight: 600, color: T.textSec, marginTop: '-1px' }">{{ discountMode ? (discountApplied ? 'Применена' : 'Выберите светильник') : 'На первый светильник' }}</div>
           </div>
-          <div :style="{ width: '76px', height: '44px', borderRadius: '22px', background: discountMode ? T.text : T.text + '22', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }"><div :style="{ width: '32px', height: '32px', borderRadius: '50%', background: discountMode ? T.bg : T.text + '88', position: 'absolute', top: '6px', left: discountMode ? '38px' : '6px', transition: 'left 0.2s' }" /></div>
+          <!-- batch11 #3 (#1): слайдер -30% (76→53, 44→30, ползунок 32→22) -->
+          <div :style="{ width: '53px', height: '30px', borderRadius: '15px', background: discountMode ? T.text : T.text + '22', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }"><div :style="{ width: '22px', height: '22px', borderRadius: '50%', background: discountMode ? T.bg : T.text + '88', position: 'absolute', top: '4px', left: discountMode ? '27px' : '4px', transition: 'left 0.2s' }" /></div>
         </div>
       </div>
 
@@ -210,8 +212,10 @@ function woodBadgeStyle(woodColor: string) {
       </div>
 
       <div v-if="filledRooms.length > 0" :style="{ marginTop: '32px', textAlign: 'center', paddingBottom: '32px' }">
-        <div :style="{ fontSize: '18px', fontWeight: 700, color: T.text, marginBottom: '10px' }">Лес собран</div>
-        <div :style="{ fontSize: '14px', fontWeight: 600, color: T.text, lineHeight: 1.5, marginBottom: '24px' }">Отправьте план —<br />дерево засветит у вас дома</div>
+        <!-- batch11 #3 (#3): «Лес собран» 1.5x (18→27) -->
+        <div :style="{ fontSize: '27px', fontWeight: 700, color: T.text, marginBottom: '10px' }">Лес собран</div>
+        <!-- batch11 #3 (#5) + batch11 #4: одна строка, без переноса -->
+        <div :style="{ fontSize: '14px', fontWeight: 600, color: T.text, lineHeight: 1.5, marginBottom: '24px' }">Отправьте план и дерево засветит у вас дома</div>
         <!-- batch11 #2 (#9): кнопка +3 кегля, padding пропорционально -->
         <button :style="{ width: '100%', padding: '18px', background: '#FFFFFF', color: T.bg, border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '17px', fontFamily: 'inherit' }" @click="submitList">Отправить план леса</button>
         <div :style="{ fontSize: '12px', color: T.textSec, lineHeight: 1.6, maxWidth: '320px', margin: '14px auto 0' }">Специалист WOODLED получит ваш план освещения и комплектацию каждого светильника.</div>
