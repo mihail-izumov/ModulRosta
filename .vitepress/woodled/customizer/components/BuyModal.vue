@@ -87,12 +87,12 @@ function storyLinkStyle() {
 }
 function fxCardStyle(roomId: string, fxIdx: number) {
   const sel = isDiscounted(roomId, fxIdx)
-  /* batch11 #1 v3: padding 6px + icon 48×48 — иконка крупнее, карточка чуть ниже */
-  return { width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '6px', background: sel ? 'rgba(255,255,255,0.05)' : T.card, border: `1px solid ${sel ? 'rgba(255,255,255,0.15)' : T.border}`, borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'background 0.15s, border-color 0.15s' }
+  /* batch11 #1 v5: borderRadius 12 (как у иконки/панелей), padding right удвоен (6→12) */
+  return { width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 12px 6px 6px', background: sel ? 'rgba(255,255,255,0.05)' : T.card, border: `1px solid ${sel ? 'rgba(255,255,255,0.15)' : T.border}`, borderRadius: '12px', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'background 0.15s, border-color 0.15s' }
 }
 function woodBadgeStyle(woodColor: string) {
-  /* batch11 #1 v4: padding 1px вертикальный + marginTop убран — бейдж компактнее */
-  return { display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '1px 7px 1px 5px', borderRadius: '5px', background: woodColor + '14', fontSize: '11px', color: woodColor, fontWeight: 500, alignSelf: 'flex-start' }
+  /* batch11 #1 v5: padding 0px вертикальный + 6/4 горизонтальный — бейдж ещё компактнее */
+  return { display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '0px 6px 0px 4px', borderRadius: '5px', background: woodColor + '14', fontSize: '11px', color: woodColor, fontWeight: 500, alignSelf: 'flex-start' }
 }
 </script>
 
@@ -183,11 +183,12 @@ function woodBadgeStyle(woodColor: string) {
               <!-- batch11 #1 v4: stretch + space-between — название вверху, бейдж дерева внизу -->
               <div :style="{ flex: 1, minWidth: 0, alignSelf: 'stretch', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }">
                 <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text, display: 'flex', alignItems: 'center', gap: '6px' }"><span>{{ MD[fx.m].name }}</span><span v-if="(fx.q ?? 1) > 1" :style="{ color: T.textSec, fontWeight: 400, fontSize: '12px' }">× {{ fx.q }}</span></div>
-                <div :style="woodBadgeStyle(WCOL[fx.wood ?? 'oak'])"><div :style="{ width: '8px', height: '8px', borderRadius: '50%', background: WCOL[fx.wood ?? 'oak'] }" />{{ MATS.find((x) => x.id === (fx.wood ?? 'oak'))?.name }}</div>
+                <div :style="woodBadgeStyle(WCOL[fx.wood ?? 'oak'])"><div :style="{ width: '16px', height: '16px', borderRadius: '50%', background: WCOL[fx.wood ?? 'oak'] }" />{{ MATS.find((x) => x.id === (fx.wood ?? 'oak'))?.name }}</div>
               </div>
               <div :style="{ flexShrink: 0, textAlign: 'right' }">
-                <div v-if="isDiscounted(r.id, i)" :style="{ fontSize: '10px', color: T.textDim, textDecoration: 'line-through' }">{{ itemPrice(fx).toLocaleString('ru-RU') }} ₽</div>
-                <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">{{ (isDiscounted(r.id, i) ? Math.max(0, itemPrice(fx) - 3000) : itemPrice(fx)).toLocaleString('ru-RU') }} ₽</div>
+                <!-- batch11 #1 v5: цены +2 кегля (10→12 и 13→15) -->
+                <div v-if="isDiscounted(r.id, i)" :style="{ fontSize: '12px', color: T.textDim, textDecoration: 'line-through' }">{{ itemPrice(fx).toLocaleString('ru-RU') }} ₽</div>
+                <div :style="{ fontSize: '15px', fontWeight: 600, color: T.text }">{{ (isDiscounted(r.id, i) ? Math.max(0, itemPrice(fx) - 3000) : itemPrice(fx)).toLocaleString('ru-RU') }} ₽</div>
               </div>
             </button>
           </div>
