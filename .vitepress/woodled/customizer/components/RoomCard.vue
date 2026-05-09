@@ -2,21 +2,20 @@
 /**
  * RoomCard.vue — Карточка комнаты на главном экране.
  *
- * batch11 #5:
- *   #2 — Иконка палитры (выбор цвета) переехала ВНУТРЬ бейджа с названием
- *        комнаты, справа от текста. Убрана absolute-кнопка top:8 left:8.
- *   #3 — Бейдж стал в 2 раза больше: borderRadius 999 (полная пилюля),
- *        fontSize 11 → 17, padding 4px 14px → 8px 14px 8px 22px (асимметрия
- *        под иконку справа).
- *   #4 — Кнопка «Больше Света» растянута на всю ширину карточки. Боковые
- *        отступы = картовый padding (14px) = такой же как снизу.
- *   #5 — Названия дерева: fontSize 10 → 11, fontWeight default → 500.
- *
- * batch6 (старое): десинхронизация и замедление анимации ротора в empty.
+ * batch11 #6:
+ *   #2 — Пилюля с названием комнаты УЖЕ: padding 8px со всех сторон
+ *        (было асимметрично 8px 14px 8px 22px). Боковые отступы =
+ *        вертикальные = 8px (как воздух вокруг иконки палитры).
+ *   #3 — Кнопка «Больше Света» полностью удалена. Дизайн перенесён
+ *        в ZoneCard на странице комнаты.
+ *   #4 — В центр rotor-анимации (для пустых карточек) добавлен
+ *        пульсирующий круг с «+» внутри. Дизайн в дубовых тонах
+ *        (как ламели), пульсирует opacity + scale, показывая что
+ *        карточка в спящем режиме и ждёт действия.
  */
 
 import { computed } from 'vue'
-import { T, WCOL, RGBA } from '../theme/tokens'
+import { T, WCOL } from '../theme/tokens'
 import { MD } from '../data/catalog'
 import { MATS } from '../data/materials'
 import { autoMood } from '../data/moods'
@@ -36,18 +35,18 @@ const actual = computed(() => fxLm(props.room.fixtures))
 const ratio = computed(() => (base.value > 0 ? actual.value / base.value : 0))
 const mood = computed(() => autoMood(ratio.value))
 
-// ── batch6: per-instance random offsets для десинхронизации ──
+// batch6: per-instance random offsets для десинхронизации
 const cardSpinOffset = `-${(Math.random() * 90).toFixed(2)}s`
 const cardCycleOffset = `-${(Math.random() * 12).toFixed(2)}s`
+// batch11 #6 (#4): отдельный offset для пульса, чтобы карточки не пульсировали в унисон
+const pulseOffset = `-${(Math.random() * 2.5).toFixed(2)}s`
 
 const cardStyle = computed(() => {
   const isEmpty = mood.value.id === 'empty'
   const cc = props.room.cardColor
   const tint = cc ?? (isEmpty ? null : T.neutral)
   return {
-    background: tint
-      ? `linear-gradient(135deg, ${tint}22, ${tint}08)`
-      : T.card,
+    background: tint ? `linear-gradient(135deg, ${tint}22, ${tint}08)` : T.card,
     border: `1px solid ${tint ? tint + '44' : T.border}`,
     borderRadius: '12px',
     padding: '14px',
@@ -62,7 +61,7 @@ const cardStyle = computed(() => {
   }
 })
 
-/** batch11 #5 (#3): пилюля + большой шрифт + место под иконку справа. */
+/** batch11 #6 (#2): пилюля уже — padding 8px со всех сторон. */
 const badgeStyle = computed(() => {
   const cc = props.room.cardColor
   const tint = cc ?? (mood.value.id === 'empty' ? null : T.neutral)
@@ -70,7 +69,7 @@ const badgeStyle = computed(() => {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '8px',
-    padding: '8px 14px 8px 22px',
+    padding: '8px',
     borderRadius: '999px',
     background: cc
       ? `linear-gradient(135deg, ${cc}cc, ${cc}88)`
@@ -83,9 +82,6 @@ const badgeStyle = computed(() => {
   }
 })
 
-// Цвета для empty state
-const accentColor = computed(() => props.room.cardColor ?? T.textSec)
-const accentText = computed(() => props.room.cardColor ?? T.text)
 const bgShadowColor = computed(() => {
   const cc = props.room.cardColor
   return cc ? cc + '50' : '#00000080'
@@ -111,13 +107,15 @@ const circles = computed<Circle[]>(() => {
   return out
 })
 
-/** Цвет иконки палитры внутри бейджа — белый, чтобы контрастировать с tint-фоном. */
 const paletteIconColor = computed(() => '#fff')
+
+/** Текст названия — для боковой части пилюли (для отступа слева). */
+const roomName = computed(() => props.room.customName || rt.value.name)
 </script>
 
 <template>
   <div :style="cardStyle" @click="emit('click')">
-    <!-- ═══ BG-ротор: анимация сборки ламелей (только в empty) ═══ -->
+    <!-- ═══ BG-ротор: ламели (только в empty) ═══ -->
     <div
       v-if="mood.id === 'empty'"
       :style="{
@@ -134,10 +132,7 @@ const paletteIconColor = computed(() => '#fff')
       }"
       aria-hidden="true"
     >
-      <div
-        class="rotor-card"
-        :style="{ animationDelay: cardSpinOffset }"
-      >
+      <div class="rotor-card" :style="{ animationDelay: cardSpinOffset }">
         <div
           v-for="i in 12"
           :key="i"
@@ -150,10 +145,29 @@ const paletteIconColor = computed(() => '#fff')
       </div>
     </div>
 
-    <!-- ═══ Бейдж с названием комнаты + иконка палитры внутри ═══ -->
-    <!-- batch11 #5 (#2, #3): иконка палитры справа от названия, бейдж-пилюля -->
+    <!-- ═══ batch11 #6 (#4): пульсирующий «+» в круге, поверх ламелей ═══ -->
+    <div
+      v-if="mood.id === 'empty'"
+      class="rotor-pulse"
+      :style="{
+        position: 'absolute',
+        top: '54%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        pointerEvents: 'none',
+        zIndex: 1,
+        animationDelay: pulseOffset,
+      }"
+      aria-hidden="true"
+    >
+      <div class="rotor-pulse-ring">
+        <span class="rotor-pulse-plus">+</span>
+      </div>
+    </div>
+
+    <!-- ═══ Бейдж с названием + иконка палитры ═══ -->
     <div :style="badgeStyle">
-      <span>{{ props.room.customName || rt.name }}</span>
+      <span>{{ roomName }}</span>
       <button
         :style="{
           background: 'rgba(255,255,255,0.18)',
@@ -180,52 +194,8 @@ const paletteIconColor = computed(() => '#fff')
       </button>
     </div>
 
-    <!-- ═══ Empty state: full-width кнопка над ротором ═══ -->
-    <template v-if="mood.id === 'empty'">
-      <div
-        :style="{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'stretch',
-          justifyContent: 'flex-end',
-          width: '100%',
-          position: 'relative',
-          zIndex: 2,
-        }"
-      >
-        <!-- batch11 #5 (#4): кнопка на всю ширину, отступы боковые = card padding (14px) -->
-        <div
-          :style="{
-            width: '100%',
-            padding: '8px 12px',
-            background: props.room.cardColor
-              ? props.room.cardColor + '14'
-              : 'rgba(255,255,255,0.04)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            border: `1px solid ${accentColor}66`,
-            borderRadius: '999px',
-            color: accentText,
-            fontSize: '12px',
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px',
-            lineHeight: 1.4,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
-            boxSizing: 'border-box',
-          }"
-        >
-          <Icon name="up" :color="accentText" :size="14" />
-          Больше Света
-        </div>
-      </div>
-    </template>
-
     <!-- ═══ Filled state: круги светильников ═══ -->
-    <template v-else>
+    <template v-if="mood.id !== 'empty'">
       <div
         :style="{
           display: 'flex',
@@ -260,7 +230,6 @@ const paletteIconColor = computed(() => '#fff')
           >
             <Icon :name="fxIcName(c.type as any)" :color="T.bg" :size="16" />
           </div>
-          <!-- batch11 #5 (#5): названия дерева 10→11, weight 500 -->
           <div
             :style="{
               fontSize: '11px',
@@ -311,5 +280,40 @@ const paletteIconColor = computed(() => '#fff')
   80%  { transform: rotate(var(--rot)) translateY(-45px) scale(1);   opacity: 0.95; }
   90%  { transform: rotate(var(--rot)) translateY(-60px) scale(0.3); opacity: 0; }
   100% { transform: rotate(var(--rot)) translateY(-60px) scale(0.3); opacity: 0; }
+}
+
+/* batch11 #6 (#4): пульсирующий «+» в круге, дубовые тона */
+.rotor-pulse {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: rotorPulse 2.4s ease-in-out infinite;
+}
+
+.rotor-pulse-ring {
+  width: 38px;
+  height: 38px;
+  border: 2px solid #b4915a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(180, 145, 90, 0.06);
+}
+
+.rotor-pulse-plus {
+  font-size: 24px;
+  font-weight: 300;
+  color: #d4b87a;
+  line-height: 1;
+  /* Микроподъём чтобы оптически центрировать «+» */
+  margin-top: -2px;
+}
+
+@keyframes rotorPulse {
+  0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 0.9;  transform: translate(-50%, -50%) scale(1.08); }
 }
 </style>

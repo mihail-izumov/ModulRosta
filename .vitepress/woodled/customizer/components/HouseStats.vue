@@ -2,18 +2,13 @@
 /**
  * HouseStats.vue — Виджет дома (приборная панель).
  *
- * v4 — переработка по фидбеку (см. предыдущие версии).
- *
- * batch7 #12: «S комнат» теперь показывает диапазон min–max,
- * как поле «потолок».
- *
- * batch11 #5 (#1, #6):
- *   #1 — Все три цифры (S комнат / потолок / свет) одного размера 28px.
- *        Убрано адаптивное уменьшение для длинных диапазонов.
- *   #6 — «Поделиться домом» → «Поделиться», «Начать заново» → «Сбросить»,
- *        fontSize 11 → 14.
- *
- * Эмиты: shareLink, changeHome.
+ * batch11 #6 (#1):
+ *   Адаптивный размер шрифта цифр. Считаем длину самого длинного значения
+ *   и выбираем единый размер для всех трёх блоков:
+ *     ≤ 4 chars → 28px
+ *     5–6 chars → 22px
+ *     ≥ 7 chars → 18px
+ *   «X/Y» в блоке света — вторая часть масштабируется ×0.5 от основной.
  */
 
 import { computed, onMounted, ref } from 'vue'
@@ -31,9 +26,6 @@ const emit = defineEmits<{
   changeHome: []
 }>()
 
-/* ────────── Производные данные ────────── */
-
-/** Парсит строку вида '12–20' или '12-20' в [min, max]. */
 function parseRange(s: string): [number, number] {
   const parts = s.split(/[–\-]/).map((x) => parseInt(x.trim()))
   if (parts.length === 1 || isNaN(parts[1])) return [parts[0], parts[0]]
@@ -94,7 +86,26 @@ const hasAnyFixtures = computed(() =>
 
 const isEmpty = computed(() => cfg.rooms.length === 0)
 
-/* ────────── Разбивка по комнатам ────────── */
+/* batch11 #6: адаптивный единый шрифт для трёх цифр. */
+const adaptiveMain = computed<string>(() => {
+  if (isEmpty.value) return '28px'
+  const aLen = (totalAreaDisplay.value ?? '—').length
+  const cLen = (ceilingDisplay.value ?? '—').length
+  let lLen = 1
+  if (lightPoints.value && hasAnyFixtures.value) {
+    lLen = String(lightPoints.value.used).length + 1 + String(lightPoints.value.max).length
+  }
+  const max = Math.max(aLen, cLen, lLen)
+  if (max <= 4) return '28px'
+  if (max <= 6) return '22px'
+  return '18px'
+})
+
+/** Вторичный шрифт «/Y» — половина основного. */
+const adaptiveSec = computed<string>(() => {
+  const main = parseInt(adaptiveMain.value)
+  return Math.round(main * 0.5) + 'px'
+})
 
 interface RoomBreakdownAll {
   id: string
@@ -160,8 +171,6 @@ const roomsByLight = computed(() =>
   }),
 )
 
-/* ────────── Expand state ────────── */
-
 const expanded = ref(false)
 const focusField = ref<FieldId | null>(null)
 
@@ -178,56 +187,24 @@ function toggleExpand(field: FieldId | null = null) {
   }
 }
 
-/* ────────── Spotlight tour ────────── */
-
 const tourActive = ref(false)
 const tourStep = ref<0 | 1 | 2>(0)
 
 const TOUR_FIELDS: { id: FieldId; title: string; text: string }[] = [
-  {
-    id: 'area',
-    title: 'S комнат',
-    text: 'Сумма площадей всех комнат вашего плана. Меняется при добавлении новой или изменении размера.',
-  },
-  {
-    id: 'ceiling',
-    title: 'Потолок',
-    text: 'Высота потолков. Чем выше — тем больше люмен нужно для комфортного света.',
-  },
-  {
-    id: 'light',
-    title: 'Свет',
-    text: 'Светильников установлено / точек подключения. Чем больше точек — тем гибче можно расставлять свет.',
-  },
+  { id: 'area', title: 'S комнат', text: 'Сумма площадей всех комнат вашего плана. Меняется при добавлении новой или изменении размера.' },
+  { id: 'ceiling', title: 'Потолок', text: 'Высота потолков. Чем выше — тем больше люмен нужно для комфортного света.' },
+  { id: 'light', title: 'Свет', text: 'Светильников установлено / точек подключения. Чем больше точек — тем гибче можно расставлять свет.' },
 ]
 
-function startTour() {
-  tourActive.value = true
-  tourStep.value = 0
-}
-
-function nextTourStep() {
-  if (tourStep.value < 2) {
-    tourStep.value = (tourStep.value + 1) as 0 | 1 | 2
-  } else {
-    finishTour()
-  }
-}
-
-function finishTour() {
-  tourActive.value = false
-  cfg.markDashboardTourSeen()
-}
+function startTour() { tourActive.value = true; tourStep.value = 0 }
+function nextTourStep() { if (tourStep.value < 2) { tourStep.value = (tourStep.value + 1) as 0 | 1 | 2 } else { finishTour() } }
+function finishTour() { tourActive.value = false; cfg.markDashboardTourSeen() }
 
 onMounted(() => {
   if (!cfg.dashboardTourSeen.value && cfg.rooms.length > 0) {
-    setTimeout(() => {
-      if (!cfg.dashboardTourSeen.value) startTour()
-    }, 600)
+    setTimeout(() => { if (!cfg.dashboardTourSeen.value) startTour() }, 600)
   }
 })
-
-/* ────────── Handlers ────────── */
 
 const fieldToast = ref<string | null>(null)
 let toastTimer: ReturnType<typeof setTimeout> | null = null
@@ -237,42 +214,18 @@ function showFieldToast(field: FieldId) {
   if (!t) return
   fieldToast.value = t.text
   if (toastTimer) clearTimeout(toastTimer)
-  toastTimer = setTimeout(() => {
-    fieldToast.value = null
-  }, 4500)
+  toastTimer = setTimeout(() => { fieldToast.value = null }, 4500)
 }
 
-function onFieldTap(field: FieldId) {
-  if (tourActive.value) return
-  showFieldToast(field)
-  toggleExpand(field)
-}
-
+function onFieldTap(field: FieldId) { if (tourActive.value) return; showFieldToast(field); toggleExpand(field) }
 function onWidgetTap() {
   if (tourActive.value) return
-  if (expanded.value && focusField.value === null) {
-    expanded.value = false
-    focusField.value = null
-  } else {
-    toggleExpand(null)
-  }
+  if (expanded.value && focusField.value === null) { expanded.value = false; focusField.value = null }
+  else { toggleExpand(null) }
 }
-
-function dismissHint() {
-  if (!cfg.dashboardTourSeen.value) {
-    cfg.markDashboardTourSeen()
-  }
-}
-
-function onShareClick() {
-  emit('shareLink')
-}
-
-function onChangeHomeClick() {
-  emit('changeHome')
-}
-
-/* ────────── Стили ────────── */
+function dismissHint() { if (!cfg.dashboardTourSeen.value) cfg.markDashboardTourSeen() }
+function onShareClick() { emit('shareLink') }
+function onChangeHomeClick() { emit('changeHome') }
 
 const PANEL_BG = '#EAE0CA'
 const PANEL_FG = T.bg
@@ -310,102 +263,40 @@ function fieldStyle(field: FieldId) {
 
 <template>
   <div :style="{ position: 'relative' }">
-    <!-- ═══════ ВИДЖЕТ — ИНВЕРТИРОВАННАЯ ПАНЕЛЬ ═══════ -->
     <div
       :style="{
-        background: PANEL_BG,
-        borderRadius: '14px',
-        padding: '6px',
-        marginBottom: '8px',
-        cursor: isEmpty ? 'default' : 'pointer',
-        position: 'relative',
-        zIndex: tourActive ? 60 : 1,
-        boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '6px',
+        background: PANEL_BG, borderRadius: '14px', padding: '6px',
+        marginBottom: '8px', cursor: isEmpty ? 'default' : 'pointer',
+        position: 'relative', zIndex: tourActive ? 60 : 1,
+        boxShadow: '0 4px 16px rgba(0,0,0,0.25)', overflow: 'hidden',
+        display: 'flex', flexDirection: 'column', gap: '6px',
       }"
       @click.self="onWidgetTap"
     >
-      <div
-        :style="{
-          display: 'flex',
-          alignItems: 'stretch',
-          gap: '6px',
-        }"
-      >
+      <div :style="{ display: 'flex', alignItems: 'stretch', gap: '6px' }">
         <div :style="fieldStyle('area')" @click.stop="onFieldTap('area')">
-          <div
-            :style="{
-              fontSize: '9px', fontWeight: 700, color: PANEL_FG_SEC,
-              textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.7,
-            }"
-          >
-            S комнат
-          </div>
-          <!-- batch11 #5 (#1): единый 28px для всех трёх цифр -->
-          <div
-            :style="{
-              fontSize: '28px', fontWeight: 800,
-              color: isEmpty ? PANEL_FG_SEC : PANEL_FG,
-              fontVariantNumeric: 'tabular-nums', lineHeight: 1,
-              whiteSpace: 'nowrap',
-            }"
-          >
+          <div :style="{ fontSize: '9px', fontWeight: 700, color: PANEL_FG_SEC, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.7 }">S комнат</div>
+          <!-- batch11 #6 (#1): адаптивный шрифт -->
+          <div :style="{ fontSize: adaptiveMain, fontWeight: 800, color: isEmpty ? PANEL_FG_SEC : PANEL_FG, fontVariantNumeric: 'tabular-nums', lineHeight: 1, whiteSpace: 'nowrap' }">
             {{ totalAreaDisplay ?? '—' }}
           </div>
           <div :style="{ fontSize: '11px', color: PANEL_FG_SEC, opacity: 0.7 }">м²</div>
         </div>
 
         <div :style="fieldStyle('ceiling')" @click.stop="onFieldTap('ceiling')">
-          <div
-            :style="{
-              fontSize: '9px', fontWeight: 700, color: PANEL_FG_SEC,
-              textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.7,
-            }"
-          >
-            потолок
-          </div>
-          <div
-            :style="{
-              fontSize: '28px', fontWeight: 800,
-              color: isEmpty ? PANEL_FG_SEC : PANEL_FG,
-              fontVariantNumeric: 'tabular-nums', lineHeight: 1,
-            }"
-          >
+          <div :style="{ fontSize: '9px', fontWeight: 700, color: PANEL_FG_SEC, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.7 }">потолок</div>
+          <div :style="{ fontSize: adaptiveMain, fontWeight: 800, color: isEmpty ? PANEL_FG_SEC : PANEL_FG, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }">
             {{ ceilingDisplay ?? '—' }}
           </div>
           <div :style="{ fontSize: '11px', color: PANEL_FG_SEC, opacity: 0.7 }">м</div>
         </div>
 
         <div :style="fieldStyle('light')" @click.stop="onFieldTap('light')">
-          <div
-            :style="{
-              fontSize: '9px', fontWeight: 700, color: PANEL_FG_SEC,
-              textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.7,
-            }"
-          >
-            свет
-          </div>
-          <div
-            :style="{
-              fontSize: '28px', fontWeight: 800,
-              color: isEmpty ? PANEL_FG_SEC : PANEL_FG,
-              fontVariantNumeric: 'tabular-nums', lineHeight: 1,
-              display: 'flex', alignItems: 'baseline',
-            }"
-          >
+          <div :style="{ fontSize: '9px', fontWeight: 700, color: PANEL_FG_SEC, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.7 }">свет</div>
+          <div :style="{ fontSize: adaptiveMain, fontWeight: 800, color: isEmpty ? PANEL_FG_SEC : PANEL_FG, fontVariantNumeric: 'tabular-nums', lineHeight: 1, display: 'flex', alignItems: 'baseline' }">
             <template v-if="lightPoints && hasAnyFixtures">
               <span>{{ lightPoints.used }}</span>
-              <span
-                :style="{
-                  fontSize: '14px', color: PANEL_FG_SEC,
-                  fontWeight: 500, opacity: 0.55,
-                }"
-              >
-                /{{ lightPoints.max }}
-              </span>
+              <span :style="{ fontSize: adaptiveSec, color: PANEL_FG_SEC, fontWeight: 500, opacity: 0.55 }">/{{ lightPoints.max }}</span>
             </template>
             <template v-else>—</template>
           </div>
@@ -413,68 +304,17 @@ function fieldStyle(field: FieldId) {
         </div>
       </div>
 
-      <div
-        :style="{
-          display: 'flex',
-          gap: '6px',
-        }"
-      >
-        <!-- batch11 #5 (#6): «Поделиться домом» → «Поделиться», font 11 → 14 -->
-        <button
-          :style="{
-            flex: 1,
-            padding: '10px 6px',
-            background: PANEL_BTN_BG,
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px',
-            fontSize: '14px',
-            fontWeight: 600,
-            color: PANEL_FG,
-            fontFamily: 'inherit',
-          }"
-          @click.stop="onShareClick"
-        >
-          <svg
-            width="13" height="13" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round"
-          >
+      <div :style="{ display: 'flex', gap: '6px' }">
+        <button :style="{ flex: 1, padding: '10px 6px', background: PANEL_BTN_BG, border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '14px', fontWeight: 600, color: PANEL_FG, fontFamily: 'inherit' }" @click.stop="onShareClick">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
             <polyline points="16 6 12 2 8 6" />
             <line x1="12" y1="2" x2="12" y2="15" />
           </svg>
           Поделиться
         </button>
-        <!-- batch11 #5 (#6): «Начать заново» → «Сбросить», font 11 → 14 -->
-        <button
-          :style="{
-            flex: 1,
-            padding: '10px 6px',
-            background: PANEL_BTN_BG,
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px',
-            fontSize: '14px',
-            fontWeight: 600,
-            color: PANEL_FG,
-            fontFamily: 'inherit',
-          }"
-          @click.stop="onChangeHomeClick"
-        >
-          <svg
-            width="13" height="13" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round"
-          >
+        <button :style="{ flex: 1, padding: '10px 6px', background: PANEL_BTN_BG, border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '14px', fontWeight: 600, color: PANEL_FG, fontFamily: 'inherit' }" @click.stop="onChangeHomeClick">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 10a8 8 0 1 1 8 8H4" />
             <path d="m8 22-4-4 4-4" />
           </svg>
@@ -483,271 +323,61 @@ function fieldStyle(field: FieldId) {
       </div>
     </div>
 
-    <!-- ═══════ Скрываемая подсказка ═══════ -->
-    <div
-      v-if="!cfg.dashboardTourSeen.value && !isEmpty && !expanded && !tourActive"
-      :style="{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '8px 12px',
-        background: T.neutral + '10',
-        borderRadius: '8px',
-        marginBottom: '8px',
-        fontSize: '11px',
-        color: T.textSec,
-      }"
-    >
-      <span :style="{ flex: 1 }">
-        Тапните на параметр для деталей →
-      </span>
-      <button
-        :style="{
-          background: 'none', border: 'none', color: T.textDim,
-          cursor: 'pointer', padding: '2px 6px', fontSize: '14px', lineHeight: 1,
-        }"
-        @click="dismissHint"
-      >
-        ✕
-      </button>
+    <div v-if="!cfg.dashboardTourSeen.value && !isEmpty && !expanded && !tourActive" :style="{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: T.neutral + '10', borderRadius: '8px', marginBottom: '8px', fontSize: '11px', color: T.textSec }">
+      <span :style="{ flex: 1 }">Тапните на параметр для деталей →</span>
+      <button :style="{ background: 'none', border: 'none', color: T.textDim, cursor: 'pointer', padding: '2px 6px', fontSize: '14px', lineHeight: 1 }" @click="dismissHint">✕</button>
     </div>
 
-    <!-- ═══════ Expand-панель ═══════ -->
-    <div
-      v-if="expanded && !isEmpty"
-      :style="{
-        background: PANEL_BG,
-        borderRadius: '12px',
-        padding: '6px',
-        marginBottom: '8px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '6px',
-      }"
-    >
-      <div
-        v-if="focusField"
-        :style="{
-          background: PANEL_FIELD_ACTIVE,
-          borderRadius: '8px',
-          padding: '12px 14px',
-        }"
-      >
-        <div
-          :style="{
-            fontSize: '10px', fontWeight: 700, color: PANEL_FG,
-            textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px',
-            opacity: 0.7,
-          }"
-        >
-          {{ TOUR_FIELDS.find(f => f.id === focusField)?.title }}
-        </div>
-        <div :style="{ fontSize: '12px', color: PANEL_FG, lineHeight: 1.5 }">
-          {{ TOUR_FIELDS.find(f => f.id === focusField)?.text }}
-        </div>
+    <div v-if="expanded && !isEmpty" :style="{ background: PANEL_BG, borderRadius: '12px', padding: '6px', marginBottom: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }">
+      <div v-if="focusField" :style="{ background: PANEL_FIELD_ACTIVE, borderRadius: '8px', padding: '12px 14px' }">
+        <div :style="{ fontSize: '10px', fontWeight: 700, color: PANEL_FG, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px', opacity: 0.7 }">{{ TOUR_FIELDS.find(f => f.id === focusField)?.title }}</div>
+        <div :style="{ fontSize: '12px', color: PANEL_FG, lineHeight: 1.5 }">{{ TOUR_FIELDS.find(f => f.id === focusField)?.text }}</div>
       </div>
 
-      <div
-        :style="{
-          background: PANEL_FIELD_ACTIVE,
-          borderRadius: '8px',
-          padding: '12px 14px',
-        }"
-      >
-        <div
-          :style="{
-            fontSize: '10px', fontWeight: 700, color: PANEL_FG,
-            textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px',
-            opacity: 0.7,
-          }"
-        >
-          по комнатам
-        </div>
+      <div :style="{ background: PANEL_FIELD_ACTIVE, borderRadius: '8px', padding: '12px 14px' }">
+        <div :style="{ fontSize: '10px', fontWeight: 700, color: PANEL_FG, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px', opacity: 0.7 }">по комнатам</div>
 
         <template v-if="focusField === null">
-          <div
-            v-for="(r, i) in roomsAll"
-            :key="r.id"
-            :style="{
-              display: 'flex', justifyContent: 'space-between',
-              alignItems: 'baseline', padding: '8px 0',
-              fontSize: '13px', color: PANEL_FG,
-              borderBottom: i < roomsAll.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none',
-              gap: '12px',
-            }"
-          >
+          <div v-for="(r, i) in roomsAll" :key="r.id" :style="{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 0', fontSize: '13px', color: PANEL_FG, borderBottom: i < roomsAll.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none', gap: '12px' }">
             <span :style="{ flexShrink: 0 }">{{ r.name }}</span>
-            <span
-              :style="{
-                color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums',
-                fontSize: '12px', textAlign: 'right',
-              }"
-            >
-              {{ r.area }} м² · {{ r.ceiling.toFixed(1) }} м · {{ r.fxCount }}/{{ r.pointsMax }}
-            </span>
+            <span :style="{ color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums', fontSize: '12px', textAlign: 'right' }">{{ r.area }} м² · {{ r.ceiling.toFixed(1) }} м · {{ r.fxCount }}/{{ r.pointsMax }}</span>
           </div>
         </template>
-
         <template v-else-if="focusField === 'area'">
-          <div
-            v-for="(r, i) in roomsByArea"
-            :key="r.id"
-            :style="{
-              display: 'flex', justifyContent: 'space-between',
-              padding: '8px 0', fontSize: '13px', color: PANEL_FG,
-              borderBottom: i < roomsByArea.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none',
-            }"
-          >
+          <div v-for="(r, i) in roomsByArea" :key="r.id" :style="{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '13px', color: PANEL_FG, borderBottom: i < roomsByArea.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none' }">
             <span>{{ r.name }}</span>
-            <span :style="{ color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums' }">
-              {{ r.display }}
-            </span>
+            <span :style="{ color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums' }">{{ r.display }}</span>
           </div>
         </template>
-
         <template v-else-if="focusField === 'ceiling'">
-          <div
-            v-for="(r, i) in roomsByCeiling"
-            :key="r.id"
-            :style="{
-              display: 'flex', justifyContent: 'space-between',
-              padding: '8px 0', fontSize: '13px', color: PANEL_FG,
-              borderBottom: i < roomsByCeiling.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none',
-            }"
-          >
+          <div v-for="(r, i) in roomsByCeiling" :key="r.id" :style="{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '13px', color: PANEL_FG, borderBottom: i < roomsByCeiling.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none' }">
             <span>{{ r.name }}</span>
-            <span :style="{ color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums' }">
-              {{ r.ceiling.toFixed(1) }} м
-            </span>
+            <span :style="{ color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums' }">{{ r.ceiling.toFixed(1) }} м</span>
           </div>
         </template>
-
         <template v-else-if="focusField === 'light'">
-          <div
-            v-for="(r, i) in roomsByLight"
-            :key="r.id"
-            :style="{
-              display: 'flex', justifyContent: 'space-between',
-              alignItems: 'baseline', padding: '8px 0',
-              fontSize: '13px', color: PANEL_FG,
-              borderBottom: i < roomsByLight.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none',
-              gap: '8px',
-            }"
-          >
+          <div v-for="(r, i) in roomsByLight" :key="r.id" :style="{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 0', fontSize: '13px', color: PANEL_FG, borderBottom: i < roomsByLight.length - 1 ? `1px solid ${PANEL_DIVIDER}` : 'none', gap: '8px' }">
             <span>{{ r.name }}</span>
-            <span
-              :style="{
-                color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums', fontSize: '12px',
-              }"
-            >
-              {{ r.fxCount }}
-              <span :style="{ opacity: 0.6 }">из</span>
-              {{ r.pointsMax }} точек
-            </span>
+            <span :style="{ color: PANEL_FG_SEC, fontVariantNumeric: 'tabular-nums', fontSize: '12px' }">{{ r.fxCount }} <span :style="{ opacity: 0.6 }">из</span> {{ r.pointsMax }} точек</span>
           </div>
         </template>
       </div>
     </div>
 
-    <!-- ═══════ Toast ═══════ -->
-    <div
-      v-if="fieldToast && !expanded"
-      :style="{
-        position: 'fixed',
-        bottom: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        background: T.text,
-        color: T.bg,
-        padding: '12px 18px',
-        borderRadius: '10px',
-        fontSize: '12px',
-        fontWeight: 500,
-        lineHeight: 1.5,
-        zIndex: 95,
-        maxWidth: '85%',
-        textAlign: 'center',
-        boxShadow: '0 4px 20px rgba(0,0,0,.4)',
-      }"
-    >
+    <div v-if="fieldToast && !expanded" :style="{ position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)', background: T.text, color: T.bg, padding: '12px 18px', borderRadius: '10px', fontSize: '12px', fontWeight: 500, lineHeight: 1.5, zIndex: 95, maxWidth: '85%', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,.4)' }">
       {{ fieldToast }}
     </div>
 
-    <!-- ═══════ Spotlight tour ═══════ -->
-    <div
-      v-if="tourActive"
-      :style="{
-        position: 'fixed', inset: 0,
-        background: 'rgba(0,0,0,0.78)',
-        zIndex: 55,
-      }"
-      @click="finishTour"
-    />
-    <div
-      v-if="tourActive"
-      :style="{
-        position: 'fixed',
-        bottom: '24px', left: '50%',
-        transform: 'translateX(-50%)',
-        width: 'calc(100% - 32px)',
-        maxWidth: '420px',
-        background: T.card,
-        border: `1px solid ${T.neutral}33`,
-        borderRadius: '14px',
-        padding: '18px 20px',
-        zIndex: 65,
-        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-      }"
-    >
+    <div v-if="tourActive" :style="{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.78)', zIndex: 55 }" @click="finishTour" />
+    <div v-if="tourActive" :style="{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', width: 'calc(100% - 32px)', maxWidth: '420px', background: T.card, border: `1px solid ${T.neutral}33`, borderRadius: '14px', padding: '18px 20px', zIndex: 65, boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }">
       <div :style="{ display: 'flex', gap: '4px', marginBottom: '12px' }">
-        <div
-          v-for="(_, i) in TOUR_FIELDS"
-          :key="i"
-          :style="{
-            height: '3px', borderRadius: '2px',
-            flex: i === tourStep ? 2 : 1,
-            background: i === tourStep ? T.neutral : T.border,
-            transition: 'all .3s',
-          }"
-        />
+        <div v-for="(_, i) in TOUR_FIELDS" :key="i" :style="{ height: '3px', borderRadius: '2px', flex: i === tourStep ? 2 : 1, background: i === tourStep ? T.neutral : T.border, transition: 'all .3s' }" />
       </div>
-      <div
-        :style="{
-          fontSize: '10px', fontWeight: 700, color: T.neutral,
-          textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '6px',
-        }"
-      >
-        {{ tourCurrentText.title }}
-      </div>
-      <div
-        :style="{
-          fontSize: '14px', color: T.text, lineHeight: 1.55, marginBottom: '16px',
-        }"
-      >
-        {{ tourCurrentText.text }}
-      </div>
+      <div :style="{ fontSize: '10px', fontWeight: 700, color: T.neutral, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '6px' }">{{ tourCurrentText.title }}</div>
+      <div :style="{ fontSize: '14px', color: T.text, lineHeight: 1.55, marginBottom: '16px' }">{{ tourCurrentText.text }}</div>
       <div :style="{ display: 'flex', gap: '8px' }">
-        <button
-          :style="{
-            flex: 1, padding: '10px', background: 'none',
-            border: `1px solid ${T.border}`, color: T.textSec,
-            borderRadius: '8px', cursor: 'pointer',
-            fontSize: '13px', fontWeight: 600, fontFamily: 'inherit',
-          }"
-          @click="finishTour"
-        >
-          Пропустить
-        </button>
-        <button
-          :style="{
-            flex: 1, padding: '10px', background: T.neutral, color: T.bg,
-            border: 'none', borderRadius: '8px', cursor: 'pointer',
-            fontSize: '13px', fontWeight: 700, fontFamily: 'inherit',
-          }"
-          @click="nextTourStep"
-        >
-          {{ tourStep < 2 ? 'Дальше' : 'Готово' }}
-        </button>
+        <button :style="{ flex: 1, padding: '10px', background: 'none', border: `1px solid ${T.border}`, color: T.textSec, borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, fontFamily: 'inherit' }" @click="finishTour">Пропустить</button>
+        <button :style="{ flex: 1, padding: '10px', background: T.neutral, color: T.bg, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 700, fontFamily: 'inherit' }" @click="nextTourStep">{{ tourStep < 2 ? 'Дальше' : 'Готово' }}</button>
       </div>
     </div>
   </div>

@@ -4,6 +4,18 @@
  *
  * Источник: woodled-v42.jsx (блок зоны внутри 2×2 сетки RoomDetail).
  * Содержит: заголовок + процент + счётчик ламп + список светильников или ghost + кнопка «Больше Света».
+ *
+ * batch11 #6 (#3):
+ *   Кнопка «Больше Света» получила glass-pill дизайн, перенесённый с
+ *   главной страницы (RoomCard empty-state до удаления):
+ *     - borderRadius 999 (полная пилюля)
+ *     - padding 8px 12px (было 7px 10px)
+ *     - background rgba(255,255,255,0.04) + backdrop-blur(8px)
+ *     - border 1px solid mood.color + '66' (акцент в тон зоны)
+ *     - fontSize 12 (было 11), fontWeight 600
+ *     - gap 6px между иконкой и текстом
+ *     - subtle box-shadow для глубины
+ *   Disabled-вариант («Макс. N точек») — тоже pill, но в неактивных тонах.
  */
 
 import { computed } from 'vue'
@@ -181,44 +193,57 @@ const isEmptyMood = computed(() => props.mood.id === 'empty')
 
     <div :style="{ flex: 1 }" />
 
-    <!-- Кнопка «Больше Света» / «Макс. N точек» -->
+    <!-- batch11 #6 (#3): glass-pill «Больше Света», перенос с RoomCard -->
     <button
       v-if="canAdd"
       :style="{
         marginTop: '6px',
-        padding: '7px 10px',
-        background: RGBA.white10,
-        border: `1px solid ${RGBA.white18}`,
-        borderRadius: '6px',
+        width: '100%',
+        padding: '8px 12px',
+        background: 'rgba(255,255,255,0.04)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        border: `1px solid ${mood.color}66`,
+        borderRadius: '999px',
         color: T.text,
         cursor: 'pointer',
-        fontSize: '11px',
+        fontSize: '12px',
         fontWeight: 600,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '4px',
+        gap: '6px',
+        lineHeight: 1.4,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+        boxSizing: 'border-box',
+        fontFamily: 'inherit',
       }"
       @click="emit('add')"
     >
       <Icon name="up" :color="T.text" :size="14" />
       Больше Света
     </button>
+    <!-- Disabled-вариант — тоже pill, но в неактивных тонах -->
     <button
       v-else
       :style="{
         marginTop: '6px',
-        padding: '7px 10px',
-        background: RGBA.white03,
-        border: `1px solid ${RGBA.white08}`,
-        borderRadius: '6px',
+        width: '100%',
+        padding: '8px 12px',
+        background: 'rgba(255,255,255,0.02)',
+        border: `1px solid ${T.border}`,
+        borderRadius: '999px',
         color: T.textDim,
         cursor: 'pointer',
-        fontSize: '11px',
+        fontSize: '12px',
+        fontWeight: 500,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '4px',
+        gap: '6px',
+        lineHeight: 1.4,
+        boxSizing: 'border-box',
+        fontFamily: 'inherit',
       }"
       @click="emit('limitHit')"
     >
