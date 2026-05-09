@@ -3,10 +3,11 @@
  * MoodBlock.vue — Блок настроения с MoodArc.
  *
  * Fix 12: Прогресс-дуга обрезается по горизонту (clipPath).
- * batch9 #6: SVG responsive для iPhone —
- *   - Убраны фиксированные width/height в пользу viewBox + CSS
- *   - width: 100%, maxWidth: 280px, height: auto, aspectRatio
- *   - foreignObject для иконки скейлится вместе с SVG
+ * batch9 #6: SVG responsive для iPhone + glow не обрезается.
+ * batch9 #6 fix2:
+ *   - overflow: visible на SVG чтобы glow не клипался по бокам
+ *   - Иконка поднята выше — визуальный центр дуги (CY-56)
+ *   - margin: 0 auto на обёртке для центрирования
  */
 
 import { computed } from 'vue'
@@ -30,6 +31,9 @@ const W = 10
 const OR = R + W / 2
 const IR = R - W / 2
 const SVG_H = CY + 4
+
+/** Позиция иконки — визуальный центр полукруга (4R/3π ≈ 51px от диаметра) */
+const ICON_Y = CY - 56
 
 function pt(deg: number, radius: number) {
   const rad = (deg * Math.PI) / 180
@@ -63,15 +67,22 @@ const progressArc = computed(() => {
       Настроение {{ roomPrepName }}
     </div>
 
-    <div :style="{ display: 'flex', justifyContent: 'center', margin: '4px 0' }">
+    <div :style="{
+      display: 'flex',
+      justifyContent: 'center',
+      margin: '4px 0',
+      maxWidth: '280px',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    }">
       <svg
         :viewBox="`0 0 280 ${SVG_H}`"
         :style="{
           width: '100%',
-          maxWidth: '280px',
           height: 'auto',
           aspectRatio: `280 / ${SVG_H}`,
           display: 'block',
+          overflow: 'visible',
         }"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -81,10 +92,11 @@ const progressArc = computed(() => {
             <stop offset="100%" :stop-color="mood.color" stop-opacity="1.0" />
           </linearGradient>
           <clipPath id="moodHorizonClip">
-            <rect x="0" y="0" width="280" :height="CY" />
+            <rect x="-40" y="0" width="360" :height="CY" />
           </clipPath>
         </defs>
 
+        <!-- Свечение — overflow:visible позволяет glow выходить за viewBox -->
         <g clip-path="url(#moodHorizonClip)">
           <ellipse :cx="CX" :cy="CY - 10" rx="130" ry="100"
             :fill="mood.color" opacity="0.06" :style="{ filter: 'blur(30px)' }" />
@@ -92,8 +104,10 @@ const progressArc = computed(() => {
             :fill="mood.color" opacity="0.08" :style="{ filter: 'blur(20px)' }" />
         </g>
 
+        <!-- Трек -->
         <path :d="fullBand" fill="rgba(255,255,255,0.07)" />
 
+        <!-- Прогресс -->
         <g clip-path="url(#moodHorizonClip)">
           <path
             :d="progressArc"
@@ -104,9 +118,10 @@ const progressArc = computed(() => {
           />
         </g>
 
-        <circle :cx="CX" :cy="CY - 36" r="26" fill="transparent" :stroke="mood.color + '33'" stroke-width="1" />
-        <circle :cx="CX" :cy="CY - 36" r="22" :fill="mood.color + '08'" stroke="none" />
-        <g :transform="`translate(${CX - 14}, ${CY - 36 - 14})`">
+        <!-- Иконка — поднята к визуальному центру дуги -->
+        <circle :cx="CX" :cy="ICON_Y" r="26" fill="transparent" :stroke="mood.color + '33'" stroke-width="1" />
+        <circle :cx="CX" :cy="ICON_Y" r="22" :fill="mood.color + '08'" stroke="none" />
+        <g :transform="`translate(${CX - 14}, ${ICON_Y - 14})`">
           <foreignObject width="28" height="28">
             <Icon :name="(mood.iconKey ?? 'sun') as IconName" :color="mood.color" :size="28" />
           </foreignObject>

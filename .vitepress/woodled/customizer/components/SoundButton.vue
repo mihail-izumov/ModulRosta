@@ -3,9 +3,9 @@
  * SoundButton.vue — Кнопка звука леса.
  *
  * batch9 #8: scroll-detect + бежевая заливка.
- *   При scrollY > 0 (на главной без sticky NavHeader):
- *     background: #EAE0CA, icon color: #fff, без border.
- *   При scrollY === 0: прозрачный фон + border (как было).
+ * batch9 #8 fix2:
+ *   - Фон при скролле: T.neutral (системный бежевый #A89878)
+ *   - Иконка при скролле: T.bg (тёмный #13110E) — не белый
  *
  * ТРИ состояния, ТРИ разные иконки:
  *   1. muted   — volume-x
@@ -32,12 +32,10 @@ function onScroll() {
   isScrolled.value = window.scrollY > 0
 }
 
-const PANEL_BG = '#EAE0CA'
-
 const btnStyle = computed(() => {
   if (isScrolled.value) {
     return {
-      background: PANEL_BG,
+      background: T.neutral,
       border: 'none',
       borderRadius: '8px',
       padding: '6px 8px',
@@ -45,7 +43,7 @@ const btnStyle = computed(() => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      color: '#fff',
+      color: T.bg,
       transition: 'all .3s',
     }
   }
@@ -68,7 +66,7 @@ const btnStyle = computed(() => {
 const loading = computed(() => !muted.value && !playing.value)
 
 const iconColor = computed(() => {
-  if (isScrolled.value) return '#fff'
+  if (isScrolled.value) return T.bg
   if (muted.value) return T.textDim
   if (loading.value) return T.textSec
   return T.neutral

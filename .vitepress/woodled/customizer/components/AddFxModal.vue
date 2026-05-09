@@ -328,7 +328,7 @@ function cardPhase(idx: number): number {
             <div :style="{
               width: '100%', aspectRatio: '3 / 4', borderRadius: '14px',
               overflow: 'hidden', position: 'relative',
-              background: '#fff',
+              background: T.card,
             }">
               <!-- Loading: rotor animation -->
               <div :style="{
