@@ -8,6 +8,9 @@
  *   #6 — «Живой Дом» fontSize 22 → 33, иконка pen 18 → 27.
  *        Бейдж WOODLED ROTOR fontSize 10 → 15, padding 3px 12 → 5px 18.
  *   #7 — «4 комнаты» fontSize 16 → 24, marginTop 20 → 32, marginBottom 12 → 20.
+ *
+ * batch11 #8:
+ *   #2 — «Живой Дом» fontSize 33 → 30, иконка pen → circleEllipsis.
  */
 
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
@@ -345,8 +348,8 @@ function onPreloaderDone() {
             gap: '10px',
           }"
         >
-          <!-- batch11 #7 (#6): «Живой Дом» font 22 → 33 -->
-          <div :style="{ fontSize: '33px', fontWeight: 700, color: T.text, lineHeight: 1.2 }">
+          <!-- batch11 #8 (#2): «Живой Дом» font 33 → 30 -->
+          <div :style="{ fontSize: '30px', fontWeight: 700, color: T.text, lineHeight: 1.2 }">
             {{ cfg.name.value }}
           </div>
           <button
@@ -359,8 +362,8 @@ function onPreloaderDone() {
             }"
             @click="cfg.showName.value = true"
           >
-            <!-- batch11 #7 (#6): иконка pen 18 → 27 -->
-            <Icon name="pen" :color="T.textSec" :size="27" />
+            <!-- batch11 #8 (#3): pen → circleEllipsis -->
+            <Icon name="circleEllipsis" :color="T.textSec" :size="27" />
           </button>
         </div>
         <!-- batch11 #7 (#6): WOODLED ROTOR font 10 → 15, padding 3/12 → 5/18 -->

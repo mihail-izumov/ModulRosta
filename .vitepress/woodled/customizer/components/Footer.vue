@@ -9,6 +9,8 @@
  *
  * Ссылка «Начать заново» переехала в HouseStats → блок «Дополнительно».
  * Это единая точка управления домом — больше нигде не дублируется.
+ *
+ * batch11 #7 (#6): лого ×2 — width 130→260, height 22→44.
  */
 
 import { T } from '../theme/tokens'
@@ -28,8 +30,9 @@ const LOGO_URL = 'https://runscale.ru/woodled/customizer/woodled-logo.svg'
   >
     <div
       :style="{
-        width: '130px',
-        height: '22px',
+        /* batch11 #7 (#6): лого ×2 */
+        width: '260px',
+        height: '44px',
         background: T.neutral,
         maskImage: `url(${LOGO_URL})`,
         maskSize: 'contain',

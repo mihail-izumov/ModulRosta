@@ -10,6 +10,9 @@
  *   - Заголовок изменён: «Название» → «Какой дом — такое настроение».
  *   - Карточка модалки белая, без обводки.
  *   - Скролл body блокируется на время показа (как в Modal.vue).
+ *
+ * batch11 #8 (#2): maxlength 12 — название не должно вылезать за строку
+ *   заголовка на главной (30px font + иконка + SoundButton).
  */
 
 import { ref, onMounted, onUnmounted } from 'vue'
@@ -79,9 +82,11 @@ function save() {
         >
           Какой свет — такой дом
         </div>
+        <!-- batch11 #8 (#2): maxlength 12 — вмещается в строку на главной -->
         <input
           v-model="v"
           autofocus
+          maxlength="12"
           :style="{
             width: '100%',
             padding: '12px 14px',

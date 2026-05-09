@@ -13,10 +13,9 @@
  *   тонируются под cardColor (50% mix с дубовой гаммой) — каждая
  *   карточка получает анимацию в своём цвете.
  *
- * batch11 #6:
- *   #2 — пилюля 8px со всех сторон (теперь переопределено в #7)
- *   #3 — «Больше Света» удалена с empty-state (перенесена в ZoneCard)
- *   #4 — пульсирующий «+» в центре (теперь переопределено в #7)
+ * batch11 #8 (#1): nameTextStyle стал computed — маска fade применяется
+ *   ТОЛЬКО для длинных названий (> 8 символов). Стандартные названия
+ *   комнат (Гостиная, Спальня, Кухня и т.д.) не затрагиваются.
  */
 
 import { computed } from 'vue'
@@ -145,18 +144,25 @@ const badgeStyle = computed(() => {
 })
 
 /**
- * batch11 #7 (#3): Маска fade-to-transparent на правом краю,
- * длинные названия растворяются вместо обрезки.
+ * batch11 #8 (#1): Маска fade-to-transparent ТОЛЬКО для длинных названий.
+ * Стандартные названия (Гостиная, Спальня и т.д. — все ≤ 8 символов)
+ * отображаются полностью без маски. Пользовательские длинные названия
+ * получают fade на правом краю.
  */
-const nameTextStyle = {
-  flex: 1,
-  minWidth: 0,
-  whiteSpace: 'nowrap' as const,
-  overflow: 'hidden' as const,
-  display: 'block',
-  WebkitMaskImage: 'linear-gradient(to right, #000 calc(100% - 16px), transparent)',
-  maskImage: 'linear-gradient(to right, #000 calc(100% - 16px), transparent)',
-}
+const nameTextStyle = computed(() => {
+  const needsFade = roomName.value.length > 8
+  return {
+    flex: 1,
+    minWidth: 0,
+    whiteSpace: 'nowrap' as const,
+    overflow: 'hidden' as const,
+    display: 'block',
+    ...(needsFade ? {
+      WebkitMaskImage: 'linear-gradient(to right, #000 calc(100% - 16px), transparent)',
+      maskImage: 'linear-gradient(to right, #000 calc(100% - 16px), transparent)',
+    } : {}),
+  }
+})
 
 const bgShadowColor = computed(() => {
   const cc = props.room.cardColor
