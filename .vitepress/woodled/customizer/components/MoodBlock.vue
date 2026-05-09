@@ -9,11 +9,18 @@
  *   - Glow через radialGradient (без CSS filter / shadowBlur)
  *   - Иконка — HTML overlay поверх canvas
  *   - Прогресс-дуга: clockwise left→top→right
+ *
+ * batch9 #7 — динамический desc (9 фаз внутри 3 mood):
+ *   - moodDesc(ratio) из data/moods.ts
+ *   - empty-state (ratio <= 0) → fallback на статический mood.desc из MOOD_EMPTY
+ *   - реально MoodBlock не рендерится без светильников (см. RoomDetail.vue
+ *     v-if="props.room.fixtures.length > 0"), но fallback оставлен на всякий
  */
 
 import { computed, ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { T } from '../theme/tokens'
 import type { Mood } from '../data/moods'
+import { moodDesc } from '../data/moods'
 import { ratioToAngle } from '../engine/brightness'
 import Icon, { type IconName } from './ui/Icons.vue'
 
@@ -24,6 +31,11 @@ interface Props {
 }
 const props = defineProps<Props>()
 const emit = defineEmits<{ showDetail: [] }>()
+
+/* ──────────── Динамический desc по 9 фазам ──────────── */
+const desc = computed(() =>
+  props.mood.id === 'empty' ? props.mood.desc : moodDesc(props.ratio),
+)
 
 /* ──────────── Геометрия (логические координаты) ──────────── */
 const LW = 280
@@ -238,7 +250,7 @@ watch(() => [props.ratio, props.mood.color], () => {
     </div>
 
     <div class="mood-name">{{ mood.name }}</div>
-    <div class="mood-desc">{{ mood.desc }}</div>
+    <div class="mood-desc">{{ desc }}</div>
 
     <button
       class="mood-detail-btn"
