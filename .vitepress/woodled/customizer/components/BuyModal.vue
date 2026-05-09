@@ -87,8 +87,8 @@ function storyLinkStyle() {
 }
 function fxCardStyle(roomId: string, fxIdx: number) {
   const sel = isDiscounted(roomId, fxIdx)
-  /* batch11 #1 v2: padding 12px — равные отступы со всех сторон от иконки */
-  return { width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: sel ? 'rgba(255,255,255,0.05)' : T.card, border: `1px solid ${sel ? 'rgba(255,255,255,0.15)' : T.border}`, borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'background 0.15s, border-color 0.15s' }
+  /* batch11 #1 v3: padding 6px + icon 48×48 — иконка крупнее, карточка чуть ниже */
+  return { width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '6px', background: sel ? 'rgba(255,255,255,0.05)' : T.card, border: `1px solid ${sel ? 'rgba(255,255,255,0.15)' : T.border}`, borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'background 0.15s, border-color 0.15s' }
 }
 function woodBadgeStyle(woodColor: string) {
   return { display: 'inline-flex', alignItems: 'center', gap: '5px', marginTop: '3px', padding: '2px 7px 2px 5px', borderRadius: '5px', background: woodColor + '14', fontSize: '11px', color: woodColor, fontWeight: 500 }
@@ -177,8 +177,8 @@ function woodBadgeStyle(woodColor: string) {
           <div :style="{ display: 'flex', flexDirection: 'column', gap: '6px', paddingBottom: ri < filledRooms.length - 1 ? '12px' : '0' }">
             <button v-for="(fx, i) in r.fixtures" :key="i" :style="fxCardStyle(r.id, i)" @click="onFxClick(r.id, i)">
               <div v-if="discountMode" :style="{ width: '18px', height: '18px', borderRadius: '50%', border: `2px solid ${isDiscounted(r.id, i) ? T.text : T.textDim}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }"><div v-if="isDiscounted(r.id, i)" :style="{ width: '8px', height: '8px', borderRadius: '50%', background: T.text }" /></div>
-              <!-- batch11 #1 v2: 40×40 — по высоте от названия до бейджа дерева -->
-              <div :style="{ width: '40px', height: '40px', borderRadius: '10px', background: WCOL[fx.wood ?? 'oak'] + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }"><Icon :name="fxIcName(MD[fx.m].type)" :color="WCOL[fx.wood ?? 'oak']" :size="20" /></div>
+              <!-- batch11 #1 v3: 48×48 — крупнее, карточка ниже за счёт padding 6px -->
+              <div :style="{ width: '48px', height: '48px', borderRadius: '12px', background: WCOL[fx.wood ?? 'oak'] + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }"><Icon :name="fxIcName(MD[fx.m].type)" :color="WCOL[fx.wood ?? 'oak']" :size="24" /></div>
               <div :style="{ flex: 1, minWidth: 0 }">
                 <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text, display: 'flex', alignItems: 'center', gap: '6px' }"><span>{{ MD[fx.m].name }}</span><span v-if="(fx.q ?? 1) > 1" :style="{ color: T.textSec, fontWeight: 400, fontSize: '12px' }">× {{ fx.q }}</span></div>
                 <div :style="woodBadgeStyle(WCOL[fx.wood ?? 'oak'])"><div :style="{ width: '8px', height: '8px', borderRadius: '50%', background: WCOL[fx.wood ?? 'oak'] }" />{{ MATS.find((x) => x.id === (fx.wood ?? 'oak'))?.name }}</div>
