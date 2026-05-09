@@ -7,6 +7,10 @@
  *
  * batch7 #2: «Смарт-подбор» → «WOODLED Smart» (заголовок секции в шаге size,
  *            заголовок help-модалки).
+ *
+ * batch11 #1: Иконка в summary-карточке — fxIcName(model.type) вместо
+ *             захардкоженного "ceiling". Теперь бра, торшер, настольная
+ *             и спот показывают свою иконку.
  */
 
 import { computed, ref } from 'vue'
@@ -15,7 +19,8 @@ import { MD, FAMILIES, type Fixture, type ModelId } from '../data/catalog'
 import { MATS, BOWLS as ALL_BOWLS, BTEMPS, DEF_OPT, OPT_PRICE, WOOD_TIPS, OPT_TIPS, type Wood, type Bowl } from '../data/materials'
 import { getBright } from '../data/moods'
 import { buildSizeRecommendation, type AreaFit, type SizeCandidate } from '../engine/autosize'
-import Icon, { type IconName } from './ui/Icons.vue'
+/* batch11 #1: добавлен fxIcName для динамической иконки типа светильника */
+import Icon, { fxIcName, type IconName } from './ui/Icons.vue'
 import NavHeader from './ui/NavHeader.vue'
 import SmartHelpModal from './ui/SmartHelpModal.vue'
 import { buildFixtureShareUrl } from '../engine/share'
@@ -182,7 +187,8 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
       <template v-if="view==='summary'">
         <div :style="{background:T.card,border:`1px solid ${isDone?sc+'44':T.border}`,borderRadius:'14px',padding:'14px',marginBottom:'16px'}">
           <div :style="{display:'flex',alignItems:'center',gap:'12px'}">
-            <div :style="{width:'52px',height:'52px',borderRadius:'12px',background:WCOL[build.wood]+'22',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}"><Icon name="ceiling" :color="WCOL[build.wood]" :size="26"/></div>
+            <!-- batch11 #1: fxIcName(model.type) вместо захардкоженного "ceiling" -->
+            <div :style="{width:'52px',height:'52px',borderRadius:'12px',background:WCOL[build.wood]+'22',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}"><Icon :name="fxIcName(model.type)" :color="WCOL[build.wood]" :size="26"/></div>
             <div :style="{flex:1,minWidth:0}">
               <div :style="{fontSize:'15px',fontWeight:700,color:T.text,marginBottom:'4px'}">{{ model.name }}</div>
               <div :style="{display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}">

@@ -7,15 +7,10 @@
  * batch10 #5 v3:
  *   Блок «Посмотрите на свой лес» использует НОВЫЙ компонент GradientFill —
  *   аврора-фон из дышащих радиальных blob-ов вместо крутящегося conic.
- *   Conic давал видимый центр схождения (плохо для fill-режима);
- *   blob-ы перекрываются и переливаются без видимого направления.
  *
- *   Цвета берутся из cardColor всех комнат — раз у стартовых rooms
- *   ROOM_TINTS из разных hue-семейств (sage/mauve/yellow/cream),
- *   аврора получается контрастной и переливающейся.
- *
- *   Подзаголовок «Узнайте, какой свет вы создали» — 13px, fontWeight 600
- *   (как подпись параметров комнаты).
+ * batch11 #1:
+ *   Добавлена иконка типа светильника (fxIcName) в карточках списка —
+ *   квадратик 36×36 с фоном в тон дерева, как в блоке скидки.
  */
 
 import { computed, ref, reactive } from 'vue'
@@ -181,6 +176,8 @@ function woodBadgeStyle(woodColor: string) {
           <div :style="{ display: 'flex', flexDirection: 'column', gap: '6px', paddingBottom: ri < filledRooms.length - 1 ? '12px' : '0' }">
             <button v-for="(fx, i) in r.fixtures" :key="i" :style="fxCardStyle(r.id, i)" @click="onFxClick(r.id, i)">
               <div v-if="discountMode" :style="{ width: '18px', height: '18px', borderRadius: '50%', border: `2px solid ${isDiscounted(r.id, i) ? T.text : T.textDim}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }"><div v-if="isDiscounted(r.id, i)" :style="{ width: '8px', height: '8px', borderRadius: '50%', background: T.text }" /></div>
+              <!-- batch11 #1: иконка типа светильника -->
+              <div :style="{ width: '36px', height: '36px', borderRadius: '8px', background: WCOL[fx.wood ?? 'oak'] + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }"><Icon :name="fxIcName(MD[fx.m].type)" :color="WCOL[fx.wood ?? 'oak']" :size="18" /></div>
               <div :style="{ flex: 1, minWidth: 0 }">
                 <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text, display: 'flex', alignItems: 'center', gap: '6px' }"><span>{{ MD[fx.m].name }}</span><span v-if="(fx.q ?? 1) > 1" :style="{ color: T.textSec, fontWeight: 400, fontSize: '12px' }">× {{ fx.q }}</span></div>
                 <div :style="woodBadgeStyle(WCOL[fx.wood ?? 'oak'])"><div :style="{ width: '8px', height: '8px', borderRadius: '50%', background: WCOL[fx.wood ?? 'oak'] }" />{{ MATS.find((x) => x.id === (fx.wood ?? 'oak'))?.name }}</div>
