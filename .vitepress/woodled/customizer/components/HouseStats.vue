@@ -5,13 +5,13 @@
  * v4 — переработка по фидбеку (см. предыдущие версии).
  *
  * batch7 #12: «S комнат» теперь показывает диапазон min–max,
- * как поле «потолок». Логика:
- *   - Каждая комната по дефолту имеет ranges (например '12–20').
- *     Парсим и складываем min/max отдельно.
- *   - Если sizeIndex === 3 (custom area), эта комната даёт min === max.
- *   - Если итоговая сумма min === max (все комнаты — custom либо у
- *     всех ranges одна цифра) — показываем одну цифру.
- *   - Иначе — формат «X–Y».
+ * как поле «потолок».
+ *
+ * batch11 #5 (#1, #6):
+ *   #1 — Все три цифры (S комнат / потолок / свет) одного размера 28px.
+ *        Убрано адаптивное уменьшение для длинных диапазонов.
+ *   #6 — «Поделиться домом» → «Поделиться», «Начать заново» → «Сбросить»,
+ *        fontSize 11 → 14.
  *
  * Эмиты: shareLink, changeHome.
  */
@@ -306,17 +306,6 @@ function fieldStyle(field: FieldId) {
     cursor: isEmpty.value ? 'default' : 'pointer',
   }
 }
-
-/**
- * Динамический размер шрифта для значения «S комнат» —
- * чтобы диапазон вида «120–180» влезал в плашку на узких экранах.
- */
-const areaFontSize = computed(() => {
-  const v = totalAreaDisplay.value ?? '—'
-  if (v.length <= 4) return '28px'
-  if (v.length <= 6) return '22px'
-  return '18px'
-})
 </script>
 
 <template>
@@ -355,9 +344,10 @@ const areaFontSize = computed(() => {
           >
             S комнат
           </div>
+          <!-- batch11 #5 (#1): единый 28px для всех трёх цифр -->
           <div
             :style="{
-              fontSize: areaFontSize, fontWeight: 800,
+              fontSize: '28px', fontWeight: 800,
               color: isEmpty ? PANEL_FG_SEC : PANEL_FG,
               fontVariantNumeric: 'tabular-nums', lineHeight: 1,
               whiteSpace: 'nowrap',
@@ -429,6 +419,7 @@ const areaFontSize = computed(() => {
           gap: '6px',
         }"
       >
+        <!-- batch11 #5 (#6): «Поделиться домом» → «Поделиться», font 11 → 14 -->
         <button
           :style="{
             flex: 1,
@@ -441,7 +432,7 @@ const areaFontSize = computed(() => {
             alignItems: 'center',
             justifyContent: 'center',
             gap: '6px',
-            fontSize: '11px',
+            fontSize: '14px',
             fontWeight: 600,
             color: PANEL_FG,
             fontFamily: 'inherit',
@@ -457,8 +448,9 @@ const areaFontSize = computed(() => {
             <polyline points="16 6 12 2 8 6" />
             <line x1="12" y1="2" x2="12" y2="15" />
           </svg>
-          Поделиться домом
+          Поделиться
         </button>
+        <!-- batch11 #5 (#6): «Начать заново» → «Сбросить», font 11 → 14 -->
         <button
           :style="{
             flex: 1,
@@ -471,7 +463,7 @@ const areaFontSize = computed(() => {
             alignItems: 'center',
             justifyContent: 'center',
             gap: '6px',
-            fontSize: '11px',
+            fontSize: '14px',
             fontWeight: 600,
             color: PANEL_FG,
             fontFamily: 'inherit',
@@ -486,7 +478,7 @@ const areaFontSize = computed(() => {
             <path d="M4 10a8 8 0 1 1 8 8H4" />
             <path d="m8 22-4-4 4-4" />
           </svg>
-          Начать заново
+          Сбросить
         </button>
       </div>
     </div>

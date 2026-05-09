@@ -3,6 +3,8 @@
  * OnboardingLink.vue — Блок «Дерево продолжает светить».
  *
  * Fix 8: Ссылка открывается в том же окне (убран target="_blank").
+ *
+ * batch11 #5 (#7): подзаголовок 11px → 13px, weight 500.
  */
 
 import { T } from '../theme/tokens'
@@ -45,7 +47,8 @@ const ONBOARDING_URL = 'https://runscale.ru/woodled/onboarding'
       <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
         Дерево продолжает светить
       </div>
-      <div :style="{ fontSize: '11px', color: T.textSec }">
+      <!-- batch11 #5 (#7): font 13, weight 500 -->
+      <div :style="{ fontSize: '13px', fontWeight: 500, color: T.textSec }">
         Как работает свет WOODLED
       </div>
     </div>

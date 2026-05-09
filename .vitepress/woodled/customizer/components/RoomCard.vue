@@ -2,24 +2,17 @@
 /**
  * RoomCard.vue — Карточка комнаты на главном экране.
  *
- * Fix v5 (empty state):
- *   - Дубовый лист заменён на анимацию сборки ротора (12 ламелей).
- *     Та же логика, что в Preloader (assemble) и RoomDetail dashboard
- *     (rotor-dash) — ламели циклично собираются в круг и медленно
- *     вращаются. Размер/положение/прозрачность/тени — как у листа.
- *   - Ламели всегда в дубовом градиенте (бренд rotor); цвет карточки
- *     передаётся через тонирующую drop-shadow.
- *   - НЕ трогается лист в ZoneCard на странице комнаты — он остаётся.
+ * batch11 #5:
+ *   #2 — Иконка палитры (выбор цвета) переехала ВНУТРЬ бейджа с названием
+ *        комнаты, справа от текста. Убрана absolute-кнопка top:8 left:8.
+ *   #3 — Бейдж стал в 2 раза больше: borderRadius 999 (полная пилюля),
+ *        fontSize 11 → 17, padding 4px 14px → 8px 14px 8px 22px (асимметрия
+ *        под иконку справа).
+ *   #4 — Кнопка «Больше Света» растянута на всю ширину карточки. Боковые
+ *        отступы = картовый padding (14px) = такой же как снизу.
+ *   #5 — Названия дерева: fontSize 10 → 11, fontWeight default → 500.
  *
- * Fix v6 (batch6 — desync + slowdown):
- *   - Spin: 30s → 90s (почти неощутимое вращение)
- *   - Cycle: 5s → 12s (спокойное «дыхание»)
- *   - Stagger: 60ms → 144ms (пропорционально, wave-эффект тот же)
- *   - Per-instance random negative delays — 4 карточки на главной
- *     никогда не в одной фазе, гипноз убран.
- *
- * Кнопка «Больше Света» — glassmorphism: subtle bg, backdrop-blur,
- * pill-форма, цвет в тон карточки. Лежит над ротором (zIndex 2).
+ * batch6 (старое): десинхронизация и замедление анимации ротора в empty.
  */
 
 import { computed } from 'vue'
@@ -44,7 +37,6 @@ const ratio = computed(() => (base.value > 0 ? actual.value / base.value : 0))
 const mood = computed(() => autoMood(ratio.value))
 
 // ── batch6: per-instance random offsets для десинхронизации ──
-// Negative delay = анимация стартует «уже в процессе», без паузы.
 const cardSpinOffset = `-${(Math.random() * 90).toFixed(2)}s`
 const cardCycleOffset = `-${(Math.random() * 12).toFixed(2)}s`
 
@@ -70,17 +62,20 @@ const cardStyle = computed(() => {
   }
 })
 
+/** batch11 #5 (#3): пилюля + большой шрифт + место под иконку справа. */
 const badgeStyle = computed(() => {
   const cc = props.room.cardColor
   const tint = cc ?? (mood.value.id === 'empty' ? null : T.neutral)
   return {
-    display: 'inline-block',
-    padding: '4px 14px',
-    borderRadius: '12px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '8px 14px 8px 22px',
+    borderRadius: '999px',
     background: cc
       ? `linear-gradient(135deg, ${cc}cc, ${cc}88)`
       : tint ? tint + '30' : T.border,
-    fontSize: '11px',
+    fontSize: '17px',
     fontWeight: 600,
     color: '#fff',
     position: 'relative' as const,
@@ -91,7 +86,6 @@ const badgeStyle = computed(() => {
 // Цвета для empty state
 const accentColor = computed(() => props.room.cardColor ?? T.textSec)
 const accentText = computed(() => props.room.cardColor ?? T.text)
-// Цвет тонирующей тени — карточный, либо нейтральный тёмный
 const bgShadowColor = computed(() => {
   const cc = props.room.cardColor
   return cc ? cc + '50' : '#00000080'
@@ -116,6 +110,9 @@ const circles = computed<Circle[]>(() => {
   })
   return out
 })
+
+/** Цвет иконки палитры внутри бейджа — белый, чтобы контрастировать с tint-фоном. */
+const paletteIconColor = computed(() => '#fff')
 </script>
 
 <template>
@@ -153,59 +150,55 @@ const circles = computed<Circle[]>(() => {
       </div>
     </div>
 
-    <!-- ═══ Палитра (выбор цвета) ═══ -->
-    <button
-      :style="{
-        position: 'absolute',
-        top: '8px',
-        left: '8px',
-        width: '28px',
-        height: '28px',
-        borderRadius: '50%',
-        background: props.room.cardColor ? props.room.cardColor + '44' : T.border,
-        border: 'none',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 0,
-        transition: 'all .2s',
-        zIndex: 3,
-      }"
-      @click.stop="emit('pickColor')"
-    >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" :stroke="props.room.cardColor ?? T.textSec" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/>
-        <circle cx="13.5" cy="6.5" r="1.5" :fill="props.room.cardColor ?? T.textSec" stroke="none"/>
-        <circle cx="17.5" cy="10.5" r="1.5" :fill="props.room.cardColor ?? T.textSec" stroke="none"/>
-        <circle cx="6.5" cy="12.5" r="1.5" :fill="props.room.cardColor ?? T.textSec" stroke="none"/>
-        <circle cx="8.5" cy="7.5" r="1.5" :fill="props.room.cardColor ?? T.textSec" stroke="none"/>
-      </svg>
-    </button>
-
-    <!-- ═══ Badge с названием ═══ -->
+    <!-- ═══ Бейдж с названием комнаты + иконка палитры внутри ═══ -->
+    <!-- batch11 #5 (#2, #3): иконка палитры справа от названия, бейдж-пилюля -->
     <div :style="badgeStyle">
-      {{ props.room.customName || rt.name }}
+      <span>{{ props.room.customName || rt.name }}</span>
+      <button
+        :style="{
+          background: 'rgba(255,255,255,0.18)',
+          border: 'none',
+          borderRadius: '50%',
+          width: '24px',
+          height: '24px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 0,
+          flexShrink: 0,
+        }"
+        @click.stop="emit('pickColor')"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" :stroke="paletteIconColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/>
+          <circle cx="13.5" cy="6.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
+          <circle cx="17.5" cy="10.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
+          <circle cx="6.5" cy="12.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
+          <circle cx="8.5" cy="7.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
+        </svg>
+      </button>
     </div>
 
-    <!-- ═══ Empty state: pill-кнопка над ротором ═══ -->
+    <!-- ═══ Empty state: full-width кнопка над ротором ═══ -->
     <template v-if="mood.id === 'empty'">
       <div
         :style="{
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
+          alignItems: 'stretch',
           justifyContent: 'flex-end',
           width: '100%',
           position: 'relative',
           zIndex: 2,
         }"
       >
-        <!-- Glassmorphism pill -->
+        <!-- batch11 #5 (#4): кнопка на всю ширину, отступы боковые = card padding (14px) -->
         <div
           :style="{
-            padding: '4px 12px',
+            width: '100%',
+            padding: '8px 12px',
             background: props.room.cardColor
               ? props.room.cardColor + '14'
               : 'rgba(255,255,255,0.04)',
@@ -214,17 +207,18 @@ const circles = computed<Circle[]>(() => {
             border: `1px solid ${accentColor}66`,
             borderRadius: '999px',
             color: accentText,
-            fontSize: '10px',
+            fontSize: '12px',
             fontWeight: 600,
-            display: 'inline-flex',
+            display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '4px',
+            gap: '6px',
             lineHeight: 1.4,
             boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+            boxSizing: 'border-box',
           }"
         >
-          <Icon name="up" :color="accentText" :size="12" />
+          <Icon name="up" :color="accentText" :size="14" />
           Больше Света
         </div>
       </div>
@@ -266,13 +260,15 @@ const circles = computed<Circle[]>(() => {
           >
             <Icon :name="fxIcName(c.type as any)" :color="T.bg" :size="16" />
           </div>
+          <!-- batch11 #5 (#5): названия дерева 10→11, weight 500 -->
           <div
             :style="{
-              fontSize: '10px',
+              fontSize: '11px',
+              fontWeight: 500,
               color: T.text,
               marginTop: '4px',
               lineHeight: 1.2,
-              opacity: 0.8,
+              opacity: 0.85,
             }"
           >
             {{ c.matName }}
@@ -284,21 +280,6 @@ const circles = computed<Circle[]>(() => {
 </template>
 
 <style scoped>
-/**
- * Анимация сборки ротора для empty-карточки.
- *
- * batch6: замедление (spin 90s, cycle 12s) + десинхронизация
- * (random negative animation-delay через inline :style).
- *
- * Все animation-delay управляются inline — здесь только
- * animation shorthand без delay-компоненты.
- *
- * Геометрия: контейнер 130×130, ламель 4×36px, сборка на translateY(-45px),
- * scattered на translateY(-60px). Всё внутри 130×130 без overflow.
- *
- * Брендовый дубовый градиент — как в Preloader (--pl-oakL/oak/oakD).
- */
-
 .rotor-card {
   width: 100%;
   height: 100%;

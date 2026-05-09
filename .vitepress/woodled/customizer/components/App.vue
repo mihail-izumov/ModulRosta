@@ -4,6 +4,9 @@
  *
  * Fix 8+: beforeunload → persistState, onMounted → restorePersistedState.
  * Fix v2: SoundButton wrapper top: 10px → 8px (центрирование в 48px NavHeader).
+ *
+ * batch11 #5 (#8): «Добавить комнату» — плюс 28→56 (×2), текст 11→14 (+3),
+ *                  текст в две строки.
  */
 
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
@@ -408,6 +411,7 @@ function onPreloaderDone() {
           @click="cfg.active.value = r.id"
           @pick-color="onPickColor(r)"
         />
+        <!-- batch11 #5 (#8): «+» 28→56, текст 11→14 в 2 строки -->
         <div
           :style="{
             border: `1px dashed ${T.border}`,
@@ -419,12 +423,12 @@ function onPreloaderDone() {
             flexDirection: 'column',
             cursor: 'pointer',
             color: T.textDim,
-            gap: '6px',
+            gap: '10px',
           }"
           @click="cfg.picker.value = true"
         >
-          <div :style="{ fontSize: '28px' }">+</div>
-          <div :style="{ fontSize: '11px' }">Добавить комнату</div>
+          <div :style="{ fontSize: '56px', lineHeight: 1 }">+</div>
+          <div :style="{ fontSize: '14px', lineHeight: 1.25, textAlign: 'center' }">Добавить<br/>комнату</div>
         </div>
       </div>
 
@@ -570,7 +574,6 @@ function onPreloaderDone() {
   </template>
 
   <!-- ═══════ ГЛОБАЛЬНЫЕ ═══════ -->
-  <!-- top: 8px → центр кнопки совпадает с центром 48px NavHeader -->
   <div
     :style="{
       position: 'fixed',

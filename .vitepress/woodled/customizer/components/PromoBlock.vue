@@ -4,6 +4,8 @@
  *
  * Источник: woodled-v42.jsx (главный экран, блок с IC.gift).
  * Показывается когда все комнаты пусты. По клику открывает гостиную.
+ *
+ * batch11 #5 (#7): подзаголовок 11px → 13px, weight 500.
  */
 
 import { T, RGBA } from '../theme/tokens'
@@ -45,7 +47,8 @@ const emit = defineEmits<{ click: [] }>()
       <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
         3 000 ₽ на первый светильник
       </div>
-      <div :style="{ fontSize: '11px', color: T.textSec }">
+      <!-- batch11 #5 (#7): font 13, weight 500 -->
+      <div :style="{ fontSize: '13px', fontWeight: 500, color: T.textSec }">
         Соберите лес WOODLED Rotor и получите скидку
       </div>
     </div>
