@@ -5,10 +5,9 @@
  * Fix 9: Убран текст «Система освещения...», «Делитесь...» белым жирным,
  *         заменён subtitle раздела «Пространство для света».
  *
- * batch8 #4: В кнопке «Создать с чистого листа» справа от текста добавлена
- *            анимация rotor-dash (тот же паттерн что в кнопке WOODLED Smart
- *            на dashboard-блоке RoomDetail). Цвет ламелей — T.bg (тёмный),
- *            чтобы читался на бежевой кнопке T.text.
+ * batch8 #4: В кнопке «Создать с чистого листа» добавлена
+ *            анимация rotor-dash. Цвет ламелей — T.bg (тёмный).
+ * batch8-fix: Иконка перемещена СЛЕВА от текста (была справа).
  */
 
 import { computed } from 'vue'
@@ -579,8 +578,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
       <div :style="{ flex: 1, height: '1px', background: T.border }" />
     </div>
 
-    <!-- batch8 #4: rotor-dash иконка справа от текста.
-         Цвет ламелей T.bg (тёмный) — читается на бежевой кнопке T.text. -->
+    <!-- batch8 #4 + batch8-fix: rotor-dash иконка СЛЕВА от текста -->
     <button
       :style="{
         display: 'flex',
@@ -604,7 +602,6 @@ const SECTION_LABEL = 'Какой размер ближе?'
       }"
       @click="startEmpty"
     >
-      Создать с чистого листа
       <div class="welcome-rotor" :style="{ '--rc': T.bg }" aria-hidden="true">
         <div
           v-for="i in 10"
@@ -616,6 +613,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
           }"
         />
       </div>
+      Создать с чистого листа
     </button>
   </div>
 </template>
@@ -643,10 +641,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
 </style>
 
 <style scoped>
-/* FIX-2026-05-09-deploy — если этой строки нет в репо после загрузки, значит залился старый файл */
-/* batch8 #4: rotor-dash anim для CTA-кнопки. Тот же паттерн что в
-   dashboard-блоке RoomDetail, но локально в этом файле — общего
-   shared CSS у проекта нет (конвенция inline :style). */
+/* FIX-2026-05-09-batch8fix — маркер верификации деплоя */
 .welcome-rotor {
   width: 20px;
   height: 20px;
