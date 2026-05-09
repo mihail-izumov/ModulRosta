@@ -497,6 +497,7 @@ function onShowMoodDetail() {
 </template>
 
 <style scoped>
+/* FIX-2026-05-09-deploy — если этой строки нет в репо после загрузки, значит залился старый файл */
 .rotor-dash { width: 20px; height: 20px; position: relative; flex-shrink: 0; }
 .rotor-dash-l {
   position: absolute; top: 50%; left: 50%;

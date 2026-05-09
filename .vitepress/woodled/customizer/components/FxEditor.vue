@@ -301,6 +301,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
 </template>
 
 <style scoped>
+/* FIX-2026-05-09-deploy — если этой строки нет в репо после загрузки, значит залился старый файл */
 .rotor-mini { width: 32px; height: 32px; position: relative; flex-shrink: 0; }
 .rotor-mini-l {
   position: absolute; top: 50%; left: 50%;

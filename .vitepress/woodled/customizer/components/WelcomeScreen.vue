@@ -643,6 +643,7 @@ const SECTION_LABEL = 'Какой размер ближе?'
 </style>
 
 <style scoped>
+/* FIX-2026-05-09-deploy — если этой строки нет в репо после загрузки, значит залился старый файл */
 /* batch8 #4: rotor-dash anim для CTA-кнопки. Тот же паттерн что в
    dashboard-блоке RoomDetail, но локально в этом файле — общего
    shared CSS у проекта нет (конвенция inline :style). */
