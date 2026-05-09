@@ -2,11 +2,12 @@
 /**
  * App.vue — Корневой роутер.
  *
- * Fix 8+: beforeunload → persistState, onMounted → restorePersistedState.
- * Fix v2: SoundButton wrapper top: 10px → 8px (центрирование в 48px NavHeader).
- *
- * batch11 #5 (#8): «Добавить комнату» — плюс 28→56 (×2), текст 11→14 (+3),
- *                  текст в две строки.
+ * batch11 #7:
+ *   #1 — Карточка «Добавить комнату»: убран «+», осталось только текстовое
+ *        приглашение по центру.
+ *   #6 — «Живой Дом» fontSize 22 → 33, иконка pen 18 → 27.
+ *        Бейдж WOODLED ROTOR fontSize 10 → 15, padding 3px 12 → 5px 18.
+ *   #7 — «4 комнаты» fontSize 16 → 24, marginTop 20 → 32, marginBottom 12 → 20.
  */
 
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
@@ -287,7 +288,6 @@ function onPreloaderDone() {
 </script>
 
 <template>
-  <!-- ═══════ МАРШРУТЫ (взаимоисключающие) ═══════ -->
   <template v-if="activeFxData">
     <FxEditor
       :key="activeFxData.roomId + ':' + activeFxData.fxIdx"
@@ -342,10 +342,11 @@ function onPreloaderDone() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px',
+            gap: '10px',
           }"
         >
-          <div :style="{ fontSize: '22px', fontWeight: 700, color: T.text }">
+          <!-- batch11 #7 (#6): «Живой Дом» font 22 → 33 -->
+          <div :style="{ fontSize: '33px', fontWeight: 700, color: T.text, lineHeight: 1.2 }">
             {{ cfg.name.value }}
           </div>
           <button
@@ -358,20 +359,22 @@ function onPreloaderDone() {
             }"
             @click="cfg.showName.value = true"
           >
-            <Icon name="pen" :color="T.textSec" :size="18" />
+            <!-- batch11 #7 (#6): иконка pen 18 → 27 -->
+            <Icon name="pen" :color="T.textSec" :size="27" />
           </button>
         </div>
+        <!-- batch11 #7 (#6): WOODLED ROTOR font 10 → 15, padding 3/12 → 5/18 -->
         <div
           :style="{
             display: 'inline-block',
-            marginTop: '6px',
-            padding: '3px 12px',
-            borderRadius: '10px',
+            marginTop: '10px',
+            padding: '5px 18px',
+            borderRadius: '14px',
             background: T.neutral + '18',
-            fontSize: '10px',
+            fontSize: '15px',
             fontWeight: 700,
             color: T.neutral,
-            letterSpacing: '0.5px',
+            letterSpacing: '0.75px',
           }"
         >
           WOODLED ROTOR
@@ -383,13 +386,14 @@ function onPreloaderDone() {
         @change-home="onResetClick"
       />
 
+      <!-- batch11 #7 (#7): «N комнат» font 16 → 24, отступы 20/12 → 32/20 -->
       <div
         :style="{
-          fontSize: '16px',
+          fontSize: '24px',
           fontWeight: 600,
           color: T.text,
-          marginBottom: '12px',
-          marginTop: '20px',
+          marginTop: '32px',
+          marginBottom: '20px',
           textAlign: 'center',
         }"
       >
@@ -411,7 +415,7 @@ function onPreloaderDone() {
           @click="cfg.active.value = r.id"
           @pick-color="onPickColor(r)"
         />
-        <!-- batch11 #5 (#8): «+» 28→56, текст 11→14 в 2 строки -->
+        <!-- batch11 #7 (#1): убран «+», осталось только текстовое приглашение по центру -->
         <div
           :style="{
             border: `1px dashed ${T.border}`,
@@ -420,15 +424,14 @@ function onPreloaderDone() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            flexDirection: 'column',
             cursor: 'pointer',
             color: T.textDim,
-            gap: '10px',
           }"
           @click="cfg.picker.value = true"
         >
-          <div :style="{ fontSize: '56px', lineHeight: 1 }">+</div>
-          <div :style="{ fontSize: '14px', lineHeight: 1.25, textAlign: 'center' }">Добавить<br/>комнату</div>
+          <div :style="{ fontSize: '15px', fontWeight: 500, lineHeight: 1.3, textAlign: 'center' }">
+            Добавить<br/>комнату
+          </div>
         </div>
       </div>
 
@@ -440,7 +443,6 @@ function onPreloaderDone() {
     </div>
   </template>
 
-  <!-- ═══════ Модалки ═══════ -->
   <template v-if="!activeFxData">
     <TypePicker
       v-if="cfg.picker.value"
@@ -573,7 +575,6 @@ function onPreloaderDone() {
     />
   </template>
 
-  <!-- ═══════ ГЛОБАЛЬНЫЕ ═══════ -->
   <div
     :style="{
       position: 'fixed',

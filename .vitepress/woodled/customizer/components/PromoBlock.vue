@@ -6,6 +6,7 @@
  * Показывается когда все комнаты пусты. По клику открывает гостиную.
  *
  * batch11 #5 (#7): подзаголовок 11px → 13px, weight 500.
+ * batch11 #7 (#5): убран хвост «и получите скидку» из подзаголовка.
  */
 
 import { T, RGBA } from '../theme/tokens'
@@ -47,9 +48,9 @@ const emit = defineEmits<{ click: [] }>()
       <div :style="{ fontSize: '13px', fontWeight: 600, color: T.text }">
         3 000 ₽ на первый светильник
       </div>
-      <!-- batch11 #5 (#7): font 13, weight 500 -->
+      <!-- batch11 #7 (#5): «и получите скидку» убрано -->
       <div :style="{ fontSize: '13px', fontWeight: 500, color: T.textSec }">
-        Соберите лес WOODLED Rotor и получите скидку
+        Соберите лес WOODLED Rotor
       </div>
     </div>
     <svg

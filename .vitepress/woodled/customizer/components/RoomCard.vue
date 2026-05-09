@@ -2,16 +2,21 @@
 /**
  * RoomCard.vue — Карточка комнаты на главном экране.
  *
+ * batch11 #7 (#2): Левый padding пилюли увеличен до 14px (визуальный воздух
+ *   перед текстом). Обёртка с padding 0 6px — пилюля не упирается в края
+ *   карточки. Длинные названия скрываются маской с fade-to-transparent.
+ *
+ * batch11 #7 (#4): Анимация в центре синхронизирована с rotor cycle (12s),
+ *   pulseOffset = cardCycleOffset чтобы фаза совпадала с появлением ламелей.
+ *   Кольцо толще (3px), плюс — SVG со stroke-linecap round (жирные
+ *   скруглённые штрихи как ламели). Цвета ламелей + кольца + плюса
+ *   тонируются под cardColor (50% mix с дубовой гаммой) — каждая
+ *   карточка получает анимацию в своём цвете.
+ *
  * batch11 #6:
- *   #2 — Пилюля с названием комнаты УЖЕ: padding 8px со всех сторон
- *        (было асимметрично 8px 14px 8px 22px). Боковые отступы =
- *        вертикальные = 8px (как воздух вокруг иконки палитры).
- *   #3 — Кнопка «Больше Света» полностью удалена. Дизайн перенесён
- *        в ZoneCard на странице комнаты.
- *   #4 — В центр rotor-анимации (для пустых карточек) добавлен
- *        пульсирующий круг с «+» внутри. Дизайн в дубовых тонах
- *        (как ламели), пульсирует opacity + scale, показывая что
- *        карточка в спящем режиме и ждёт действия.
+ *   #2 — пилюля 8px со всех сторон (теперь переопределено в #7)
+ *   #3 — «Больше Света» удалена с empty-state (перенесена в ZoneCard)
+ *   #4 — пульсирующий «+» в центре (теперь переопределено в #7)
  */
 
 import { computed } from 'vue'
@@ -35,11 +40,50 @@ const actual = computed(() => fxLm(props.room.fixtures))
 const ratio = computed(() => (base.value > 0 ? actual.value / base.value : 0))
 const mood = computed(() => autoMood(ratio.value))
 
-// batch6: per-instance random offsets для десинхронизации
+// Per-instance offset для десинхронизации между карточками
 const cardSpinOffset = `-${(Math.random() * 90).toFixed(2)}s`
 const cardCycleOffset = `-${(Math.random() * 12).toFixed(2)}s`
-// batch11 #6 (#4): отдельный offset для пульса, чтобы карточки не пульсировали в унисон
-const pulseOffset = `-${(Math.random() * 2.5).toFixed(2)}s`
+
+/**
+ * batch11 #7 (#4): Цветовое тонирование ламелей + пульса.
+ * 50% mix дубовой гаммы с cardColor — сохраняет дубовую природу,
+ * добавляет оттенок выбранного цвета карточки.
+ */
+const OAK_LIGHT = '#d4b87a'
+const OAK_MID = '#b4915a'
+const OAK_DARK = '#8a6e3e'
+
+function hexToRgb(h: string): [number, number, number] {
+  const c = h.replace('#', '')
+  return [
+    parseInt(c.slice(0, 2), 16),
+    parseInt(c.slice(2, 4), 16),
+    parseInt(c.slice(4, 6), 16),
+  ]
+}
+function rgbToHex(r: number, g: number, b: number): string {
+  const h = (n: number) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0')
+  return `#${h(r)}${h(g)}${h(b)}`
+}
+function mix(c1: string, c2: string, ratio: number): string {
+  const [r1, g1, b1] = hexToRgb(c1)
+  const [r2, g2, b2] = hexToRgb(c2)
+  return rgbToHex(
+    r1 * (1 - ratio) + r2 * ratio,
+    g1 * (1 - ratio) + g2 * ratio,
+    b1 * (1 - ratio) + b2 * ratio,
+  )
+}
+
+const lamellaColors = computed(() => {
+  const cc = props.room.cardColor
+  if (!cc) return { light: OAK_LIGHT, mid: OAK_MID, dark: OAK_DARK }
+  return {
+    light: mix(OAK_LIGHT, cc, 0.5),
+    mid: mix(OAK_MID, cc, 0.5),
+    dark: mix(OAK_DARK, cc, 0.5),
+  }
+})
 
 const cardStyle = computed(() => {
   const isEmpty = mood.value.id === 'empty'
@@ -61,15 +105,32 @@ const cardStyle = computed(() => {
   }
 })
 
-/** batch11 #6 (#2): пилюля уже — padding 8px со всех сторон. */
+/**
+ * batch11 #7 (#2): Обёртка вокруг бейджа — даёт 6px воздуха с боков
+ * чтобы пилюля не упиралась в края карточки.
+ */
+const badgeWrapStyle = {
+  width: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+  padding: '0 6px',
+  boxSizing: 'border-box' as const,
+  position: 'relative' as const,
+  zIndex: 2,
+}
+
+/**
+ * batch11 #7 (#2): Левый padding 14 (визуальный воздух перед текстом),
+ * правый 8 (вплотную к иконке палитры). Max-width: 100% от wrap.
+ */
 const badgeStyle = computed(() => {
   const cc = props.room.cardColor
   const tint = cc ?? (mood.value.id === 'empty' ? null : T.neutral)
   return {
-    display: 'inline-flex',
+    display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    padding: '8px',
+    padding: '8px 8px 8px 14px',
     borderRadius: '999px',
     background: cc
       ? `linear-gradient(135deg, ${cc}cc, ${cc}88)`
@@ -77,10 +138,25 @@ const badgeStyle = computed(() => {
     fontSize: '17px',
     fontWeight: 600,
     color: '#fff',
-    position: 'relative' as const,
-    zIndex: 2,
+    maxWidth: '100%',
+    boxSizing: 'border-box' as const,
+    minWidth: 0,
   }
 })
+
+/**
+ * batch11 #7 (#3): Маска fade-to-transparent на правом краю,
+ * длинные названия растворяются вместо обрезки.
+ */
+const nameTextStyle = {
+  flex: 1,
+  minWidth: 0,
+  whiteSpace: 'nowrap' as const,
+  overflow: 'hidden' as const,
+  display: 'block',
+  WebkitMaskImage: 'linear-gradient(to right, #000 calc(100% - 16px), transparent)',
+  maskImage: 'linear-gradient(to right, #000 calc(100% - 16px), transparent)',
+}
 
 const bgShadowColor = computed(() => {
   const cc = props.room.cardColor
@@ -108,14 +184,12 @@ const circles = computed<Circle[]>(() => {
 })
 
 const paletteIconColor = computed(() => '#fff')
-
-/** Текст названия — для боковой части пилюли (для отступа слева). */
 const roomName = computed(() => props.room.customName || rt.value.name)
 </script>
 
 <template>
   <div :style="cardStyle" @click="emit('click')">
-    <!-- ═══ BG-ротор: ламели (только в empty) ═══ -->
+    <!-- ═══ BG-ротор: ламели в дубово-тонированных цветах карточки ═══ -->
     <div
       v-if="mood.id === 'empty'"
       :style="{
@@ -125,10 +199,13 @@ const roomName = computed(() => props.room.customName || rt.value.name)
         transform: 'translate(-50%, -50%)',
         width: '130px',
         height: '130px',
-        opacity: 0.18,
+        opacity: 0.25,
         filter: `drop-shadow(0 8px 18px ${bgShadowColor}) drop-shadow(0 2px 4px rgba(0,0,0,0.3))`,
         pointerEvents: 'none',
         zIndex: 0,
+        '--lc1': lamellaColors.light,
+        '--lc2': lamellaColors.mid,
+        '--lc3': lamellaColors.dark,
       }"
       aria-hidden="true"
     >
@@ -145,7 +222,7 @@ const roomName = computed(() => props.room.customName || rt.value.name)
       </div>
     </div>
 
-    <!-- ═══ batch11 #6 (#4): пульсирующий «+» в круге, поверх ламелей ═══ -->
+    <!-- ═══ batch11 #7 (#4): пульсирующий «+» в круге, синхронизирован с cycle ═══ -->
     <div
       v-if="mood.id === 'empty'"
       class="rotor-pulse"
@@ -156,42 +233,59 @@ const roomName = computed(() => props.room.customName || rt.value.name)
         transform: 'translate(-50%, -50%)',
         pointerEvents: 'none',
         zIndex: 1,
-        animationDelay: pulseOffset,
+        animationDelay: cardCycleOffset,
+        '--lc-mid': lamellaColors.mid,
+        '--lc-light': lamellaColors.light,
       }"
       aria-hidden="true"
     >
       <div class="rotor-pulse-ring">
-        <span class="rotor-pulse-plus">+</span>
+        <svg width="22" height="22" viewBox="0 0 22 22" :style="{ display: 'block' }">
+          <line
+            x1="11" y1="4" x2="11" y2="18"
+            :stroke="lamellaColors.light"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+          <line
+            x1="4" y1="11" x2="18" y2="11"
+            :stroke="lamellaColors.light"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+        </svg>
       </div>
     </div>
 
-    <!-- ═══ Бейдж с названием + иконка палитры ═══ -->
-    <div :style="badgeStyle">
-      <span>{{ roomName }}</span>
-      <button
-        :style="{
-          background: 'rgba(255,255,255,0.18)',
-          border: 'none',
-          borderRadius: '50%',
-          width: '24px',
-          height: '24px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 0,
-          flexShrink: 0,
-        }"
-        @click.stop="emit('pickColor')"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" :stroke="paletteIconColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/>
-          <circle cx="13.5" cy="6.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
-          <circle cx="17.5" cy="10.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
-          <circle cx="6.5" cy="12.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
-          <circle cx="8.5" cy="7.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
-        </svg>
-      </button>
+    <!-- ═══ Бейдж: обёртка с воздухом + пилюля с маской ═══ -->
+    <div :style="badgeWrapStyle">
+      <div :style="badgeStyle">
+        <span :style="nameTextStyle">{{ roomName }}</span>
+        <button
+          :style="{
+            background: 'rgba(255,255,255,0.18)',
+            border: 'none',
+            borderRadius: '50%',
+            width: '24px',
+            height: '24px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0,
+            flexShrink: 0,
+          }"
+          @click.stop="emit('pickColor')"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" :stroke="paletteIconColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/>
+            <circle cx="13.5" cy="6.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
+            <circle cx="17.5" cy="10.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
+            <circle cx="6.5" cy="12.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
+            <circle cx="8.5" cy="7.5" r="1.5" :fill="paletteIconColor" stroke="none"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- ═══ Filled state: круги светильников ═══ -->
@@ -256,6 +350,7 @@ const roomName = computed(() => props.room.customName || rt.value.name)
   animation: rotorCardSpin 90s linear infinite;
 }
 
+/* batch11 #7 (#4): цвета через CSS-переменные — тонируются под cardColor */
 .rotor-card-l {
   position: absolute;
   top: 50%;
@@ -264,7 +359,7 @@ const roomName = computed(() => props.room.customName || rt.value.name)
   height: 36px;
   margin: -18px 0 0 -2px;
   border-radius: 2px;
-  background: linear-gradient(to bottom, #d4b87a, #b4915a, #8a6e3e);
+  background: linear-gradient(to bottom, var(--lc1, #d4b87a), var(--lc2, #b4915a), var(--lc3, #8a6e3e));
   transform-origin: 50% 50%;
   animation: rotorCardCycle 12s ease-in-out infinite;
   opacity: 0;
@@ -282,38 +377,35 @@ const roomName = computed(() => props.room.customName || rt.value.name)
   100% { transform: rotate(var(--rot)) translateY(-60px) scale(0.3); opacity: 0; }
 }
 
-/* batch11 #6 (#4): пульсирующий «+» в круге, дубовые тона */
+/* batch11 #7 (#4): пульс синхронизирован с cycle (12s, тот же offset).
+   Толще, тонированный, со скруглёнными штрихами на «+». */
 .rotor-pulse {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: rotorPulse 2.4s ease-in-out infinite;
+  animation: rotorPulse 12s ease-in-out infinite;
 }
 
 .rotor-pulse-ring {
-  width: 38px;
-  height: 38px;
-  border: 2px solid #b4915a;
+  width: 42px;
+  height: 42px;
+  border: 3px solid var(--lc-mid, #b4915a);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(180, 145, 90, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  box-sizing: border-box;
 }
 
-.rotor-pulse-plus {
-  font-size: 24px;
-  font-weight: 300;
-  color: #d4b87a;
-  line-height: 1;
-  /* Микроподъём чтобы оптически центрировать «+» */
-  margin-top: -2px;
-}
-
+/* Pulse в фазе с rotor cycle:
+   - 0/100% (момент исчезновения ламелей): минимум — opacity 0.35, scale 0.9
+   - 50% (момент пика яркости ламелей):    максимум — opacity 1, scale 1.1
+*/
 @keyframes rotorPulse {
-  0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(1); }
-  50%      { opacity: 0.9;  transform: translate(-50%, -50%) scale(1.08); }
+  0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) scale(0.92); }
+  50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.1);  }
 }
 </style>
