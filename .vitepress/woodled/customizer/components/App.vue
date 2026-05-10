@@ -2,9 +2,10 @@
 /**
  * App.vue — Корневой роутер.
  *
- * batch11 #8 v2:
- *   #1 — «Живой Дом» fontWeight 500, иконка убрана, прерывистое подчёркивание
- *         (border-bottom dashed). Клик по заголовку открывает NameModal.
+ * batch11 #8 v3:
+ *   #1 — Подчёркивание: белый цвет (T.text), длинные штрихи через
+ *         repeating-linear-gradient (9px dash, 4px gap).
+ *   #2 — Бейдж WOODLED ROTOR: borderRadius 14 → 999 (полная пилюля).
  */
 
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
@@ -44,127 +45,55 @@ import { decodeFixture, readHashFixture } from '../engine/share'
 
 const cfg = useConfigurator()
 
-/* ─────────── Deeplinks ─────────── */
-
 onMounted(() => {
   window.addEventListener('beforeunload', cfg.persistState)
-
-  if (cfg.loadFromHash()) {
-    cfg.dismissWelcome()
-    return
-  }
-
+  if (cfg.loadFromHash()) { cfg.dismissWelcome(); return }
   const fxEncoded = readHashFixture()
   if (fxEncoded) {
     const fx = decodeFixture(fxEncoded)
     if (fx) {
       let targetRoom = cfg.rooms.find((r: Room) => r.typeId === 'living') ?? null
-      if (!targetRoom) {
-        const roomId = cfg.add('living')
-        targetRoom = cfg.rooms.find((r: Room) => r.id === roomId) ?? null
-      }
-      if (targetRoom) {
-        cfg.addFixture(targetRoom.id, fx)
-        const fxIdx = targetRoom.fixtures.length - 1
-        cfg.showBuy.value = true
-        cfg.openFx(targetRoom.id, fxIdx)
-      }
+      if (!targetRoom) { const roomId = cfg.add('living'); targetRoom = cfg.rooms.find((r: Room) => r.id === roomId) ?? null }
+      if (targetRoom) { cfg.addFixture(targetRoom.id, fx); const fxIdx = targetRoom.fixtures.length - 1; cfg.showBuy.value = true; cfg.openFx(targetRoom.id, fxIdx) }
       cfg.dismissWelcome()
     }
-    window.history.replaceState({}, '', window.location.pathname)
-    return
+    window.history.replaceState({}, '', window.location.pathname); return
   }
-
   const link = readModelLink()
   if (link) {
     let targetRoom = cfg.rooms.find((r: Room) => r.typeId === 'living') ?? null
-    if (!targetRoom) {
-      const roomId = cfg.add('living')
-      targetRoom = cfg.rooms.find((r: Room) => r.id === roomId) ?? null
-    }
-    if (targetRoom) {
-      const fx = { m: link.modelId, q: 1, wood: 'oak' as const, zone: link.zone }
-      cfg.addFixture(targetRoom.id, fx)
-      const fxIdx = targetRoom.fixtures.length - 1
-      cfg.showBuy.value = true
-      cfg.openFx(targetRoom.id, fxIdx)
-      cfg.dismissWelcome()
-    }
-    clearModelLink()
-    return
+    if (!targetRoom) { const roomId = cfg.add('living'); targetRoom = cfg.rooms.find((r: Room) => r.id === roomId) ?? null }
+    if (targetRoom) { const fx = { m: link.modelId, q: 1, wood: 'oak' as const, zone: link.zone }; cfg.addFixture(targetRoom.id, fx); const fxIdx = targetRoom.fixtures.length - 1; cfg.showBuy.value = true; cfg.openFx(targetRoom.id, fxIdx); cfg.dismissWelcome() }
+    clearModelLink(); return
   }
-
-  if (cfg.welcomeSeen.value) {
-    if (!cfg.restorePersistedState()) {
-      cfg.ensureStarterRooms()
-    }
-  }
+  if (cfg.welcomeSeen.value) { if (!cfg.restorePersistedState()) { cfg.ensureStarterRooms() } }
 })
 
-onUnmounted(() => {
-  window.removeEventListener('beforeunload', cfg.persistState)
-})
-
-/* ─────────── Computed ─────────── */
+onUnmounted(() => { window.removeEventListener('beforeunload', cfg.persistState) })
 
 const rooms = computed<Room[]>(() => cfg.rooms as Room[])
-
-const sortedRooms = computed<Room[]>(() => {
-  return [...rooms.value].sort((a, b) => {
-    const aFilled = a.fixtures.length > 0 ? 0 : 1
-    const bFilled = b.fixtures.length > 0 ? 0 : 1
-    return aFilled - bFilled
-  })
-})
-
+const sortedRooms = computed<Room[]>(() => [...rooms.value].sort((a, b) => (a.fixtures.length > 0 ? 0 : 1) - (b.fixtures.length > 0 ? 0 : 1)))
 const activeRoom = computed(() => cfg.activeRoom.value)
-
-const subtitle = computed(() => {
-  const n = rooms.value.length
-  if (n === 0) return 'Добавьте комнату'
-  return `${n} ${rw(n)}`
-})
+const subtitle = computed(() => { const n = rooms.value.length; return n === 0 ? 'Добавьте комнату' : `${n} ${rw(n)}` })
 
 const activeFxData = computed(() => {
-  const af = cfg.activeFx.value
-  if (!af) return null
-  const room = cfg.rooms.find((r: Room) => r.id === af.roomId)
-  if (!room) return null
-  const fx = room.fixtures[af.fxIdx]
-  if (!fx) return null
+  const af = cfg.activeFx.value; if (!af) return null
+  const room = cfg.rooms.find((r: Room) => r.id === af.roomId); if (!room) return null
+  const fx = room.fixtures[af.fxIdx]; if (!fx) return null
   return { room, fx, roomId: af.roomId, fxIdx: af.fxIdx }
 })
 
 const fxEditorRoomContext = computed(() => {
   if (!activeFxData.value) return null
-  const { room, fx } = activeFxData.value
-  const rt = getRT(room.typeId)
-  const roomArea = getArea(rt, room as Room)
-  const roomBaseLm = baseLm(rt, room as Room)
-  const roomCurrentLm = fxLm(room.fixtures)
-  const m = MD[fx.m]
+  const { room, fx } = activeFxData.value; const rt = getRT(room.typeId)
+  const roomArea = getArea(rt, room as Room); const roomBaseLm = baseLm(rt, room as Room)
+  const roomCurrentLm = fxLm(room.fixtures); const m = MD[fx.m]
   const thisFxLm = m ? m.lmPer * (fx.l ?? m.lamps) * (fx.q ?? 1) : 0
-  const roomCurrentLmWithoutThis = roomCurrentLm - thisFxLm
-  const roomName = (room as Room).customName || rt.name
-  const roomTint = (room as Room).cardColor ?? T.neutral
-  return { roomArea, roomBaseLm, roomCurrentLmWithoutThis, roomName, roomTint }
+  return { roomArea, roomBaseLm, roomCurrentLmWithoutThis: roomCurrentLm - thisFxLm, roomName: (room as Room).customName || rt.name, roomTint: (room as Room).cardColor ?? T.neutral }
 })
 
-const fxBackLabel = computed(() => {
-  if (cfg.showBuy.value) return '← Мой лес'
-  if (cfg.active.value) return '← Комната'
-  return '← Назад'
-})
-
-const stickyVisible = computed(
-  () =>
-    cfg.hasFixtures.value &&
-    !cfg.showBuy.value &&
-    !cfg.activeFx.value &&
-    !cfg.showMoodDetail.value,
-)
-
-/* ─────────── Handlers ─────────── */
+const fxBackLabel = computed(() => { if (cfg.showBuy.value) return '← Мой лес'; if (cfg.active.value) return '← Комната'; return '← Назад' })
+const stickyVisible = computed(() => cfg.hasFixtures.value && !cfg.showBuy.value && !cfg.activeFx.value && !cfg.showMoodDetail.value)
 
 function onPromoClick() { cfg.showBuy.value = true }
 function onEditRoom(room: Room) { cfg.updateRoom(room) }
@@ -176,13 +105,9 @@ function onFxSave(next: Fixture) { const af = cfg.activeFx.value; if (!af) retur
 function onFxDelete() { const af = cfg.activeFx.value; if (!af) return; cfg.removeFixture(af.roomId, af.fxIdx); cfg.closeFx(); cfg.showFB('Светильник удалён') }
 function onFxClose() { cfg.closeFx() }
 
-/* ─────────── Цвет карточки ─────────── */
-
 const colorPickRoom = ref<Room | null>(null)
 function onPickColor(room: Room) { colorPickRoom.value = room }
 function onColorPicked(color: string | undefined) { if (colorPickRoom.value) { cfg.updateRoom({ ...colorPickRoom.value, cardColor: color }); colorPickRoom.value = { ...colorPickRoom.value, cardColor: color } } }
-
-/* ─────────── Сброс ─────────── */
 
 const showResetConfirm = ref(false)
 function onResetClick() { showResetConfirm.value = true }
@@ -190,19 +115,9 @@ function onResetConfirm() { cfg.resetAll(); showResetConfirm.value = false }
 function onResetCancel() { showResetConfirm.value = false }
 function onSaveShareLink() { cfg.showShare.value = true }
 
-const anyModalOpen = computed<boolean>(() =>
-  cfg.showFirst.value || cfg.showName.value || cfg.showStory.value || cfg.showShare.value ||
-  cfg.showMoodDetail.value !== null || cfg.picker.value || colorPickRoom.value !== null || showResetConfirm.value,
-)
+const anyModalOpen = computed<boolean>(() => cfg.showFirst.value || cfg.showName.value || cfg.showStory.value || cfg.showShare.value || cfg.showMoodDetail.value !== null || cfg.picker.value || colorPickRoom.value !== null || showResetConfirm.value)
 
-/* ─────────── Scroll to top ─────────── */
-
-watch(
-  () => [cfg.active.value, cfg.activeFx.value, cfg.welcomeSeen.value, cfg.showBuy.value],
-  () => { nextTick(() => window.scrollTo({ top: 0, behavior: 'instant' })) },
-)
-
-/* ─────────── Preloader ─────────── */
+watch(() => [cfg.active.value, cfg.activeFx.value, cfg.welcomeSeen.value, cfg.showBuy.value], () => { nextTick(() => window.scrollTo({ top: 0, behavior: 'instant' })) })
 
 const preloaderDone = ref(false)
 watch(() => cfg.welcomeSeen.value, (seen) => { if (!seen) preloaderDone.value = false })
@@ -234,27 +149,31 @@ function onPreloaderDone() { preloaderDone.value = true }
       }"
     >
       <div :style="{ textAlign: 'center', marginBottom: '20px', paddingTop: '8px' }">
-        <!-- batch11 #8 v2 (#1): weight 500, dashed underline, кликабельный, без иконки -->
         <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'center' }">
+          <!-- batch11 #8 v3 (#1): белый цвет, длинные штрихи (9px dash / 4px gap) -->
           <div
             :style="{
               fontSize: '30px',
               fontWeight: 500,
               color: T.text,
               lineHeight: 1.2,
-              borderBottom: `1px dashed ${T.textDim}`,
-              paddingBottom: '2px',
+              paddingBottom: '4px',
               cursor: 'pointer',
+              backgroundImage: `repeating-linear-gradient(to right, ${T.text} 0, ${T.text} 9px, transparent 9px, transparent 13px)`,
+              backgroundSize: '100% 1px',
+              backgroundPosition: 'bottom',
+              backgroundRepeat: 'no-repeat',
             }"
             @click="cfg.showName.value = true"
           >
             {{ cfg.name.value }}
           </div>
         </div>
+        <!-- batch11 #8 v3 (#2): borderRadius 999 — полная пилюля -->
         <div
           :style="{
             display: 'inline-block', marginTop: '10px', padding: '5px 18px',
-            borderRadius: '14px', background: T.neutral + '18',
+            borderRadius: '999px', background: T.neutral + '18',
             fontSize: '15px', fontWeight: 700, color: T.neutral, letterSpacing: '0.75px',
           }"
         >
@@ -264,25 +183,13 @@ function onPreloaderDone() { preloaderDone.value = true }
 
       <HouseStats @share-link="onSaveShareLink" @change-home="onResetClick" />
 
-      <div
-        :style="{
-          fontSize: '24px', fontWeight: 600, color: T.text,
-          marginTop: '32px', marginBottom: '20px', textAlign: 'center',
-        }"
-      >
+      <div :style="{ fontSize: '24px', fontWeight: 600, color: T.text, marginTop: '32px', marginBottom: '20px', textAlign: 'center' }">
         {{ subtitle }}
       </div>
 
       <div :style="{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }">
         <RoomCard v-for="r in sortedRooms" :key="r.id" :room="r" @click="cfg.active.value = r.id" @pick-color="onPickColor(r)" />
-        <div
-          :style="{
-            border: `1px dashed ${T.border}`, borderRadius: '12px', minHeight: '160px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: T.textDim,
-          }"
-          @click="cfg.picker.value = true"
-        >
+        <div :style="{ border: `1px dashed ${T.border}`, borderRadius: '12px', minHeight: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: T.textDim }" @click="cfg.picker.value = true">
           <div :style="{ fontSize: '15px', fontWeight: 500, lineHeight: 1.3, textAlign: 'center' }">Добавить<br/>комнату</div>
         </div>
       </div>
@@ -290,7 +197,6 @@ function onPreloaderDone() { preloaderDone.value = true }
       <PromoBlock @click="onPromoClick" />
       <OnboardingLink />
       <Footer />
-
       <div v-if="stickyVisible" :style="{ height: '80px' }" />
     </div>
   </template>
@@ -322,7 +228,6 @@ function onPreloaderDone() { preloaderDone.value = true }
   <div :style="{ position: 'fixed', top: '8px', right: '16px', zIndex: 90, display: anyModalOpen ? 'none' : 'block' }">
     <SoundButton />
   </div>
-
   <Toast :msg="cfg.fb.value" @done="cfg.clearFB" />
 </template>
 
