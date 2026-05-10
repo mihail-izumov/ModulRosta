@@ -1,6 +1,11 @@
 /**
  * configurator.ts — Состояние конфигуратора
  *
+ * batch11 #9: добавлен showRoomSettings — глобальный флаг открытой
+ *   страницы параметров комнаты. Используется в App.vue чтобы скрыть
+ *   StickyBar только в RoomSettings (на самом RoomDetail StickyBar
+ *   остаётся видимым).
+ *
  * Fix 2: flatMap q>1 → отдельные светильники (с deep clone opts/done).
  * Fix 8+: Автоперсистенция после каждой мутации.
  */
@@ -95,6 +100,14 @@ const showName = ref(false)
 const showStory = ref(false)
 const showBuy = ref(false)
 const showShare = ref(false)
+
+/**
+ * batch11 #9: открыт ли экран параметров комнаты (RoomSettings).
+ * Сам RoomSettings.vue ставит true в onMounted и false в onUnmounted.
+ * App.vue использует этот флаг чтобы скрыть StickyBar именно в настройках,
+ * не трогая видимость на самом RoomDetail.
+ */
+const showRoomSettings = ref(false)
 
 const fb = ref<string | null>(null)
 
@@ -289,7 +302,6 @@ function loadTemplate(templateId: string): void {
           wood: f.wood,
           zone: f.zone,
           l: f.l,
-          // Deep clone opts/done — иначе копии шарят ссылку
           opts: f.opts ? { ...f.opts } : undefined,
           done: [...doneList],
         }))
@@ -317,6 +329,7 @@ function resetAll(): void {
   showFirst.value = false
   showName.value = false
   showMoodDetail.value = null
+  showRoomSettings.value = false
   picker.value = false
   if (typeof window !== 'undefined') {
     try {
@@ -339,6 +352,7 @@ export function useConfigurator() {
     showStory,
     showBuy,
     showShare,
+    showRoomSettings,
     fb,
     discountFx,
     activeFx,
