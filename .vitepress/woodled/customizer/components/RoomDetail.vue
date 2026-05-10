@@ -6,6 +6,12 @@
  *
  * batch7 #2: «Смарт-подбор» → «WOODLED Smart» (в кнопке + заголовке модалки).
  * batch7 #10: текст параметров комнаты 11px → 13px, fontWeight 600.
+ *
+ * batch11 #9 v4: handleSettingsPatch → handleSettingsSave.
+ *   Теперь RoomSettings шлёт ОДИН emit('save', updated) с полным объектом
+ *   комнаты вместо нескольких per-key emit('patch') — это устраняет race
+ *   condition, из-за которого изменения площади/потолка/лимитов терялись
+ *   на пути в HouseStats и движок яркости.
  */
 
 import { computed, ref } from 'vue'
@@ -108,8 +114,13 @@ function addFx(fx: Fixture) {
   emit('openFx', props.room.id, newIdx)
 }
 
-function handleSettingsPatch(key: keyof Room, value: unknown, toast?: string) {
-  emit('update', { ...props.room, [key]: value as Room[typeof key] })
+/**
+ * batch11 #9 v4: ОДИН emit с полным room вместо нескольких per-key patch.
+ * RoomSettings собирает все изменения в локальный draft и шлёт сюда
+ * атомарно, чтобы исключить race condition при последовательных мутациях.
+ */
+function handleSettingsSave(updated: Room, toast?: string) {
+  emit('update', updated)
   if (toast) emit('feedback', toast)
 }
 
@@ -434,7 +445,7 @@ function onShowMoodDetail() {
       v-if="showSettings"
       :rt="rt"
       :room="props.room"
-      @patch="handleSettingsPatch"
+      @save="handleSettingsSave"
       @close="showSettings = false"
     />
 

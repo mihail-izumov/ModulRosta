@@ -2,15 +2,17 @@
 /**
  * RoomSettings.vue — Полноэкранный экран настроек комнаты.
  *
- * batch11 #9 v3:
- *  + onMounted поднимает cfg.showRoomSettings = true (App.vue читает
- *    этот флаг чтобы скрыть StickyBar именно в настройках, а не на
- *    самом RoomDetail).
- *  + onMounted также блокирует overflow body/html — иначе на iOS Safari
- *    при свайпе через RoomSettings подложка тоже скроллится.
- *  + overscroll-behavior: contain на самом контейнере — свайп внутри
- *    не пробивается на родительский документ.
- *  + onUnmounted всё восстанавливает и опускает флаг обратно.
+ * batch11 #9 v4:
+ *   КРИТИЧНО: emit('patch', ...) → emit('save', updated) с ОДНИМ полным
+ *   room-объектом. Раньше per-key emit'ы внутри одного tick race condition'или —
+ *   props.room в RoomDetail.handleSettingsPatch не успевал обновляться между
+ *   эмитами, и каждый следующий patch затирал предыдущий. Из-за этого данные
+ *   (площадь, потолок, лимиты) терялись на пути в HouseStats и движок яркости.
+ *
+ * Также:
+ *   + onMounted: scroll lock + cfg.showRoomSettings = true (для скрытия StickyBar)
+ *   + onUnmounted: восстановление + cfg.showRoomSettings = false
+ *   + draft state, dirty detection, sticky-banner — без изменений
  */
 
 import { computed, ref, nextTick, watch, onMounted, onUnmounted } from 'vue'
@@ -27,7 +29,8 @@ interface Props {
 }
 const props = defineProps<Props>()
 const emit = defineEmits<{
-  patch: [key: keyof Room, value: unknown, toast?: string]
+  /** Один полный room с ВСЕМИ изменениями за раз. RoomDetail прокидывает наверх. */
+  save: [updated: Room, toast?: string]
   close: []
 }>()
 
@@ -35,18 +38,16 @@ const cfg = useConfigurator()
 const zones = computed(() => roomZones(props.rt))
 const tint = computed(() => props.room.cardColor ?? T.neutral)
 
-/* ──────────── Lifecycle: scroll lock + sticky-bar hide ──────────── */
+/* ──────────── Lifecycle ──────────── */
 
 let prevBodyOverflow = ''
 let prevHtmlOverflow = ''
 
 onMounted(() => {
-  /* Блокируем фоновый скролл */
   prevBodyOverflow = document.body.style.overflow
   prevHtmlOverflow = document.documentElement.style.overflow
   document.body.style.overflow = 'hidden'
   document.documentElement.style.overflow = 'hidden'
-  /* Сообщаем App.vue что мы открыты — он скроет StickyBar */
   cfg.showRoomSettings.value = true
 })
 
@@ -126,7 +127,7 @@ const isDirty = computed<boolean>(() => {
   return false
 })
 
-/* ──────────── Save ──────────── */
+/* ──────────── Save: один emit с полным room ──────────── */
 
 const saveBtnEl = ref<HTMLButtonElement | null>(null)
 
@@ -135,30 +136,23 @@ function scrollToSave() {
 }
 
 function onSave() {
+  /* Если юзер был в edit-mode площади — коммитим input перед save */
   if (areaEditMode.value) commitAreaInput()
 
-  if (draftName.value !== (props.room.customName ?? '')) {
-    emit('patch', 'customName', draftName.value)
-  }
-  if (draftSizeIdx.value !== props.room.sizeIndex) {
-    emit('patch', 'sizeIndex', draftSizeIdx.value)
-  }
-  if (draftSizeIdx.value === 3) {
-    const original = props.room.customArea ?? props.rt.sizes[2]
-    if (draftCustomArea.value !== original) {
-      emit('patch', 'customArea', draftCustomArea.value)
-    }
-  }
-  if (draftCeilingH.value !== props.room.ceilingH) {
-    emit('patch', 'ceilingH', draftCeilingH.value)
-  }
-  const origLimits = props.room.limits ?? props.rt.limits
-  if (JSON.stringify(draftLimits.value) !== JSON.stringify(origLimits)) {
-    emit('patch', 'limits', { ...draftLimits.value }, 'Сохранено')
-  } else {
-    emit('patch', 'customName', draftName.value, 'Сохранено')
+  /* Собираем единый snapshot. Это критично:
+     - per-key эмиты были race-condition prone (props.room не обновлялся
+       между ними в одном tick'е → последующие patches затирали предыдущие).
+     - Один emit с полным объектом гарантирует атомарность. */
+  const updated: Room = {
+    ...props.room,
+    customName: draftName.value,
+    sizeIndex: draftSizeIdx.value,
+    customArea: draftSizeIdx.value === 3 ? draftCustomArea.value : props.room.customArea,
+    ceilingH: draftCeilingH.value,
+    limits: { ...draftLimits.value },
   }
 
+  emit('save', updated, isDirty.value ? 'Сохранено' : undefined)
   emit('close')
 }
 
@@ -228,7 +222,7 @@ const displayName = computed(() => props.room.customName || props.rt.name)
 
     <div :style="{ padding: '20px 16px', maxWidth: '480px', margin: '0 auto' }">
 
-      <!-- ═══ Название ═══ -->
+      <!-- Название -->
       <div
         :style="{
           background: hexToRgba(tint, 0.10),
@@ -262,7 +256,7 @@ const displayName = computed(() => props.room.customName || props.rt.name)
         />
       </div>
 
-      <!-- ═══ Размер ═══ -->
+      <!-- Размер -->
       <div
         :style="{
           background: hexToRgba(tint, 0.10),
@@ -448,7 +442,7 @@ const displayName = computed(() => props.room.customName || props.rt.name)
         </div>
       </div>
 
-      <!-- ═══ Потолок ═══ -->
+      <!-- Потолок -->
       <div
         :style="{
           background: hexToRgba(tint, 0.10),
@@ -472,7 +466,7 @@ const displayName = computed(() => props.room.customName || props.rt.name)
         />
       </div>
 
-      <!-- ═══ Точки света ═══ -->
+      <!-- Точки света -->
       <div
         :style="{
           background: hexToRgba(tint, 0.10),
