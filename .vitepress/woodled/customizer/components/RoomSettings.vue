@@ -2,32 +2,15 @@
 /**
  * RoomSettings.vue — Полноэкранный экран настроек комнаты.
  *
- * batch11 #9: рестайлинг + локальный draft-state.
- *
- * Изменения относительно предыдущей версии:
- *  1. Цветовая гамма везде через tint (room.cardColor ?? T.neutral) —
- *     бордюры активных карточек, фон секций, ползунок, +/-, фон input.
- *  2. Кастомный <input range> через scoped CSS:
- *     track 6px без обводки в T.textDim (светлее), thumb 24px белая обводка 3px.
- *  3. Карточки размера квадратные (aspect-ratio 1:1), текст по центру,
- *     лейблы 17/700, диапазон 14/.75 opacity (было 11/9).
- *  4. Заголовки секций 20/700, по центру; каждая секция — отдельная плашка
- *     с заливкой tint @ 10% и бордюром tint @ 20%.
- *  5. Кнопка «Сохранить»: padding 20 вертикально, white background, 17/700.
- *  6. Все заголовки секций центрированы.
- *  7. Блок «Название» виден всегда (вместо иконки карандаша в хедере).
- *     NavHeader без слота #title — заголовок неизменный.
- *  8. Своя площадь — отдельный режим: stepper +/- (44×44 SVG-иконки) +
- *     кликабельная цифра 32/700 (тап → input для ручного ввода).
- *  9. Точки света: одна колонка (по строке на зону), названия 16/500.
- * 10. Локальный draft-state: все изменения буферятся, эмитятся ТОЛЬКО
- *     по кнопке «Сохранить». Заголовок в хедере не меняется в реальном
- *     времени.
- * 11. Sticky-indicator «Есть несохранённые изменения» под хедером —
- *     появляется при isDirty, тап → scrollIntoView на кнопку «Сохранить».
+ * batch11 #9 v2:
+ *  + onMounted/onUnmounted блокируют скролл body на время показа модалки —
+ *    иначе на iOS Safari при свайпе через RoomSettings подложка под ним
+ *    тоже скроллится, два скролла путаются.
+ *  + overscroll-behavior: contain на самом контейнере — свайп внутри не
+ *    «пробивается» на родительский документ.
  */
 
-import { computed, ref, nextTick, watch } from 'vue'
+import { computed, ref, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { T, Z } from '../theme/tokens'
 import { SZ, type Room, type RoomType, type ZoneLimits } from '../data/rooms'
 import type { ZoneId } from '../data/catalog'
@@ -47,7 +30,22 @@ const emit = defineEmits<{
 const zones = computed(() => roomZones(props.rt))
 const tint = computed(() => props.room.cardColor ?? T.neutral)
 
-/* ──────────── Draft state — буферим изменения локально ──────────── */
+/* ──────────── Lock body scroll ──────────── */
+
+let prevBodyOverflow = ''
+let prevHtmlOverflow = ''
+onMounted(() => {
+  prevBodyOverflow = document.body.style.overflow
+  prevHtmlOverflow = document.documentElement.style.overflow
+  document.body.style.overflow = 'hidden'
+  document.documentElement.style.overflow = 'hidden'
+})
+onUnmounted(() => {
+  document.body.style.overflow = prevBodyOverflow
+  document.documentElement.style.overflow = prevHtmlOverflow
+})
+
+/* ──────────── Draft state ──────────── */
 
 const draftName = ref<string>(props.room.customName ?? '')
 const draftSizeIdx = ref<0 | 1 | 2 | 3>(props.room.sizeIndex)
@@ -59,7 +57,6 @@ const draftLimits = ref<ZoneLimits>({
   ...(props.room.limits ?? props.rt.limits),
 })
 
-/* Если props.room меняется (внешнее обновление) — синхронизируем draft. */
 watch(() => props.room.id, () => {
   draftName.value = props.room.customName ?? ''
   draftSizeIdx.value = props.room.sizeIndex
@@ -127,11 +124,8 @@ function scrollToSave() {
 }
 
 function onSave() {
-  /* Если в edit mode — сначала коммитим input, потом сейвим */
   if (areaEditMode.value) commitAreaInput()
 
-  /* Эмитим только изменённые поля. handleSettingsPatch в App.vue
-     обрабатывает каждый patch отдельно, токенизированно. */
   if (draftName.value !== (props.room.customName ?? '')) {
     emit('patch', 'customName', draftName.value)
   }
@@ -151,7 +145,6 @@ function onSave() {
   if (JSON.stringify(draftLimits.value) !== JSON.stringify(origLimits)) {
     emit('patch', 'limits', { ...draftLimits.value }, 'Сохранено')
   } else {
-    /* Чтобы пользователь видел подтверждение даже если ничего не изменено */
     emit('patch', 'customName', draftName.value, 'Сохранено')
   }
 
@@ -173,6 +166,7 @@ const displayName = computed(() => props.room.customName || props.rt.name)
 
 <template>
   <div
+    class="rs-root"
     :style="{
       position: 'fixed',
       inset: 0,
@@ -183,7 +177,6 @@ const displayName = computed(() => props.room.customName || props.rt.name)
   >
     <NavHeader :title="displayName" back="Назад" @back="emit('close')" />
 
-    <!-- Sticky-indicator несохранённых изменений -->
     <div
       v-if="isDirty"
       class="dirty-banner"
@@ -302,7 +295,6 @@ const displayName = computed(() => props.room.customName || props.rt.name)
           </div>
         </div>
 
-        <!-- Своя площадь: stepper / input mode -->
         <button
           v-if="draftSizeIdx !== 3"
           :style="{
@@ -557,7 +549,6 @@ const displayName = computed(() => props.room.customName || props.rt.name)
         </div>
       </div>
 
-      <!-- ═══ Сохранить ═══ -->
       <button
         ref="saveBtnEl"
         :style="{
@@ -583,12 +574,17 @@ const displayName = computed(() => props.room.customName || props.rt.name)
 </template>
 
 <style scoped>
-/* batch11 #9: кастомный range — track светлее, thumb крупнее с белой обводкой */
+/* batch11 #9 v2: overscroll-behavior — свайп внутри не пробивается на body */
+.rs-root {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 .ceiling-range {
   appearance: none;
   -webkit-appearance: none;
   height: 6px;
-  background: #5C544A; /* T.textDim */
+  background: #5C544A;
   border-radius: 3px;
   border: none;
   outline: none;
@@ -629,7 +625,6 @@ const displayName = computed(() => props.room.customName || props.rt.name)
   box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
-/* batch11 #9: dirty banner slide-down */
 .dirty-banner {
   animation: slideDownDirty 0.25s ease-out;
 }
@@ -638,7 +633,6 @@ const displayName = computed(() => props.room.customName || props.rt.name)
   to   { transform: translateY(0);     opacity: 1; }
 }
 
-/* Скрыть стрелки number-input в edit mode своей площади */
 .area-input::-webkit-outer-spin-button,
 .area-input::-webkit-inner-spin-button {
   -webkit-appearance: none;

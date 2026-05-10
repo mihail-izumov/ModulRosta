@@ -2,11 +2,10 @@
 /**
  * App.vue — Корневой роутер.
  *
- * batch11 #8 v4:
- *   #3 — Подчёркивание ближе к тексту (paddingBottom 4 → 1).
- *   #4 — Viewport meta: maximum-scale=1, user-scalable=no — запрещает
- *         масштабирование на мобильных. CSS: touch-action manipulation,
- *         input font-size ≥16px — предотвращает auto-zoom на iOS.
+ * batch11 #9: stickyVisible теперь учитывает cfg.active.value —
+ * StickyBar (Поделиться / Мой Лес) скрывается когда открыта любая
+ * комната, включая RoomSettings внутри RoomDetail. Иначе кнопка
+ * «Сохранить» в RoomSettings перекрывалась нижней панелью.
  */
 
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
@@ -46,11 +45,6 @@ import { decodeFixture, readHashFixture } from '../engine/share'
 
 const cfg = useConfigurator()
 
-/**
- * batch11 #8 v4 (#4): Запрет масштабирования на мобильных.
- * Устанавливает viewport meta с maximum-scale=1 и user-scalable=no.
- * Это предотвращает увеличенный масштаб после закрытия модалок.
- */
 function lockViewport() {
   let meta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement | null
   if (!meta) {
@@ -110,7 +104,19 @@ const fxEditorRoomContext = computed(() => {
 })
 
 const fxBackLabel = computed(() => { if (cfg.showBuy.value) return '← Мой лес'; if (cfg.active.value) return '← Комната'; return '← Назад' })
-const stickyVisible = computed(() => cfg.hasFixtures.value && !cfg.showBuy.value && !cfg.activeFx.value && !cfg.showMoodDetail.value)
+
+/**
+ * batch11 #9: добавлено `!cfg.active.value` — StickyBar скрывается когда
+ * открыта любая комната (включая RoomSettings внутри RoomDetail). Раньше
+ * нижняя панель перекрывала кнопку «Сохранить» в настройках комнаты.
+ */
+const stickyVisible = computed(() =>
+  cfg.hasFixtures.value
+  && !cfg.showBuy.value
+  && !cfg.activeFx.value
+  && !cfg.showMoodDetail.value
+  && !cfg.active.value,
+)
 
 function onPromoClick() { cfg.showBuy.value = true }
 function onEditRoom(room: Room) { cfg.updateRoom(room) }
@@ -167,7 +173,6 @@ function onPreloaderDone() { preloaderDone.value = true }
     >
       <div :style="{ textAlign: 'center', marginBottom: '20px', paddingTop: '8px' }">
         <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'center' }">
-          <!-- batch11 #8 v4 (#3): paddingBottom 4 → 1 — подчёркивание ближе к тексту -->
           <div
             :style="{
               fontSize: '30px',
@@ -253,12 +258,10 @@ html, body {
   margin: 0;
   padding: 0;
 }
-/* batch11 #8 v4 (#4): предотвращение auto-zoom на iOS при фокусе input */
 input, textarea, select {
   font-size: 16px !important;
   touch-action: manipulation;
 }
-/* Глобальный запрет double-tap zoom */
 * {
   touch-action: manipulation;
 }
