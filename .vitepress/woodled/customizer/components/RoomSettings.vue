@@ -2,20 +2,36 @@
 /**
  * RoomSettings.vue — Полноэкранный экран настроек комнаты.
  *
- * Fix v2: Pen-icon перенесён ВНУТРЬ title (через слот #title NavHeader),
- *         больше не накладывается на глобальный SoundButton.
+ * batch11 #9: рестайлинг + локальный draft-state.
+ *
+ * Изменения относительно предыдущей версии:
+ *  1. Цветовая гамма везде через tint (room.cardColor ?? T.neutral) —
+ *     бордюры активных карточек, фон секций, ползунок, +/-, фон input.
+ *  2. Кастомный <input range> через scoped CSS:
+ *     track 6px без обводки в T.textDim (светлее), thumb 24px белая обводка 3px.
+ *  3. Карточки размера квадратные (aspect-ratio 1:1), текст по центру,
+ *     лейблы 17/700, диапазон 14/.75 opacity (было 11/9).
+ *  4. Заголовки секций 20/700, по центру; каждая секция — отдельная плашка
+ *     с заливкой tint @ 10% и бордюром tint @ 20%.
+ *  5. Кнопка «Сохранить»: padding 20 вертикально, white background, 17/700.
+ *  6. Все заголовки секций центрированы.
+ *  7. Блок «Название» виден всегда (вместо иконки карандаша в хедере).
+ *     NavHeader без слота #title — заголовок неизменный.
+ *  8. Своя площадь — отдельный режим: stepper +/- (44×44 SVG-иконки) +
+ *     кликабельная цифра 32/700 (тап → input для ручного ввода).
+ *  9. Точки света: одна колонка (по строке на зону), названия 16/500.
+ * 10. Локальный draft-state: все изменения буферятся, эмитятся ТОЛЬКО
+ *     по кнопке «Сохранить». Заголовок в хедере не меняется в реальном
+ *     времени.
+ * 11. Sticky-indicator «Есть несохранённые изменения» под хедером —
+ *     появляется при isDirty, тап → scrollIntoView на кнопку «Сохранить».
  */
 
-import { computed, ref } from 'vue'
+import { computed, ref, nextTick, watch } from 'vue'
 import { T, Z } from '../theme/tokens'
 import { SZ, type Room, type RoomType, type ZoneLimits } from '../data/rooms'
 import type { ZoneId } from '../data/catalog'
-import { baseLm, getArea } from '../engine/brightness'
-import { pw } from '../engine/i18n'
 import { roomZones } from '../engine/zone-engine'
-import Chip from './ui/Chip.vue'
-import Sec from './ui/Sec.vue'
-import Icon from './ui/Icons.vue'
 import NavHeader from './ui/NavHeader.vue'
 
 interface Props {
@@ -28,39 +44,131 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const editName = ref(false)
 const zones = computed(() => roomZones(props.rt))
+const tint = computed(() => props.room.cardColor ?? T.neutral)
+
+/* ──────────── Draft state — буферим изменения локально ──────────── */
+
+const draftName = ref<string>(props.room.customName ?? '')
+const draftSizeIdx = ref<0 | 1 | 2 | 3>(props.room.sizeIndex)
+const draftCustomArea = ref<number>(
+  props.room.customArea ?? props.rt.sizes[2],
+)
+const draftCeilingH = ref<number>(props.room.ceilingH)
+const draftLimits = ref<ZoneLimits>({
+  ...(props.room.limits ?? props.rt.limits),
+})
+
+/* Если props.room меняется (внешнее обновление) — синхронизируем draft. */
+watch(() => props.room.id, () => {
+  draftName.value = props.room.customName ?? ''
+  draftSizeIdx.value = props.room.sizeIndex
+  draftCustomArea.value = props.room.customArea ?? props.rt.sizes[2]
+  draftCeilingH.value = props.room.ceilingH
+  draftLimits.value = { ...(props.room.limits ?? props.rt.limits) }
+})
+
+/* ──────────── Своя площадь: stepper / input ──────────── */
+
+const areaEditMode = ref(false)
+const areaInputStr = ref<string>(String(draftCustomArea.value))
+const areaInputEl = ref<HTMLInputElement | null>(null)
+
+function enterAreaEdit() {
+  areaInputStr.value = String(draftCustomArea.value)
+  areaEditMode.value = true
+  nextTick(() => {
+    areaInputEl.value?.focus()
+    areaInputEl.value?.select()
+  })
+}
+
+function commitAreaInput() {
+  const num = parseInt(areaInputStr.value)
+  const clamped = isNaN(num) ? draftCustomArea.value : Math.max(2, Math.min(200, num))
+  draftCustomArea.value = clamped
+  areaInputStr.value = String(clamped)
+  areaEditMode.value = false
+}
+
+function bumpArea(delta: 1 | -1) {
+  draftCustomArea.value = Math.max(2, Math.min(200, draftCustomArea.value + delta))
+  areaEditMode.value = false
+}
+
+/* ──────────── Limits ──────────── */
+
+function bumpLimit(zid: ZoneId, delta: 1 | -1) {
+  const cur = draftLimits.value[zid] ?? 0
+  draftLimits.value = { ...draftLimits.value, [zid]: Math.max(0, cur + delta) }
+}
+
+/* ──────────── Dirty detection ──────────── */
+
+const isDirty = computed<boolean>(() => {
+  if (draftName.value !== (props.room.customName ?? '')) return true
+  if (draftSizeIdx.value !== props.room.sizeIndex) return true
+  if (draftSizeIdx.value === 3) {
+    const original = props.room.customArea ?? props.rt.sizes[2]
+    if (draftCustomArea.value !== original) return true
+  }
+  if (draftCeilingH.value !== props.room.ceilingH) return true
+  const origLimits = props.room.limits ?? props.rt.limits
+  if (JSON.stringify(draftLimits.value) !== JSON.stringify(origLimits)) return true
+  return false
+})
+
+/* ──────────── Save ──────────── */
+
+const saveBtnEl = ref<HTMLButtonElement | null>(null)
+
+function scrollToSave() {
+  saveBtnEl.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
+function onSave() {
+  /* Если в edit mode — сначала коммитим input, потом сейвим */
+  if (areaEditMode.value) commitAreaInput()
+
+  /* Эмитим только изменённые поля. handleSettingsPatch в App.vue
+     обрабатывает каждый patch отдельно, токенизированно. */
+  if (draftName.value !== (props.room.customName ?? '')) {
+    emit('patch', 'customName', draftName.value)
+  }
+  if (draftSizeIdx.value !== props.room.sizeIndex) {
+    emit('patch', 'sizeIndex', draftSizeIdx.value)
+  }
+  if (draftSizeIdx.value === 3) {
+    const original = props.room.customArea ?? props.rt.sizes[2]
+    if (draftCustomArea.value !== original) {
+      emit('patch', 'customArea', draftCustomArea.value)
+    }
+  }
+  if (draftCeilingH.value !== props.room.ceilingH) {
+    emit('patch', 'ceilingH', draftCeilingH.value)
+  }
+  const origLimits = props.room.limits ?? props.rt.limits
+  if (JSON.stringify(draftLimits.value) !== JSON.stringify(origLimits)) {
+    emit('patch', 'limits', { ...draftLimits.value }, 'Сохранено')
+  } else {
+    /* Чтобы пользователь видел подтверждение даже если ничего не изменено */
+    emit('patch', 'customName', draftName.value, 'Сохранено')
+  }
+
+  emit('close')
+}
+
+/* ──────────── Helpers ──────────── */
+
+function hexToRgba(hex: string, a: number): string {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.slice(0, 2), 16)
+  const g = parseInt(h.slice(2, 4), 16)
+  const b = parseInt(h.slice(4, 6), 16)
+  return `rgba(${r},${g},${b},${a})`
+}
+
 const displayName = computed(() => props.room.customName || props.rt.name)
-
-function updateSize(i: 0 | 1 | 2) {
-  const label = SZ[i]
-  const lm = Math.round(props.rt.lux * props.rt.sizes[i] * (props.room.ceilingH / 2.7))
-  emit('patch', 'sizeIndex', i, `${label}: нужно ${lm.toLocaleString('ru-RU')} лм`)
-}
-
-function updateCustomSize() { emit('patch', 'sizeIndex', 3) }
-function updateCustomArea(v: number) { emit('patch', 'customArea', v, `${v} м²`) }
-
-function updateCeiling(h: number) {
-  const lm = Math.round(props.rt.lux * getArea(props.rt, props.room) * (h / 2.7))
-  emit('patch', 'ceilingH', h, `Потолок ${h.toFixed(1)}м — нужно ${lm.toLocaleString('ru-RU')} лм`)
-}
-
-function updateLimit(zid: ZoneId, delta: -1 | 1) {
-  const cur = (props.room.limits ?? props.rt.limits)?.[zid] ?? 1
-  const next = Math.max(0, cur + delta)
-  const nl: ZoneLimits = { ...(props.room.limits ?? props.rt.limits), [zid]: next }
-  const zoneName = zones.value.find((z) => z.id === zid)?.name ?? zid
-  emit('patch', 'limits', nl, `${zoneName}: макс ${next} ${pw(next)}`)
-}
-
-function saveName(nextName: string) {
-  emit('patch', 'customName', nextName, 'Название сохранено')
-  editName.value = false
-}
-
-const areaForHint = computed(() => getArea(props.rt, props.room))
-void baseLm
 </script>
 
 <template>
@@ -73,225 +181,470 @@ void baseLm
       overflow: 'auto',
     }"
   >
-    <NavHeader :title="displayName" back="Назад" @back="emit('close')">
-      <template #title>
-        <span
-          :style="{
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }"
-        >{{ displayName }}</span>
-        <button
-          :style="{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '2px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }"
-          @click="editName = !editName"
-        >
-          <Icon name="pen" :color="T.textSec" :size="13" />
-        </button>
-      </template>
-    </NavHeader>
+    <NavHeader :title="displayName" back="Назад" @back="emit('close')" />
 
-    <div :style="{ padding: '20px', maxWidth: '480px', margin: '0 auto' }">
+    <!-- Sticky-indicator несохранённых изменений -->
+    <div
+      v-if="isDirty"
+      class="dirty-banner"
+      :style="{
+        position: 'sticky',
+        top: '48px',
+        zIndex: 9,
+        background: tint,
+        color: T.bg,
+        padding: '10px 16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '10px',
+        cursor: 'pointer',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+      }"
+      @click="scrollToSave"
+    >
+      <div :style="{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" :style="{ flexShrink: 0 }">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <span :style="{ fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">
+          Есть несохранённые изменения
+        </span>
+      </div>
+      <span :style="{ fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }">
+        Сохранить
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <polyline points="19 12 12 19 5 12" />
+        </svg>
+      </span>
+    </div>
+
+    <div :style="{ padding: '20px 16px', maxWidth: '480px', margin: '0 auto' }">
+
+      <!-- ═══ Название ═══ -->
       <div
-        v-if="editName"
         :style="{
-          marginBottom: '16px',
-          background: T.card,
-          borderRadius: '8px',
-          padding: '12px',
+          background: hexToRgba(tint, 0.10),
+          border: `1px solid ${hexToRgba(tint, 0.20)}`,
+          borderRadius: '14px',
+          padding: '18px 16px 20px',
+          marginBottom: '14px',
         }"
       >
-        <div :style="{ fontSize: '11px', color: T.textDim, marginBottom: '6px' }">
-          Название комнаты
+        <div :style="{ fontSize: '20px', fontWeight: 700, color: T.text, marginBottom: '14px', textAlign: 'center', letterSpacing: '0.3px' }">
+          Название
         </div>
-        <div :style="{ display: 'flex', gap: '8px' }">
-          <input
-            :value="props.room.customName || ''"
-            :placeholder="props.rt.name"
-            autofocus
+        <input
+          v-model="draftName"
+          type="text"
+          :placeholder="props.rt.name"
+          :maxlength="20"
+          :style="{
+            width: '100%',
+            padding: '14px',
+            background: T.bg,
+            border: `1px solid ${hexToRgba(tint, 0.30)}`,
+            borderRadius: '8px',
+            color: T.text,
+            fontSize: '16px',
+            fontFamily: 'inherit',
+            textAlign: 'center',
+            outline: 'none',
+            boxSizing: 'border-box',
+          }"
+        />
+      </div>
+
+      <!-- ═══ Размер ═══ -->
+      <div
+        :style="{
+          background: hexToRgba(tint, 0.10),
+          border: `1px solid ${hexToRgba(tint, 0.20)}`,
+          borderRadius: '14px',
+          padding: '18px 16px 20px',
+          marginBottom: '14px',
+        }"
+      >
+        <div :style="{ fontSize: '20px', fontWeight: 700, color: T.text, marginBottom: '14px', textAlign: 'center', letterSpacing: '0.3px' }">
+          Размер
+        </div>
+        <div :style="{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }">
+          <div
+            v-for="(label, i) in SZ.slice(0, 3)"
+            :key="i"
             :style="{
-              flex: 1,
-              padding: '8px 10px',
-              background: T.bg,
-              border: `1px solid ${T.border}`,
-              borderRadius: '6px',
-              color: T.text,
-              fontSize: '14px',
-              outline: 'none',
+              aspectRatio: '1 / 1',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              border: draftSizeIdx === i ? `2px solid ${tint}` : `1px solid ${T.border}`,
+              background: draftSizeIdx === i ? hexToRgba(tint, 0.20) : T.bg,
+              color: draftSizeIdx === i ? T.text : T.textSec,
+              padding: '12px',
+              transition: 'all .2s',
+              boxSizing: 'border-box',
             }"
-            @input="emit('patch', 'customName', ($event.target as HTMLInputElement).value)"
-            @keydown.enter="saveName(props.room.customName)"
-          />
+            @click="draftSizeIdx = (i as 0 | 1 | 2)"
+          >
+            <div :style="{ fontSize: '17px', fontWeight: 700, textAlign: 'center' }">
+              {{ label }}
+            </div>
+            <div :style="{ fontSize: '14px', opacity: 0.75, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }">
+              {{ props.rt.ranges[i] }} м²
+            </div>
+          </div>
+        </div>
+
+        <!-- Своя площадь: stepper / input mode -->
+        <button
+          v-if="draftSizeIdx !== 3"
+          :style="{
+            marginTop: '8px',
+            width: '100%',
+            padding: '14px 0',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontSize: '15px',
+            fontFamily: 'inherit',
+            border: `1px solid ${T.border}`,
+            background: T.bg,
+            color: T.textSec,
+            fontWeight: 600,
+            textAlign: 'center',
+          }"
+          @click="draftSizeIdx = 3"
+        >
+          Своя площадь
+        </button>
+        <div
+          v-else
+          :style="{
+            marginTop: '8px',
+            padding: '14px 12px',
+            borderRadius: '12px',
+            border: `2px solid ${tint}`,
+            background: hexToRgba(tint, 0.18),
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '14px',
+          }"
+        >
           <button
             :style="{
-              padding: '8px 14px',
-              background: T.neutral,
-              color: T.bg,
+              width: '44px',
+              height: '44px',
+              borderRadius: '10px',
+              background: hexToRgba(tint, 0.25),
               border: 'none',
-              borderRadius: '6px',
-              fontWeight: 600,
+              color: T.text,
               cursor: 'pointer',
-              fontSize: '12px',
+              fontFamily: 'inherit',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
+              flexShrink: 0,
+              touchAction: 'manipulation',
             }"
-            @click="saveName(props.room.customName)"
+            aria-label="меньше"
+            @click="bumpArea(-1)"
           >
-            OK
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </button>
+
+          <div
+            v-if="areaEditMode"
+            :style="{ display: 'flex', alignItems: 'baseline', gap: '6px', minWidth: '120px', justifyContent: 'center' }"
+          >
+            <input
+              ref="areaInputEl"
+              v-model="areaInputStr"
+              type="number"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              class="area-input"
+              :style="{
+                fontSize: '32px',
+                fontWeight: 700,
+                color: T.text,
+                background: 'transparent',
+                border: 'none',
+                borderBottom: `2px solid ${tint}`,
+                outline: 'none',
+                fontFamily: 'inherit',
+                textAlign: 'center',
+                width: '90px',
+                padding: 0,
+                lineHeight: 1,
+                fontVariantNumeric: 'tabular-nums',
+              }"
+              @blur="commitAreaInput"
+              @keydown.enter="($event.target as HTMLInputElement).blur()"
+            />
+            <span :style="{ fontSize: '15px', color: T.textSec, fontWeight: 500 }">м²</span>
+          </div>
+          <button
+            v-else
+            :style="{
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: '6px',
+              minWidth: '120px',
+              justifyContent: 'center',
+              background: 'none',
+              border: 'none',
+              padding: '4px 8px',
+              cursor: 'pointer',
+              borderRadius: '6px',
+              fontFamily: 'inherit',
+            }"
+            aria-label="ввести площадь вручную"
+            @click="enterAreaEdit"
+          >
+            <span :style="{ fontSize: '32px', fontWeight: 700, color: T.text, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }">
+              {{ draftCustomArea }}
+            </span>
+            <span :style="{ fontSize: '15px', color: T.textSec, fontWeight: 500 }">м²</span>
+          </button>
+
+          <button
+            :style="{
+              width: '44px',
+              height: '44px',
+              borderRadius: '10px',
+              background: hexToRgba(tint, 0.25),
+              border: 'none',
+              color: T.text,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
+              flexShrink: 0,
+              touchAction: 'manipulation',
+            }"
+            aria-label="больше"
+            @click="bumpArea(1)"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
           </button>
         </div>
       </div>
 
-      <Sec label="Размер">
-        <div :style="{ display: 'flex', gap: '5px' }">
-          <Chip
-            v-for="(label, i) in SZ.slice(0, 3)"
-            :key="i"
-            :active="props.room.sizeIndex === i"
-            :style="{ flex: 1, textAlign: 'center' }"
-            @click="updateSize(i as 0 | 1 | 2)"
-          >
-            <div>{{ label }}</div>
-            <div :style="{ fontSize: '9px', opacity: 0.6 }">{{ props.rt.ranges[i] }} м²</div>
-          </Chip>
+      <!-- ═══ Потолок ═══ -->
+      <div
+        :style="{
+          background: hexToRgba(tint, 0.10),
+          border: `1px solid ${hexToRgba(tint, 0.20)}`,
+          borderRadius: '14px',
+          padding: '18px 16px 20px',
+          marginBottom: '14px',
+        }"
+      >
+        <div :style="{ fontSize: '20px', fontWeight: 700, color: T.text, marginBottom: '14px', textAlign: 'center', letterSpacing: '0.3px' }">
+          Потолок: {{ draftCeilingH.toFixed(1) }} м
         </div>
-        <button
-          :style="{
-            marginTop: '6px',
-            width: '100%',
-            padding: '10px 0',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '12px',
-            border: `1px solid ${props.room.sizeIndex === 3 ? T.neutral : T.border}`,
-            background: props.room.sizeIndex === 3 ? T.neutral + '22' : 'transparent',
-            color: props.room.sizeIndex === 3 ? T.text : T.textSec,
-            textAlign: 'center',
-          }"
-          @click="updateCustomSize"
-        >
-          <template v-if="props.room.sizeIndex === 3">
-            Своя:
-            <input
-              type="number"
-              :value="props.room.customArea ?? ''"
-              placeholder="25"
-              :style="{
-                width: '50px',
-                padding: '2px 6px',
-                background: T.bg,
-                border: `1px solid ${T.neutral}44`,
-                borderRadius: '4px',
-                color: T.text,
-                fontSize: '13px',
-                textAlign: 'center',
-                outline: 'none',
-              }"
-              @click.stop
-              @input="updateCustomArea(+($event.target as HTMLInputElement).value)"
-            />
-            м²
-          </template>
-          <template v-else>Своя площадь</template>
-        </button>
-      </Sec>
-
-      <Sec :label="`Потолок: ${props.room.ceilingH} м`">
         <input
+          v-model.number="draftCeilingH"
           type="range"
           min="2.2"
           max="4.5"
           step="0.1"
-          :value="props.room.ceilingH"
-          :style="{ width: '100%', accentColor: T.neutral }"
-          @input="updateCeiling(+($event.target as HTMLInputElement).value)"
+          class="ceiling-range"
+          :style="{ width: '100%', '--tint': tint }"
         />
-      </Sec>
+      </div>
 
-      <Sec label="Точки для света">
-        <div :style="{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }">
+      <!-- ═══ Точки света ═══ -->
+      <div
+        :style="{
+          background: hexToRgba(tint, 0.10),
+          border: `1px solid ${hexToRgba(tint, 0.20)}`,
+          borderRadius: '14px',
+          padding: '18px 16px 20px',
+          marginBottom: '14px',
+        }"
+      >
+        <div :style="{ fontSize: '20px', fontWeight: 700, color: T.text, marginBottom: '14px', textAlign: 'center', letterSpacing: '0.3px' }">
+          Точки для света
+        </div>
+        <div :style="{ display: 'flex', flexDirection: 'column', gap: '8px' }">
           <div
             v-for="z in zones"
             :key="z.id"
             :style="{
-              background: T.card,
-              borderRadius: '8px',
-              padding: '10px',
+              background: hexToRgba(tint, 0.12),
+              borderRadius: '10px',
+              padding: '10px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              gap: '10px',
             }"
           >
-            <span :style="{ fontSize: '12px', color: T.text }">{{ z.name }}</span>
-            <div :style="{ display: 'flex', alignItems: 'center', gap: '4px' }">
+            <span :style="{ fontSize: '16px', fontWeight: 500, color: T.text }">
+              {{ z.name }}
+            </span>
+            <div :style="{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }">
               <button
                 :style="{
-                  width: '26px',
-                  height: '26px',
-                  borderRadius: '4px',
-                  background: T.border,
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '10px',
+                  background: hexToRgba(tint, 0.25),
                   border: 'none',
                   color: T.text,
                   cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  flexShrink: 0,
+                  touchAction: 'manipulation',
                 }"
-                @click="updateLimit(z.id, -1)"
+                aria-label="меньше"
+                @click="bumpLimit(z.id, -1)"
               >
-                −
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
               </button>
-              <span
-                :style="{
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  color: T.text,
-                  minWidth: '18px',
-                  textAlign: 'center',
-                }"
-              >
-                {{ (props.room.limits ?? props.rt.limits)[z.id] ?? 1 }}
+              <span :style="{ fontSize: '18px', fontWeight: 700, color: T.text, minWidth: '28px', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }">
+                {{ draftLimits[z.id] ?? 0 }}
               </span>
               <button
                 :style="{
-                  width: '26px',
-                  height: '26px',
-                  borderRadius: '4px',
-                  background: T.border,
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '10px',
+                  background: hexToRgba(tint, 0.25),
                   border: 'none',
                   color: T.text,
                   cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  flexShrink: 0,
+                  touchAction: 'manipulation',
                 }"
-                @click="updateLimit(z.id, 1)"
+                aria-label="больше"
+                @click="bumpLimit(z.id, 1)"
               >
-                +
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
               </button>
             </div>
           </div>
         </div>
-      </Sec>
+      </div>
 
+      <!-- ═══ Сохранить ═══ -->
       <button
+        ref="saveBtnEl"
         :style="{
           width: '100%',
-          padding: '10px',
-          background: T.neutral,
+          padding: '20px 0',
+          background: '#FFFFFF',
           color: T.bg,
           border: 'none',
-          borderRadius: '6px',
+          borderRadius: '12px',
           fontWeight: 700,
+          fontSize: '17px',
           cursor: 'pointer',
+          fontFamily: 'inherit',
+          marginTop: '8px',
+          marginBottom: '40px',
         }"
-        @click="emit('close')"
+        @click="onSave"
       >
         Сохранить
       </button>
-
-      <span v-show="false">{{ areaForHint }}</span>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* batch11 #9: кастомный range — track светлее, thumb крупнее с белой обводкой */
+.ceiling-range {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 6px;
+  background: #5C544A; /* T.textDim */
+  border-radius: 3px;
+  border: none;
+  outline: none;
+  margin: 0;
+  padding: 0;
+}
+.ceiling-range::-webkit-slider-runnable-track {
+  height: 6px;
+  background: #5C544A;
+  border-radius: 3px;
+  border: none;
+}
+.ceiling-range::-moz-range-track {
+  height: 6px;
+  background: #5C544A;
+  border-radius: 3px;
+  border: none;
+}
+.ceiling-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--tint, #A89878);
+  border: 3px solid #FFFFFF;
+  cursor: pointer;
+  margin-top: -9px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.ceiling-range::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--tint, #A89878);
+  border: 3px solid #FFFFFF;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+/* batch11 #9: dirty banner slide-down */
+.dirty-banner {
+  animation: slideDownDirty 0.25s ease-out;
+}
+@keyframes slideDownDirty {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+/* Скрыть стрелки number-input в edit mode своей площади */
+.area-input::-webkit-outer-spin-button,
+.area-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.area-input {
+  -moz-appearance: textfield;
+}
+</style>
