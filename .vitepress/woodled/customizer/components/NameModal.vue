@@ -2,21 +2,16 @@
 /**
  * NameModal.vue — Редактирование названия дома.
  *
- * batch7 #9:
- *   - Полное затемнение страницы (solid overlay, без прозрачности).
- *     Не используем общий Modal.vue — у него полупрозрачный фон,
- *     а тут нужен полностью непрозрачный, плюс белая карточка
- *     модалки. Делаем самостоятельный teleport-overlay.
- *   - Заголовок изменён: «Название» → «Какой дом — такое настроение».
- *   - Карточка модалки белая, без обводки.
- *   - Скролл body блокируется на время показа (как в Modal.vue).
- *
- * batch11 #8 (#2): maxlength 12 — название не должно вылезать за строку
- *   заголовка на главной (30px font + иконка + SoundButton).
+ * batch11 #8 v2:
+ *   #2 — Текст в поле ввода по центру, подсказка про лимит символов.
+ *   #3 — maxlength 16 (иконка убрана → больше места).
+ *   #4 — Кнопка «Сохранить»: padding 16px, fontSize 16px, fontWeight 500.
  */
 
 import { ref, onMounted, onUnmounted } from 'vue'
 import { T, Z } from '../theme/tokens'
+
+const MAX_LEN = 16
 
 interface Props {
   value: string
@@ -82,11 +77,11 @@ function save() {
         >
           Какой свет — такой дом
         </div>
-        <!-- batch11 #8 (#2): maxlength 12 — вмещается в строку на главной -->
+        <!-- batch11 #8 v2 (#2,#3): textAlign center, maxlength 16 -->
         <input
           v-model="v"
           autofocus
-          maxlength="12"
+          :maxlength="MAX_LEN"
           :style="{
             width: '100%',
             padding: '12px 14px',
@@ -98,20 +93,33 @@ function save() {
             fontWeight: 500,
             outline: 'none',
             boxSizing: 'border-box',
+            textAlign: 'center',
           }"
           @keydown.enter="save"
         />
+        <!-- batch11 #8 v2 (#2): подсказка про лимит -->
+        <div
+          :style="{
+            fontSize: '11px',
+            color: '#A0998F',
+            textAlign: 'center',
+            marginTop: '8px',
+          }"
+        >
+          До {{ MAX_LEN }} символов
+        </div>
+        <!-- batch11 #8 v2 (#4): кнопка крупнее: padding 16, font 16, weight 500 -->
         <button
           :style="{
             marginTop: '14px',
             width: '100%',
-            padding: '12px',
+            padding: '16px',
             background: T.bg,
             color: '#FFFFFF',
             border: 'none',
             borderRadius: '8px',
-            fontWeight: 700,
-            fontSize: '14px',
+            fontWeight: 500,
+            fontSize: '16px',
             fontFamily: 'inherit',
             cursor: 'pointer',
           }"

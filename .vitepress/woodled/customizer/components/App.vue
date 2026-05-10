@@ -2,15 +2,9 @@
 /**
  * App.vue — Корневой роутер.
  *
- * batch11 #7:
- *   #1 — Карточка «Добавить комнату»: убран «+», осталось только текстовое
- *        приглашение по центру.
- *   #6 — «Живой Дом» fontSize 22 → 33, иконка pen 18 → 27.
- *        Бейдж WOODLED ROTOR fontSize 10 → 15, padding 3px 12 → 5px 18.
- *   #7 — «4 комнаты» fontSize 16 → 24, marginTop 20 → 32, marginBottom 12 → 20.
- *
- * batch11 #8:
- *   #2 — «Живой Дом» fontSize 33 → 30, иконка pen → circleEllipsis.
+ * batch11 #8 v2:
+ *   #1 — «Живой Дом» fontWeight 500, иконка убрана, прерывистое подчёркивание
+ *         (border-bottom dashed). Клик по заголовку открывает NameModal.
  */
 
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
@@ -172,152 +166,56 @@ const stickyVisible = computed(
 
 /* ─────────── Handlers ─────────── */
 
-function onPromoClick() {
-  cfg.showBuy.value = true
-}
-
-function onEditRoom(room: Room) {
-  cfg.updateRoom(room)
-}
-
-function onDeleteRoom() {
-  if (activeRoom.value) cfg.removeRoom(activeRoom.value.id)
-}
-
-function onCloseRoom() {
-  cfg.active.value = null
-}
-
-function onBuyEditFx(roomId: string, fxIdx: number, next: Fixture | null) {
-  if (next === null) cfg.removeFixture(roomId, fxIdx)
-  else cfg.updateFixture(roomId, fxIdx, next)
-}
-
-function onBuyClose() {
-  cfg.showBuy.value = false
-  cfg.active.value = null
-}
-
-function onFxSave(next: Fixture) {
-  const af = cfg.activeFx.value
-  if (!af) return
-  cfg.updateFixture(af.roomId, af.fxIdx, next)
-  cfg.showFB('Светильник сохранён')
-  cfg.closeFx()
-}
-
-function onFxDelete() {
-  const af = cfg.activeFx.value
-  if (!af) return
-  cfg.removeFixture(af.roomId, af.fxIdx)
-  cfg.closeFx()
-  cfg.showFB('Светильник удалён')
-}
-
-function onFxClose() {
-  cfg.closeFx()
-}
+function onPromoClick() { cfg.showBuy.value = true }
+function onEditRoom(room: Room) { cfg.updateRoom(room) }
+function onDeleteRoom() { if (activeRoom.value) cfg.removeRoom(activeRoom.value.id) }
+function onCloseRoom() { cfg.active.value = null }
+function onBuyEditFx(roomId: string, fxIdx: number, next: Fixture | null) { if (next === null) cfg.removeFixture(roomId, fxIdx); else cfg.updateFixture(roomId, fxIdx, next) }
+function onBuyClose() { cfg.showBuy.value = false; cfg.active.value = null }
+function onFxSave(next: Fixture) { const af = cfg.activeFx.value; if (!af) return; cfg.updateFixture(af.roomId, af.fxIdx, next); cfg.showFB('Светильник сохранён'); cfg.closeFx() }
+function onFxDelete() { const af = cfg.activeFx.value; if (!af) return; cfg.removeFixture(af.roomId, af.fxIdx); cfg.closeFx(); cfg.showFB('Светильник удалён') }
+function onFxClose() { cfg.closeFx() }
 
 /* ─────────── Цвет карточки ─────────── */
 
 const colorPickRoom = ref<Room | null>(null)
-
-function onPickColor(room: Room) {
-  colorPickRoom.value = room
-}
-
-function onColorPicked(color: string | undefined) {
-  if (colorPickRoom.value) {
-    cfg.updateRoom({ ...colorPickRoom.value, cardColor: color })
-    colorPickRoom.value = { ...colorPickRoom.value, cardColor: color }
-  }
-}
+function onPickColor(room: Room) { colorPickRoom.value = room }
+function onColorPicked(color: string | undefined) { if (colorPickRoom.value) { cfg.updateRoom({ ...colorPickRoom.value, cardColor: color }); colorPickRoom.value = { ...colorPickRoom.value, cardColor: color } } }
 
 /* ─────────── Сброс ─────────── */
 
 const showResetConfirm = ref(false)
-
-function onResetClick() {
-  showResetConfirm.value = true
-}
-
-function onResetConfirm() {
-  cfg.resetAll()
-  showResetConfirm.value = false
-}
-
-function onResetCancel() {
-  showResetConfirm.value = false
-}
-
-function onSaveShareLink() {
-  cfg.showShare.value = true
-}
+function onResetClick() { showResetConfirm.value = true }
+function onResetConfirm() { cfg.resetAll(); showResetConfirm.value = false }
+function onResetCancel() { showResetConfirm.value = false }
+function onSaveShareLink() { cfg.showShare.value = true }
 
 const anyModalOpen = computed<boolean>(() =>
-  cfg.showFirst.value ||
-  cfg.showName.value ||
-  cfg.showStory.value ||
-  cfg.showShare.value ||
-  cfg.showMoodDetail.value !== null ||
-  cfg.picker.value ||
-  colorPickRoom.value !== null ||
-  showResetConfirm.value,
+  cfg.showFirst.value || cfg.showName.value || cfg.showStory.value || cfg.showShare.value ||
+  cfg.showMoodDetail.value !== null || cfg.picker.value || colorPickRoom.value !== null || showResetConfirm.value,
 )
 
 /* ─────────── Scroll to top ─────────── */
 
 watch(
   () => [cfg.active.value, cfg.activeFx.value, cfg.welcomeSeen.value, cfg.showBuy.value],
-  () => {
-    nextTick(() => window.scrollTo({ top: 0, behavior: 'instant' }))
-  },
+  () => { nextTick(() => window.scrollTo({ top: 0, behavior: 'instant' })) },
 )
 
 /* ─────────── Preloader ─────────── */
 
 const preloaderDone = ref(false)
-
-watch(
-  () => cfg.welcomeSeen.value,
-  (seen) => {
-    if (!seen) preloaderDone.value = false
-  },
-)
-
-function onPreloaderDone() {
-  preloaderDone.value = true
-}
+watch(() => cfg.welcomeSeen.value, (seen) => { if (!seen) preloaderDone.value = false })
+function onPreloaderDone() { preloaderDone.value = true }
 </script>
 
 <template>
   <template v-if="activeFxData">
-    <FxEditor
-      :key="activeFxData.roomId + ':' + activeFxData.fxIdx"
-      :item="activeFxData.fx"
-      :def-wood="activeFxData.fx.wood ?? 'oak'"
-      :back-label="fxBackLabel"
-      :room-area="fxEditorRoomContext?.roomArea"
-      :room-base-lm="fxEditorRoomContext?.roomBaseLm"
-      :room-current-lm-without-this="fxEditorRoomContext?.roomCurrentLmWithoutThis"
-      :room-name="fxEditorRoomContext?.roomName"
-      :room-tint="fxEditorRoomContext?.roomTint"
-      @save="onFxSave"
-      @delete="onFxDelete"
-      @close="onFxClose"
-      @feedback="cfg.showFB"
-    />
+    <FxEditor :key="activeFxData.roomId + ':' + activeFxData.fxIdx" :item="activeFxData.fx" :def-wood="activeFxData.fx.wood ?? 'oak'" :back-label="fxBackLabel" :room-area="fxEditorRoomContext?.roomArea" :room-base-lm="fxEditorRoomContext?.roomBaseLm" :room-current-lm-without-this="fxEditorRoomContext?.roomCurrentLmWithoutThis" :room-name="fxEditorRoomContext?.roomName" :room-tint="fxEditorRoomContext?.roomTint" @save="onFxSave" @delete="onFxDelete" @close="onFxClose" @feedback="cfg.showFB" />
   </template>
 
   <template v-else-if="activeRoom">
-    <RoomDetail
-      :room="activeRoom"
-      @update="onEditRoom"
-      @delete="onDeleteRoom"
-      @close="onCloseRoom"
-      @feedback="cfg.showFB"
-      @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)"
-    />
+    <RoomDetail :room="activeRoom" @update="onEditRoom" @delete="onDeleteRoom" @close="onCloseRoom" @feedback="cfg.showFB" @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)" />
   </template>
 
   <template v-else-if="!cfg.welcomeSeen.value">
@@ -330,111 +228,62 @@ function onPreloaderDone() {
   <template v-else>
     <div
       :style="{
-        maxWidth: '560px',
-        margin: '0 auto',
-        padding: '16px',
+        maxWidth: '560px', margin: '0 auto', padding: '16px',
         fontFamily: `'Segoe UI', system-ui, sans-serif`,
-        color: T.text,
-        background: T.bg,
-        minHeight: '100vh',
+        color: T.text, background: T.bg, minHeight: '100vh',
       }"
     >
       <div :style="{ textAlign: 'center', marginBottom: '20px', paddingTop: '8px' }">
-        <div
-          :style="{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
-          }"
-        >
-          <!-- batch11 #8 (#2): «Живой Дом» font 33 → 30 -->
-          <div :style="{ fontSize: '30px', fontWeight: 700, color: T.text, lineHeight: 1.2 }">
-            {{ cfg.name.value }}
-          </div>
-          <button
+        <!-- batch11 #8 v2 (#1): weight 500, dashed underline, кликабельный, без иконки -->
+        <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'center' }">
+          <div
             :style="{
-              background: 'none',
-              border: 'none',
-              color: T.textSec,
+              fontSize: '30px',
+              fontWeight: 500,
+              color: T.text,
+              lineHeight: 1.2,
+              borderBottom: `1px dashed ${T.textDim}`,
+              paddingBottom: '2px',
               cursor: 'pointer',
-              padding: '4px',
             }"
             @click="cfg.showName.value = true"
           >
-            <!-- batch11 #8 (#3): pen → circleEllipsis -->
-            <Icon name="circleEllipsis" :color="T.textSec" :size="27" />
-          </button>
+            {{ cfg.name.value }}
+          </div>
         </div>
-        <!-- batch11 #7 (#6): WOODLED ROTOR font 10 → 15, padding 3/12 → 5/18 -->
         <div
           :style="{
-            display: 'inline-block',
-            marginTop: '10px',
-            padding: '5px 18px',
-            borderRadius: '14px',
-            background: T.neutral + '18',
-            fontSize: '15px',
-            fontWeight: 700,
-            color: T.neutral,
-            letterSpacing: '0.75px',
+            display: 'inline-block', marginTop: '10px', padding: '5px 18px',
+            borderRadius: '14px', background: T.neutral + '18',
+            fontSize: '15px', fontWeight: 700, color: T.neutral, letterSpacing: '0.75px',
           }"
         >
           WOODLED ROTOR
         </div>
       </div>
 
-      <HouseStats
-        @share-link="onSaveShareLink"
-        @change-home="onResetClick"
-      />
+      <HouseStats @share-link="onSaveShareLink" @change-home="onResetClick" />
 
-      <!-- batch11 #7 (#7): «N комнат» font 16 → 24, отступы 20/12 → 32/20 -->
       <div
         :style="{
-          fontSize: '24px',
-          fontWeight: 600,
-          color: T.text,
-          marginTop: '32px',
-          marginBottom: '20px',
-          textAlign: 'center',
+          fontSize: '24px', fontWeight: 600, color: T.text,
+          marginTop: '32px', marginBottom: '20px', textAlign: 'center',
         }"
       >
         {{ subtitle }}
       </div>
 
-      <div
-        :style="{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '10px',
-          marginBottom: '16px',
-        }"
-      >
-        <RoomCard
-          v-for="r in sortedRooms"
-          :key="r.id"
-          :room="r"
-          @click="cfg.active.value = r.id"
-          @pick-color="onPickColor(r)"
-        />
-        <!-- batch11 #7 (#1): убран «+», осталось только текстовое приглашение по центру -->
+      <div :style="{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }">
+        <RoomCard v-for="r in sortedRooms" :key="r.id" :room="r" @click="cfg.active.value = r.id" @pick-color="onPickColor(r)" />
         <div
           :style="{
-            border: `1px dashed ${T.border}`,
-            borderRadius: '12px',
-            minHeight: '160px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            color: T.textDim,
+            border: `1px dashed ${T.border}`, borderRadius: '12px', minHeight: '160px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: T.textDim,
           }"
           @click="cfg.picker.value = true"
         >
-          <div :style="{ fontSize: '15px', fontWeight: 500, lineHeight: 1.3, textAlign: 'center' }">
-            Добавить<br/>комнату
-          </div>
+          <div :style="{ fontSize: '15px', fontWeight: 500, lineHeight: 1.3, textAlign: 'center' }">Добавить<br/>комнату</div>
         </div>
       </div>
 
@@ -447,146 +296,30 @@ function onPreloaderDone() {
   </template>
 
   <template v-if="!activeFxData">
-    <TypePicker
-      v-if="cfg.picker.value"
-      @pick="(tid) => cfg.add(tid)"
-      @close="cfg.picker.value = false"
-    />
-
-    <FirstModal
-      v-if="cfg.showFirst.value"
-      :rooms="rooms"
-      :first-id="cfg.firstId.value"
-      @update="(id) => (cfg.firstId.value = id)"
-      @close="cfg.showFirst.value = false"
-    />
-
-    <NameModal
-      v-if="cfg.showName.value"
-      :value="cfg.name.value"
-      @save="cfg.setName"
-      @close="cfg.showName.value = false"
-    />
-
-    <BuyModal
-      v-if="cfg.showBuy.value"
-      :rooms="rooms"
-      @edit-fx="onBuyEditFx"
-      @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)"
-      @close="onBuyClose"
-      @feedback="cfg.showFB"
-      @story="cfg.showStory.value = true"
-    />
-
-    <StoryModal
-      v-if="cfg.showStory.value"
-      :rooms="rooms"
-      :name="cfg.name.value"
-      @close="cfg.showStory.value = false"
-    />
-
-    <ShareModal
-      v-if="cfg.showShare.value"
-      :name="cfg.name.value"
-      :rooms="rooms"
-      @close="cfg.showShare.value = false"
-      @feedback="cfg.showFB"
-    />
-
-    <ColorPickerModal
-      v-if="colorPickRoom"
-      :current="colorPickRoom.cardColor"
-      :room-name="colorPickRoom.customName || getRT(colorPickRoom.typeId).name"
-      @pick="onColorPicked"
-      @close="colorPickRoom = null"
-    />
-
-    <MoodDetailModal
-      v-if="cfg.showMoodDetail.value"
-      :mood="cfg.showMoodDetail.value"
-      @close="cfg.showMoodDetail.value = null"
-    />
+    <TypePicker v-if="cfg.picker.value" @pick="(tid) => cfg.add(tid)" @close="cfg.picker.value = false" />
+    <FirstModal v-if="cfg.showFirst.value" :rooms="rooms" :first-id="cfg.firstId.value" @update="(id) => (cfg.firstId.value = id)" @close="cfg.showFirst.value = false" />
+    <NameModal v-if="cfg.showName.value" :value="cfg.name.value" @save="cfg.setName" @close="cfg.showName.value = false" />
+    <BuyModal v-if="cfg.showBuy.value" :rooms="rooms" @edit-fx="onBuyEditFx" @open-fx="(roomId, fxIdx) => cfg.openFx(roomId, fxIdx)" @close="onBuyClose" @feedback="cfg.showFB" @story="cfg.showStory.value = true" />
+    <StoryModal v-if="cfg.showStory.value" :rooms="rooms" :name="cfg.name.value" @close="cfg.showStory.value = false" />
+    <ShareModal v-if="cfg.showShare.value" :name="cfg.name.value" :rooms="rooms" @close="cfg.showShare.value = false" @feedback="cfg.showFB" />
+    <ColorPickerModal v-if="colorPickRoom" :current="colorPickRoom.cardColor" :room-name="colorPickRoom.customName || getRT(colorPickRoom.typeId).name" @pick="onColorPicked" @close="colorPickRoom = null" />
+    <MoodDetailModal v-if="cfg.showMoodDetail.value" :mood="cfg.showMoodDetail.value" @close="cfg.showMoodDetail.value = null" />
 
     <Modal v-if="showResetConfirm" @close="onResetCancel">
       <div :style="{ padding: '24px 20px', textAlign: 'center' }">
-        <div
-          :style="{
-            fontSize: '17px',
-            fontWeight: 700,
-            color: T.text,
-            marginBottom: '10px',
-          }"
-        >
-          Сбросить дом?
-        </div>
-        <div
-          :style="{
-            fontSize: '13px',
-            color: T.textSec,
-            lineHeight: 1.55,
-            marginBottom: '20px',
-            maxWidth: '320px',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }"
-        >
-          Текущий дом и все настройки сбросятся. Вы вернётесь к выбору формата.
-        </div>
+        <div :style="{ fontSize: '17px', fontWeight: 700, color: T.text, marginBottom: '10px' }">Сбросить дом?</div>
+        <div :style="{ fontSize: '13px', color: T.textSec, lineHeight: 1.55, marginBottom: '20px', maxWidth: '320px', marginLeft: 'auto', marginRight: 'auto' }">Текущий дом и все настройки сбросятся. Вы вернётесь к выбору формата.</div>
         <div :style="{ display: 'flex', gap: '8px' }">
-          <button
-            :style="{
-              flex: 1,
-              padding: '12px',
-              background: 'none',
-              border: `1px solid ${T.border}`,
-              color: T.textSec,
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 600,
-              fontFamily: 'inherit',
-            }"
-            @click="onResetCancel"
-          >
-            Отмена
-          </button>
-          <button
-            :style="{
-              flex: 1,
-              padding: '12px',
-              background: T.neutral,
-              color: T.bg,
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 700,
-              fontFamily: 'inherit',
-            }"
-            @click="onResetConfirm"
-          >
-            Да, сбросить
-          </button>
+          <button :style="{ flex: 1, padding: '12px', background: 'none', border: `1px solid ${T.border}`, color: T.textSec, borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, fontFamily: 'inherit' }" @click="onResetCancel">Отмена</button>
+          <button :style="{ flex: 1, padding: '12px', background: T.neutral, color: T.bg, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 700, fontFamily: 'inherit' }" @click="onResetConfirm">Да, сбросить</button>
         </div>
       </div>
     </Modal>
 
-    <StickyBar
-      v-if="stickyVisible"
-      @share="cfg.showShare.value = true"
-      @buy="cfg.showBuy.value = true"
-    />
+    <StickyBar v-if="stickyVisible" @share="cfg.showShare.value = true" @buy="cfg.showBuy.value = true" />
   </template>
 
-  <div
-    :style="{
-      position: 'fixed',
-      top: '8px',
-      right: '16px',
-      zIndex: 90,
-      display: anyModalOpen ? 'none' : 'block',
-    }"
-  >
+  <div :style="{ position: 'fixed', top: '8px', right: '16px', zIndex: 90, display: anyModalOpen ? 'none' : 'block' }">
     <SoundButton />
   </div>
 
@@ -594,29 +327,10 @@ function onPreloaderDone() {
 </template>
 
 <style>
-html, body {
-  background: #13110E !important;
-  margin: 0;
-  padding: 0;
-}
-input::placeholder,
-textarea::placeholder {
-  color: #5C544A !important;
-  opacity: 0.7 !important;
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-
-.preloader-fade-leave-active {
-  transition: opacity 0.8s ease;
-}
-.preloader-fade-enter-active {
-  transition: opacity 0.6s ease;
-}
-.preloader-fade-leave-to,
-.preloader-fade-enter-from {
-  opacity: 0;
-}
+html, body { background: #13110E !important; margin: 0; padding: 0; }
+input::placeholder, textarea::placeholder { color: #5C544A !important; opacity: 0.7 !important; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.preloader-fade-leave-active { transition: opacity 0.8s ease; }
+.preloader-fade-enter-active { transition: opacity 0.6s ease; }
+.preloader-fade-leave-to, .preloader-fade-enter-from { opacity: 0; }
 </style>

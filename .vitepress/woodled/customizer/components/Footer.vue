@@ -2,15 +2,8 @@
 /**
  * Footer.vue — Лого WOODLED внизу страниц.
  *
- * Источник: woodled-v42.jsx (Footer).
- *
- * Подход: SVG рендерится как CSS-маска, а цвет задаётся через background.
- * Это окрашивает лого в тон темы (T.neutral — тёплый бежевый).
- *
- * Ссылка «Начать заново» переехала в HouseStats → блок «Дополнительно».
- * Это единая точка управления домом — больше нигде не дублируется.
- *
- * batch11 #7 (#6): лого ×2 — width 130→260, height 22→44.
+ * batch11 #7 (#6): лого ×2 — 130→260, 22→44.
+ * batch11 #8 v2 (#5): −30% — 260→182, 44→31.
  */
 
 import { T } from '../theme/tokens'
@@ -30,9 +23,9 @@ const LOGO_URL = 'https://runscale.ru/woodled/customizer/woodled-logo.svg'
   >
     <div
       :style="{
-        /* batch11 #7 (#6): лого ×2 */
-        width: '260px',
-        height: '44px',
+        /* batch11 #8 v2 (#5): лого ×2 минус 30% = ×1.4 */
+        width: '182px',
+        height: '31px',
         background: T.neutral,
         maskImage: `url(${LOGO_URL})`,
         maskSize: 'contain',
