@@ -2,10 +2,11 @@
 /**
  * App.vue — Корневой роутер.
  *
- * batch11 #8 v3:
- *   #1 — Подчёркивание: белый цвет (T.text), длинные штрихи через
- *         repeating-linear-gradient (9px dash, 4px gap).
- *   #2 — Бейдж WOODLED ROTOR: borderRadius 14 → 999 (полная пилюля).
+ * batch11 #8 v4:
+ *   #3 — Подчёркивание ближе к тексту (paddingBottom 4 → 1).
+ *   #4 — Viewport meta: maximum-scale=1, user-scalable=no — запрещает
+ *         масштабирование на мобильных. CSS: touch-action manipulation,
+ *         input font-size ≥16px — предотвращает auto-zoom на iOS.
  */
 
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
@@ -45,7 +46,23 @@ import { decodeFixture, readHashFixture } from '../engine/share'
 
 const cfg = useConfigurator()
 
+/**
+ * batch11 #8 v4 (#4): Запрет масштабирования на мобильных.
+ * Устанавливает viewport meta с maximum-scale=1 и user-scalable=no.
+ * Это предотвращает увеличенный масштаб после закрытия модалок.
+ */
+function lockViewport() {
+  let meta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement | null
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.name = 'viewport'
+    document.head.appendChild(meta)
+  }
+  meta.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
+}
+
 onMounted(() => {
+  lockViewport()
   window.addEventListener('beforeunload', cfg.persistState)
   if (cfg.loadFromHash()) { cfg.dismissWelcome(); return }
   const fxEncoded = readHashFixture()
@@ -150,14 +167,14 @@ function onPreloaderDone() { preloaderDone.value = true }
     >
       <div :style="{ textAlign: 'center', marginBottom: '20px', paddingTop: '8px' }">
         <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'center' }">
-          <!-- batch11 #8 v3 (#1): белый цвет, длинные штрихи (9px dash / 4px gap) -->
+          <!-- batch11 #8 v4 (#3): paddingBottom 4 → 1 — подчёркивание ближе к тексту -->
           <div
             :style="{
               fontSize: '30px',
               fontWeight: 500,
               color: T.text,
               lineHeight: 1.2,
-              paddingBottom: '4px',
+              paddingBottom: '1px',
               cursor: 'pointer',
               backgroundImage: `repeating-linear-gradient(to right, ${T.text} 0, ${T.text} 9px, transparent 9px, transparent 13px)`,
               backgroundSize: '100% 1px',
@@ -169,7 +186,6 @@ function onPreloaderDone() { preloaderDone.value = true }
             {{ cfg.name.value }}
           </div>
         </div>
-        <!-- batch11 #8 v3 (#2): borderRadius 999 — полная пилюля -->
         <div
           :style="{
             display: 'inline-block', marginTop: '10px', padding: '5px 18px',
@@ -232,9 +248,29 @@ function onPreloaderDone() { preloaderDone.value = true }
 </template>
 
 <style>
-html, body { background: #13110E !important; margin: 0; padding: 0; }
-input::placeholder, textarea::placeholder { color: #5C544A !important; opacity: 0.7 !important; }
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+html, body {
+  background: #13110E !important;
+  margin: 0;
+  padding: 0;
+}
+/* batch11 #8 v4 (#4): предотвращение auto-zoom на iOS при фокусе input */
+input, textarea, select {
+  font-size: 16px !important;
+  touch-action: manipulation;
+}
+/* Глобальный запрет double-tap zoom */
+* {
+  touch-action: manipulation;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #5C544A !important;
+  opacity: 0.7 !important;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
 .preloader-fade-leave-active { transition: opacity 0.8s ease; }
 .preloader-fade-enter-active { transition: opacity 0.6s ease; }
 .preloader-fade-leave-to, .preloader-fade-enter-from { opacity: 0; }
