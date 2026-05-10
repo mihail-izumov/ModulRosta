@@ -2,10 +2,10 @@
 /**
  * App.vue — Корневой роутер.
  *
- * batch11 #9: stickyVisible теперь учитывает cfg.active.value —
- * StickyBar (Поделиться / Мой Лес) скрывается когда открыта любая
- * комната, включая RoomSettings внутри RoomDetail. Иначе кнопка
- * «Сохранить» в RoomSettings перекрывалась нижней панелью.
+ * batch11 #9 v3: stickyVisible использует cfg.showRoomSettings вместо
+ *   cfg.active — StickyBar остаётся виден на RoomDetail и скрывается
+ *   только в RoomSettings. RoomSettings.vue сам поднимает/опускает флаг
+ *   в onMounted/onUnmounted.
  */
 
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
@@ -106,16 +106,15 @@ const fxEditorRoomContext = computed(() => {
 const fxBackLabel = computed(() => { if (cfg.showBuy.value) return '← Мой лес'; if (cfg.active.value) return '← Комната'; return '← Назад' })
 
 /**
- * batch11 #9: добавлено `!cfg.active.value` — StickyBar скрывается когда
- * открыта любая комната (включая RoomSettings внутри RoomDetail). Раньше
- * нижняя панель перекрывала кнопку «Сохранить» в настройках комнаты.
+ * batch11 #9 v3: StickyBar скрывается ТОЛЬКО когда открыты параметры
+ * комнаты (cfg.showRoomSettings). На самом RoomDetail остаётся видимым.
  */
 const stickyVisible = computed(() =>
   cfg.hasFixtures.value
   && !cfg.showBuy.value
   && !cfg.activeFx.value
   && !cfg.showMoodDetail.value
-  && !cfg.active.value,
+  && !cfg.showRoomSettings.value,
 )
 
 function onPromoClick() { cfg.showBuy.value = true }

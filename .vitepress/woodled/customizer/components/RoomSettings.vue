@@ -2,12 +2,15 @@
 /**
  * RoomSettings.vue — Полноэкранный экран настроек комнаты.
  *
- * batch11 #9 v2:
- *  + onMounted/onUnmounted блокируют скролл body на время показа модалки —
- *    иначе на iOS Safari при свайпе через RoomSettings подложка под ним
- *    тоже скроллится, два скролла путаются.
- *  + overscroll-behavior: contain на самом контейнере — свайп внутри не
- *    «пробивается» на родительский документ.
+ * batch11 #9 v3:
+ *  + onMounted поднимает cfg.showRoomSettings = true (App.vue читает
+ *    этот флаг чтобы скрыть StickyBar именно в настройках, а не на
+ *    самом RoomDetail).
+ *  + onMounted также блокирует overflow body/html — иначе на iOS Safari
+ *    при свайпе через RoomSettings подложка тоже скроллится.
+ *  + overscroll-behavior: contain на самом контейнере — свайп внутри
+ *    не пробивается на родительский документ.
+ *  + onUnmounted всё восстанавливает и опускает флаг обратно.
  */
 
 import { computed, ref, nextTick, watch, onMounted, onUnmounted } from 'vue'
@@ -15,6 +18,7 @@ import { T, Z } from '../theme/tokens'
 import { SZ, type Room, type RoomType, type ZoneLimits } from '../data/rooms'
 import type { ZoneId } from '../data/catalog'
 import { roomZones } from '../engine/zone-engine'
+import { useConfigurator } from '../store/configurator'
 import NavHeader from './ui/NavHeader.vue'
 
 interface Props {
@@ -27,22 +31,29 @@ const emit = defineEmits<{
   close: []
 }>()
 
+const cfg = useConfigurator()
 const zones = computed(() => roomZones(props.rt))
 const tint = computed(() => props.room.cardColor ?? T.neutral)
 
-/* ──────────── Lock body scroll ──────────── */
+/* ──────────── Lifecycle: scroll lock + sticky-bar hide ──────────── */
 
 let prevBodyOverflow = ''
 let prevHtmlOverflow = ''
+
 onMounted(() => {
+  /* Блокируем фоновый скролл */
   prevBodyOverflow = document.body.style.overflow
   prevHtmlOverflow = document.documentElement.style.overflow
   document.body.style.overflow = 'hidden'
   document.documentElement.style.overflow = 'hidden'
+  /* Сообщаем App.vue что мы открыты — он скроет StickyBar */
+  cfg.showRoomSettings.value = true
 })
+
 onUnmounted(() => {
   document.body.style.overflow = prevBodyOverflow
   document.documentElement.style.overflow = prevHtmlOverflow
+  cfg.showRoomSettings.value = false
 })
 
 /* ──────────── Draft state ──────────── */
@@ -574,7 +585,6 @@ const displayName = computed(() => props.room.customName || props.rt.name)
 </template>
 
 <style scoped>
-/* batch11 #9 v2: overscroll-behavior — свайп внутри не пробивается на body */
 .rs-root {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
