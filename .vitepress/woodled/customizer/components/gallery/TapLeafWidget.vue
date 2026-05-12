@@ -1,7 +1,8 @@
 <script setup>
-/* FIX-2026-05-12-icons-bubble-v5 — masks via user-provided SVG URLs.
+/* FIX-2026-05-12-icons-bubble-v6 — preload heart SVG as data: URL on mount
+   + slightly taller pill bubble.
    Маркер: если этого комментария нет в задеплоенном файле — залит старый. */
-import { ref, computed, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, onBeforeUnmount, onMounted } from 'vue';
 import { T, LEAF_REVEALS, makeScatterPieces } from './gallery-constants.js';
 
 const props = defineProps({
@@ -20,10 +21,30 @@ const c = computed(() => props.accent || T.clearing);
 const isGift = computed(() => taps.value >= 4);
 const reveal = computed(() => LEAF_REVEALS[Math.min(taps.value, LEAF_REVEALS.length - 1)]);
 
-// User-provided SVG icons из public/. VitePress подаёт public/ как корень сайта,
-// поэтому URL без /public/ префикса.
-const leafMaskUrl  = 'url("/woodled/customizer/leaf-icon.svg")';
-const heartMaskUrl = 'url("/woodled/customizer/heart-icon.svg")';
+// User-provided SVG icons.
+// Изначально маска ссылается на файл — браузер скачает её при первом рендере.
+// На mount-е скачиваем содержимое в data: URL — после этого ВСЕ
+// последующие применения маски мгновенные (нет сетевого роундтрипа).
+// Это критично для сердечек: они показываются только после 4 тапов,
+// и без префетча первый кадр scatter/heart-фазы виден с задержкой.
+const LEAF_URL  = '/woodled/customizer/leaf-icon.svg';
+const HEART_URL = '/woodled/customizer/heart-icon.svg';
+
+const leafMaskUrl  = ref(`url("${LEAF_URL}")`);
+const heartMaskUrl = ref(`url("${HEART_URL}")`);
+
+onMounted(async () => {
+  try {
+    const [leafText, heartText] = await Promise.all([
+      fetch(LEAF_URL).then(r => r.text()),
+      fetch(HEART_URL).then(r => r.text()),
+    ]);
+    leafMaskUrl.value  = `url("data:image/svg+xml;utf8,${encodeURIComponent(leafText)}")`;
+    heartMaskUrl.value = `url("data:image/svg+xml;utf8,${encodeURIComponent(heartText)}")`;
+  } catch {
+    // Сеть не дала ответа — оставляем файловые URL, маска всё равно работает.
+  }
+});
 
 // Размер главной иконки. В круге 100×100, остаётся ~18px зазора со всех сторон.
 const ICON = 64;
@@ -189,7 +210,7 @@ const containerStyle = computed(() => ({
           }"
         >{{ reveal.text }}</div>
 
-        <!-- Pill-shaped bubble: borderRadius 999, super-low vertical padding -->
+        <!-- Pill-shaped bubble: borderRadius 999, slightly taller -->
         <button
           v-if="phase === 'heart'"
           @click="onGiftClick"
@@ -197,10 +218,10 @@ const containerStyle = computed(() => ({
             background: '#FFFFFF', color: T.bg,
             border: 'none',
             borderRadius: '999px',
-            padding: '3px 14px',
-            fontSize: '12px',
+            padding: '6px 16px',
+            fontSize: '13px',
             fontWeight: 600,
-            lineHeight: 1.1,
+            lineHeight: 1.2,
             fontFamily: 'inherit', cursor: 'pointer',
             whiteSpace: 'nowrap',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
