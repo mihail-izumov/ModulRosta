@@ -83,14 +83,7 @@ const leafAnimation = computed(() => {
     position: 'relative', overflow: 'hidden',
     backdropFilter: 'blur(20px) saturate(160%)',
     WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-    boxShadow: `
-      inset 0 1px 0 rgba(255, 255, 255, 0.32),
-      inset 1px 0 0 rgba(255, 255, 255, 0.18),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-      inset -1px 0 0 rgba(255, 255, 255, 0.04),
-      inset 0 0 30px rgba(255, 255, 255, 0.025),
-      0 2px 14px rgba(0, 0, 0, 0.22)
-    `,
+    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.32), inset 1px 0 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.05), inset -1px 0 0 rgba(255, 255, 255, 0.04), inset 0 0 30px rgba(255, 255, 255, 0.025), 0 2px 14px rgba(0, 0, 0, 0.22)',
     transition: 'background .5s ease',
   }}>
     <div
