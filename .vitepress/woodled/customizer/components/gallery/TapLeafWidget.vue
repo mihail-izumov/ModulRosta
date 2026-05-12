@@ -1,9 +1,8 @@
 <script setup>
-/* FIX-2026-05-12-icons-bubble-v3 — если этого маркера нет в задеплоенном файле,
-   значит залит старый. Проверить можно из DevTools → Sources → найти этот файл. */
+/* FIX-2026-05-12-icons-bubble-v4 — inline SVG icons + pill bubble.
+   Маркер: если этого комментария нет в задеплоенном файле — залит старый. */
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { T, LEAF_REVEALS, makeScatterPieces } from './gallery-constants.js';
-import { LEAF_SVG_B64, HEART_SVG_B64 } from './gallery-icons.js';
 
 const props = defineProps({
   /** Accent colour for leaf/heart/circle/dots. Falls back to T.clearing. */
@@ -21,20 +20,9 @@ const c = computed(() => props.accent || T.clearing);
 const isGift = computed(() => taps.value >= 4);
 const reveal = computed(() => LEAF_REVEALS[Math.min(taps.value, LEAF_REVEALS.length - 1)]);
 
-const leafMaskUrl  = `url("data:image/svg+xml;base64,${LEAF_SVG_B64}")`;
-const heartMaskUrl = `url("data:image/svg+xml;base64,${HEART_SVG_B64}")`;
-
-function iconStyle(size, color, maskUrl) {
-  return {
-    width: `${size}px`, height: `${size}px`,
-    backgroundColor: color,
-    WebkitMaskImage: maskUrl, maskImage: maskUrl,
-    WebkitMaskSize: 'contain', maskSize: 'contain',
-    WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
-    WebkitMaskPosition: 'center', maskPosition: 'center',
-    transition: 'background-color .3s ease',
-  };
-}
+// Inline SVG с viewBox 24x24 → размер контейнера 100% контролируется этим числом.
+// 56px помещается в круг 100x100 с запасом 22px со всех сторон — никакого clipping.
+const ICON = 56;
 
 function onTap() {
   taps.value = taps.value >= 4 ? 0 : taps.value + 1;
@@ -42,8 +30,6 @@ function onTap() {
 
 function onGiftClick(e) {
   e.stopPropagation();
-  // Эмитим событие — родитель (страница) сам решает что делать:
-  // открыть модалку, навигировать в "Мой Лес" через store, и т.д.
   emit('gift-click');
 }
 
@@ -58,7 +44,6 @@ onBeforeUnmount(clearTimers);
 watch(taps, (n) => {
   clearTimers();
   if (n === 4) {
-    // leaf fades → empty pause → scatter hearts → big heart pulses 3x
     phase.value = 'leaving';
     timers.push(setTimeout(() => { phase.value = 'empty'; }, 400));
     timers.push(setTimeout(() => {
@@ -71,17 +56,13 @@ watch(taps, (n) => {
   }
 });
 
-// --- styles bag (animation depends on taps + phase) -------------------------
 const leafAnimation = computed(() => {
   if (phase.value === 'leaving') return 'wdLeafFade .4s ease-in forwards';
   if (taps.value > 0)            return 'wdLeafShake .6s ease-out';
   return 'none';
 });
 
-// Контейнерный стиль вынесен в computed: Vue compiler-core в prod-build не
-// парсит template literals (`...${}...`) внутри JS-объекта в :style attr.
 const containerStyle = computed(() => ({
-  aspectRatio: '1 / 1',
   width: '100%',
   height: '100%',
   background: 'linear-gradient(165deg, ' + c.value + '28 0%, ' + c.value + '0A 100%)',
@@ -127,7 +108,7 @@ const containerStyle = computed(() => ({
           overflow: 'visible',
           transition: 'background-color .4s ease',
         }">
-          <!-- Leaf (idle + leaving) -->
+          <!-- Leaf (idle + leaving) — inline SVG, no mask, full control -->
           <div
             v-if="phase === 'idle' || phase === 'leaving'"
             :key="'leaf-' + taps + '-' + phase"
@@ -137,10 +118,27 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <div :style="iconStyle(36, c, leafMaskUrl)" />
+            <svg :width="ICON" :height="ICON" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
+              <path
+                d="M11 20A7 7 0 0 1 4 13c0-5 4-9 11-11 0 7-4 11-9 11"
+                :stroke="c"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                fill="none"
+              />
+              <path
+                d="M2 22c4-2 9-7 13-13"
+                :stroke="c"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                fill="none"
+              />
+            </svg>
           </div>
 
-          <!-- Heart (phase 'heart') -->
+          <!-- Heart (phase 'heart') — inline SVG -->
           <div
             v-if="phase === 'heart'"
             key="heart"
@@ -150,10 +148,15 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <div :style="iconStyle(36, c, heartMaskUrl)" />
+            <svg :width="ICON" :height="ICON" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
+              <path
+                d="M19 14c-2.2 2.2-4.7 4.5-7 6.5-2.3-2-4.8-4.3-7-6.5C2.2 11.7 2 8 4.5 5.7 6.5 4 9.2 4.2 11 6c.4.4.7.8 1 1.3.3-.5.6-.9 1-1.3 1.8-1.8 4.5-2 6.5-.3 2.5 2.3 2.3 6 0 8.3z"
+                :fill="c"
+              />
+            </svg>
           </div>
 
-          <!-- Scatter hearts (wrapper v-if ensures fresh mount per transition) -->
+          <!-- Scatter hearts — inline SVG -->
           <template v-if="phase === 'scatter' || phase === 'heart'">
             <div
               v-for="(l, i) in scatterPieces"
@@ -172,7 +175,12 @@ const containerStyle = computed(() => ({
                 zIndex: 5,
               }"
             >
-              <div :style="iconStyle(l.sz, c, heartMaskUrl)" />
+              <svg :width="l.sz" :height="l.sz" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
+                <path
+                  d="M19 14c-2.2 2.2-4.7 4.5-7 6.5-2.3-2-4.8-4.3-7-6.5C2.2 11.7 2 8 4.5 5.7 6.5 4 9.2 4.2 11 6c.4.4.7.8 1 1.3.3-.5.6-.9 1-1.3 1.8-1.8 4.5-2 6.5-.3 2.5 2.3 2.3 6 0 8.3z"
+                  :fill="c"
+                />
+              </svg>
             </div>
           </template>
         </div>
@@ -192,14 +200,18 @@ const containerStyle = computed(() => ({
           }"
         >{{ reveal.text }}</div>
 
+        <!-- Pill-shaped bubble: borderRadius 999, super-low vertical padding -->
         <button
           v-if="phase === 'heart'"
           @click="onGiftClick"
           :style="{
             background: '#FFFFFF', color: T.bg,
-            border: 'none', borderRadius: '10px',
-            padding: '4px 10px',
-            fontSize: '11px', fontWeight: 600,
+            border: 'none',
+            borderRadius: '999px',
+            padding: '3px 14px',
+            fontSize: '12px',
+            fontWeight: 600,
+            lineHeight: 1.1,
             fontFamily: 'inherit', cursor: 'pointer',
             whiteSpace: 'nowrap',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
@@ -226,8 +238,6 @@ const containerStyle = computed(() => ({
 </template>
 
 <style>
-/* Keyframes are GLOBAL on purpose — they're referenced from inline styles
-   (Vue scoped styles would prefix the names and break the lookup). */
 @keyframes wdLeafShake {
   0%, 100% { transform: rotate(0deg); }
   18% { transform: rotate(-11deg); }
@@ -244,22 +254,18 @@ const containerStyle = computed(() => ({
   30%  { opacity: 0.9; }
   100% { opacity: 0; transform: translate(var(--ex), var(--ey)) rotate(var(--er)) scale(0.5); }
 }
-/* Heart: appear, then 3 lub-DUB beats */
 @keyframes wdHeartShow {
   0%   { transform: scale(0.4); opacity: 0; }
   10%  { transform: scale(1.10); opacity: 1; }
   15%  { transform: scale(1); }
-  /* beat 1 */
   26%  { transform: scale(1.15); }
   30%  { transform: scale(1); }
   34%  { transform: scale(1.24); }
   40%  { transform: scale(1); }
-  /* beat 2 */
   54%  { transform: scale(1.15); }
   58%  { transform: scale(1); }
   62%  { transform: scale(1.24); }
   68%  { transform: scale(1); }
-  /* beat 3 */
   82%  { transform: scale(1.15); }
   86%  { transform: scale(1); }
   90%  { transform: scale(1.24); }
