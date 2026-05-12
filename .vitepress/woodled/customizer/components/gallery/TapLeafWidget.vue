@@ -1,4 +1,6 @@
 <script setup>
+/* FIX-2026-05-12-icons-bubble-v3 — если этого маркера нет в задеплоенном файле,
+   значит залит старый. Проверить можно из DevTools → Sources → найти этот файл. */
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { T, LEAF_REVEALS, makeScatterPieces } from './gallery-constants.js';
 import { LEAF_SVG_B64, HEART_SVG_B64 } from './gallery-icons.js';
@@ -135,7 +137,7 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <div :style="iconStyle(48, c, leafMaskUrl)" />
+            <div :style="iconStyle(36, c, leafMaskUrl)" />
           </div>
 
           <!-- Heart (phase 'heart') -->
@@ -148,7 +150,7 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <div :style="iconStyle(48, c, heartMaskUrl)" />
+            <div :style="iconStyle(36, c, heartMaskUrl)" />
           </div>
 
           <!-- Scatter hearts (wrapper v-if ensures fresh mount per transition) -->
@@ -195,12 +197,12 @@ const containerStyle = computed(() => ({
           @click="onGiftClick"
           :style="{
             background: '#FFFFFF', color: T.bg,
-            border: 'none', borderRadius: '12px',
-            padding: '5px 12px',
-            fontSize: '12px', fontWeight: 600,
+            border: 'none', borderRadius: '10px',
+            padding: '4px 10px',
+            fontSize: '11px', fontWeight: 600,
             fontFamily: 'inherit', cursor: 'pointer',
             whiteSpace: 'nowrap',
-            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
             animation: 'wdLeafFade .4s ease-out reverse',
             opacity: 1,
           }"
