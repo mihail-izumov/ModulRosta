@@ -40,6 +40,15 @@ const emit = defineEmits<{ (e: 'save', fx: Fixture): void; (e: 'delete'): void; 
 
 const cfg = useConfigurator()
 
+/* «+3000₽ на свет» в галерее: в App.vue BuyModal живёт внутри
+   v-if="!activeFxData" — пока мы на странице светильника, модалка
+   ФИЗИЧЕСКИ не отрендерена. Сначала закрываем FxEditor (activeFxData → null),
+   потом ставим showBuy=true — App.vue рендерит ветку с BuyModal. */
+function onGalleryGift() {
+  cfg.showBuy.value = true
+  emit('close')
+}
+
 type StepId = 'size'|'wood'|'mount'|'bowl'|'temp'|'patrons'|'diffuser'|'wire'|'base'|'bulbs'
 type StepStatus = 'default'|'chosen'
 const SM: Record<StepId, {name:string;desc:string;icon:IconName}> = {
@@ -254,7 +263,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             :title="model.name + ' в интерьере'"
             context="fx"
             :accent="sc"
-            @gift-click="cfg.showBuy.value = true"
+            @gift-click="onGalleryGift"
           />
         </div>
 
