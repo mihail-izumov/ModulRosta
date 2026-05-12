@@ -46,6 +46,10 @@ const props = defineProps({
   accent: { type: String, default: null },
 })
 
+// Прокидываем gift-click от TapLeafWidget наружу — страница сама решает что делать
+// (открыть «Мой Лес», модалку, и т.д.). Используется in-code routing проекта.
+const emit = defineEmits(['gift-click'])
+
 // ---------------------------------------------------------------------------
 // STATE
 // ---------------------------------------------------------------------------
@@ -55,8 +59,10 @@ const target = 4
 const revealedPages = ref(1)
 const lightboxIdx   = ref(null)
 
-// Reset pagination when the items list itself changes (e.g. new model / room).
-watch(() => props.items, () => { revealedPages.value = 1 })
+// Reset pagination ТОЛЬКО когда длина набора реально меняется (другой фильтр /
+// другая комната / другая модель). Не сбрасывать при aspect-load — иначе при
+// каждом догруженном фото галерея схлопывалась бы обратно в одну страницу.
+watch(() => props.items.length, () => { revealedPages.value = 1 })
 
 // ---------------------------------------------------------------------------
 // PLAN (grid pagination)
@@ -73,6 +79,10 @@ const widgetAccent = computed(() => props.accent || T.clearing)
 
 // ---------------------------------------------------------------------------
 // SEQUENCE BUILDER (mirrors WoodledGallery.sequenceFor)
+//
+// Дополнительно: считаем нечётность итоговой раскладки и добавляем виджет(ы)
+// в конец чтобы grid (2 колонки, dense flow) не оставлял пустых ячеек, когда
+// wide-фото попадает в нечётную позицию.
 // ---------------------------------------------------------------------------
 function sequenceFor(page) {
   const cells = page.cells
@@ -90,6 +100,17 @@ function sequenceFor(page) {
         { kind: 'tapleaf' },
         ...cells.slice(insertAt).map(c => ({ kind: 'photo', cell: c })),
       ]
+
+  // Считаем units в раскладке: square = 1, wide = 2, widget = 1.
+  // Если нечётно — grid с 2-колонками оставит дыру. Добавляем widget(ы)-затычки.
+  const units = seq.reduce((sum, it) => {
+    if (it.kind === 'tapleaf') return sum + 1
+    return sum + (cellKind(it.cell.natural) === 'wide' ? 2 : 1)
+  }, 0)
+  if (units % 2 !== 0) {
+    seq.push({ kind: 'tapleaf' })
+  }
+
   return { layout: 'grid', items: seq }
 }
 
@@ -130,7 +151,7 @@ function closeLightbox() { lightboxIdx.value = null }
           :style="{ display: 'flex', justifyContent: 'center' }"
         >
           <div :style="{ width: 'calc(50% - 4px)' }">
-            <TapLeafWidget :accent="widgetAccent" />
+            <TapLeafWidget :accent="widgetAccent" @gift-click="emit('gift-click')" />
           </div>
         </div>
 
@@ -145,7 +166,7 @@ function closeLightbox() { lightboxIdx.value = null }
             :accent="widgetAccent"
             :on-tap="() => openLightbox(sequenceFor(page).items[0].cell)"
           />
-          <TapLeafWidget :accent="widgetAccent" />
+          <TapLeafWidget :accent="widgetAccent" @gift-click="emit('gift-click')" />
         </div>
 
         <!-- (c) full grid (squares + wides + maybe inline widget) -->
@@ -160,6 +181,7 @@ function closeLightbox() { lightboxIdx.value = null }
             <TapLeafWidget
               v-if="it.kind === 'tapleaf'"
               :accent="widgetAccent"
+              @gift-click="emit('gift-click')"
             />
             <div
               v-else

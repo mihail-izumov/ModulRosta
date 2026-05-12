@@ -168,7 +168,7 @@ function close(e)           { if (e) e.stopPropagation(); emit('close'); }
         v-if="photo.wood"
         :style="{
           position: 'absolute',
-          bottom: isMobile ? (isHorizontalPhoto ? '160px' : '88px') : '24px',
+          bottom: isMobile ? (isHorizontalPhoto ? '58px' : '88px') : '24px',
           left: '50%',
           transform: 'translateX(-50%)',
           display: 'flex', alignItems: 'center', gap: '10px',
@@ -190,13 +190,13 @@ function close(e)           { if (e) e.stopPropagation(); emit('close'); }
         }">{{ woodLabel }}<template v-if="modelLabel"> | {{ modelLabel }}</template></span>
       </div>
 
-      <!-- Pan controls (horizontal photos only) — выше bubble -->
+      <!-- Pan controls (horizontal photos only) — опущены ниже для thumb-reach -->
       <div
         v-if="isHorizontalPhoto"
         @click="stop"
         :style="{
           position: 'absolute',
-          bottom: isMobile ? '218px' : '90px',
+          bottom: isMobile ? '120px' : '90px',
           left: '50%',
           transform: 'translateX(-50%)', zIndex: 3,
           display: 'flex', gap: '12px',

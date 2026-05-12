@@ -40,7 +40,8 @@ function onTap() {
 
 function onGiftClick(e) {
   e.stopPropagation();
-  // Силент: пусть родитель решает что показать (модалку «Мой лес», навигацию и т.д.)
+  // Эмитим событие — родитель (страница) сам решает что делать:
+  // открыть модалку, навигировать в "Мой Лес" через store, и т.д.
   emit('gift-click');
 }
 
@@ -112,15 +113,16 @@ const containerStyle = computed(() => ({
     >
       <!-- Icon zone — fixed height so the circle never shifts -->
       <div :style="{
-        flex: '0 0 108px',
+        flex: '0 0 116px',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative',
       }">
         <div :style="{
           position: 'relative',
-          width: '96px', height: '96px', borderRadius: '48px',
+          width: '100px', height: '100px', borderRadius: '50px',
           background: c + '1F',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
+          overflow: 'visible',
           transition: 'background-color .4s ease',
         }">
           <!-- Leaf (idle + leaving) -->
@@ -133,7 +135,7 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <div :style="iconStyle(72, c, leafMaskUrl)" />
+            <div :style="iconStyle(64, c, leafMaskUrl)" />
           </div>
 
           <!-- Heart (phase 'heart') -->
@@ -146,7 +148,7 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <div :style="iconStyle(72, c, heartMaskUrl)" />
+            <div :style="iconStyle(64, c, heartMaskUrl)" />
           </div>
 
           <!-- Scatter hearts (wrapper v-if ensures fresh mount per transition) -->

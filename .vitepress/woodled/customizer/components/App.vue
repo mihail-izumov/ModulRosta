@@ -43,6 +43,10 @@ import Modal from './ui/Modal.vue'
 import { readModelLink, clearModelLink } from '../engine/useModelLink'
 import { decodeFixture, readHashFixture } from '../engine/share'
 
+/* Фотогалерея «Лес шепчет» — на главной «Живой Дом» */
+import GallerySection from './gallery/GallerySection.vue'
+import { random, toDisplayItem, preloadAspects } from '../engine/gallery-engine'
+
 const cfg = useConfigurator()
 
 function lockViewport() {
@@ -144,6 +148,29 @@ watch(() => [cfg.active.value, cfg.activeFx.value, cfg.welcomeSeen.value, cfg.sh
 const preloaderDone = ref(false)
 watch(() => cfg.welcomeSeen.value, (seen) => { if (!seen) preloaderDone.value = false })
 function onPreloaderDone() { preloaderDone.value = true }
+
+/* ──────────── Фотогалерея «Лес шепчет» на главной ──────────── */
+// ВАЖНО: random() использует Math.random() → SSR-hydration mismatch
+// в VitePress. Загружаем ТОЛЬКО на клиенте через onMounted.
+const galleryItems = ref<ReturnType<typeof random>>([])
+const galleryDisplayItems = computed(() => galleryItems.value.map(toDisplayItem))
+const galleryIsClient = ref(false)
+
+onMounted(() => {
+  galleryIsClient.value = true
+  try {
+    galleryItems.value = random(12)
+    if (galleryItems.value.length) preloadAspects(galleryItems.value)
+  } catch (err) {
+    console.error('[WOODLED Gallery] Home init failed:', err)
+  }
+})
+
+/** Клик по «+3000₽ на свет» в TapLeafWidget → открывает «Мой Лес» (BuyModal).
+ *  Тот же flow что у кнопки «Мой Лес» в sticky-footer (StickyBar emit 'buy'). */
+function onGalleryGiftClick() {
+  cfg.showBuy.value = true
+}
 </script>
 
 <template>
@@ -213,6 +240,18 @@ function onPreloaderDone() { preloaderDone.value = true }
           <div :style="{ fontSize: '15px', fontWeight: 500, lineHeight: 1.3, textAlign: 'center' }">Добавить<br/>комнату</div>
         </div>
       </div>
+
+      <!-- Фотогалерея «Лес шепчет» — вдохновляющая подборка случайных фото.
+           v-if="galleryIsClient" гарантирует client-only render (SSR-safe).
+           gift-click открывает «Мой Лес» (тот же flow что и sticky-footer). -->
+      <GallerySection
+        v-if="galleryIsClient"
+        :items="galleryDisplayItems"
+        title="Лес шепчет"
+        context="home"
+        :accent="T.neutral"
+        @gift-click="onGalleryGiftClick"
+      />
 
       <PromoBlock @click="onPromoClick" />
       <OnboardingLink />

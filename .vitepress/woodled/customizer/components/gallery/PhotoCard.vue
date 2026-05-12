@@ -60,13 +60,19 @@ function onImgError() { loaded.value = true; }
       background: T.cardAlt,
     }"
   >
-    <!-- Skeleton placeholder (pulsing accent) — пока image не загружено -->
+    <!-- Skeleton placeholder (pulsing accent + shimmer wave) — пока image не загружено -->
     <div
       v-if="!loaded"
       class="gallery-skeleton"
       :style="{
         position: 'absolute', inset: 0,
-        background: accentColor,
+        background: 'linear-gradient(90deg, '
+          + accentColor + '14 0%, '
+          + accentColor + '28 25%, '
+          + accentColor + '52 50%, '
+          + accentColor + '28 75%, '
+          + accentColor + '14 100%)',
+        backgroundSize: '250% 100%',
       }"
     />
 
@@ -115,11 +121,15 @@ function onImgError() { loaded.value = true; }
 </template>
 
 <style>
+@keyframes galleryShimmer {
+  0%   { background-position: 150% 0; }
+  100% { background-position: -150% 0; }
+}
 @keyframes galleryPulse {
-  0%, 100% { opacity: 0.12; }
-  50%      { opacity: 0.32; }
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
 }
 .gallery-skeleton {
-  animation: galleryPulse 1.6s ease-in-out infinite;
+  animation: galleryShimmer 1.6s linear infinite, galleryPulse 2.2s ease-in-out infinite;
 }
 </style>

@@ -17,10 +17,6 @@ import type { Wood } from '../data/materials'
 import { useConfigurator } from '../store/configurator'
 import { pillStyle, treeStyle } from '../theme/styles'
 
-/* Фотогалерея «Лес шепчет» — случайная подборка под кнопкой «С чистого листа» */
-import GallerySection from './gallery/GallerySection.vue'
-import { random, toDisplayItem, preloadAspects } from '../engine/gallery-engine'
-
 const cfg = useConfigurator()
 
 const WOOD_COUNTS: Record<Wood, number> = { oak: 4674, walnut: 1960, black: 551 }
@@ -69,19 +65,6 @@ function orbStyle(wood: Wood, delay: number): Record<string, string> {
 }
 const ORB_DELAYS: Record<Wood, number> = { oak: 0, walnut: 1.5, black: 3 }
 const SECTION_LABEL = 'Какой размер ближе?'
-
-/* ──────────── Фотогалерея «Лес шепчет» ──────────── */
-// ВАЖНО: random() использует Math.random(), что вызывает SSR-hydration mismatch
-// в VitePress (на сервере один набор, на клиенте — другой). Поэтому загружаем
-// данные ТОЛЬКО на клиенте — в onMounted. На SSR массив пустой, после моунта
-// заполняется и галерея появляется.
-const galleryItems = ref<ReturnType<typeof random>>([])
-const displayItems = computed(() => galleryItems.value.map(toDisplayItem))
-
-onMounted(() => {
-  galleryItems.value = random(12)
-  if (galleryItems.value.length) preloadAspects(galleryItems.value)
-})
 </script>
 
 <template>
@@ -157,14 +140,6 @@ onMounted(() => {
       <div class="welcome-rotor" :style="{ '--rc': T.bg }" aria-hidden="true"><div v-for="i in 10" :key="i" class="welcome-rotor-l" :style="{ '--rot': ((i - 1) / 10 * 360) + 'deg', animationDelay: ((i - 1) * 30) + 'ms' }" /></div>
       Создать с чистого листа
     </button>
-
-    <!-- Фотогалерея «Лес шепчет» — вдохновляющая подборка случайных фото -->
-    <GallerySection
-      :items="displayItems"
-      title="Лес шепчет"
-      context="home"
-      :accent="T.neutral"
-    />
   </div>
 </template>
 
