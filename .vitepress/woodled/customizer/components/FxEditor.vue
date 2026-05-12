@@ -240,15 +240,20 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
           </button>
         </div>
 
-        <!-- Фотогалерея «{Model} в интерьере» — под чек-листом, перед «Сохранить» -->
-        <GallerySection
-          v-if="galleryDisplayItems.length > 0"
-          :items="galleryDisplayItems"
-          :title="`${model.name} в интерьере`"
-          context="fx"
-        />
         <button :style="{width:'100%',padding:'14px',background:T.text,color:T.bg,border:'none',borderRadius:'10px',cursor:'pointer',fontSize:'14px',fontWeight:700,marginBottom:'8px'}" @click="doSave">Сохранить</button>
         <button :style="{width:'100%',padding:'12px',background:'none',border:`1px solid ${T.border}`,borderRadius:'8px',color:T.textSec,cursor:'pointer',fontSize:'13px',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'6px',marginBottom:'20px'}" @click="shareFx"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Поделиться ссылкой на светильник</button>
+
+        <!-- Фотогалерея «{Model} в интерьере» — после Сохранить и Поделиться, с воздухом -->
+        <div :style="{marginTop:'24px'}">
+          <GallerySection
+            v-if="galleryDisplayItems.length > 0"
+            :items="galleryDisplayItems"
+            :title="model.name + ' в интерьере'"
+            context="fx"
+            :accent="sc"
+          />
+        </div>
+
         <div :style="{background:T.red+'14',border:`1px solid ${T.red}33`,borderRadius:'10px',padding:'14px',marginTop:'12px'}">
           <div :style="{fontSize:'12px',color:T.textSec,marginBottom:'10px',lineHeight:1.5}">Светильник будет удалён из комнаты. Настройки не сохранятся — при повторном добавлении нужно будет собрать заново.</div>
           <button :style="{width:'100%',padding:'10px',background:'none',border:`1px solid ${T.red}44`,borderRadius:'8px',color:T.red,cursor:'pointer',fontSize:'12px',fontWeight:600}" @click="showDeleteConfirm=true">Удалить светильник</button>

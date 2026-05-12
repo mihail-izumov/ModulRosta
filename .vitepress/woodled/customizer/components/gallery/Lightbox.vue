@@ -33,12 +33,16 @@ onMounted(() => {
   window.addEventListener('keydown', onKey);
   prevBodyOverflow = document.body.style.overflow;
   document.body.style.overflow = 'hidden';
+  // Класс на body — позволяет странице (или global CSS) скрыть mute-кнопку
+  // и sticky bottom-меню SuperApp пока lightbox открыт.
+  document.body.classList.add('gallery-lightbox-open');
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', onResize);
   window.removeEventListener('keydown', onKey);
   document.body.style.overflow = prevBodyOverflow;
+  document.body.classList.remove('gallery-lightbox-open');
   if (holdTimer) clearInterval(holdTimer);
 });
 
@@ -83,8 +87,23 @@ const isHorizontalPhoto = computed(() => photo.value && photo.value.aspect > 1.1
 const objPos = computed(() => {
   if (!photo.value) return 'center';
   return isHorizontalPhoto.value
-    ? `${panX.value}% 50%`
+    ? panX.value + '% 50%'
     : (photo.value.zone ? objectPositionFor(photo.value.zone) : 'center');
+});
+
+// "дуб" → "Дуб"
+const woodLabel = computed(() => {
+  const w = photo.value && photo.value.wood && photo.value.wood.name;
+  return w ? (w.charAt(0).toUpperCase() + w.slice(1)) : '';
+});
+
+// "rotor_m" → "Rotor M", "rotor_1000" → "Rotor 1000"
+const modelLabel = computed(() => {
+  const m = photo.value && photo.value.model;
+  if (!m) return '';
+  return m.split('_')
+    .map(p => /^\d+$/.test(p) ? p : (p.charAt(0).toUpperCase() + p.slice(1)))
+    .join(' ');
 });
 
 function stop(e)            { e.stopPropagation(); }
@@ -92,120 +111,138 @@ function close(e)           { if (e) e.stopPropagation(); emit('close'); }
 </script>
 
 <template>
-  <div
-    v-if="photo"
-    @click="close"
-    @touchstart="onTouchStart"
-    @touchend="onTouchEnd"
-    :style="{
-      position: 'fixed', inset: 0, zIndex: 1000,
-      background: 'rgba(8,7,5,0.94)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
-    }"
-  >
-    <!-- Close pill — top center -->
-    <button
+  <Teleport to="body">
+    <div
+      v-if="photo"
       @click="close"
+      @touchstart="onTouchStart"
+      @touchend="onTouchEnd"
       :style="{
-        position: 'absolute', top: '16px', left: '50%',
-        transform: 'translateX(-50%)', zIndex: 3,
-        background: 'rgba(255,255,255,0.95)', color: T.bg,
-        border: 'none', borderRadius: '22px',
-        padding: '8px 16px 8px 14px',
-        fontSize: '13px', fontWeight: 500,
-        fontFamily: 'inherit',
-        display: 'flex', alignItems: 'center', gap: '6px',
-        cursor: 'pointer',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.35)',
+        position: 'fixed', inset: 0, zIndex: 99999,
+        background: 'rgba(8,7,5,0.94)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
       }"
     >
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      Закрыть
-    </button>
-
-    <!-- Image -->
-    <img
-      :src="photo.src"
-      :alt="photo.label"
-      draggable="false"
-      @click="stop"
-      :style="{
-        width:  isMobile ? '100vw' : 'auto',
-        height: isMobile ? '100vh' : 'auto',
-        maxWidth: '100vw', maxHeight: '100vh',
-        objectFit:     isMobile ? 'cover' : 'contain',
-        objectPosition: objPos,
-        display: 'block',
-        transition: holding ? 'none' : 'object-position .15s ease',
-        userSelect: 'none',
-      }"
-    />
-
-    <!-- Wood + model badge -->
-    <div
-      v-if="photo.wood"
-      :style="{
-        position: 'absolute',
-        bottom: isMobile ? '70px' : '24px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        display: 'flex', alignItems: 'center', gap: '6px',
-        background: 'rgba(0,0,0,0.55)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        padding: '6px 14px 6px 10px',
-        borderRadius: '24px', zIndex: 5,
-        boxShadow: '0 2px 12px rgba(0,0,0,0.3)',
-      }"
-    >
-      <span :style="{
-        width: '10px', height: '10px', borderRadius: '5px',
-        background: photo.wood.color, flexShrink: 0,
-      }" />
-      <span :style="{
-        fontSize: '13px', fontWeight: 600, color: '#fff',
-        whiteSpace: 'nowrap',
-      }">{{ photo.wood.name }} · {{ photo.model }}</span>
-    </div>
-
-    <!-- Pan controls (horizontal photos only) -->
-    <div
-      v-if="isHorizontalPhoto"
-      @click="stop"
-      :style="{
-        position: 'absolute', bottom: '64px', left: '50%',
-        transform: 'translateX(-50%)', zIndex: 3,
-        display: 'flex', gap: '12px',
-        background: 'rgba(0,0,0,0.5)', padding: '4px', borderRadius: '30px',
-        backdropFilter: 'blur(4px)',
-        WebkitBackdropFilter: 'blur(4px)',
-      }"
-    >
+      <!-- Close pill — top center -->
       <button
-        v-for="dir in ['left', 'right']"
-        :key="dir"
-        @mousedown.stop="holding = dir"
-        @mouseup.stop="holding = null"
-        @mouseleave="holding = null"
-        @touchstart.stop.prevent="holding = dir"
-        @touchend.stop.prevent="holding = null"
-        @click.stop
-        @contextmenu.prevent
-        :aria-label="dir === 'left' ? 'Двигать влево' : 'Двигать вправо'"
+        @click="close"
         :style="{
-          width: '48px', height: '48px', borderRadius: '24px', border: 'none',
-          background: holding === dir ? 'rgba(255,255,255,0.32)' : 'rgba(255,255,255,0.16)',
-          color: T.text, cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          touchAction: 'none', userSelect: 'none',
-          transition: 'background .12s ease',
+          position: 'absolute', top: '16px', left: '50%',
+          transform: 'translateX(-50%)', zIndex: 3,
+          background: 'rgba(255,255,255,0.95)', color: T.bg,
+          border: 'none', borderRadius: '22px',
+          padding: '8px 16px 8px 14px',
+          fontSize: '13px', fontWeight: 500,
+          fontFamily: 'inherit',
+          display: 'flex', alignItems: 'center', gap: '6px',
+          cursor: 'pointer',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.35)',
         }"
       >
-        <svg v-if="dir === 'left'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        Закрыть
       </button>
+
+      <!-- Image -->
+      <img
+        :src="photo.src"
+        :alt="photo.label"
+        draggable="false"
+        @click="stop"
+        :style="{
+          width:  isMobile ? '100vw' : 'auto',
+          height: isMobile ? '100vh' : 'auto',
+          maxWidth: '100vw', maxHeight: '100vh',
+          objectFit:     isMobile ? 'cover' : 'contain',
+          objectPosition: objPos,
+          display: 'block',
+          transition: holding ? 'none' : 'object-position .15s ease',
+          userSelect: 'none',
+        }"
+      />
+
+      <!-- Wood + model badge -->
+      <div
+        v-if="photo.wood"
+        :style="{
+          position: 'absolute',
+          bottom: isMobile ? (isHorizontalPhoto ? '160px' : '88px') : '24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex', alignItems: 'center', gap: '10px',
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          padding: '9px 18px 9px 13px',
+          borderRadius: '28px', zIndex: 5,
+          boxShadow: '0 2px 14px rgba(0,0,0,0.35)',
+        }"
+      >
+        <span :style="{
+          width: '14px', height: '14px', borderRadius: '7px',
+          background: photo.wood.color, flexShrink: 0,
+        }" />
+        <span :style="{
+          fontSize: '15px', fontWeight: 600, color: '#fff',
+          whiteSpace: 'nowrap', letterSpacing: '0.2px',
+        }">{{ woodLabel }}<template v-if="modelLabel"> | {{ modelLabel }}</template></span>
+      </div>
+
+      <!-- Pan controls (horizontal photos only) — выше bubble -->
+      <div
+        v-if="isHorizontalPhoto"
+        @click="stop"
+        :style="{
+          position: 'absolute',
+          bottom: isMobile ? '218px' : '90px',
+          left: '50%',
+          transform: 'translateX(-50%)', zIndex: 3,
+          display: 'flex', gap: '12px',
+          background: 'rgba(0,0,0,0.5)', padding: '4px', borderRadius: '30px',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
+        }"
+      >
+        <button
+          v-for="dir in ['left', 'right']"
+          :key="dir"
+          @mousedown.stop="holding = dir"
+          @mouseup.stop="holding = null"
+          @mouseleave="holding = null"
+          @touchstart.stop.prevent="holding = dir"
+          @touchend.stop.prevent="holding = null"
+          @click.stop
+          @contextmenu.prevent
+          :aria-label="dir === 'left' ? 'Двигать влево' : 'Двигать вправо'"
+          :style="{
+            width: '48px', height: '48px', borderRadius: '24px', border: 'none',
+            background: holding === dir ? 'rgba(255,255,255,0.32)' : 'rgba(255,255,255,0.16)',
+            color: T.text, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            touchAction: 'none', userSelect: 'none',
+            transition: 'background .12s ease',
+          }"
+        >
+          <svg v-if="dir === 'left'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
     </div>
-  </div>
+  </Teleport>
 </template>
+
+<style>
+/* Скрытие siblings (mute button и sticky bottom-меню SuperApp) пока открыт lightbox.
+   Селекторы безопасны — если в проекте таких классов нет, эти правила ничего не делают. */
+body.gallery-lightbox-open .mute-toggle,
+body.gallery-lightbox-open .audio-toggle,
+body.gallery-lightbox-open [data-audio-toggle],
+body.gallery-lightbox-open .sticky-bottom,
+body.gallery-lightbox-open .app-bottom-nav,
+body.gallery-lightbox-open [data-sticky-bottom],
+body.gallery-lightbox-open [data-sticky-footer] {
+  display: none !important;
+}
+</style>

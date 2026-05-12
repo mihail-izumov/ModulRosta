@@ -116,7 +116,7 @@ function closeLightbox() { lightboxIdx.value = null }
     <!-- Title -->
     <h3 :style="{
       margin: '0 0 16px',
-      fontSize: '16px', fontWeight: 500,
+      fontSize: '17px', fontWeight: 600,
       color: T.text, textAlign: 'center',
       lineHeight: 1.3,
     }">{{ title }}</h3>
@@ -142,6 +142,7 @@ function closeLightbox() { lightboxIdx.value = null }
           <PhotoCard
             :item="sequenceFor(page).items[0].cell"
             :display-aspect="1.0"
+            :accent="widgetAccent"
             :on-tap="() => openLightbox(sequenceFor(page).items[0].cell)"
           />
           <TapLeafWidget :accent="widgetAccent" />
@@ -170,6 +171,7 @@ function closeLightbox() { lightboxIdx.value = null }
               <PhotoCard
                 :item="it.cell"
                 :display-aspect="displayAspectFor(it.cell)"
+                :accent="widgetAccent"
                 :on-tap="() => openLightbox(it.cell)"
               />
             </div>

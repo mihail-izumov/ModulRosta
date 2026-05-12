@@ -71,13 +71,15 @@ const ORB_DELAYS: Record<Wood, number> = { oak: 0, walnut: 1.5, black: 3 }
 const SECTION_LABEL = 'Какой размер ближе?'
 
 /* ──────────── Фотогалерея «Лес шепчет» ──────────── */
-// random(12) — лучшие фото из коллекции, фиксируются один раз на сессию
-// (ref, не computed) — иначе при любой реактивной зависимости порядок бы
-// тасовался при каждом рендере.
-const galleryItems = ref(random(12))
+// ВАЖНО: random() использует Math.random(), что вызывает SSR-hydration mismatch
+// в VitePress (на сервере один набор, на клиенте — другой). Поэтому загружаем
+// данные ТОЛЬКО на клиенте — в onMounted. На SSR массив пустой, после моунта
+// заполняется и галерея появляется.
+const galleryItems = ref<ReturnType<typeof random>>([])
 const displayItems = computed(() => galleryItems.value.map(toDisplayItem))
 
 onMounted(() => {
+  galleryItems.value = random(12)
   if (galleryItems.value.length) preloadAspects(galleryItems.value)
 })
 </script>
@@ -158,10 +160,10 @@ onMounted(() => {
 
     <!-- Фотогалерея «Лес шепчет» — вдохновляющая подборка случайных фото -->
     <GallerySection
-      v-if="displayItems.length > 0"
       :items="displayItems"
       title="Лес шепчет"
       context="home"
+      :accent="T.neutral"
     />
   </div>
 </template>

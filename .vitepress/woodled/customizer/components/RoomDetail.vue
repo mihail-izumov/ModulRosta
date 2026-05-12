@@ -428,7 +428,7 @@ watch(galleryItems, items => { if (items.length) preloadAspects(items) }, { imme
       <GallerySection
         v-if="displayItems.length > 0"
         :items="displayItems"
-        :title="galleryModelIds.length > 0 ? 'С похожим набором' : 'Ваш свет в интерьере'"
+        title="Ваш свет в интерьере"
         context="room"
         :accent="tint"
       />

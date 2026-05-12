@@ -8,6 +8,8 @@ const props = defineProps({
   accent: { type: String, default: null },
 });
 
+const emit = defineEmits(['gift-click']);
+
 const taps = ref(0);
 /** phase: 'idle' | 'leaving' | 'empty' | 'scatter' | 'heart' */
 const phase = ref('idle');
@@ -38,8 +40,8 @@ function onTap() {
 
 function onGiftClick(e) {
   e.stopPropagation();
-  // eslint-disable-next-line no-alert
-  alert('Переход на «Мой лес»');
+  // Силент: пусть родитель решает что показать (модалку «Мой лес», навигацию и т.д.)
+  emit('gift-click');
 }
 
 // --- phase state machine ----------------------------------------------------
@@ -110,13 +112,13 @@ const containerStyle = computed(() => ({
     >
       <!-- Icon zone — fixed height so the circle never shifts -->
       <div :style="{
-        flex: '0 0 92px',
+        flex: '0 0 108px',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative',
       }">
         <div :style="{
           position: 'relative',
-          width: '88px', height: '88px', borderRadius: '44px',
+          width: '96px', height: '96px', borderRadius: '48px',
           background: c + '1F',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'background-color .4s ease',
@@ -131,7 +133,7 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <div :style="iconStyle(62, c, leafMaskUrl)" />
+            <div :style="iconStyle(72, c, leafMaskUrl)" />
           </div>
 
           <!-- Heart (phase 'heart') -->
@@ -144,7 +146,7 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <div :style="iconStyle(62, c, heartMaskUrl)" />
+            <div :style="iconStyle(72, c, heartMaskUrl)" />
           </div>
 
           <!-- Scatter hearts (wrapper v-if ensures fresh mount per transition) -->

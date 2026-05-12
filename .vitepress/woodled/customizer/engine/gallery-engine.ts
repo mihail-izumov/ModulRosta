@@ -55,19 +55,22 @@ export function preloadAspects(items: readonly GalleryItem[]): Promise<void> {
       const img = new Image()
       img.onload = () => {
         aspectCache.set(item.url, img.naturalWidth / img.naturalHeight)
+        // Bump version after EACH load — grid grows progressively (Pinterest-style),
+        // not in one big jump after all images are ready.
+        aspectVersion.value++
         resolve()
       }
       img.onerror = () => {
         // Failed to load — assume square so the planner still works.
         aspectCache.set(item.url, 1.0)
+        aspectVersion.value++
         resolve()
       }
       img.src = item.url
     })
   })
   return Promise.all(promises).then(() => {
-    // Bump version so any computed depending on aspectOf re-runs.
-    aspectVersion.value++
+    // No-op tail — version was already bumped per-image.
   })
 }
 
