@@ -1,5 +1,5 @@
 <script setup>
-/* FIX-2026-05-12-icons-bubble-v4 — inline SVG icons + pill bubble.
+/* FIX-2026-05-12-icons-bubble-v5 — masks via user-provided SVG URLs.
    Маркер: если этого комментария нет в задеплоенном файле — залит старый. */
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { T, LEAF_REVEALS, makeScatterPieces } from './gallery-constants.js';
@@ -20,9 +20,25 @@ const c = computed(() => props.accent || T.clearing);
 const isGift = computed(() => taps.value >= 4);
 const reveal = computed(() => LEAF_REVEALS[Math.min(taps.value, LEAF_REVEALS.length - 1)]);
 
-// Inline SVG с viewBox 24x24 → размер контейнера 100% контролируется этим числом.
-// 56px помещается в круг 100x100 с запасом 22px со всех сторон — никакого clipping.
-const ICON = 56;
+// User-provided SVG icons из public/. VitePress подаёт public/ как корень сайта,
+// поэтому URL без /public/ префикса.
+const leafMaskUrl  = 'url("/woodled/customizer/leaf-icon.svg")';
+const heartMaskUrl = 'url("/woodled/customizer/heart-icon.svg")';
+
+// Размер главной иконки. В круге 100×100, остаётся ~18px зазора со всех сторон.
+const ICON = 64;
+
+function iconStyle(size, color, maskUrl) {
+  return {
+    width: `${size}px`, height: `${size}px`,
+    backgroundColor: color,
+    WebkitMaskImage: maskUrl, maskImage: maskUrl,
+    WebkitMaskSize: 'contain', maskSize: 'contain',
+    WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
+    WebkitMaskPosition: 'center', maskPosition: 'center',
+    transition: 'background-color .3s ease',
+  };
+}
 
 function onTap() {
   taps.value = taps.value >= 4 ? 0 : taps.value + 1;
@@ -108,7 +124,7 @@ const containerStyle = computed(() => ({
           overflow: 'visible',
           transition: 'background-color .4s ease',
         }">
-          <!-- Leaf (idle + leaving) — inline SVG, no mask, full control -->
+          <!-- Leaf (idle + leaving) -->
           <div
             v-if="phase === 'idle' || phase === 'leaving'"
             :key="'leaf-' + taps + '-' + phase"
@@ -118,27 +134,10 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <svg :width="ICON" :height="ICON" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
-              <path
-                d="M11 20A7 7 0 0 1 4 13c0-5 4-9 11-11 0 7-4 11-9 11"
-                :stroke="c"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                fill="none"
-              />
-              <path
-                d="M2 22c4-2 9-7 13-13"
-                :stroke="c"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                fill="none"
-              />
-            </svg>
+            <div :style="iconStyle(ICON, c, leafMaskUrl)" />
           </div>
 
-          <!-- Heart (phase 'heart') — inline SVG -->
+          <!-- Heart (phase 'heart') -->
           <div
             v-if="phase === 'heart'"
             key="heart"
@@ -148,15 +147,10 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <svg :width="ICON" :height="ICON" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
-              <path
-                d="M19 14c-2.2 2.2-4.7 4.5-7 6.5-2.3-2-4.8-4.3-7-6.5C2.2 11.7 2 8 4.5 5.7 6.5 4 9.2 4.2 11 6c.4.4.7.8 1 1.3.3-.5.6-.9 1-1.3 1.8-1.8 4.5-2 6.5-.3 2.5 2.3 2.3 6 0 8.3z"
-                :fill="c"
-              />
-            </svg>
+            <div :style="iconStyle(ICON, c, heartMaskUrl)" />
           </div>
 
-          <!-- Scatter hearts — inline SVG -->
+          <!-- Scatter hearts -->
           <template v-if="phase === 'scatter' || phase === 'heart'">
             <div
               v-for="(l, i) in scatterPieces"
@@ -175,12 +169,7 @@ const containerStyle = computed(() => ({
                 zIndex: 5,
               }"
             >
-              <svg :width="l.sz" :height="l.sz" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
-                <path
-                  d="M19 14c-2.2 2.2-4.7 4.5-7 6.5-2.3-2-4.8-4.3-7-6.5C2.2 11.7 2 8 4.5 5.7 6.5 4 9.2 4.2 11 6c.4.4.7.8 1 1.3.3-.5.6-.9 1-1.3 1.8-1.8 4.5-2 6.5-.3 2.5 2.3 2.3 6 0 8.3z"
-                  :fill="c"
-                />
-              </svg>
+              <div :style="iconStyle(l.sz, c, heartMaskUrl)" />
             </div>
           </template>
         </div>
