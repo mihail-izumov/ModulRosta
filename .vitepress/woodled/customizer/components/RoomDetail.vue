@@ -14,7 +14,7 @@
  *   на пути в HouseStats и движок яркости.
  */
 
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { T, Z } from '../theme/tokens'
 import { ALL_ZONES, type Fixture, type ZoneId } from '../data/catalog'
 import { autoMood, type Mood } from '../data/moods'
@@ -41,6 +41,10 @@ import FurnitureBlock from './FurnitureBlock.vue'
 import Footer from './Footer.vue'
 import RoomSettings from './RoomSettings.vue'
 import AddFxModal from './AddFxModal.vue'
+
+/* Фотогалерея «Ваш свет в интерьере» / «С похожим набором» */
+import GallerySection from './gallery/GallerySection.vue'
+import { byCombined, toDisplayItem, preloadAspects } from '../engine/gallery-engine'
 
 interface Props {
   room: Room
@@ -162,6 +166,20 @@ function confirmDelete() {
 function onShowMoodDetail() {
   cfg.showMoodDetail.value = tintedMood.value
 }
+
+/* ──────────── Фотогалерея ──────────── */
+// Если в комнате уже есть свет — фильтр по комнате + моделям.
+// Если пусто — только по типу комнаты. Лимит 12.
+const galleryModelIds = computed(() => props.room.fixtures.map(f => f.m))
+const galleryItems = computed(() => {
+  const filter = galleryModelIds.value.length > 0
+    ? { room: props.room.typeId, models: galleryModelIds.value }
+    : { room: props.room.typeId }
+  return byCombined(filter).slice(0, 12)
+})
+const displayItems = computed(() => galleryItems.value.map(toDisplayItem))
+
+watch(galleryItems, items => { if (items.length) preloadAspects(items) }, { immediate: true })
 </script>
 
 <template>
@@ -398,6 +416,21 @@ function onShowMoodDetail() {
         :ratio="ratio"
         :room-prep-name="roomPrepName"
         @show-detail="onShowMoodDetail"
+      />
+
+      <!--
+        Фотогалерея «{Ваш свет в интерьере} | {С похожим набором}».
+        Размещение: после MoodBlock, перед блоком удаления — чтобы вдохновляющий
+        контент не оказался после destructive action (HANDOFF говорит «перед
+        Footer», но это деградирует UX, потому что блок «Удалить комнату»
+        сидит прямо перед Footer).
+      -->
+      <GallerySection
+        v-if="displayItems.length > 0"
+        :items="displayItems"
+        :title="galleryModelIds.length > 0 ? 'С похожим набором' : 'Ваш свет в интерьере'"
+        context="room"
+        :accent="tint"
       />
 
       <div

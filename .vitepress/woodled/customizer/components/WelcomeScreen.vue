@@ -9,13 +9,17 @@
  *     убрано «4 главы —».
  */
 
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { T, WCOL, ROOM_TINTS } from '../theme/tokens'
 import { TEMPLATES, type HomeTemplate } from '../data/templates'
 import { getRT, type RoomTypeId } from '../data/rooms'
 import type { Wood } from '../data/materials'
 import { useConfigurator } from '../store/configurator'
 import { pillStyle, treeStyle } from '../theme/styles'
+
+/* Фотогалерея «Лес шепчет» — случайная подборка под кнопкой «С чистого листа» */
+import GallerySection from './gallery/GallerySection.vue'
+import { random, toDisplayItem, preloadAspects } from '../engine/gallery-engine'
 
 const cfg = useConfigurator()
 
@@ -65,6 +69,17 @@ function orbStyle(wood: Wood, delay: number): Record<string, string> {
 }
 const ORB_DELAYS: Record<Wood, number> = { oak: 0, walnut: 1.5, black: 3 }
 const SECTION_LABEL = 'Какой размер ближе?'
+
+/* ──────────── Фотогалерея «Лес шепчет» ──────────── */
+// random(12) — лучшие фото из коллекции, фиксируются один раз на сессию
+// (ref, не computed) — иначе при любой реактивной зависимости порядок бы
+// тасовался при каждом рендере.
+const galleryItems = ref(random(12))
+const displayItems = computed(() => galleryItems.value.map(toDisplayItem))
+
+onMounted(() => {
+  if (galleryItems.value.length) preloadAspects(galleryItems.value)
+})
 </script>
 
 <template>
@@ -140,6 +155,14 @@ const SECTION_LABEL = 'Какой размер ближе?'
       <div class="welcome-rotor" :style="{ '--rc': T.bg }" aria-hidden="true"><div v-for="i in 10" :key="i" class="welcome-rotor-l" :style="{ '--rot': ((i - 1) / 10 * 360) + 'deg', animationDelay: ((i - 1) * 30) + 'ms' }" /></div>
       Создать с чистого листа
     </button>
+
+    <!-- Фотогалерея «Лес шепчет» — вдохновляющая подборка случайных фото -->
+    <GallerySection
+      v-if="displayItems.length > 0"
+      :items="displayItems"
+      title="Лес шепчет"
+      context="home"
+    />
   </div>
 </template>
 
