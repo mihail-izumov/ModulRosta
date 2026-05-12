@@ -135,7 +135,7 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <div :style="iconStyle(64, c, leafMaskUrl)" />
+            <div :style="iconStyle(48, c, leafMaskUrl)" />
           </div>
 
           <!-- Heart (phase 'heart') -->
@@ -148,7 +148,7 @@ const containerStyle = computed(() => ({
               transformOrigin: 'center',
             }"
           >
-            <div :style="iconStyle(64, c, heartMaskUrl)" />
+            <div :style="iconStyle(48, c, heartMaskUrl)" />
           </div>
 
           <!-- Scatter hearts (wrapper v-if ensures fresh mount per transition) -->
@@ -195,9 +195,9 @@ const containerStyle = computed(() => ({
           @click="onGiftClick"
           :style="{
             background: '#FFFFFF', color: T.bg,
-            border: 'none', borderRadius: '16px',
-            padding: '8px 16px',
-            fontSize: '13px', fontWeight: 600,
+            border: 'none', borderRadius: '12px',
+            padding: '5px 12px',
+            fontSize: '12px', fontWeight: 600,
             fontFamily: 'inherit', cursor: 'pointer',
             whiteSpace: 'nowrap',
             boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',

@@ -11,6 +11,9 @@ const emit = defineEmits(['close']);
 
 const idx       = ref(props.startIdx);
 const isMobile  = ref(typeof window !== 'undefined' && window.innerWidth < 640);
+const screenAspect = ref(
+  typeof window !== 'undefined' ? window.innerWidth / window.innerHeight : 0.46
+);
 const panX      = ref(50);
 const holding   = ref(null); // null | 'left' | 'right'
 
@@ -20,7 +23,10 @@ let holdTimer     = null;
 let prevBodyOverflow = '';
 
 // --- lifecycle: lock body scroll, listen for keys & resize ------------------
-function onResize() { isMobile.value = window.innerWidth < 640; }
+function onResize() {
+  isMobile.value = window.innerWidth < 640;
+  screenAspect.value = window.innerWidth / window.innerHeight;
+}
 
 function onKey(e) {
   if (e.key === 'Escape')     emit('close');
@@ -83,12 +89,20 @@ function onTouchEnd(e) {
 
 // --- derived ----------------------------------------------------------------
 const photo = computed(() => props.photos[idx.value]);
-const isHorizontalPhoto = computed(() => photo.value && photo.value.aspect > 1.1);
+/* needsHorizontalPan: на mobile (objectFit: cover, fill 100vw/100vh) фото
+   будет cropped по горизонтали когда его aspect больше aspect экрана.
+   Это покрывает И горизонтальные (aspect 1.5), И вертикальные шире экрана
+   (например aspect 0.7 на iPhone где screen aspect ~0.46). */
+const needsHorizontalPan = computed(() =>
+  isMobile.value && photo.value && photo.value.aspect > screenAspect.value
+);
 const objPos = computed(() => {
   if (!photo.value) return 'center';
-  return isHorizontalPhoto.value
-    ? panX.value + '% 50%'
-    : (photo.value.zone ? objectPositionFor(photo.value.zone) : 'center');
+  const zone = photo.value.zone;
+  const yPos = zone === 'ceiling' ? '0%' : zone === 'floor' ? '100%' : '50%';
+  return needsHorizontalPan.value
+    ? (panX.value + '% ' + yPos)
+    : (zone ? objectPositionFor(zone) : 'center');
 });
 
 // "дуб" → "Дуб"
@@ -168,7 +182,7 @@ function close(e)           { if (e) e.stopPropagation(); emit('close'); }
         v-if="photo.wood"
         :style="{
           position: 'absolute',
-          bottom: isMobile ? (isHorizontalPhoto ? '58px' : '88px') : '24px',
+          bottom: isMobile ? (needsHorizontalPan ? '58px' : '88px') : '24px',
           left: '50%',
           transform: 'translateX(-50%)',
           display: 'flex', alignItems: 'center', gap: '10px',
@@ -192,7 +206,7 @@ function close(e)           { if (e) e.stopPropagation(); emit('close'); }
 
       <!-- Pan controls (horizontal photos only) — опущены ниже для thumb-reach -->
       <div
-        v-if="isHorizontalPhoto"
+        v-if="needsHorizontalPan"
         @click="stop"
         :style="{
           position: 'absolute',

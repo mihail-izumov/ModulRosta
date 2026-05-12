@@ -28,6 +28,7 @@ import { buildFixtureShareUrl } from '../engine/share'
 /* Фотогалерея «{Model} в интерьере» — под чек-листом */
 import GallerySection from './gallery/GallerySection.vue'
 import { byModel, toDisplayItem, preloadAspects } from '../engine/gallery-engine'
+import { useConfigurator } from '../store/configurator'
 
 interface Props {
   item: Fixture; defWood?: Wood; skipSize?: boolean; backLabel?: string
@@ -36,6 +37,8 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), { skipSize: false, backLabel: '← Назад' })
 const emit = defineEmits<{ (e: 'save', fx: Fixture): void; (e: 'delete'): void; (e: 'close'): void; (e: 'feedback', msg: string): void }>()
+
+const cfg = useConfigurator()
 
 type StepId = 'size'|'wood'|'mount'|'bowl'|'temp'|'patrons'|'diffuser'|'wire'|'base'|'bulbs'
 type StepStatus = 'default'|'chosen'
@@ -251,6 +254,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
             :title="model.name + ' в интерьере'"
             context="fx"
             :accent="sc"
+            @gift-click="cfg.showBuy.value = true"
           />
         </div>
 

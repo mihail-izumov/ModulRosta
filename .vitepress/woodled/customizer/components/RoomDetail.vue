@@ -431,6 +431,7 @@ watch(galleryItems, items => { if (items.length) preloadAspects(items) }, { imme
         title="Ваш свет в интерьере"
         context="room"
         :accent="tint"
+        @gift-click="cfg.showBuy.value = true"
       />
 
       <div

@@ -23,7 +23,6 @@ import {
   cellKind,
   displayAspectFor,
   planAll,
-  previewNextPage,
 } from './gallery-constants.js'
 
 import PhotoCard     from './PhotoCard.vue'
@@ -71,8 +70,10 @@ const plan = computed(() => planAll(props.items, revealedPages.value, target))
 
 const canExpand     = computed(() => plan.value.hasMore)
 const canCollapse   = computed(() => !plan.value.hasMore && revealedPages.value > 1)
-const nextPageCount = computed(() =>
-  canExpand.value ? previewNextPage(props.items, plan.value.totalShown, target) : 0
+/* Бейдж показывает ВСЕГО скрытых (общее минус показанные). С каждым кликом
+   уменьшается — пользователь видит сколько ещё осталось в галерее. */
+const remainingCount = computed(() =>
+  Math.max(0, props.items.length - plan.value.totalShown)
 )
 
 const widgetAccent = computed(() => props.accent || T.clearing)
@@ -223,7 +224,7 @@ function closeLightbox() { lightboxIdx.value = null }
         background: '#FFFFFF', color: T.bg,
         fontSize: '11px', fontWeight: 700,
         fontFamily: 'ui-monospace, monospace',
-      }">{{ nextPageCount }}</span>
+      }">{{ remainingCount }}</span>
       <!-- ChevronDown (inline SVG, lucide-equivalent) -->
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
         stroke="currentColor" stroke-width="2"

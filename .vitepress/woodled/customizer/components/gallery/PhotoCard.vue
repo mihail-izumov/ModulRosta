@@ -16,6 +16,13 @@ const loaded = ref(false);
 
 const accentColor = computed(() => props.accent || T.neutral);
 
+/* Per-instance random offset для async skeleton — каждая карточка пульсирует
+   в своей фазе, общая картина становится медитативной (а не синхронным
+   мерцанием всей сетки). Negative delay → анимация уже в середине. */
+const skeletonStyle = {
+  animationDelay: `-${(Math.random() * 5).toFixed(2)}s`,
+};
+
 // "rotor_m" → "Rotor M", "rotor_1000" → "Rotor 1000"
 const modelLabel = computed(() => {
   const m = props.item.model;
@@ -60,7 +67,7 @@ function onImgError() { loaded.value = true; }
       background: T.cardAlt,
     }"
   >
-    <!-- Skeleton placeholder (pulsing accent + shimmer wave) — пока image не загружено -->
+    <!-- Skeleton placeholder (slow async pulse + shimmer wave) — пока image не загружено -->
     <div
       v-if="!loaded"
       class="gallery-skeleton"
@@ -73,6 +80,7 @@ function onImgError() { loaded.value = true; }
           + accentColor + '28 75%, '
           + accentColor + '14 100%)',
         backgroundSize: '250% 100%',
+        ...skeletonStyle,
       }"
     />
 
@@ -91,7 +99,7 @@ function onImgError() { loaded.value = true; }
         pointerEvents: 'none',
         userSelect: 'none',
         opacity: loaded ? 1 : 0,
-        transition: 'opacity .45s ease',
+        transition: 'opacity 1.4s ease-out',
       }"
     />
 
@@ -126,10 +134,12 @@ function onImgError() { loaded.value = true; }
   100% { background-position: -150% 0; }
 }
 @keyframes galleryPulse {
-  0%, 100% { opacity: 0.55; }
-  50%      { opacity: 1; }
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 0.9; }
 }
 .gallery-skeleton {
-  animation: galleryShimmer 1.6s linear infinite, galleryPulse 2.2s ease-in-out infinite;
+  /* Медитативно: shimmer 5s, pulse 6s, негативный delay из skeletonStyle
+     desync'ит каждую карточку — общая картина не пульсирует в такт. */
+  animation: galleryShimmer 5s ease-in-out infinite, galleryPulse 6s ease-in-out infinite;
 }
 </style>
