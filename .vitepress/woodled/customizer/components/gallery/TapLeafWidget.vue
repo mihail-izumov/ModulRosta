@@ -1,6 +1,5 @@
 <script setup>
-/* FIX-2026-05-12-icons-bubble-v6 — preload heart SVG as data: URL on mount
-   + slightly taller pill bubble.
+/* FIX-2026-05-12-icons-bubble-v7 — preload masks + smooth fade-in on first mount.
    Маркер: если этого комментария нет в задеплоенном файле — залит старый. */
 import { ref, computed, watch, onBeforeUnmount, onMounted } from 'vue';
 import { T, LEAF_REVEALS, makeScatterPieces } from './gallery-constants.js';
@@ -33,6 +32,12 @@ const HEART_URL = '/woodled/customizer/heart-icon.svg';
 const leafMaskUrl  = ref(`url("${LEAF_URL}")`);
 const heartMaskUrl = ref(`url("${HEART_URL}")`);
 
+// Флаг готовности масок: пока false — листик прозрачный, плавно проявится через
+// CSS-transition когда маски загрузятся. Иначе при первом рендере виден
+// резкий "поп": пустота → внезапно листик. Сбрасывается на каждом mount-е,
+// поэтому fade срабатывает и при повторном заходе на страницу.
+const masksLoaded = ref(false);
+
 onMounted(async () => {
   try {
     const [leafText, heartText] = await Promise.all([
@@ -44,6 +49,7 @@ onMounted(async () => {
   } catch {
     // Сеть не дала ответа — оставляем файловые URL, маска всё равно работает.
   }
+  masksLoaded.value = true;
 });
 
 // Размер главной иконки. В круге 100×100, остаётся ~18px зазора со всех сторон.
@@ -153,6 +159,8 @@ const containerStyle = computed(() => ({
               display: 'flex',
               animation: leafAnimation,
               transformOrigin: 'center',
+              opacity: masksLoaded ? 1 : 0,
+              transition: 'opacity .55s ease-out',
             }"
           >
             <div :style="iconStyle(ICON, c, leafMaskUrl)" />
