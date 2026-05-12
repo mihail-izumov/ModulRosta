@@ -137,6 +137,12 @@ function close(e)           { if (e) e.stopPropagation(); emit('close'); }
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
+        touchAction: 'none',
+        overscrollBehavior: 'contain',
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        userSelect: 'none',
+        WebkitTapHighlightColor: 'transparent',
       }"
     >
       <!-- Close pill — top center -->
@@ -174,6 +180,8 @@ function close(e)           { if (e) e.stopPropagation(); emit('close'); }
           display: 'block',
           transition: holding ? 'none' : 'object-position .15s ease',
           userSelect: 'none',
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'none',
         }"
       />
 
@@ -227,6 +235,7 @@ function close(e)           { if (e) e.stopPropagation(); emit('close'); }
           @mouseleave="holding = null"
           @touchstart.stop.prevent="holding = dir"
           @touchend.stop.prevent="holding = null"
+          @touchcancel.stop.prevent="holding = null"
           @click.stop
           @contextmenu.prevent
           :aria-label="dir === 'left' ? 'Двигать влево' : 'Двигать вправо'"
@@ -235,12 +244,16 @@ function close(e)           { if (e) e.stopPropagation(); emit('close'); }
             background: holding === dir ? 'rgba(255,255,255,0.32)' : 'rgba(255,255,255,0.16)',
             color: T.text, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            touchAction: 'none', userSelect: 'none',
+            touchAction: 'none',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            WebkitTouchCallout: 'none',
+            WebkitTapHighlightColor: 'transparent',
             transition: 'background .12s ease',
           }"
         >
-          <svg v-if="dir === 'left'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          <svg v-if="dir === 'left'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none"><path d="m15 18-6-6 6-6"/></svg>
+          <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none"><path d="m9 18 6-6-6-6"/></svg>
         </button>
       </div>
     </div>
