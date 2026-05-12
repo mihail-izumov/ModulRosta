@@ -72,20 +72,30 @@ const leafAnimation = computed(() => {
   if (taps.value > 0)            return 'wdLeafShake .6s ease-out';
   return 'none';
 });
+
+// Контейнерный стиль вынесен в computed: Vue compiler-core в prod-build не
+// парсит template literals (`...${}...`) внутри JS-объекта в :style attr.
+const containerStyle = computed(() => ({
+  aspectRatio: '1 / 1',
+  width: '100%',
+  height: '100%',
+  background: 'linear-gradient(165deg, ' + c.value + '28 0%, ' + c.value + '0A 100%)',
+  border: 'none',
+  borderRadius: '14px',
+  padding: '14px',
+  display: 'flex',
+  flexDirection: 'column',
+  position: 'relative',
+  overflow: 'hidden',
+  backdropFilter: 'blur(20px) saturate(160%)',
+  WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.32), inset 1px 0 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.05), inset -1px 0 0 rgba(255, 255, 255, 0.04), inset 0 0 30px rgba(255, 255, 255, 0.025), 0 2px 14px rgba(0, 0, 0, 0.22)',
+  transition: 'background .5s ease',
+}));
 </script>
 
 <template>
-  <div :style="{
-    aspectRatio: '1 / 1', width: '100%', height: '100%',
-    background: `linear-gradient(165deg, ${c}28 0%, ${c}0A 100%)`,
-    border: 'none', borderRadius: '14px', padding: '14px',
-    display: 'flex', flexDirection: 'column',
-    position: 'relative', overflow: 'hidden',
-    backdropFilter: 'blur(20px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.32), inset 1px 0 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.05), inset -1px 0 0 rgba(255, 255, 255, 0.04), inset 0 0 30px rgba(255, 255, 255, 0.025), 0 2px 14px rgba(0, 0, 0, 0.22)',
-    transition: 'background .5s ease',
-  }}>
+  <div :style="containerStyle">
     <div
       role="button"
       tabindex="0"
@@ -107,14 +117,14 @@ const leafAnimation = computed(() => {
         <div :style="{
           position: 'relative',
           width: '88px', height: '88px', borderRadius: '44px',
-          background: `${c}1F`,
+          background: c + '1F',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'background-color .4s ease',
         }">
           <!-- Leaf (idle + leaving) -->
           <div
             v-if="phase === 'idle' || phase === 'leaving'"
-            :key="`leaf-${taps}-${phase}`"
+            :key="'leaf-' + taps + '-' + phase"
             :style="{
               display: 'flex',
               animation: leafAnimation,
@@ -141,18 +151,18 @@ const leafAnimation = computed(() => {
           <template v-if="phase === 'scatter' || phase === 'heart'">
             <div
               v-for="(l, i) in scatterPieces"
-              :key="`s-${i}`"
+              :key="'s-' + i"
               :style="{
                 position: 'absolute',
                 left: '50%', top: '50%',
-                marginLeft: `${-l.sz / 2}px`, marginTop: `${-l.sz / 2}px`,
-                width: `${l.sz}px`, height: `${l.sz}px`,
+                marginLeft: (-l.sz / 2) + 'px', marginTop: (-l.sz / 2) + 'px',
+                width: l.sz + 'px', height: l.sz + 'px',
                 pointerEvents: 'none',
                 opacity: 0,
-                '--ex': `${l.x}px`,
-                '--ey': `${l.y}px`,
-                '--er': `${l.rot}deg`,
-                animation: `wdScatter ${l.dur}s ease-out ${l.del}s forwards`,
+                '--ex': l.x + 'px',
+                '--ey': l.y + 'px',
+                '--er': l.rot + 'deg',
+                animation: 'wdScatter ' + l.dur + 's ease-out ' + l.del + 's forwards',
                 zIndex: 5,
               }"
             >
