@@ -82,9 +82,9 @@ onBeforeUnmount(() => {
         position: 'fixed',
         inset: 0,
         backgroundImage:
-          'radial-gradient(circle at center, rgba(122, 88, 60, 0.10) 0.8px, transparent 1.2px)',
-        backgroundSize: '14px 14px',
-        opacity: 0.5,
+          'radial-gradient(circle at center, rgba(122, 88, 60, 0.50) 1.3px, transparent 1.8px)',
+        backgroundSize: '18px 18px',
+        opacity: 1,
         pointerEvents: 'none',
         zIndex: 0,
       }"

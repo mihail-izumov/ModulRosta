@@ -16,7 +16,7 @@ function handleImgError(i: number) {
 
 const containerRef = ref<HTMLElement | null>(null)
 const current = ref(0)
-const playing = ref(true)
+const playing = ref(false) // off by default — user must click play to start auto-advance
 
 // non-reactive flags
 let isAuto = false
@@ -173,7 +173,7 @@ function togglePlay() {
           display: 'flex',
           overflowX: 'auto',
           scrollSnapType: 'x mandatory',
-          gap: '14px',
+          gap: '10px',
           padding: '24px 0 42px',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
@@ -190,8 +190,9 @@ function togglePlay() {
             width: 'clamp(258px, 26vw, 295px)',
             aspectRatio: '1290 / 2796',
             scrollSnapAlign: 'center',
-            marginLeft: i === 0 ? 'max(16px, calc(50vw - 150px))' : 0,
-            marginRight: i === total - 1 ? 'max(16px, calc(50vw - 150px))' : 0,
+            // Card half-width ≈ 129px at min clamp → center on viewport.
+            marginLeft: i === 0 ? 'max(12px, calc(50vw - 129px))' : 0,
+            marginRight: i === total - 1 ? 'max(12px, calc(50vw - 129px))' : 0,
           }"
         >
           <!-- Slide: real image + shimmer wave until loaded -->
@@ -201,14 +202,14 @@ function togglePlay() {
               height: '100%',
               borderRadius: '26px',
               background: '#2A1F18',
+              // Single clean drop shadow — no inset rim lights, no opacity dim,
+              // no scale on neighbors. All slides full strength like App Store carousel.
               boxShadow: i === current
-                ? `inset 0 1px 0 rgba(245, 235, 224, 0.08), 0 14px 28px -12px rgba(42, 31, 24, 0.32), 0 0 0 1px rgba(212, 165, 116, 0.12), 0 0 24px rgba(212, 165, 116, 0.10)`
-                : `inset 0 1px 0 rgba(245, 235, 224, 0.05), 0 10px 18px -8px rgba(42, 31, 24, 0.24)`,
+                ? '0 18px 36px -10px rgba(42, 31, 24, 0.38), 0 0 0 1px rgba(212, 165, 116, 0.08)'
+                : '0 12px 24px -8px rgba(42, 31, 24, 0.26)',
               position: 'relative',
               overflow: 'hidden',
-              opacity: i === current ? 1 : 0.55,
-              transform: i === current ? 'scale(1)' : 'scale(0.94)',
-              transition: 'opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 700ms cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'box-shadow 600ms cubic-bezier(0.4, 0, 0.2, 1)',
             }"
           >
             <!-- Shimmer wave — visible while image still loading -->

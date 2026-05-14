@@ -42,7 +42,6 @@ defineEmits<{
           WebkitTextFillColor: 'transparent',
           color: 'transparent',
           animation: 'goldShimmer 7s ease-in-out infinite',
-          display: 'inline-block',
         }"
       >
         Оживите дом.
