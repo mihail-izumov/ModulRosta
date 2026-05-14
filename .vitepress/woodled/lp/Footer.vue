@@ -35,15 +35,21 @@ import { PAGE } from './tokens'
           color: PAGE.rose,
           textDecoration: 'none',
         }"
-      >
+      ><!-- Two separate underlined words + an un-underlined nbsp between them.
+          This keeps the underline from "tailing" across the space character. -->
         <span
           :style="{
             borderBottom: `1.5px solid ${PAGE.rose}`,
             paddingBottom: '2px',
           }"
-        >
-          Модулем&nbsp;Роста
-        </span>
+        >Модулем</span><!--
+        --><span :style="{ display: 'inline-block', width: '0.30em' }"><!-- spacer --></span><!--
+        --><span
+          :style="{
+            borderBottom: `1.5px solid ${PAGE.rose}`,
+            paddingBottom: '2px',
+          }"
+        >Роста</span>
         <span>®</span>
       </a>
     </div>
