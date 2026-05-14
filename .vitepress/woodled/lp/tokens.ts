@@ -12,14 +12,14 @@ export const PAGE = {
   textSec:  '#6B5847',
   textDim:  '#9A8775',
 
-  // Rose family — terracotta-leaning to harmonize with the salmon/peach
-  // bg gradient (FAE8DB → F0C5B5). Was wheat/gold (#B97D52..#F0D2A4) but read
-  // as khaki against the rose page. New palette keeps the warm earthy feel
-  // and pushes the warm tone away from yellow-gold toward red-rose.
-  rose:        '#BD6553',  // terracotta — base CTA gradient stop
-  roseDeep:    '#9B4332',  // deep terracotta — H2 highlights, footer link
-  roseLight:   '#D88871',  // coral-rose — mid shimmer stop
-  roseGlow:    '#EFBBA1',  // peach-pink — bright shimmer peak
+  // Rose-gold family — warm copper-pink with gold undertone (14K rose gold
+  // aesthetic). Pulled back from the previous coral/terracotta which read
+  // pink, toward a more refined metallic rose-gold. Sits between wheat/khaki
+  // (#B97D52) and coral (#BD6553).
+  rose:        '#BB7868',  // 14K rose-gold base — warm copper-pink
+  roseDeep:    '#985846',  // deep rose-gold — H2 highlights, footer link
+  roseLight:   '#D8A293',  // light rose-gold — mid shimmer stop
+  roseGlow:    '#EFC8B8',  // peach rose-gold — bright shimmer peak
   pearl:       '#F8EFE0',
   blush:       '#E8B5A0',
   cocoa:       '#5A3D26',

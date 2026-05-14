@@ -100,7 +100,7 @@ onBeforeUnmount(() => {
         whiteSpace: 'nowrap',
       }"
     >
-      Мой&nbsp;Лес
+      Живой&nbsp;дом
       <br />
       WOODLED
     </div>

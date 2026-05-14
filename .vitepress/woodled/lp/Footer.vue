@@ -38,14 +38,13 @@ import { PAGE } from './tokens'
       >
         <span
           :style="{
-            textDecoration: 'underline',
-            textUnderlineOffset: '3px',
-            textDecorationThickness: '1.5px',
+            borderBottom: `1.5px solid ${PAGE.rose}`,
+            paddingBottom: '2px',
           }"
         >
           Модулем&nbsp;Роста
         </span>
-        <span :style="{ textDecoration: 'none' }">®</span>
+        <span>®</span>
       </a>
     </div>
   </footer>

@@ -26,7 +26,7 @@ const LOGO_URL = '/woodled/customizer/woodled-logo.svg'
         textTransform: 'uppercase',
       }"
     >
-      Мой Лес WOODLED
+      Живой дом WOODLED
     </div>
 
     <a

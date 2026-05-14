@@ -82,8 +82,8 @@ onBeforeUnmount(() => {
         position: 'fixed',
         inset: 0,
         backgroundImage:
-          'radial-gradient(circle at center, rgba(122, 88, 60, 0.50) 1.3px, transparent 1.8px)',
-        backgroundSize: '18px 18px',
+          'radial-gradient(circle at center, rgba(122, 88, 60, 0.22) 1.0px, transparent 1.5px)',
+        backgroundSize: '16px 16px',
         opacity: 1,
         pointerEvents: 'none',
         zIndex: 0,
@@ -203,17 +203,26 @@ onBeforeUnmount(() => {
 }
 
 /*
- * VitePress (and the browser) decorate <a> with underline by default. Inside
- * the LP we want logo + social links to render clean — kill underline on the
- * <a> itself but DON'T touch descendants, so deliberate inline underlines
- * (Footer's "Модулем Роста") still render.
+ * VitePress (and the browser) decorate <a> with underline by default, and
+ * may animate one in on hover via transitions. Inside the LP we want logo +
+ * social links to render clean — kill text-decoration via every property
+ * (shorthand, -line, -color, -thickness, -webkit-* prefix) on every state.
+ * Footer's "Модулем Роста" deliberate underline uses border-bottom — immune
+ * to these rules.
  */
 .lp-root a,
+.lp-root a:link,
+.lp-root a:visited,
 .lp-root a:hover,
 .lp-root a:focus,
-.lp-root a:active,
-.lp-root a:visited {
+.lp-root a:focus-visible,
+.lp-root a:active {
   text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-color: transparent !important;
+  text-decoration-thickness: 0 !important;
+  -webkit-text-decoration: none !important;
+  text-underline-offset: 0 !important;
   color: inherit;
 }
 
