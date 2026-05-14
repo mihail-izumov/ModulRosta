@@ -1,33 +1,18 @@
 <script setup lang="ts">
 import { ref, watch, onBeforeUnmount, onMounted } from 'vue'
-import { PAGE, T } from './tokens'
+import { PAGE } from './tokens'
 
 const total = 9
 const duration = 5000
 
-const SLIDE_GRADIENTS: ReadonlyArray<readonly [string, string]> = [
-  ['#2A1F18', '#4A3520'],
-  ['#251A14', '#42301E'],
-  ['#241B16', '#4A3424'],
-  ['#1F1813', '#3A2A1C'],
-  ['#2A1F18', '#4A3520'],
-  ['#251A14', '#42301E'],
-  ['#241B16', '#4A3424'],
-  ['#1F1813', '#3A2A1C'],
-  ['#2A1F18', '#4A3520'],
-]
-
-const SLIDE_TITLES = [
-  'Ваш Лес WOODLED',
-  'Дерево становится светом',
-  'Идеальное пространство',
-  'Каждый уголок',
-  'Настроение леса',
-  'Свет и цвет',
-  'Зелёная галочка',
-  'Лес шепчет',
-  'Ваш лес оживает',
-]
+// Real images live in /public/woodled/lp/wdld-lp-slider-{1..9}.jpg
+// Per-slide loaded flag — drives shimmer-to-image crossfade.
+const loaded = ref<boolean[]>(new Array(total).fill(false))
+function handleImgLoad(i: number) { loaded.value[i] = true }
+function handleImgError(i: number) {
+  // Don't trap the slide in a permanent shimmer if the image 404s.
+  loaded.value[i] = true
+}
 
 const containerRef = ref<HTMLElement | null>(null)
 const current = ref(0)
@@ -209,79 +194,55 @@ function togglePlay() {
             marginRight: i === total - 1 ? 'max(16px, calc(50vw - 150px))' : 0,
           }"
         >
-          <!-- SlidePlaceholder — replace with <img> when slide assets are ready -->
+          <!-- Slide: real image + shimmer wave until loaded -->
           <div
             :style="{
               width: '100%',
               height: '100%',
               borderRadius: '26px',
-              background: `
-                radial-gradient(ellipse 60% 40% at 30% 20%, rgba(212,165,116,0.18), transparent 70%),
-                radial-gradient(ellipse 50% 40% at 80% 90%, rgba(184,125,82,0.10), transparent 70%),
-                linear-gradient(160deg, ${SLIDE_GRADIENTS[i][0]}, ${SLIDE_GRADIENTS[i][1]})
-              `,
+              background: '#2A1F18',
               boxShadow: i === current
                 ? `inset 0 1px 0 rgba(245, 235, 224, 0.08), 0 14px 28px -12px rgba(42, 31, 24, 0.32), 0 0 0 1px rgba(212, 165, 116, 0.12), 0 0 24px rgba(212, 165, 116, 0.10)`
                 : `inset 0 1px 0 rgba(245, 235, 224, 0.05), 0 10px 18px -8px rgba(42, 31, 24, 0.24)`,
               position: 'relative',
               overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              padding: '24px',
-              boxSizing: 'border-box',
               opacity: i === current ? 1 : 0.55,
               transform: i === current ? 'scale(1)' : 'scale(0.94)',
               transition: 'opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 700ms cubic-bezier(0.4, 0, 0.2, 1)',
             }"
           >
+            <!-- Shimmer wave — visible while image still loading -->
             <div
+              v-show="!loaded[i]"
+              class="slider-shimmer"
               :style="{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                alignSelf: 'flex-start',
-                padding: '5px 11px',
-                borderRadius: '999px',
-                background: 'rgba(245, 235, 224, 0.08)',
-                border: '1px solid rgba(245, 235, 224, 0.12)',
-                fontSize: '10px',
-                fontWeight: 700,
-                letterSpacing: '0.10em',
-                color: T.textSec,
-                textTransform: 'uppercase',
-                position: 'relative',
-                zIndex: 1,
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '26px',
+                pointerEvents: 'none',
               }"
-            >
-              {{ i + 1 }} / {{ total }}
-            </div>
+            />
 
-            <div :style="{ position: 'relative', zIndex: 1 }">
-              <div
-                :style="{
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  color: '#C4A46C',
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  marginBottom: '10px',
-                }"
-              >
-                Заглушка
-              </div>
-              <div
-                :style="{
-                  fontSize: '22px',
-                  fontWeight: 800,
-                  lineHeight: 1.18,
-                  color: T.text,
-                  letterSpacing: '-0.01em',
-                }"
-              >
-                {{ SLIDE_TITLES[i] }}
-              </div>
-            </div>
+            <!-- Real image — fades in on @load -->
+            <img
+              :src="`/woodled/lp/wdld-lp-slider-${i + 1}.jpg`"
+              :alt="`Слайд ${i + 1}`"
+              loading="lazy"
+              decoding="async"
+              @load="handleImgLoad(i)"
+              @error="handleImgError(i)"
+              :style="{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: '26px',
+                opacity: loaded[i] ? 1 : 0,
+                transition: 'opacity 500ms cubic-bezier(0.4, 0, 0.2, 1)',
+                display: 'block',
+              }"
+            />
           </div>
         </div>
       </div>

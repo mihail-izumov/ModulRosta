@@ -65,6 +65,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div
+    class="lp-root"
     :style="{
       minHeight: '100vh',
       background: `linear-gradient(180deg, ${PAGE.bgTop} 0%, ${PAGE.bgMid} 50%, ${PAGE.bgBottom} 100%)`,
@@ -75,16 +76,17 @@ onBeforeUnmount(() => {
       overflow: 'hidden',
     }"
   >
-    <!-- Dot grid -->
+    <!-- Dot grid — pinned to viewport so it stays put while scrolling -->
     <div
       :style="{
-        position: 'absolute',
+        position: 'fixed',
         inset: 0,
         backgroundImage:
           'radial-gradient(circle at center, rgba(122, 88, 60, 0.10) 0.8px, transparent 1.2px)',
         backgroundSize: '14px 14px',
         opacity: 0.5,
         pointerEvents: 'none',
+        zIndex: 0,
       }"
     />
 
@@ -198,5 +200,46 @@ onBeforeUnmount(() => {
 .slider-scroll::-webkit-scrollbar { display: none; }
 @media (min-width: 768px) {
   .slider-arrow { display: inline-flex !important; }
+}
+
+/*
+ * VitePress (and the browser) decorate <a> with underline by default. Inside
+ * the LP we want logo + social links to render clean — kill underline on the
+ * <a> itself but DON'T touch descendants, so deliberate inline underlines
+ * (Footer's "Модулем Роста") still render.
+ */
+.lp-root a,
+.lp-root a:hover,
+.lp-root a:focus,
+.lp-root a:active,
+.lp-root a:visited {
+  text-decoration: none !important;
+  color: inherit;
+}
+
+/*
+ * Slider shimmer — warm wave that sweeps across dark slide bg while the JPG
+ * is still loading. Once <img> @load fires, the shimmer is hidden via v-show
+ * and the image fades in.
+ */
+.slider-shimmer {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(58, 42, 31, 0.0) 0%,
+      rgba(184, 125, 82, 0.18) 30%,
+      rgba(232, 181, 160, 0.28) 50%,
+      rgba(184, 125, 82, 0.18) 70%,
+      rgba(58, 42, 31, 0.0) 100%
+    ),
+    linear-gradient(160deg, #2A1F18, #3A2A1C);
+  background-size: 220% 100%, 100% 100%;
+  background-repeat: no-repeat, no-repeat;
+  background-position: -110% 0, 0 0;
+  animation: sliderShimmerSweep 1.6s ease-in-out infinite;
+}
+@keyframes sliderShimmerSweep {
+  0%   { background-position: -110% 0, 0 0; }
+  100% { background-position:  110% 0, 0 0; }
 }
 </style>

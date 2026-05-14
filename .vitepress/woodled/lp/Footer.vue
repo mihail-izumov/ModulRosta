@@ -26,7 +26,7 @@ import { PAGE } from './tokens'
         letterSpacing: 0,
       }"
     >
-      <span :style="{ color: PAGE.roseLight, opacity: 0.78 }">Работает на </span>
+      <span :style="{ color: PAGE.roseLight, opacity: 0.78 }">Заряжено </span>
       <a
         href="https://runscale.ru/"
         target="_blank"
@@ -43,7 +43,7 @@ import { PAGE } from './tokens'
             textDecorationThickness: '1.5px',
           }"
         >
-          Модуле&nbsp;Роста
+          Модулем&nbsp;Роста
         </span>
         <span :style="{ textDecoration: 'none' }">®</span>
       </a>

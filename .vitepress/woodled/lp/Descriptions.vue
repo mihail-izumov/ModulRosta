@@ -17,7 +17,7 @@ import { PAGE } from './tokens'
         lineHeight: 1.08,
       }"
     >
-      Три шага к&nbsp;живому дому.
+      Дизайнер&nbsp;— это&nbsp;Я.
     </h2>
 
     <div :style="{ display: 'flex', flexDirection: 'column', gap: '14px' }">

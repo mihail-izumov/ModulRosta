@@ -17,7 +17,15 @@ const LOGO_URL = '/woodled/customizer/woodled-logo.svg'
       boxSizing: 'border-box',
     }"
   >
-    <div :style="{ fontSize: '18px', fontWeight: 800, letterSpacing: 0, color: PAGE.text }">
+    <div
+      :style="{
+        fontSize: '18px',
+        fontWeight: 800,
+        letterSpacing: '0.04em',
+        color: PAGE.text,
+        textTransform: 'uppercase',
+      }"
+    >
       Мой Лес WOODLED
     </div>
 
