@@ -7,7 +7,7 @@ const props = withDefaults(defineProps<{
   label?: string
 }>(), {
   size: 'large',
-  label: 'Начать бесплатно',
+  label: 'Начать Сейчас',
 })
 
 const emit = defineEmits<{

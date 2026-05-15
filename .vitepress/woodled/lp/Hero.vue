@@ -23,18 +23,21 @@ defineEmits<{
 
     <h1
       :style="{
+        fontFamily: `'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif`,
         fontSize: 'clamp(36px, 8vw, 56px)',
-        fontWeight: 800,
+        fontWeight: 700,
         lineHeight: 1.05,
-        letterSpacing: '-0.025em',
+        letterSpacing: '-0.03em',
         margin: '0 0 28px',
         color: PAGE.text,
       }"
     >
-      Соберите свет WOODLED.
-      <br />
+      <!-- Two block-level spans so line-height is computed identically for
+           both lines — no `<br>`-induced visual gap, the rhythm stays. -->
+      <span :style="{ display: 'block' }">Соберите свет WOODLED.</span>
       <span
         :style="{
+          display: 'block',
           backgroundImage: `linear-gradient(120deg, ${PAGE.rose} 0%, ${PAGE.roseLight} 28%, ${PAGE.roseGlow} 50%, ${PAGE.roseLight} 72%, ${PAGE.rose} 100%)`,
           backgroundSize: '220% 100%',
           WebkitBackgroundClip: 'text',
@@ -43,9 +46,7 @@ defineEmits<{
           color: 'transparent',
           animation: 'goldShimmer 7s ease-in-out infinite',
         }"
-      >
-        Оживите дом.
-      </span>
+      >Оживите дом.</span>
     </h1>
 
     <p

@@ -3,59 +3,104 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { PAGE } from './tokens'
 
 /**
- * «Дизайнер — это [Я]» — кликабельный круглый бэйдж с буквой Я.
- * При клике открывается полностью чёрная модалка («экран как зеркало»):
- *   - сверху «Привет, дизайнер!»
- *   - под ним белая пилюля «Включить свет», закрывает модалку
- *   - можно закрыть смахиванием вниз (touch drag) и клавишей Esc
+ * «Дизайнер — это Я» — Я is now a plain inline button that visually reads
+ * as part of the heading text (no badge, no rings, no size jump). Cursor
+ * hints clickability. Tapping opens the dark "mirror" modal.
+ *
+ * The modal layout:
+ *   - top: «Привет, дизайнер!»
+ *   - bottom: «Включить свет» pill (pushed to bottom via margin-top:auto)
+ *
+ * On «Включить свет» click → `revealing` mode:
+ *   - title + button fade out fast (400ms)
+ *   - black backdrop transitions to transparent slow (1800ms)
+ *   - the LP behind is gradually revealed — "turning on the lights" metaphor
+ *   - after 1900ms, modalOpen flips false → Vue Transition removes the
+ *     (already-invisible) element
+ *
+ * Swipe-down / Esc still close instantly without reveal.
  */
 
 const modalOpen = ref(false)
+const revealing = ref(false)
 const dragY = ref(0)
 const isDragging = ref(false)
 
 let touchStartY = 0
 let escListener: ((e: KeyboardEvent) => void) | null = null
+let revealTimer: ReturnType<typeof setTimeout> | null = null
 
 function openModal() {
+  // If a reveal is in flight from a previous open, cancel its timer so the
+  // new session doesn't auto-close.
+  if (revealTimer !== null) {
+    clearTimeout(revealTimer)
+    revealTimer = null
+  }
+  revealing.value = false
   modalOpen.value = true
   if (typeof document !== 'undefined') {
     document.body.style.overflow = 'hidden'
   }
 }
+
 function closeModal() {
   modalOpen.value = false
-  // dragY snaps via the transition before the leave-animation kicks in.
-  // Reset to 0 after the leave-transition completes (380ms below) so reopen
-  // doesn't flash the previous offset.
-  setTimeout(() => { dragY.value = 0 }, 400)
+  if (revealTimer !== null) {
+    clearTimeout(revealTimer)
+    revealTimer = null
+  }
+  // Reset state after Vue's leave-transition completes.
+  setTimeout(() => {
+    dragY.value = 0
+    revealing.value = false
+  }, 400)
   if (typeof document !== 'undefined') {
     document.body.style.overflow = ''
   }
 }
 
+function reveal() {
+  if (revealing.value) return
+  revealing.value = true
+  // Slightly longer than the bg fade (1800ms) so the page underneath is
+  // fully visible before the modal element is removed.
+  revealTimer = setTimeout(() => {
+    modalOpen.value = false
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = ''
+    }
+    setTimeout(() => {
+      dragY.value = 0
+      revealing.value = false
+    }, 400)
+    revealTimer = null
+  }, 1900)
+}
+
 function onTouchStart(e: TouchEvent) {
+  if (revealing.value) return
   if (!e.touches[0]) return
   touchStartY = e.touches[0].clientY
   isDragging.value = true
 }
 function onTouchMove(e: TouchEvent) {
-  if (!isDragging.value || !e.touches[0]) return
-  // Down-only drag — pull up beyond start does nothing.
+  if (revealing.value || !isDragging.value || !e.touches[0]) return
   dragY.value = Math.max(0, e.touches[0].clientY - touchStartY)
 }
 function onTouchEnd() {
+  if (revealing.value) return
   isDragging.value = false
   if (dragY.value > 110) {
     closeModal()
   } else {
-    dragY.value = 0 // snap back via transition
+    dragY.value = 0
   }
 }
 
 onMounted(() => {
   escListener = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && modalOpen.value) closeModal()
+    if (e.key === 'Escape' && modalOpen.value && !revealing.value) closeModal()
   }
   window.addEventListener('keydown', escListener)
 })
@@ -64,6 +109,10 @@ onBeforeUnmount(() => {
   if (escListener) {
     window.removeEventListener('keydown', escListener)
     escListener = null
+  }
+  if (revealTimer !== null) {
+    clearTimeout(revealTimer)
+    revealTimer = null
   }
   if (typeof document !== 'undefined') {
     document.body.style.overflow = ''
@@ -84,24 +133,19 @@ onBeforeUnmount(() => {
         lineHeight: 1.08,
       }"
     >
-      Дизайнер&nbsp;— это&nbsp;<button
+      Дизайнер&nbsp;— это <button
         type="button"
-        class="ya-badge"
+        class="ya-inline"
         @click="openModal"
         aria-label="Привет, дизайнер"
-      >
-        <!-- Two pulse rings, phased 1.2s apart, for "tap me" attention -->
-        <span class="ya-badge__ring ya-badge__ring--1" aria-hidden="true" />
-        <span class="ya-badge__ring ya-badge__ring--2" aria-hidden="true" />
-        <span class="ya-badge__letter">Я</span>
-      </button>
+      >Я</button>
     </h2>
 
     <div :style="{ display: 'flex', flexDirection: 'column', gap: '14px' }">
       <!-- Card 1 -->
       <div
         :style="{
-          padding: '32px 28px',
+          padding: '28px 26px',
           borderRadius: '28px',
           background: 'rgba(255, 250, 244, 0.55)',
           backdropFilter: 'blur(24px) saturate(180%)',
@@ -113,24 +157,22 @@ onBeforeUnmount(() => {
         <p
           :style="{
             margin: 0,
-            fontSize: 'clamp(22px, 4.8vw, 28px)',
-            lineHeight: 1.0,
-            letterSpacing: '-0.022em',
+            fontSize: 'clamp(18px, 4.2vw, 22px)',
+            lineHeight: 1.35,
+            letterSpacing: '-0.015em',
             textAlign: 'center',
-            fontWeight: 600,
+            fontWeight: 500,
             color: PAGE.text,
           }"
         >
-          Соберите свой дом — комнаты, стены, мебель.
-          <br />
-          <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">Дизайнер – это&nbsp;я.</span>
+          <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">3 типа домов</span>, от небольшой квартиры до семейного гнезда. Можно начать с чистого листа – добавить новые комнаты и светильники. Перекрасить стены тоже можно.
         </p>
       </div>
 
       <!-- Card 2 -->
       <div
         :style="{
-          padding: '32px 28px',
+          padding: '28px 26px',
           borderRadius: '28px',
           background: 'rgba(255, 250, 244, 0.55)',
           backdropFilter: 'blur(24px) saturate(180%)',
@@ -142,24 +184,22 @@ onBeforeUnmount(() => {
         <p
           :style="{
             margin: 0,
-            fontSize: 'clamp(22px, 4.8vw, 28px)',
-            lineHeight: 1.0,
-            letterSpacing: '-0.022em',
+            fontSize: 'clamp(18px, 4.2vw, 22px)',
+            lineHeight: 1.35,
+            letterSpacing: '-0.015em',
             textAlign: 'center',
-            fontWeight: 600,
+            fontWeight: 500,
             color: PAGE.text,
           }"
         >
-          Поставьте светильники WOODLED
-          <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">в&nbsp;каждой комнате</span>
-          — выбирайте дерево, цвет и&nbsp;форму.
+          <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">Живые персональные рекомендации.</span> Параметры комнаты и мебель определяют каким должен быть комфортный свет.
         </p>
       </div>
 
       <!-- Card 3 -->
       <div
         :style="{
-          padding: '32px 28px',
+          padding: '28px 26px',
           borderRadius: '28px',
           background: 'rgba(255, 250, 244, 0.55)',
           backdropFilter: 'blur(24px) saturate(180%)',
@@ -171,16 +211,15 @@ onBeforeUnmount(() => {
         <p
           :style="{
             margin: 0,
-            fontSize: 'clamp(22px, 4.8vw, 28px)',
-            lineHeight: 1.0,
-            letterSpacing: '-0.022em',
+            fontSize: 'clamp(18px, 4.2vw, 22px)',
+            lineHeight: 1.35,
+            letterSpacing: '-0.015em',
             textAlign: 'center',
-            fontWeight: 600,
+            fontWeight: 500,
             color: PAGE.text,
           }"
         >
-          <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">Дом оживает на&nbsp;глазах</span>
-          — настроение и&nbsp;баланс света считаются сразу.
+          Просто выбрать нужное. Вы меняете параметры светильников – <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">WOODLED SMART</span> показывает что изменилось и как сделать ещё лучше. Дом оживает на глазах.
         </p>
       </div>
     </div>
@@ -192,6 +231,7 @@ onBeforeUnmount(() => {
       <div
         v-if="modalOpen"
         class="designer-modal"
+        :class="{ 'is-revealing': revealing }"
         role="dialog"
         aria-modal="true"
         aria-labelledby="dm-title"
@@ -200,10 +240,12 @@ onBeforeUnmount(() => {
         @touchend="onTouchEnd"
         :style="{
           transform: `translateY(${dragY}px)`,
-          transition: isDragging
-            ? 'none'
-            : 'transform 320ms cubic-bezier(0.4, 0, 0.2, 1)',
-          // Fade slightly as user drags down — visual hint that release will close
+          // While dragging — no transform transition (follows finger).
+          // While revealing — also no transform transition (we don't want to drag during reveal).
+          // Otherwise — smooth snap-back / leave transition.
+          transition: isDragging || revealing
+            ? 'background-color 1800ms cubic-bezier(0.4, 0, 0.2, 1)'
+            : 'transform 320ms cubic-bezier(0.4, 0, 0.2, 1), background-color 1800ms cubic-bezier(0.4, 0, 0.2, 1)',
           opacity: 1 - Math.min(dragY / 400, 0.35),
         }"
       >
@@ -213,10 +255,15 @@ onBeforeUnmount(() => {
           <div id="dm-title" class="designer-modal__title">
             Привет, дизайнер!
           </div>
+        </div>
+
+        <!-- Button section — pushed to bottom via flex margin-top:auto -->
+        <div class="designer-modal__bottom">
           <button
             type="button"
             class="designer-modal__cta"
-            @click="closeModal"
+            @click="reveal"
+            :disabled="revealing"
           >
             Включить свет
           </button>
@@ -227,64 +274,37 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* —— Я-badge — circular, rose-gold gradient, attention pulse rings ——————— */
-.ya-badge {
-  /* Inherit h2's font-size so badge scales with heading via em */
-  font-size: inherit;
-  font-family: inherit;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.05em;
-  height: 1.05em;
-  border-radius: 50%;
-  vertical-align: -0.16em;
-
-  /* Rose-gold gradient (not black, per spec) */
-  background: linear-gradient(135deg, #BB7868 0%, #D8A293 50%, #EFC8B8 100%);
+/* —— Я-inline — text-styled button, inherits everything from heading ——————
+   No badge, no rings, no size jump. Reads as part of the phrase, only the
+   cursor reveals it's clickable. Tiny hover hint via opacity nudge. */
+.ya-inline {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background: none;
   border: none;
   padding: 0;
+  margin: 0;
   cursor: pointer;
-  position: relative;
-  isolation: isolate; /* keep pulse rings clipped to the badge stack */
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.32),
-    inset 0 -1px 0 rgba(154, 100, 64, 0.18),
-    0 8px 22px rgba(154, 100, 64, 0.32);
-
-  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline;
+  transition: opacity 200ms ease, transform 200ms ease;
 }
-.ya-badge:hover { transform: scale(1.06); }
-.ya-badge:active { transform: scale(0.94); }
-
-.ya-badge__ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 2px solid rgba(216, 162, 147, 0.75);
-  animation: yaPulse 2.4s ease-out infinite;
-  pointer-events: none;
+.ya-inline:hover {
+  opacity: 0.78;
 }
-.ya-badge__ring--2 { animation-delay: 1.2s; }
-@keyframes yaPulse {
-  0%   { transform: scale(1);   opacity: 0.85; }
-  100% { transform: scale(2.0); opacity: 0; }
+.ya-inline:active {
+  transform: scale(0.96);
+  display: inline-block; /* required for transform on inline element */
 }
-
-.ya-badge__letter {
-  font-size: 0.62em;
-  font-weight: 800;
-  color: #FFFFFF;
-  letter-spacing: 0;
-  line-height: 1;
-  position: relative;
-  z-index: 1;
+.ya-inline:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 </style>
 
 <!--
-  Modal styles are intentionally NOT scoped — <Teleport to="body"> moves the
+  Modal styles intentionally NOT scoped — <Teleport to="body"> moves the
   DOM out of this component's scope, so scoped attribute selectors wouldn't
   match. Class names are namespaced (.designer-modal*) to avoid collisions.
 -->
@@ -298,12 +318,23 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 56px 24px 24px;
+  padding: 56px 24px 56px;
   box-sizing: border-box;
 
-  /* Disable browser's default touch handling — our JS owns drag */
   touch-action: none;
-  will-change: transform, opacity;
+  will-change: transform, opacity, background-color;
+}
+
+/* Reveal mode — bg fades to transparent, "the lights turning on" */
+.designer-modal.is-revealing {
+  background-color: rgba(0, 0, 0, 0);
+  pointer-events: none; /* prevent any interaction during fade */
+}
+.designer-modal.is-revealing .designer-modal__title,
+.designer-modal.is-revealing .designer-modal__cta,
+.designer-modal.is-revealing .designer-modal__handle {
+  opacity: 0;
+  transition: opacity 400ms ease;
 }
 
 .designer-modal__handle {
@@ -315,6 +346,7 @@ onBeforeUnmount(() => {
   height: 5px;
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.22);
+  transition: opacity 400ms ease;
 }
 
 .designer-modal__top {
@@ -322,24 +354,34 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   gap: 28px;
-  padding-top: 4vh;
+  padding-top: 6vh;
 }
 
 .designer-modal__title {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
   font-size: clamp(26px, 6.5vw, 38px);
-  font-weight: 700;
+  font-weight: 600;
   color: #FFFFFF;
   letter-spacing: -0.02em;
   text-align: center;
   line-height: 1.15;
+  transition: opacity 400ms ease;
+}
+
+/* Bottom CTA — pushed to bottom via auto margin */
+.designer-modal__bottom {
+  margin-top: auto;
+  margin-bottom: max(env(safe-area-inset-bottom, 0px), 4vh);
+  display: flex;
+  justify-content: center;
+  transition: opacity 400ms ease;
 }
 
 .designer-modal__cta {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
   padding: 18px 38px;
   font-size: 17px;
-  font-weight: 700;
+  font-weight: 600;
   color: #1D1D1F;
   background: #FFFFFF;
   border: none;
@@ -348,18 +390,21 @@ onBeforeUnmount(() => {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     0 12px 32px rgba(255, 255, 255, 0.16);
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 400ms ease;
   white-space: nowrap;
 }
-.designer-modal__cta:hover {
+.designer-modal__cta:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     0 16px 36px rgba(255, 255, 255, 0.22);
 }
-.designer-modal__cta:active { transform: translateY(0); }
+.designer-modal__cta:active:not(:disabled) { transform: translateY(0); }
+.designer-modal__cta:disabled { cursor: default; }
 
-/* Vue <Transition name="dm"> — slide up on enter, slide down on leave */
+/* Vue <Transition name="dm"> — slide up on enter, slide down on leave.
+   Leave plays even after reveal but it's invisible (bg already transparent,
+   title+button already opacity 0), so no visual artifact. */
 .dm-enter-active,
 .dm-leave-active {
   transition: opacity 280ms ease, transform 380ms cubic-bezier(0.4, 0, 0.2, 1);

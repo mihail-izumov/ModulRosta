@@ -19,14 +19,15 @@ const LOGO_URL = '/woodled/customizer/woodled-logo.svg'
   >
     <div
       :style="{
-        fontSize: '18px',
-        fontWeight: 800,
-        letterSpacing: '0.04em',
+        fontFamily: `'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif`,
+        fontSize: 'clamp(28px, 5vw, 40px)',
+        fontWeight: 600,
+        letterSpacing: '-0.02em',
         color: PAGE.text,
-        textTransform: 'uppercase',
+        lineHeight: 1,
       }"
     >
-      Живой дом WOODLED
+      Живой Дом
     </div>
 
     <a

@@ -66,7 +66,8 @@ const pillStyle = computed(() => ({
   bottom: '4px',
   left: '0',
   width: `${pillW.value}px`,
-  transform: `translateX(${pillX.value}px)`,
+  // translate3d forces a GPU-composited layer regardless of will-change.
+  transform: `translate3d(${pillX.value}px, 0, 0)`,
   borderRadius: '999px',
   background: '#FFFFFF',
   boxShadow:
@@ -74,9 +75,12 @@ const pillStyle = computed(() => ({
   opacity: pillReady.value ? 1 : 0,
   pointerEvents: 'none' as const,
   zIndex: 0,
-  // Smooth slide + width change with a snappy iOS-style curve.
+  willChange: 'transform, width',
+  backfaceVisibility: 'hidden' as const,
+  // Gentle easeOutExpo — soft start, very smooth decel. 480ms gives the
+  // slide enough time to feel deliberate, not snappy.
   transition: pillReady.value
-    ? 'transform 380ms cubic-bezier(0.32, 0.72, 0, 1), width 380ms cubic-bezier(0.32, 0.72, 0, 1), opacity 220ms ease'
+    ? 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1), width 480ms cubic-bezier(0.16, 1, 0.3, 1), opacity 220ms ease'
     : 'opacity 220ms ease',
 }))
 </script>

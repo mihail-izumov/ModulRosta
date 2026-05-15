@@ -233,6 +233,26 @@ onBeforeUnmount(() => {
 }
 
 /*
+ * Footer brand mark — deliberate per-word underline. Uses border-bottom
+ * (a separate CSS property from text-decoration) so it survives the kill
+ * above. Specificity 0,2,0 also outranks `.lp-root a *` (0,1,1) for any
+ * inheritance edge cases.
+ */
+.lp-root .footer-brand-word {
+  border-bottom: 1.5px solid currentColor !important;
+  padding-bottom: 2px !important;
+  /* Defensive: kill any text-decoration that might still slip through */
+  text-decoration: none !important;
+  -webkit-text-decoration: none !important;
+}
+.lp-root .footer-brand-reg {
+  /* No underline at all on the ® mark — deliberately empty rule keeps a
+     low-specificity reset in case anything tries to style it later. */
+  border-bottom: none !important;
+  text-decoration: none !important;
+}
+
+/*
  * Slider shimmer — warm wave that sweeps across dark slide bg while the JPG
  * is still loading. Once <img> @load fires, the shimmer is hidden via v-show
  * and the image fades in.

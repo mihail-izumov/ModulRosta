@@ -27,31 +27,20 @@ import { PAGE } from './tokens'
       }"
     >
       <span :style="{ color: PAGE.roseLight, opacity: 0.78 }">Заряжено </span>
+      <!--
+        Two underlined words separated by a plain text space (no spacer span,
+        no nbsp). The `.footer-brand-word` class gets a border-bottom from
+        global CSS in App.vue — high-specificity selector ensures it wins
+        against the general link-reset. The ® lives in a sibling span with
+        NO underline. No space between Роста and ®, so they read as "Роста®".
+      -->
       <a
+        class="footer-brand-link"
         href="https://runscale.ru/"
         target="_blank"
         rel="noopener noreferrer"
-        :style="{
-          color: PAGE.rose,
-          textDecoration: 'none',
-        }"
-      ><!-- Two separate underlined words + an un-underlined nbsp between them.
-          This keeps the underline from "tailing" across the space character. -->
-        <span
-          :style="{
-            borderBottom: `1.5px solid ${PAGE.rose}`,
-            paddingBottom: '2px',
-          }"
-        >Модулем</span><!--
-        --><span :style="{ display: 'inline-block', width: '0.30em' }"><!-- spacer --></span><!--
-        --><span
-          :style="{
-            borderBottom: `1.5px solid ${PAGE.rose}`,
-            paddingBottom: '2px',
-          }"
-        >Роста</span>
-        <span>®</span>
-      </a>
+        :style="{ color: PAGE.rose }"
+      ><span class="footer-brand-word">Модулем</span> <span class="footer-brand-word">Роста</span><span class="footer-brand-reg">®</span></a>
     </div>
   </footer>
 </template>

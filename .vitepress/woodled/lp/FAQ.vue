@@ -63,11 +63,19 @@ function toggle(i: number) {
       Вопросы и ответы
     </h2>
 
-    <div>
+    <div :style="{ display: 'flex', flexDirection: 'column', gap: '10px' }">
       <div
         v-for="(item, i) in FAQ_ITEMS"
         :key="i"
-        :style="{ borderBottom: `1px solid ${PAGE.border}` }"
+        :style="{
+          background: 'rgba(255, 250, 244, 0.55)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: `1px solid rgba(255, 255, 255, 0.5)`,
+          borderRadius: '18px',
+          boxShadow: '0 4px 14px rgba(184, 125, 82, 0.08)',
+          overflow: 'hidden',
+        }"
       >
         <button
           @click="toggle(i)"
@@ -75,7 +83,7 @@ function toggle(i: number) {
             width: '100%',
             background: 'transparent',
             border: 'none',
-            padding: '22px 4px',
+            padding: '18px 22px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -119,7 +127,7 @@ function toggle(i: number) {
             maxHeight: openIndex === i ? '240px' : '0px',
             overflow: 'hidden',
             transition: 'max-height 300ms ease, padding 300ms ease',
-            padding: openIndex === i ? '0 4px 22px' : '0 4px',
+            padding: openIndex === i ? '0 22px 18px' : '0 22px',
           }"
         >
           <p
