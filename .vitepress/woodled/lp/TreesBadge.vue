@@ -96,29 +96,14 @@ function formatNum(n: number): string {
           fontSize: '22px',
           fontWeight: 700,
           color: T.text,
-          lineHeight: 1.25,
-          marginBottom: '8px',
-        }"
-      >
-        {{ formatNum(WOOD_TOTAL) }} деревьев
-        <br />
-        продолжают светить
-        <br />в&nbsp;ваших домах
-      </div>
-      <div
-        :style="{
-          textAlign: 'center',
-          fontSize: '14px',
-          fontWeight: 500,
-          color: T.textSec,
-          lineHeight: 1.55,
+          lineHeight: 1.3,
           marginBottom: '24px',
-          maxWidth: '320px',
+          maxWidth: '340px',
           marginLeft: 'auto',
           marginRight: 'auto',
         }"
       >
-        Каждое дерево здесь уже светит в чьём-то доме.
+        Настоящее дерево становится живым светом в&nbsp;доме
       </div>
 
       <div

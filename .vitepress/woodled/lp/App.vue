@@ -140,9 +140,9 @@ onBeforeUnmount(() => {
       <Hero @cta-mounted="observeCta" @cta-unmounted="unobserveCta" />
       <Slider />
       <Descriptions />
-      <FAQ />
       <TreesBadge />
       <Social />
+      <FAQ />
       <Footer />
     </div>
   </div>

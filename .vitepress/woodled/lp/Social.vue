@@ -49,7 +49,7 @@ function onCardLeave(e: MouseEvent) {
 <template>
   <section
     :style="{
-      padding: '8px 24px 48px',
+      padding: '48px 24px 48px',
       maxWidth: '720px',
       margin: '0 auto',
       textAlign: 'center',
@@ -78,7 +78,7 @@ function onCardLeave(e: MouseEvent) {
         margin: '0 auto 28px',
       }"
     >
-      Представьте каждого владельца WOODLED и его историю. Мы вдохновляемся и делимся с вами.
+      Представьте каждого владельца WOODLED и его историю. Мы вдохновляемся и делимся с вами. Новые идеи каждый день.
     </p>
 
     <div

@@ -1,25 +1,40 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import { PAGE } from './tokens'
 
 /**
  * Footer collaboration mark + expandable manifesto.
  *
- * Toggle: 3-dot button instead of chevron.
- *   - Closed: dots horizontal, wave-animated (phased translateY)
- *   - Open: container rotates 90° → dots become vertical, wave stops
- *   - Visual metaphor: horizontal = "open me", vertical = "close me"
+ * Toggle: 3-dot button with a dual-pattern animation:
+ *   - 5.5s cycle: pause → wave → pause → see-saw (2up/1down ↔ 1up/2down) → pause
+ *   - When open, container rotates 90° and animations stop (dots vertical, still)
  *
- * Logos: <img> + filter:brightness(0) preserves native aspect ratios.
- * Cross ×: PAGE.rose (site palette, no longer black/competing).
+ * On open, the expanded block scrolls into the viewport centre automatically
+ * (setTimeout matching the 700ms max-height transition).
  */
 
 const WOODLED_LOGO_URL = '/woodled/customizer/woodled-logo.svg'
 const RUNSCALE_LOGO_URL = 'https://runscale.ru/runscale_logo_2026_2.svg'
 
 const expanded = ref(false)
+const expandedRef = ref<HTMLElement | null>(null)
+
 function toggleExpand() {
+  const wasOpen = expanded.value
   expanded.value = !expanded.value
+  // Just opened — scroll the fully-expanded block into the viewport centre.
+  // 720ms slightly outpaces the 700ms max-height transition so we scroll to
+  // the FINAL block size, not an intermediate one.
+  if (!wasOpen) {
+    nextTick(() => {
+      setTimeout(() => {
+        expandedRef.value?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 720)
+    })
+  }
 }
 </script>
 
@@ -33,7 +48,7 @@ function toggleExpand() {
       boxSizing: 'border-box',
     }"
   >
-    <!-- Collaboration pill — 3-column grid keeps logos centered + toggle on right -->
+    <!-- Collaboration pill -->
     <div
       :style="{
         width: '100%',
@@ -48,10 +63,10 @@ function toggleExpand() {
         boxSizing: 'border-box',
       }"
     >
-      <!-- LEFT: invisible spacer matching right column → logos truly centered -->
+      <!-- LEFT: spacer for visual centering -->
       <div />
 
-      <!-- CENTER: logos block, × in the middle with equal gaps to each side -->
+      <!-- CENTER: logos + hairline × -->
       <div
         :style="{
           display: 'flex',
@@ -64,11 +79,7 @@ function toggleExpand() {
           href="https://woodled.ru"
           target="_blank"
           rel="noopener noreferrer"
-          :style="{
-            display: 'inline-flex',
-            alignItems: 'center',
-            flexShrink: 0,
-          }"
+          :style="{ display: 'inline-flex', alignItems: 'center', flexShrink: 0 }"
           aria-label="WOODLED"
         >
           <img
@@ -83,11 +94,7 @@ function toggleExpand() {
           />
         </a>
 
-        <!--
-          Hairline × — now in site palette (PAGE.rose at opacity 0.5)
-          instead of black. Sits in the rose/copper family with the toggle
-          button, doesn't compete with the black logos.
-        -->
+        <!-- Hairline × in site palette (PAGE.rose at 0.5 opacity) -->
         <span
           aria-hidden="true"
           :style="{
@@ -117,11 +124,7 @@ function toggleExpand() {
           href="https://runscale.ru"
           target="_blank"
           rel="noopener noreferrer"
-          :style="{
-            display: 'inline-flex',
-            alignItems: 'center',
-            flexShrink: 0,
-          }"
+          :style="{ display: 'inline-flex', alignItems: 'center', flexShrink: 0 }"
           aria-label="Модуль Роста"
         >
           <img
@@ -137,12 +140,7 @@ function toggleExpand() {
         </a>
       </div>
 
-      <!--
-        RIGHT: 3-dot toggle button.
-          - Closed (default): dots horizontal with phased wave animation
-          - Open (.is-expanded): container rotates 90° → vertical dots,
-            wave stops
-      -->
+      <!-- RIGHT: 3-dot toggle -->
       <button
         type="button"
         @click="toggleExpand"
@@ -174,8 +172,9 @@ function toggleExpand() {
       </button>
     </div>
 
-    <!-- Expanded manifesto -->
+    <!-- Expanded manifesto — scrolls into view on open -->
     <div
+      ref="expandedRef"
       :style="{
         maxHeight: expanded ? '1500px' : '0px',
         opacity: expanded ? 1 : 0,
@@ -210,22 +209,12 @@ function toggleExpand() {
           Растём вместе
         </h3>
 
-        <p
-          :style="{
-            margin: '0 0 14px',
-            fontSize: 'clamp(15px, 3.5vw, 18px)',
-            lineHeight: 1.5,
-            letterSpacing: '-0.005em',
-            fontWeight: 500,
-            color: PAGE.text,
-          }"
-        >
-          Новые технологии всегда были страстью WOODLED и МОДУЛЯ&nbsp;РОСТА. Мы искали способы сделать самые простые вещи ещё лучше и удобнее.
-        </p>
-
         <!--
-          Lyrical centerpiece — slightly bolder (600 vs surrounding 500).
-          Two paragraphs: rhetorical questions, then the answer in poetic prose.
+          New order (per task 2):
+            1. lyrical questions (bold 600)
+            2. lyrical answer with "люксы и люмены" (bold 600)
+            3. relocated + retexted "WOODLED и МОДУЛЬ РОСТА всегда искали..." (500)
+            4. closing "Вместе мы создали..." with mobile-only break before "для жизни"
         -->
         <p
           :style="{
@@ -249,7 +238,20 @@ function toggleExpand() {
             color: PAGE.text,
           }"
         >
-          Свет — это не люмены. Это тёплые сумерки, утро в лесу, ясный полдень — мягкое тепло дуба и ореха в доме. Описать это словами трудно. Именно поэтому мы за это и беремся.
+          Свет — это не люксы и люмены. Это тёплые сумерки, утро в лесу, ясный полдень — мягкое тепло дуба и ореха в доме. Описать это словами трудно. Именно поэтому мы за это и беремся.
+        </p>
+
+        <p
+          :style="{
+            margin: '0 0 14px',
+            fontSize: 'clamp(15px, 3.5vw, 18px)',
+            lineHeight: 1.5,
+            letterSpacing: '-0.005em',
+            fontWeight: 500,
+            color: PAGE.text,
+          }"
+        >
+          WOODLED и МОДУЛЬ&nbsp;РОСТА всегда искали способы использовать новые технологии, чтобы сделать самые простые вещи ещё лучше и удобнее.
         </p>
 
         <p
@@ -262,7 +264,7 @@ function toggleExpand() {
             color: PAGE.text,
           }"
         >
-          Вместе мы создали новое пространство для света, чтобы живых домов было больше. Для себя, семьи и друзей – для жизни.
+          Вместе мы создали новое пространство для света, чтобы живых домов было больше. Для себя, семьи и друзей – <span class="lp-footer-break">для жизни.</span>
         </p>
       </div>
     </div>
@@ -270,11 +272,15 @@ function toggleExpand() {
 </template>
 
 <style scoped>
-/* —— 3-dot toggle — wave-animated when closed, vertical when open ——
-   Closed: dots horizontal (row), each oscillates up/down with phased delays
-   creating a wave effect.
-   Open: container rotates 90° → dots appear vertical, wave animation stops
-   (returns to translateY: 0). The rotation animates smoothly. */
+/* —— 3-dot toggle ——
+   Each dot has its own dual-pattern keyframe over 5.5s:
+     0-9%   pause (flat)
+     9-36%  wave (each dot phased)
+     36-45% pause
+     45-82% see-saw — dot1/dot3 in sync, dot2 opposite (2up1down ↔ 1up2down)
+     82-100% final pause
+   When the toggle is open, .is-expanded freezes all animations and rotates
+   the container 90° → dots appear vertical (= "close me" affordance). */
 .footer-dots {
   display: inline-flex;
   flex-direction: row;
@@ -293,31 +299,83 @@ function toggleExpand() {
   border-radius: 50%;
   background: currentColor;
   display: inline-block;
-  animation: footerDotWave 1.4s ease-in-out infinite;
+}
+.footer-dot:nth-child(1) {
+  animation: dot1Cycle 5.5s ease-in-out infinite;
 }
 .footer-dot:nth-child(2) {
-  animation-delay: 0.18s;
+  animation: dot2Cycle 5.5s ease-in-out infinite;
 }
 .footer-dot:nth-child(3) {
-  animation-delay: 0.36s;
+  animation: dot3Cycle 5.5s ease-in-out infinite;
 }
 
-/* When expanded, freeze the wave — dots settle to position 0 and stay still
-   while in vertical orientation. */
+/* Freeze all dots when expanded — they sit still in vertical layout */
 .footer-toggle.is-expanded .footer-dot {
   animation: none;
   transform: translateY(0);
 }
 
-@keyframes footerDotWave {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  25% {
-    transform: translateY(-3px);
-  }
-  75% {
-    transform: translateY(3px);
+/*
+  Dot 1 (left) — wave peak at 14%; see-saw: up in state A, down in state B
+  (outer dot, syncs with dot 3)
+*/
+@keyframes dot1Cycle {
+  0%, 9% { transform: translateY(0); }
+  14% { transform: translateY(-3px); }
+  24% { transform: translateY(3px); }
+  31% { transform: translateY(0); }
+  36% { transform: translateY(0); }
+  45% { transform: translateY(0); }
+  55% { transform: translateY(-3px); }   /* state A: outer up */
+  65% { transform: translateY(3px); }    /* state B: outer down */
+  75% { transform: translateY(-3px); }   /* state A again */
+  82% { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
+/*
+  Dot 2 (middle) — wave peak at 19% (delayed); see-saw: OPPOSITE phase
+  (down in state A, up in state B → so 2 outer + 1 middle alternate)
+*/
+@keyframes dot2Cycle {
+  0%, 9% { transform: translateY(0); }
+  19% { transform: translateY(-3px); }
+  29% { transform: translateY(3px); }
+  35% { transform: translateY(0); }
+  45% { transform: translateY(0); }
+  55% { transform: translateY(3px); }    /* state A: middle down */
+  65% { transform: translateY(-3px); }   /* state B: middle up */
+  75% { transform: translateY(3px); }    /* state A again */
+  82% { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
+/*
+  Dot 3 (right) — wave peak at 24% (most delayed); see-saw: SAME as dot 1
+  (outer pair moves together)
+*/
+@keyframes dot3Cycle {
+  0%, 9% { transform: translateY(0); }
+  24% { transform: translateY(-3px); }
+  33% { transform: translateY(3px); }
+  40% { transform: translateY(0); }
+  45% { transform: translateY(0); }
+  55% { transform: translateY(-3px); }   /* state A: outer up */
+  65% { transform: translateY(3px); }    /* state B: outer down */
+  75% { transform: translateY(-3px); }   /* state A again */
+  82% { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
+/*
+  "для жизни" on its own line in mobile. Inline on desktop, block (forced
+  new line) on viewports ≤ 600px. Inherits text-align from the parent <p>
+  (centered) so it sits centered on its own line.
+*/
+@media (max-width: 600px) {
+  .lp-footer-break {
+    display: block;
   }
 }
 </style>
