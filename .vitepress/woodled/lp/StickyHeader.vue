@@ -87,20 +87,21 @@ onBeforeUnmount(() => {
       boxSizing: 'border-box',
     }"
   >
-    <!-- Two-line uppercase label, bigger -->
+    <!-- Two-line label in the new SF Pro Display style — matches the main
+         Header. Title case "Живой Дом", not uppercase. -->
     <div
       :style="{
-        fontSize: '15px',
-        fontWeight: 800,
-        letterSpacing: '0.05em',
-        textTransform: 'uppercase',
+        fontFamily: `'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif`,
+        fontSize: '16px',
+        fontWeight: 600,
+        letterSpacing: '-0.01em',
         color: PAGE.text,
-        lineHeight: 1.0,
+        lineHeight: 1.05,
         textAlign: 'left',
         whiteSpace: 'nowrap',
       }"
     >
-      Живой&nbsp;дом
+      Живой&nbsp;Дом
       <br />
       WOODLED
     </div>

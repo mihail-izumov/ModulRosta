@@ -274,32 +274,42 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* —— Я-inline — text-styled button, inherits everything from heading ——————
-   No badge, no rings, no size jump. Reads as part of the phrase, only the
-   cursor reveals it's clickable. Tiny hover hint via opacity nudge. */
+/* —— Я as a circled symbol — reads as a glyph (like ® or ©), not as a
+   colored standalone letter. Border weight matches the stroke weight of the
+   surrounding heading text so it visually integrates as part of the
+   typography rather than as a UI element. */
 .ya-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2em;
+  height: 1.2em;
+  /* Breathing room from "это" — the user explicitly asked for this offset. */
+  margin-left: 0.22em;
+  /* Pull down so the circle sits on the heading's baseline, not floats above. */
+  vertical-align: -0.22em;
+
+  /* The ring. 0.07em at heading size yields ~2.2px@32px / ~3.4px@48px —
+     matches SF Pro 700's stroke width so it reads as part of the type. */
+  border: 0.07em solid currentColor;
+  border-radius: 50%;
+
+  /* Inherit type, color, letter-spacing from the heading. */
   font: inherit;
   color: inherit;
-  letter-spacing: inherit;
+  letter-spacing: 0;
   background: none;
-  border: none;
   padding: 0;
-  margin: 0;
   cursor: pointer;
-  display: inline;
-  transition: opacity 200ms ease, transform 200ms ease;
+  box-sizing: border-box;
+
+  transition: opacity 180ms ease, transform 120ms ease;
 }
-.ya-inline:hover {
-  opacity: 0.78;
-}
-.ya-inline:active {
-  transform: scale(0.96);
-  display: inline-block; /* required for transform on inline element */
-}
+.ya-inline:hover { opacity: 0.65; }
+.ya-inline:active { transform: scale(0.94); }
 .ya-inline:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 4px;
-  border-radius: 4px;
 }
 </style>
 

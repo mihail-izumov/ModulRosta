@@ -203,52 +203,70 @@ onBeforeUnmount(() => {
 }
 
 /*
- * VitePress (and the browser) decorate <a> with underline by default, and
- * may animate one in on hover via transitions — both on the <a> itself AND
- * on its descendant spans. The "double underline" the user reports is the
- * inner-span decoration showing through on hover. Kill text-decoration on
- * every state on the <a> AND on every descendant. Footer's deliberate
- * underline uses border-bottom (a different CSS property), so it survives.
+ * Bulletproof link reset. The "green underline" kept slipping through because
+ * VitePress' rules and ours had the same specificity (0,1,1), so cascade order
+ * decided — and that order is fragile across Vue/Vite hot-reload + production
+ * builds. The fix: chain the root class so our selectors hit 0,2,1, which
+ * beats any single-class link rule (.vp-doc a, .VPContent a, etc.) regardless
+ * of load order. We also nuke non-text-decoration underline tricks:
+ *   - border-bottom    (the "underline via border" pattern)
+ *   - box-shadow       (the "inset 0 -1px 0" underline pattern)
+ * Both are killed ONLY on the <a> itself, not on descendants — that way the
+ * social cards and the deliberate .footer-brand-word border stay intact.
  */
-.lp-root a,
-.lp-root a *,
-.lp-root a:link,
-.lp-root a:link *,
-.lp-root a:visited,
-.lp-root a:visited *,
-.lp-root a:hover,
-.lp-root a:hover *,
-.lp-root a:focus,
-.lp-root a:focus *,
-.lp-root a:focus-visible,
-.lp-root a:focus-visible *,
-.lp-root a:active,
-.lp-root a:active * {
+.lp-root.lp-root a,
+.lp-root.lp-root a:link,
+.lp-root.lp-root a:visited,
+.lp-root.lp-root a:hover,
+.lp-root.lp-root a:focus,
+.lp-root.lp-root a:focus-visible,
+.lp-root.lp-root a:active {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-color: transparent !important;
+  text-decoration-thickness: 0 !important;
+  text-decoration-style: solid !important;
+  -webkit-text-decoration: none !important;
+  -webkit-text-decoration-color: transparent !important;
+  text-underline-offset: 0 !important;
+  /* Non-text-decoration underline killers — applied only to the <a> itself */
+  border-bottom: 0 solid transparent !important;
+  box-shadow: none !important;
+}
+
+.lp-root.lp-root a *,
+.lp-root.lp-root a:link *,
+.lp-root.lp-root a:visited *,
+.lp-root.lp-root a:hover *,
+.lp-root.lp-root a:focus *,
+.lp-root.lp-root a:focus-visible *,
+.lp-root.lp-root a:active * {
   text-decoration: none !important;
   text-decoration-line: none !important;
   text-decoration-color: transparent !important;
   text-decoration-thickness: 0 !important;
   -webkit-text-decoration: none !important;
+  -webkit-text-decoration-color: transparent !important;
   text-underline-offset: 0 !important;
+  /* DELIBERATELY no border-bottom / box-shadow rules here — descendants
+     (social cards with shadows, .footer-brand-word with deliberate border)
+     keep their own decoration. */
 }
 
 /*
- * Footer brand mark — deliberate per-word underline. Uses border-bottom
- * (a separate CSS property from text-decoration) so it survives the kill
- * above. Specificity 0,2,0 also outranks `.lp-root a *` (0,1,1) for any
- * inheritance edge cases.
+ * Whitelisted footer brand mark — survives all the above. Border-bottom is
+ * a separate CSS property from text-decoration, and specificity 0,3,0 from
+ * the chained .lp-root.lp-root .footer-brand-word selector outranks any
+ * single-class rule that could possibly fight it.
  */
-.lp-root .footer-brand-word {
+.lp-root.lp-root .footer-brand-word {
   border-bottom: 1.5px solid currentColor !important;
   padding-bottom: 2px !important;
-  /* Defensive: kill any text-decoration that might still slip through */
   text-decoration: none !important;
   -webkit-text-decoration: none !important;
 }
-.lp-root .footer-brand-reg {
-  /* No underline at all on the ® mark — deliberately empty rule keeps a
-     low-specificity reset in case anything tries to style it later. */
-  border-bottom: none !important;
+.lp-root.lp-root .footer-brand-reg {
+  border-bottom: 0 solid transparent !important;
   text-decoration: none !important;
 }
 

@@ -32,9 +32,10 @@ defineEmits<{
         color: PAGE.text,
       }"
     >
-      <!-- Two block-level spans so line-height is computed identically for
-           both lines — no `<br>`-induced visual gap, the rhythm stays. -->
-      <span :style="{ display: 'block' }">Соберите свет WOODLED.</span>
+      <!-- Two block-level spans so line-height is identical for both lines.
+           Plain text on line 1, shimmer treatment kept on line 2. No periods
+           on either — the title reads as a brand mark, not a sentence. -->
+      <span :style="{ display: 'block' }">Мой Лес</span>
       <span
         :style="{
           display: 'block',
@@ -46,7 +47,7 @@ defineEmits<{
           color: 'transparent',
           animation: 'goldShimmer 7s ease-in-out infinite',
         }"
-      >Оживите дом.</span>
+      >WOODLED</span>
     </h1>
 
     <p
@@ -56,20 +57,24 @@ defineEmits<{
         lineHeight: 1.5,
         color: PAGE.textSec,
         maxWidth: '540px',
-        margin: '0 auto 36px',
+        margin: '0 auto 32px',
       }"
     >
-      Живой Лес собирает план света для вашего дома — расставляйте светильники WOODLED по комнатам, выбирайте дерево и цвета, а конструктор сразу показывает баланс и настроение.
+      Ваше идеальное пространство для света. Играйте с дизайном светильников, расставьте мебель, перекрасьте стены – наполните светом каждый уголок. Дом оживает.
     </p>
 
-    <div :style="{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }">
+    <!-- FeatureTabs moved ABOVE the CTA. Order is now:
+         AppIcon → H1 → subtitle → FeatureTabs (3 tabs + description) → CTA -->
+    <div :style="{ marginBottom: '32px' }">
+      <FeatureTabs />
+    </div>
+
+    <div :style="{ display: 'flex', justifyContent: 'center' }">
       <PrimaryCTA
         size="large"
         @mounted="(el) => $emit('cta-mounted', el)"
         @unmounted="$emit('cta-unmounted')"
       />
     </div>
-
-    <FeatureTabs />
   </section>
 </template>
