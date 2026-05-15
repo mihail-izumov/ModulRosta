@@ -14,7 +14,7 @@ import { PAGE } from './tokens'
 const ITEMS = [
   {
     label: 'ВКонтакте',
-    href: '#',
+    href: 'https://vk.com/woodled',
     // Slight rose tint for VK
     bg: `linear-gradient(135deg, rgba(248, 218, 210, 0.55), rgba(236, 194, 181, 0.55))`,
     iconColor: PAGE.roseDeep,
@@ -22,7 +22,7 @@ const ITEMS = [
   },
   {
     label: 'Telegram',
-    href: '#',
+    href: 'https://t.me/woodled',
     // Slight peach tint for Telegram
     bg: `linear-gradient(135deg, rgba(251, 227, 212, 0.55), rgba(236, 202, 182, 0.55))`,
     iconColor: PAGE.roseDeep,
@@ -30,7 +30,7 @@ const ITEMS = [
   },
   {
     label: 'Дзен',
-    href: '#',
+    href: 'https://dzen.ru/woodled',
     // Cream tint for Дзен
     bg: `linear-gradient(135deg, rgba(252, 239, 230, 0.55), rgba(240, 213, 197, 0.55))`,
     iconColor: PAGE.rose,
