@@ -192,7 +192,7 @@ onBeforeUnmount(() => {
             color: PAGE.text,
           }"
         >
-          <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">Живые персональные рекомендации.</span> Параметры комнаты и мебель определяют каким должен быть комфортный свет.
+          <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">Доверьтесь зелёной галочке.</span> От размера люстры и цвета крепления, до количества ламп и яркости. WOODLED SMART подскажет лучший выбор.
         </p>
       </div>
 
@@ -219,7 +219,7 @@ onBeforeUnmount(() => {
             color: PAGE.text,
           }"
         >
-          Просто выбрать нужное. Вы меняете параметры светильников – <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">WOODLED SMART</span> показывает что изменилось и как сделать ещё лучше. Дом оживает – с технологией WOODLED SMART.
+          <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">Живые рекомендации.</span> Люстру поменьше – бра поярче. Вы меняете параметры и расстановку светильников – видите как изменилось настроение.
         </p>
       </div>
     </div>

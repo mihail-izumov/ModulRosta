@@ -133,12 +133,42 @@ const pillStyle = computed(() => ({
       </div>
     </div>
 
-    <!-- Description text — bumped from clamp(13..15) to clamp(15..17), +2pt as requested -->
-    <div :style="{ marginTop: '18px' }">
+    <!--
+      Description text — fixed-height container via CSS Grid.
+      All 3 texts are rendered in the same grid cell (gridArea: '1 / 1').
+      The hidden "sizer" copies (visibility: hidden) participate in layout so
+      the container's height = max height of all 3 texts. The visible active
+      <p> overlays them via the same grid cell. Result: switching tabs
+      doesn't reflow surrounding content — the longest text reserves space,
+      shorter ones leave whitespace below.
+    -->
+    <div :style="{ marginTop: '18px', display: 'grid' }">
+      <p
+        v-for="(f, i) in FEATURES"
+        :key="'sizer-' + i"
+        :style="{
+          margin: 0,
+          gridArea: '1 / 1',
+          fontSize: 'clamp(15px, 3.4vw, 17px)',
+          fontWeight: 500,
+          lineHeight: 1.55,
+          color: PAGE.textSec,
+          maxWidth: '500px',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          textAlign: 'center',
+          visibility: 'hidden',
+          pointerEvents: 'none',
+        }"
+      >
+        {{ f.text }}
+      </p>
+
       <p
         :key="active"
         :style="{
           margin: 0,
+          gridArea: '1 / 1',
           fontSize: 'clamp(15px, 3.4vw, 17px)',
           fontWeight: 500,
           lineHeight: 1.55,

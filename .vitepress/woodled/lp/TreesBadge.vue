@@ -98,12 +98,11 @@ function formatNum(n: number): string {
           color: T.text,
           lineHeight: 1.3,
           marginBottom: '24px',
-          maxWidth: '340px',
-          marginLeft: 'auto',
-          marginRight: 'auto',
         }"
       >
-        Настоящее дерево становится живым светом в&nbsp;доме
+        Настоящее дерево<br />
+        становится живым<br />
+        светом&nbsp;в&nbsp;доме
       </div>
 
       <div

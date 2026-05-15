@@ -35,7 +35,7 @@ defineEmits<{
       <!-- Two block-level spans so line-height is identical for both lines.
            Plain text on line 1, shimmer treatment kept on line 2. No periods
            on either — the title reads as a brand mark, not a sentence. -->
-      <span :style="{ display: 'block' }">Мой Лес</span>
+      <span :style="{ display: 'block' }">Мой свет.</span>
       <span
         :style="{
           display: 'block',
@@ -47,7 +47,7 @@ defineEmits<{
           color: 'transparent',
           animation: 'goldShimmer 7s ease-in-out infinite',
         }"
-      >Оживает</span>
+      >Мой лес.</span>
     </h1>
 
     <p
