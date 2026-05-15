@@ -1,25 +1,38 @@
 <script setup lang="ts">
 import { PAGE } from './tokens'
 
+/**
+ * Social cards — liquid-glass aesthetic, square (1:1).
+ *
+ * Each card uses a translucent tinted gradient (~55% alpha) + backdrop-filter
+ * blur, so the page palette shows through. Tints are pulled from the same
+ * pastel family as before, but the glass treatment unifies them.
+ *
+ * Cards remain SQUARE (aspectRatio 1/1) with icon + label stacked inside.
+ */
+
 const ITEMS = [
   {
     label: 'ВКонтакте',
     href: '#',
-    gradient: `linear-gradient(135deg, ${PAGE.pastelPink} 0%, ${PAGE.pastelPinkD} 100%)`,
+    // Slight rose tint for VK
+    bg: `linear-gradient(135deg, rgba(248, 218, 210, 0.55), rgba(236, 194, 181, 0.55))`,
     iconColor: PAGE.roseDeep,
     icon: 'vk',
   },
   {
     label: 'Telegram',
     href: '#',
-    gradient: `linear-gradient(135deg, ${PAGE.pastelPeach} 0%, ${PAGE.pastelPeachD} 100%)`,
+    // Slight peach tint for Telegram
+    bg: `linear-gradient(135deg, rgba(251, 227, 212, 0.55), rgba(236, 202, 182, 0.55))`,
     iconColor: PAGE.roseDeep,
     icon: 'tg',
   },
   {
     label: 'Дзен',
     href: '#',
-    gradient: `linear-gradient(135deg, ${PAGE.pastelCream} 0%, ${PAGE.pastelCreamD} 100%)`,
+    // Cream tint for Дзен
+    bg: `linear-gradient(135deg, rgba(252, 239, 230, 0.55), rgba(240, 213, 197, 0.55))`,
     iconColor: PAGE.rose,
     icon: 'dzen',
   },
@@ -34,11 +47,6 @@ function onCardLeave(e: MouseEvent) {
 </script>
 
 <template>
-  <!--
-    Social cards section. Logically continues the "Big Forest" block that
-    starts in TreesBadge (H2 + dark trees plate above this). No top H2 here —
-    moved to TreesBadge. Reduced top padding so the two halves visually merge.
-  -->
   <section
     :style="{
       padding: '8px 24px 48px',
@@ -78,14 +86,17 @@ function onCardLeave(e: MouseEvent) {
         :style="{
           aspectRatio: '1 / 1',
           borderRadius: 'clamp(20px, 5vw, 26px)',
-          background: item.gradient,
+          background: item.bg,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.55)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 'clamp(8px, 2vw, 12px)',
           boxShadow:
-            'inset 0 1px 0 rgba(255, 255, 255, 0.50), 0 12px 28px rgba(184, 125, 82, 0.18), 0 0 0 1px rgba(184, 125, 82, 0.08)',
+            'inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 12px 28px rgba(184, 125, 82, 0.16), 0 2px 6px rgba(184, 125, 82, 0.08)',
           transition: 'transform 250ms ease, box-shadow 250ms ease',
           padding: 'clamp(8px, 2vw, 14px)',
           boxSizing: 'border-box',
@@ -94,7 +105,6 @@ function onCardLeave(e: MouseEvent) {
         @mouseleave="onCardLeave"
         :aria-label="item.label"
       >
-        <!-- Icon — scales with viewport. VK / Telegram / Дзен -->
         <svg
           v-if="item.icon === 'vk'"
           :style="{ width: 'clamp(40px, 10vw, 56px)', height: 'clamp(40px, 10vw, 56px)', flexShrink: 0 }"
@@ -126,7 +136,6 @@ function onCardLeave(e: MouseEvent) {
           />
         </svg>
 
-        <!-- Label — now INSIDE the square card, below the icon -->
         <div
           :style="{
             fontSize: 'clamp(13px, 3vw, 16px)',

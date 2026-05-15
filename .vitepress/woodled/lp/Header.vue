@@ -37,25 +37,24 @@ const LOGO_URL = '/woodled/customizer/woodled-logo.svg'
       :style="{
         display: 'inline-flex',
         alignItems: 'center',
-        textDecoration: 'none',
         opacity: 0.85,
       }"
       aria-label="WOODLED.RU"
     >
-      <!-- Logo via CSS mask so it inherits the page text color -->
-      <div
+      <!--
+        <img> + filter:brightness(0) — preserves the SVG's native aspect
+        ratio automatically (width:auto) and recolors any fill to pure black.
+        Height scales with viewport via clamp so the proportion to "Живой Дом"
+        (clamp 28..40) stays consistent across mobile and desktop.
+      -->
+      <img
+        :src="LOGO_URL"
+        alt="WOODLED"
         :style="{
-          width: '120px',
-          height: '22px',
-          background: PAGE.text,
-          maskImage: `url(${LOGO_URL})`,
-          maskSize: 'contain',
-          maskRepeat: 'no-repeat',
-          maskPosition: 'center right',
-          WebkitMaskImage: `url(${LOGO_URL})`,
-          WebkitMaskSize: 'contain',
-          WebkitMaskRepeat: 'no-repeat',
-          WebkitMaskPosition: 'center right',
+          height: 'clamp(22px, 3.8vw, 32px)',
+          width: 'auto',
+          display: 'block',
+          filter: 'brightness(0)',
         }"
       />
     </a>

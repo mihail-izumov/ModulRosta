@@ -3,20 +3,19 @@ import { ref } from 'vue'
 import { PAGE } from './tokens'
 
 /**
- * Footer collaboration mark with expandable manifesto.
+ * Footer collaboration mark + expandable manifesto.
  *
- * Top pill: [WOODLED logo] × [Runscale logo] ↓
- *   - Each logo is its own <a> link (target=_blank) to the respective site
- *   - The hairline × is decorative (aria-hidden)
- *   - The chevron is a <button> that toggles the expanded block
+ * Layout: 3-column grid — invisible left spacer / centered logos block /
+ * arrow on right. Spacer equals arrow column width, so the logos block is
+ * truly centered in the pill regardless of arrow presence.
  *
- * Both logos render in BLACK regardless of source-SVG fill colors, via
- * the CSS-mask trick: the SVG is used as a shape mask, and `background: #000`
- * fills that shape. This works for the local WOODLED logo and for the
- * external Runscale SVG fetched from runscale.ru.
+ * Logos: <img> + filter:brightness(0) instead of div+mask. This preserves
+ * each SVG's native aspect ratio (width:auto from height), so WOODLED and
+ * Runscale stay proportionally sized to each other on both mobile and
+ * desktop. brightness(0) recolors any source SVG to pure black.
  *
- * Expanded block: glass-card style matching Descriptions cards but scaled
- * down for footer context. Two paragraphs with the "Растём вместе" title.
+ * Arrow: filled-circle button in PAGE.pastelPinkD background with
+ * PAGE.roseDeep stroke — visible but doesn't compete with the black logos.
  */
 
 const WOODLED_LOGO_URL = '/woodled/customizer/woodled-logo.svg'
@@ -38,135 +37,137 @@ function toggleExpand() {
       boxSizing: 'border-box',
     }"
   >
-    <!-- Collaboration pill -->
+    <!-- Collaboration pill — 3-column grid keeps logos centered + arrow on right -->
     <div
       :style="{
         width: '100%',
-        padding: '14px clamp(18px, 4vw, 24px)',
+        padding: '12px clamp(14px, 3vw, 18px)',
         background: '#FFFFFF',
         borderRadius: '999px',
         boxShadow:
           '0 8px 28px rgba(184, 125, 82, 0.22), 0 2px 8px rgba(184, 125, 82, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 0 0 1px rgba(184, 125, 82, 0.06)',
-        display: 'flex',
+        display: 'grid',
+        gridTemplateColumns: 'clamp(36px, 8vw, 40px) 1fr clamp(36px, 8vw, 40px)',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: 'clamp(12px, 3vw, 18px)',
         boxSizing: 'border-box',
       }"
     >
-      <!-- WOODLED logo (link, recolored to black via mask) -->
-      <a
-        href="https://woodled.ru"
-        target="_blank"
-        rel="noopener noreferrer"
-        :style="{
-          display: 'inline-flex',
-          alignItems: 'center',
-          flexShrink: 0,
-        }"
-        aria-label="WOODLED"
-      >
-        <div
-          :style="{
-            width: 'clamp(80px, 18vw, 110px)',
-            height: '22px',
-            background: '#000000',
-            maskImage: `url(${WOODLED_LOGO_URL})`,
-            maskSize: 'contain',
-            maskRepeat: 'no-repeat',
-            maskPosition: 'center',
-            WebkitMaskImage: `url(${WOODLED_LOGO_URL})`,
-            WebkitMaskSize: 'contain',
-            WebkitMaskRepeat: 'no-repeat',
-            WebkitMaskPosition: 'center',
-          }"
-        />
-      </a>
+      <!-- LEFT: invisible spacer mirroring arrow column width — keeps logos
+           visually centered in the pill -->
+      <div />
 
-      <!-- Hairline × (decorative, aria-hidden) -->
-      <span
-        aria-hidden="true"
+      <!-- CENTER: logos block, flex with × in the middle, equal gap from × to each logo -->
+      <div
         :style="{
-          color: '#000000',
-          opacity: 0.45,
-          display: 'inline-flex',
+          display: 'flex',
           alignItems: 'center',
-          flexShrink: 0,
+          justifyContent: 'center',
+          gap: 'clamp(12px, 3vw, 18px)',
         }"
       >
-        <svg
-          viewBox="0 0 32 32"
-          width="26"
-          height="26"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="0.85"
-          stroke-linecap="square"
-          :style="{ display: 'block' }"
+        <a
+          href="https://woodled.ru"
+          target="_blank"
+          rel="noopener noreferrer"
+          :style="{
+            display: 'inline-flex',
+            alignItems: 'center',
+            flexShrink: 0,
+          }"
+          aria-label="WOODLED"
         >
-          <line x1="5" y1="5" x2="27" y2="27" />
-          <line x1="27" y1="5" x2="5" y2="27" />
-        </svg>
-      </span>
+          <!-- <img> + filter:brightness(0) — native aspect ratio preserved -->
+          <img
+            :src="WOODLED_LOGO_URL"
+            alt="WOODLED"
+            :style="{
+              height: 'clamp(20px, 4.2vw, 28px)',
+              width: 'auto',
+              display: 'block',
+              filter: 'brightness(0)',
+            }"
+          />
+        </a>
 
-      <!-- Runscale (Модуль Роста) logo -->
-      <a
-        href="https://runscale.ru"
-        target="_blank"
-        rel="noopener noreferrer"
-        :style="{
-          display: 'inline-flex',
-          alignItems: 'center',
-          flexShrink: 0,
-        }"
-        aria-label="Модуль Роста"
-      >
-        <div
+        <!-- Hairline × (decorative) -->
+        <span
+          aria-hidden="true"
           :style="{
-            width: 'clamp(80px, 18vw, 110px)',
-            height: '22px',
-            background: '#000000',
-            maskImage: `url(${RUNSCALE_LOGO_URL})`,
-            maskSize: 'contain',
-            maskRepeat: 'no-repeat',
-            maskPosition: 'center',
-            WebkitMaskImage: `url(${RUNSCALE_LOGO_URL})`,
-            WebkitMaskSize: 'contain',
-            WebkitMaskRepeat: 'no-repeat',
-            WebkitMaskPosition: 'center',
+            color: '#000000',
+            opacity: 0.45,
+            display: 'inline-flex',
+            alignItems: 'center',
+            flexShrink: 0,
           }"
-        />
-      </a>
+        >
+          <svg
+            viewBox="0 0 32 32"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="0.9"
+            stroke-linecap="square"
+            :style="{ display: 'block' }"
+          >
+            <line x1="5" y1="5" x2="27" y2="27" />
+            <line x1="27" y1="5" x2="5" y2="27" />
+          </svg>
+        </span>
 
-      <!-- Chevron — toggles the expanded block -->
+        <a
+          href="https://runscale.ru"
+          target="_blank"
+          rel="noopener noreferrer"
+          :style="{
+            display: 'inline-flex',
+            alignItems: 'center',
+            flexShrink: 0,
+          }"
+          aria-label="Модуль Роста"
+        >
+          <img
+            :src="RUNSCALE_LOGO_URL"
+            alt="Модуль Роста"
+            :style="{
+              height: 'clamp(20px, 4.2vw, 28px)',
+              width: 'auto',
+              display: 'block',
+              filter: 'brightness(0)',
+            }"
+          />
+        </a>
+      </div>
+
+      <!-- RIGHT: arrow in filled circle, sits in own grid column → equal margin to spacer -->
       <button
         type="button"
         @click="toggleExpand"
         :aria-expanded="expanded"
         aria-label="Показать подробнее"
         :style="{
-          background: 'transparent',
+          justifySelf: 'end',
+          width: 'clamp(32px, 7vw, 38px)',
+          height: 'clamp(32px, 7vw, 38px)',
+          borderRadius: '50%',
+          background: PAGE.pastelPinkD,
           border: 'none',
-          padding: '6px',
-          margin: '0 0 0 4px',
+          padding: 0,
           cursor: 'pointer',
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#000000',
-          opacity: 0.55,
-          flexShrink: 0,
-          borderRadius: '50%',
-          transition: 'opacity 200ms ease',
+          color: PAGE.roseDeep,
+          transition: 'background 220ms ease, transform 120ms ease',
         }"
       >
         <svg
-          width="20"
-          height="20"
+          width="18"
+          height="18"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          stroke-width="2.2"
+          stroke-width="2.4"
           stroke-linecap="round"
           stroke-linejoin="round"
           :style="{
@@ -179,12 +180,7 @@ function toggleExpand() {
       </button>
     </div>
 
-    <!--
-      Expanded manifesto. max-height + opacity transition for smooth
-      open/close. The 1200px ceiling is well above any plausible content
-      height — actual height stops at content, the transition just finishes
-      slightly later than visually needed.
-    -->
+    <!-- Expanded manifesto -->
     <div
       :style="{
         maxHeight: expanded ? '1200px' : '0px',
@@ -209,12 +205,12 @@ function toggleExpand() {
       >
         <h3
           :style="{
-            fontSize: 'clamp(26px, 6vw, 36px)',
+            fontSize: 'clamp(22px, 5vw, 30px)',
             fontWeight: 700,
             color: PAGE.text,
             margin: '0 0 18px',
             letterSpacing: '-0.025em',
-            lineHeight: 1.1,
+            lineHeight: 1.12,
           }"
         >
           Растём вместе
@@ -230,8 +226,7 @@ function toggleExpand() {
             color: PAGE.text,
           }"
         >
-          <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">WOODLED и МОДУЛЬ&nbsp;РОСТА</span>
-          годами оживляли технологии в самых простых вещах. Мы доверяем чувствам. Так мы исследуем. Так мы создаём.
+          Новые технологии всегда были страстью WOODLED и МОДУЛЯ&nbsp;РОСТА. Мы искали способы сделать самые простые вещи ещё лучше и удобнее.
         </p>
 
         <p

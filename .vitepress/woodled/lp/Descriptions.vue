@@ -219,7 +219,7 @@ onBeforeUnmount(() => {
             color: PAGE.text,
           }"
         >
-          Просто выбрать нужное. Вы меняете параметры светильников – <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">WOODLED SMART</span> показывает что изменилось и как сделать ещё лучше. Дом оживает на глазах.
+          Просто выбрать нужное. Вы меняете параметры светильников – <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">WOODLED SMART</span> показывает что изменилось и как сделать ещё лучше. Дом оживает – с технологией WOODLED SMART.
         </p>
       </div>
     </div>

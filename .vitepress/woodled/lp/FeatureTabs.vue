@@ -142,7 +142,7 @@ const pillStyle = computed(() => ({
           fontSize: 'clamp(15px, 3.4vw, 17px)',
           fontWeight: 500,
           lineHeight: 1.55,
-          color: PAGE.textDim,
+          color: PAGE.textSec,
           maxWidth: '500px',
           marginLeft: 'auto',
           marginRight: 'auto',

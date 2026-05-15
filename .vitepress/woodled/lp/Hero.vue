@@ -47,7 +47,7 @@ defineEmits<{
           color: 'transparent',
           animation: 'goldShimmer 7s ease-in-out infinite',
         }"
-      >WOODLED</span>
+      >Оживает</span>
     </h1>
 
     <p
@@ -55,7 +55,7 @@ defineEmits<{
         fontSize: '18px',
         fontWeight: 500,
         lineHeight: 1.5,
-        color: PAGE.textSec,
+        color: PAGE.text,
         maxWidth: '540px',
         margin: '0 auto 32px',
       }"
