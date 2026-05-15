@@ -24,7 +24,7 @@ onBeforeUnmount(() => emit('unmounted'))
 
 function handleClick() {
   if (typeof window !== 'undefined') {
-    window.location.href = '/woodled/customizer'
+    window.location.href = 'https://runscale.ru/woodled/onboarding'
   }
 }
 </script>

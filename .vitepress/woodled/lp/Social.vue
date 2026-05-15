@@ -65,7 +65,7 @@ function onCardLeave(e: MouseEvent) {
         margin: '0 0 14px',
       }"
     >
-      Истории оживают
+      Истории WOODLED
     </h3>
 
     <p

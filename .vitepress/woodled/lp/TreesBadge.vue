@@ -102,7 +102,7 @@ function formatNum(n: number): string {
       >
         Настоящее дерево<br />
         становится живым<br />
-        светом&nbsp;в&nbsp;доме
+        светом&nbsp;в&nbsp;каждом&nbsp;доме
       </div>
 
       <div
