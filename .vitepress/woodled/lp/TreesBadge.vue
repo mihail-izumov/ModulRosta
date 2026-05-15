@@ -10,7 +10,7 @@
  *   - orbPulse keyframe (4.5s ease-in-out, со сдвигом фазы)
  *   - render: span (шар) + <img> (лист со сдвигом translate(calc(-50% + 9px), -50%))
  */
-import { T, WCOL, type Wood } from './tokens'
+import { T, WCOL, PAGE, type Wood } from './tokens'
 
 const WOOD_COUNTS: Record<Wood, number> = { oak: 4674, walnut: 1960, black: 551 }
 const WOOD_TOTAL = 7185
@@ -63,7 +63,23 @@ function formatNum(n: number): string {
 </script>
 
 <template>
-  <section :style="{ padding: '8px 24px 56px', maxWidth: '640px', margin: '0 auto' }">
+  <section :style="{ padding: '8px 24px 16px', maxWidth: '640px', margin: '0 auto' }">
+    <!-- New unified heading above the trees count — same scale as
+         "Дизайнер — это Я" so the two big section titles read as siblings. -->
+    <h2
+      :style="{
+        fontSize: 'clamp(32px, 7vw, 48px)',
+        fontWeight: 700,
+        color: PAGE.text,
+        textAlign: 'center',
+        margin: '0 0 28px',
+        letterSpacing: '-0.025em',
+        lineHeight: 1.08,
+      }"
+    >
+      Большой лес WOODLED растёт вместе с&nbsp;вами
+    </h2>
+
     <!-- Внешняя плашка — копия JSX -->
     <div
       :style="{

@@ -276,22 +276,23 @@ onBeforeUnmount(() => {
 <style scoped>
 /* —— Я as a circled symbol — reads as a glyph (like ® or ©), not as a
    colored standalone letter. Border weight matches the stroke weight of the
-   surrounding heading text so it visually integrates as part of the
-   typography rather than as a UI element. */
+   surrounding heading text. Using inline-block + line-height equal to
+   height means the inline-block's baseline = its inner letter's baseline =
+   the surrounding line's baseline. The letter sits ON the line, the circle
+   wraps around it. */
 .ya-inline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.2em;
-  height: 1.2em;
+  display: inline-block;
+  width: 1.15em;
+  height: 1.15em;
+  line-height: 1.15em;
+  text-align: center;
+  vertical-align: baseline;
   /* Breathing room from "это" — the user explicitly asked for this offset. */
-  margin-left: 0.22em;
-  /* Pull down so the circle sits on the heading's baseline, not floats above. */
-  vertical-align: -0.22em;
+  margin-left: 0.18em;
 
-  /* The ring. 0.07em at heading size yields ~2.2px@32px / ~3.4px@48px —
-     matches SF Pro 700's stroke width so it reads as part of the type. */
-  border: 0.07em solid currentColor;
+  /* The ring. 0.11em at heading size ≈ 3.5px @ 32px / ~5.3px @ 48px — matches
+     SF Pro 700's stroke width so it reads as part of the type, not as UI. */
+  border: 0.11em solid currentColor;
   border-radius: 50%;
 
   /* Inherit type, color, letter-spacing from the heading. */
@@ -301,7 +302,7 @@ onBeforeUnmount(() => {
   background: none;
   padding: 0;
   cursor: pointer;
-  box-sizing: border-box;
+  box-sizing: content-box;
 
   transition: opacity 180ms ease, transform 120ms ease;
 }
