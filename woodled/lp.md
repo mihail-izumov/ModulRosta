@@ -2,12 +2,12 @@
 layout: page
 sidebar: false
 aside: false
-title: Соберите свет WOODLED. Оживите дом.
-description: Живой Лес WOODLED — соберите план света для дома, расставьте светильники по комнатам, выберите дерево и цвета.
+title: Мой свет. Мой лес.
+description: Живой Дом WOODLED — Ваше идеальное пространство для света.
 head:
   - - meta
     - name: description
-      content: Живой Лес WOODLED — соберите план света для дома, расставьте светильники по комнатам, выберите дерево и цвета.
+      content: Живой Дом WOODLED — Ваше идеальное пространство для света..
   - - meta
     - property: og:type
       content: website
@@ -16,10 +16,10 @@ head:
       content: WOODLED
   - - meta
     - property: og:title
-      content: Соберите свет WOODLED. Оживите дом.
+      content: Мой свет. Мой лес.
   - - meta
     - property: og:description
-      content: Живой Лес WOODLED — соберите план света для дома, расставьте светильники по комнатам, выберите дерево и цвета.
+      content: Живой Дом WOODLED — Ваше идеальное пространство для света.
   - - meta
     - property: og:url
       content: https://runscale.ru/woodled/lp
@@ -40,10 +40,10 @@ head:
       content: summary_large_image
   - - meta
     - name: twitter:title
-      content: Соберите свет WOODLED. Оживите дом.
+      content: Мой свет. Мой лес.
   - - meta
     - name: twitter:description
-      content: Живой Лес WOODLED — соберите план света для дома, расставьте светильники по комнатам, выберите дерево и цвета.
+      content: Живой Дом WOODLED — Ваше идеальное пространство для света.
   - - meta
     - name: twitter:image
       content: https://runscale.ru/woodled/og-cover.png
