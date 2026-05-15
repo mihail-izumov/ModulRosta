@@ -5,17 +5,13 @@ import { PAGE } from './tokens'
 /**
  * Footer collaboration mark + expandable manifesto.
  *
- * Layout: 3-column grid — invisible left spacer / centered logos block /
- * arrow on right. Spacer equals arrow column width, so the logos block is
- * truly centered in the pill regardless of arrow presence.
+ * Toggle: 3-dot button instead of chevron.
+ *   - Closed: dots horizontal, wave-animated (phased translateY)
+ *   - Open: container rotates 90° → dots become vertical, wave stops
+ *   - Visual metaphor: horizontal = "open me", vertical = "close me"
  *
- * Logos: <img> + filter:brightness(0) instead of div+mask. This preserves
- * each SVG's native aspect ratio (width:auto from height), so WOODLED and
- * Runscale stay proportionally sized to each other on both mobile and
- * desktop. brightness(0) recolors any source SVG to pure black.
- *
- * Arrow: filled-circle button in PAGE.pastelPinkD background with
- * PAGE.roseDeep stroke — visible but doesn't compete with the black logos.
+ * Logos: <img> + filter:brightness(0) preserves native aspect ratios.
+ * Cross ×: PAGE.rose (site palette, no longer black/competing).
  */
 
 const WOODLED_LOGO_URL = '/woodled/customizer/woodled-logo.svg'
@@ -37,7 +33,7 @@ function toggleExpand() {
       boxSizing: 'border-box',
     }"
   >
-    <!-- Collaboration pill — 3-column grid keeps logos centered + arrow on right -->
+    <!-- Collaboration pill — 3-column grid keeps logos centered + toggle on right -->
     <div
       :style="{
         width: '100%',
@@ -52,11 +48,10 @@ function toggleExpand() {
         boxSizing: 'border-box',
       }"
     >
-      <!-- LEFT: invisible spacer mirroring arrow column width — keeps logos
-           visually centered in the pill -->
+      <!-- LEFT: invisible spacer matching right column → logos truly centered -->
       <div />
 
-      <!-- CENTER: logos block, flex with × in the middle, equal gap from × to each logo -->
+      <!-- CENTER: logos block, × in the middle with equal gaps to each side -->
       <div
         :style="{
           display: 'flex',
@@ -76,7 +71,6 @@ function toggleExpand() {
           }"
           aria-label="WOODLED"
         >
-          <!-- <img> + filter:brightness(0) — native aspect ratio preserved -->
           <img
             :src="WOODLED_LOGO_URL"
             alt="WOODLED"
@@ -89,12 +83,16 @@ function toggleExpand() {
           />
         </a>
 
-        <!-- Hairline × (decorative) -->
+        <!--
+          Hairline × — now in site palette (PAGE.rose at opacity 0.5)
+          instead of black. Sits in the rose/copper family with the toggle
+          button, doesn't compete with the black logos.
+        -->
         <span
           aria-hidden="true"
           :style="{
-            color: '#000000',
-            opacity: 0.45,
+            color: PAGE.rose,
+            opacity: 0.5,
             display: 'inline-flex',
             alignItems: 'center',
             flexShrink: 0,
@@ -139,12 +137,19 @@ function toggleExpand() {
         </a>
       </div>
 
-      <!-- RIGHT: arrow in filled circle, sits in own grid column → equal margin to spacer -->
+      <!--
+        RIGHT: 3-dot toggle button.
+          - Closed (default): dots horizontal with phased wave animation
+          - Open (.is-expanded): container rotates 90° → vertical dots,
+            wave stops
+      -->
       <button
         type="button"
         @click="toggleExpand"
         :aria-expanded="expanded"
         aria-label="Показать подробнее"
+        :class="{ 'is-expanded': expanded }"
+        class="footer-toggle"
         :style="{
           justifySelf: 'end',
           width: 'clamp(32px, 7vw, 38px)',
@@ -158,37 +163,26 @@ function toggleExpand() {
           alignItems: 'center',
           justifyContent: 'center',
           color: PAGE.roseDeep,
-          transition: 'background 220ms ease, transform 120ms ease',
+          transition: 'background 220ms ease',
         }"
       >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.4"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          :style="{
-            transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 360ms cubic-bezier(0.4, 0, 0.2, 1)',
-          }"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        <span class="footer-dots">
+          <span class="footer-dot" />
+          <span class="footer-dot" />
+          <span class="footer-dot" />
+        </span>
       </button>
     </div>
 
     <!-- Expanded manifesto -->
     <div
       :style="{
-        maxHeight: expanded ? '1200px' : '0px',
+        maxHeight: expanded ? '1500px' : '0px',
         opacity: expanded ? 1 : 0,
         marginTop: expanded ? '20px' : '0px',
         overflow: 'hidden',
         transition:
-          'max-height 600ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms ease, margin-top 400ms ease',
+          'max-height 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms ease, margin-top 400ms ease',
       }"
     >
       <div
@@ -229,6 +223,35 @@ function toggleExpand() {
           Новые технологии всегда были страстью WOODLED и МОДУЛЯ&nbsp;РОСТА. Мы искали способы сделать самые простые вещи ещё лучше и удобнее.
         </p>
 
+        <!--
+          Lyrical centerpiece — slightly bolder (600 vs surrounding 500).
+          Two paragraphs: rhetorical questions, then the answer in poetic prose.
+        -->
+        <p
+          :style="{
+            margin: '0 0 10px',
+            fontSize: 'clamp(15px, 3.5vw, 18px)',
+            lineHeight: 1.5,
+            letterSpacing: '-0.005em',
+            fontWeight: 600,
+            color: PAGE.text,
+          }"
+        >
+          Сколько света нужно? Как создать неповторимое настроение?
+        </p>
+        <p
+          :style="{
+            margin: '0 0 14px',
+            fontSize: 'clamp(15px, 3.5vw, 18px)',
+            lineHeight: 1.5,
+            letterSpacing: '-0.005em',
+            fontWeight: 600,
+            color: PAGE.text,
+          }"
+        >
+          Свет — это не люмены. Это тёплые сумерки, утро в лесу, ясный полдень — мягкое тепло дуба и ореха в доме. Описать это словами трудно. Именно поэтому мы за это и беремся.
+        </p>
+
         <p
           :style="{
             margin: 0,
@@ -245,3 +268,56 @@ function toggleExpand() {
     </div>
   </footer>
 </template>
+
+<style scoped>
+/* —— 3-dot toggle — wave-animated when closed, vertical when open ——
+   Closed: dots horizontal (row), each oscillates up/down with phased delays
+   creating a wave effect.
+   Open: container rotates 90° → dots appear vertical, wave animation stops
+   (returns to translateY: 0). The rotation animates smoothly. */
+.footer-dots {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.footer-toggle.is-expanded .footer-dots {
+  transform: rotate(90deg);
+}
+
+.footer-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+  animation: footerDotWave 1.4s ease-in-out infinite;
+}
+.footer-dot:nth-child(2) {
+  animation-delay: 0.18s;
+}
+.footer-dot:nth-child(3) {
+  animation-delay: 0.36s;
+}
+
+/* When expanded, freeze the wave — dots settle to position 0 and stay still
+   while in vertical orientation. */
+.footer-toggle.is-expanded .footer-dot {
+  animation: none;
+  transform: translateY(0);
+}
+
+@keyframes footerDotWave {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-3px);
+  }
+  75% {
+    transform: translateY(3px);
+  }
+}
+</style>

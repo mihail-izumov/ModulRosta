@@ -55,6 +55,19 @@ function onCardLeave(e: MouseEvent) {
       textAlign: 'center',
     }"
   >
+    <h3
+      :style="{
+        fontSize: 'clamp(22px, 4.8vw, 30px)',
+        fontWeight: 700,
+        color: PAGE.text,
+        letterSpacing: '-0.022em',
+        lineHeight: 1.15,
+        margin: '0 0 14px',
+      }"
+    >
+      Истории оживают
+    </h3>
+
     <p
       :style="{
         fontSize: '15px',
@@ -65,7 +78,7 @@ function onCardLeave(e: MouseEvent) {
         margin: '0 auto 28px',
       }"
     >
-      Реальные дома владельцев, новые модели светильников и истории из мастерской — следите за вдохновением каждую неделю.
+      Представьте каждого владельца WOODLED и его историю. Мы вдохновляемся и делимся с вами.
     </p>
 
     <div
