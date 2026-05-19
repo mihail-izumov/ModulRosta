@@ -27,7 +27,7 @@ const LOGO_URL = '/woodled/customizer/woodled-logo.svg'
         lineHeight: 1,
       }"
     >
-      Живой Дом
+      WOODLED&nbsp;Студия
     </div>
 
     <a
@@ -44,8 +44,8 @@ const LOGO_URL = '/woodled/customizer/woodled-logo.svg'
       <!--
         <img> + filter:brightness(0) — preserves the SVG's native aspect
         ratio automatically (width:auto) and recolors any fill to pure black.
-        Height scales with viewport via clamp so the proportion to "Живой Дом"
-        (clamp 28..40) stays consistent across mobile and desktop.
+        Height scales with viewport via clamp so the proportion to brand
+        title (clamp 28..40) stays consistent across mobile and desktop.
       -->
       <img
         :src="LOGO_URL"

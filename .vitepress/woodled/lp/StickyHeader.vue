@@ -9,7 +9,10 @@
  *   и динамически сдвигаем `top` на `visualViewport.offsetTop`.
  * - backdrop-blur уменьшен с 28px до 16px чтобы было лучше видно что подложка
  *   просвечивает фон.
- * - Лейбл «МОЙ ЛЕС / WOODLED» на двух строках, крупнее.
+ * - Лейбл «WOODLED Студия» одной строкой, максимально крупно для мобильной
+ *   версии. CTA стал короче ("Войти" вместо "Начать Сейчас") — это
+ *   высвободило ~45px по ширине, что и позволило поднять размер текста
+ *   до clamp(20px, 5.8vw, 28px) без переноса.
  */
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { PAGE } from './tokens'
@@ -83,27 +86,34 @@ onBeforeUnmount(() => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      gap: '16px',
+      gap: '12px',
       boxSizing: 'border-box',
     }"
   >
-    <!-- Two-line label in the new SF Pro Display style — matches the main
-         Header. Title case "Живой Дом", not uppercase. -->
+    <!--
+      Single-line brand mark. fontSize is clamp(20px, 5.8vw, 28px) — at
+      iPhone 14 width (390px) this lands at ~22.6px which is the largest
+      that fits next to a short-label CTA ("Войти") without wrapping. The
+      `nowrap` + `overflow: hidden` is a safety net for narrow phones (320px
+      legacy devices) where the clamp min still leaves ~20px text.
+    -->
     <div
       :style="{
         fontFamily: `'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif`,
-        fontSize: '16px',
+        fontSize: 'clamp(20px, 5.8vw, 28px)',
         fontWeight: 600,
-        letterSpacing: '-0.01em',
+        letterSpacing: '-0.02em',
         color: PAGE.text,
-        lineHeight: 1.05,
+        lineHeight: 1.1,
         textAlign: 'left',
         whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        minWidth: 0,
+        flex: '1 1 auto',
       }"
     >
-      Живой&nbsp;Дом
-      <br />
-      WOODLED
+      WOODLED&nbsp;Студия
     </div>
 
     <PrimaryCTA size="small" />

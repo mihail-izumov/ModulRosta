@@ -11,6 +11,11 @@ import { PAGE } from './tokens'
  *
  * On open, the expanded block scrolls into the viewport centre automatically
  * (setTimeout matching the 700ms max-height transition).
+ *
+ * Manifesto copy (May 2026 edit) reorganised so the lyrical questions and
+ * the lyrical answer ("Настоящий свет — это не люксы и люмены...") sit on
+ * top, the dual-brand line sits in the middle, and the closing "Больше
+ * живых домов" lands as the punchline.
  */
 
 const WOODLED_LOGO_URL = '/woodled/customizer/woodled-logo.svg'
@@ -210,11 +215,13 @@ function toggleExpand() {
         </h3>
 
         <!--
-          New order (per task 2):
-            1. lyrical questions (bold 600)
-            2. lyrical answer with "люксы и люмены" (bold 600)
-            3. relocated + retexted "WOODLED и МОДУЛЬ РОСТА всегда искали..." (500)
-            4. closing "Вместе мы создали..." with mobile-only break before "для жизни"
+          Final-brief copy. Cadence/rhythm:
+            1. Two lyrical questions (bold 600) — open the section
+            2. Lyrical answer with "люксы и люмены" (bold 600) — the thesis
+            3. WOODLED × МОДУЛЬ РОСТА line + "новое пространство для света"
+               merged into one paragraph (500) — the partnership statement
+            4. Closing "Больше живых домов" — punchline, mobile breaks
+               before "для жизни" via .lp-footer-break
         -->
         <p
           :style="{
@@ -226,7 +233,7 @@ function toggleExpand() {
             color: PAGE.text,
           }"
         >
-          Сколько света нужно? Как создать неповторимое настроение?
+          Сколько света нужно вашему дому? Как создать в&nbsp;нём неповторимое настроение?
         </p>
         <p
           :style="{
@@ -238,7 +245,7 @@ function toggleExpand() {
             color: PAGE.text,
           }"
         >
-          Свет — это не люксы и люмены. Это тёплые сумерки, утро в лесу, ясный полдень — мягкое тепло дуба и ореха в доме. Описать это словами трудно. Именно поэтому мы за это и беремся.
+          Настоящий свет&nbsp;— это не люксы и&nbsp;люмены. Это тёплые сумерки, утро в&nbsp;лесу и&nbsp;ясный полдень. Это мягкое тепло дуба и&nbsp;ореха в&nbsp;каждой комнате. Описать это словами трудно. Именно поэтому мы за это и&nbsp;берёмся.
         </p>
 
         <p
@@ -251,7 +258,7 @@ function toggleExpand() {
             color: PAGE.text,
           }"
         >
-          WOODLED и МОДУЛЬ&nbsp;РОСТА всегда применяли новые технологии, чтобы сделать самые простые вещи ещё лучше и удобнее.
+          WOODLED и&nbsp;МОДУЛЬ&nbsp;РОСТА объединили дизайн и&nbsp;технологии, чтобы сделать простые вещи ещё лучше и&nbsp;удобнее. Вместе мы создали новое пространство для света.
         </p>
 
         <p
@@ -264,7 +271,7 @@ function toggleExpand() {
             color: PAGE.text,
           }"
         >
-          Вместе мы создали новое пространство для света. Больше живых домов. Для себя, семьи и друзей – <span class="lp-footer-break">для жизни.</span>
+          Больше живых домов. Для себя, семьи и&nbsp;близких&nbsp;— <span class="lp-footer-break">для жизни.</span>
         </p>
       </div>
     </div>

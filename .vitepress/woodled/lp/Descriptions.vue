@@ -3,22 +3,32 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { PAGE } from './tokens'
 
 /**
- * «Дизайнер — это Я» — Я is now a plain inline button that visually reads
- * as part of the heading text (no badge, no rings, no size jump). Cursor
- * hints clickability. Tapping opens the dark "mirror" modal.
+ * Section structure (rev. May 2026):
+ *   1. H2  «WOODLED Smart»  + lead paragraph (Apple Intelligence cadence)
+ *   2. Card  3 типа дома
+ *   3. Card  Доверьтесь зелёной галочке
+ *   4. Card  Живые рекомендации
+ *   5. Card  «Дизайнер — это Я» — the relocated section punchline, kept as
+ *            an interactive card so the trailing "Я" (in a circle) still
+ *            opens the dark "Привет, дизайнер" modal. Visually distinct from
+ *            the three glass cards above (warmer rose tint + soft rose halo)
+ *            so it reads as the action, and so it doesn't compete with the
+ *            big TreesBadge heading that follows.
  *
- * The modal layout:
- *   - top: «Привет, дизайнер!»
- *   - bottom: «Включить свет» pill (pushed to bottom via margin-top:auto)
+ * The «Я»-button + modal mechanics are unchanged from before — only the
+ * trigger has moved from a section-level H2 down into the 4th card. The
+ * .ya-inline class still sizes via 1.15em so it scales with whatever font
+ * size wraps it.
  *
- * On «Включить свет» click → `revealing` mode:
- *   - title + button fade out fast (400ms)
- *   - black backdrop transitions to transparent slow (1800ms)
- *   - the LP behind is gradually revealed — "turning on the lights" metaphor
- *   - after 1900ms, modalOpen flips false → Vue Transition removes the
- *     (already-invisible) element
- *
- * Swipe-down / Esc still close instantly without reveal.
+ * Modal flow recap:
+ *   - tap «Я» → modal slides up (Teleport to body, dark backdrop)
+ *   - swipe-down / Esc → close instantly
+ *   - tap «Включить свет» → enter `revealing` mode:
+ *       · title + button fade out fast (400ms)
+ *       · backdrop transitions to transparent slow (1800ms)
+ *       · the LP behind is gradually revealed — "turning on the lights"
+ *       · after 1900ms, modalOpen flips false → Vue Transition removes the
+ *         (already-invisible) element
  */
 
 const modalOpen = ref(false)
@@ -122,24 +132,41 @@ onBeforeUnmount(() => {
 
 <template>
   <section :style="{ padding: '20px 24px 56px', maxWidth: '720px', margin: '0 auto' }">
+    <!--
+      Section heading — drops in at the position previously held by
+      «Дизайнер — это Я». Same scale / weight / letter-spacing as before so
+      the visual rhythm of the page is preserved. Subtitle below is new — a
+      single Apple-Intelligence-style lead sentence describing what
+      WOODLED Smart does without selling it.
+    -->
     <h2
       :style="{
         fontSize: 'clamp(32px, 7vw, 48px)',
         fontWeight: 700,
         color: PAGE.text,
         textAlign: 'center',
-        margin: '0 0 36px',
+        margin: '0 0 16px',
         letterSpacing: '-0.025em',
         lineHeight: 1.08,
       }"
     >
-      Дизайнер&nbsp;— это <button
-        type="button"
-        class="ya-inline"
-        @click="openModal"
-        aria-label="Привет, дизайнер"
-      >Я</button>
+      WOODLED&nbsp;Smart
     </h2>
+
+    <p
+      :style="{
+        fontSize: 'clamp(16px, 3.8vw, 19px)',
+        fontWeight: 500,
+        lineHeight: 1.5,
+        color: PAGE.textSec,
+        textAlign: 'center',
+        maxWidth: '560px',
+        margin: '0 auto 36px',
+        letterSpacing: '-0.005em',
+      }"
+    >
+      Работает в каждой комнате, кухне и коридоре, чтобы помочь вам управлять дизайном, настраивать атмосферу и находить правильный баланс света. Шаг за шагом.
+    </p>
 
     <div :style="{ display: 'flex', flexDirection: 'column', gap: '14px' }">
       <!-- Card 1 -->
@@ -222,6 +249,49 @@ onBeforeUnmount(() => {
           <span :style="{ color: PAGE.roseDeep, fontWeight: 600 }">Живые рекомендации.</span> Люстру поменьше – бра поярче. Вы меняете параметры и расстановку светильников – видите как изменилось настроение.
         </p>
       </div>
+
+      <!--
+        Card 4 — the relocated «Дизайнер — это Я» punchline. Same shell as
+        the other three (matching radius / padding / blur) but with a
+        rose-tinted gradient background and a soft rose halo box-shadow so
+        it reads as the *action* card — visually distinct, but still part of
+        the same sequence. Bold text at clamp(24..32px) is bigger than card
+        body (22px) yet noticeably smaller than the trailing
+        «Большой лес WOODLED…» H2 (48px), so the two headings don't fight.
+        The «Я»-button is the same .ya-inline element as before, with the
+        same modal mechanics — only the wrapper changed.
+      -->
+      <div
+        :style="{
+          padding: '28px 26px',
+          borderRadius: '28px',
+          background: `linear-gradient(135deg, rgba(248, 218, 210, 0.65) 0%, rgba(251, 227, 212, 0.55) 100%)`,
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          border: `1px solid rgba(255, 255, 255, 0.55)`,
+          boxShadow: `0 10px 36px rgba(184, 125, 82, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 0 40px rgba(232, 181, 160, 0.18)`,
+          marginTop: '6px',
+        }"
+      >
+        <h3
+          :style="{
+            margin: 0,
+            fontSize: 'clamp(24px, 5.6vw, 32px)',
+            fontWeight: 700,
+            color: PAGE.text,
+            textAlign: 'center',
+            letterSpacing: '-0.022em',
+            lineHeight: 1.15,
+          }"
+        >
+          Дизайнер&nbsp;— это <button
+            type="button"
+            class="ya-inline"
+            @click="openModal"
+            aria-label="Привет, дизайнер"
+          >Я</button>
+        </h3>
+      </div>
     </div>
   </section>
 
@@ -279,7 +349,9 @@ onBeforeUnmount(() => {
    surrounding heading text. Using inline-block + line-height equal to
    height means the inline-block's baseline = its inner letter's baseline =
    the surrounding line's baseline. The letter sits ON the line, the circle
-   wraps around it. */
+   wraps around it. Because all sizing is in em, the same button scales
+   correctly whether wrapped by the previous H2 (clamp 32..48) or by the
+   new in-card H3 (clamp 24..32). */
 .ya-inline {
   display: inline-block;
   width: 1.15em;
@@ -287,11 +359,11 @@ onBeforeUnmount(() => {
   line-height: 1.15em;
   text-align: center;
   vertical-align: baseline;
-  /* Breathing room from "это" — the user explicitly asked for this offset. */
+  /* Breathing room from "это" — keep regardless of wrapper size. */
   margin-left: 0.18em;
 
-  /* The ring. 0.11em at heading size ≈ 3.5px @ 32px / ~5.3px @ 48px — matches
-     SF Pro 700's stroke width so it reads as part of the type, not as UI. */
+  /* The ring. 0.11em at heading size keeps the stroke proportional to the
+     SF Pro 700 type weight, so it reads as part of the type rather than UI. */
   border: 0.11em solid currentColor;
   border-radius: 50%;
 
