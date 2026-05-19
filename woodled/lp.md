@@ -2,24 +2,24 @@
 layout: page
 sidebar: false
 aside: false
-title: Мой свет. Мой лес.
-description: Живой Дом WOODLED — Ваше идеальное пространство для света.
+title: Мой дизайн. Мой свет.
+description: WOODLED Студия — Ваше идеальное пространство для света.
 head:
   - - meta
     - name: description
-      content: Живой Дом WOODLED — Ваше идеальное пространство для света..
+      content: WOODLED Студия — Ваше идеальное пространство для света..
   - - meta
     - property: og:type
       content: website
   - - meta
     - property: og:site_name
-      content: WOODLED
+      content: WOODLED Студия
   - - meta
     - property: og:title
-      content: Мой свет. Мой лес.
+      content: Мой дизайн. Мой свет.
   - - meta
     - property: og:description
-      content: Живой Дом WOODLED — Ваше идеальное пространство для света.
+      content: WOODLED Студия — Ваше идеальное пространство для света.
   - - meta
     - property: og:url
       content: https://runscale.ru/woodled/lp
@@ -34,16 +34,16 @@ head:
       content: "630"
   - - meta
     - property: og:image:alt
-      content: WOODLED Rotor
+      content: WOODLED Студия
   - - meta
     - name: twitter:card
       content: summary_large_image
   - - meta
     - name: twitter:title
-      content: Мой свет. Мой лес.
+      content: Мой дизайн. Мой свет.
   - - meta
     - name: twitter:description
-      content: Живой Дом WOODLED — Ваше идеальное пространство для света.
+      content: WOODLED Студия — Ваше идеальное пространство для света.
   - - meta
     - name: twitter:image
       content: https://runscale.ru/woodled/og-cover.png
