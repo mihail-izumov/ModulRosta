@@ -1,28 +1,37 @@
 /**
  * share.ts — Сериализация конфигурации в URL-hash для шаринга.
  *
- * Формат: https://site/customizer#s=<base64url>
- * Где base64url — URL-safe base64 от JSON с минимальным набором полей.
+ * Формат:
+ *   v2 (текущий): #s=2.<lz-string-compressed>
+ *   v1 (legacy):  #s=<base64url-json>
  *
- * Минимизируем имена полей (t вместо typeId и т.п.) — ссылка короче.
+ * v1 ссылки продолжают декодироваться — старые ссылки в чатах не ломаются.
+ * Префикс «2.» однозначно отличает v2: точка не входит в base64url-алфавит.
+ *
+ * Минимизация имён полей (t/n/si/ca/h/fx/fu/lim/m/q/w/z/l/o/d) сохранена —
+ * lz-string добавляет 3–4× компрессию поверх. На реальном state ~2300 → ~600 chars.
+ *
  * Работает без бэкенда, без истории, без сторонних сервисов.
  */
 
+import {
+  compressToEncodedURIComponent,
+  decompressFromEncodedURIComponent,
+} from 'lz-string'
 import type { Room } from '../data/rooms'
 import type { Fixture } from '../data/catalog'
 
+const V2_PREFIX = '2.'
+
 /* ──────────────── Сериализация ──────────────── */
 
-/**
- * Компактная запись fixture: опциональные поля опускаются.
- */
 interface PackedFixture {
   m: string
   q?: number
   w?: string     // wood
   z?: string     // zone
   l?: number     // lamps override
-  o?: Partial<{  // options (только изменённые относительно DEF_OPT — ужмётся ещё)
+  o?: Partial<{  // options (только изменённые относительно DEF_OPT)
     bowl: string
     mount: string
     wire: string
@@ -101,16 +110,8 @@ function unpackRoom(p: PackedRoom, id: string): Room {
   }
 }
 
-/* ──────────────── URL-safe base64 ──────────────── */
-
-/** atob/btoa работают с латиницей; сперва encode/decode UTF-8 через URI. */
-function utf8ToBase64(s: string): string {
-  // encodeURIComponent → %XX; затем мы декодируем каждый %XX в байт.
-  const utf8 = encodeURIComponent(s).replace(/%([0-9A-F]{2})/g, (_, hex) =>
-    String.fromCharCode(parseInt(hex, 16)),
-  )
-  return btoa(utf8)
-}
+/* ──────────────── Legacy v1 decoder (base64url-json) ──────────────── */
+/* Используется ТОЛЬКО при чтении старых ссылок. Новые ссылки идут через v2. */
 
 function base64ToUtf8(b: string): string {
   const utf8 = atob(b)
@@ -122,32 +123,53 @@ function base64ToUtf8(b: string): string {
   return decodeURIComponent(hex)
 }
 
-function toUrlSafe(b: string): string {
-  return b.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-}
-
 function fromUrlSafe(b: string): string {
   let s = b.replace(/-/g, '+').replace(/_/g, '/')
   while (s.length % 4) s += '='
   return s
 }
 
-/* ──────────────── Публичный API ──────────────── */
+/* ──────────────── Encoding helpers ──────────────── */
+
+function encodePayload(packed: unknown): string {
+  const json = JSON.stringify(packed)
+  return V2_PREFIX + compressToEncodedURIComponent(json)
+}
+
+function decodePayload(encoded: string): unknown | null {
+  try {
+    let json: string | null
+    if (encoded.startsWith(V2_PREFIX)) {
+      // v2: lz-string compressed
+      json = decompressFromEncodedURIComponent(encoded.slice(V2_PREFIX.length))
+    } else {
+      // v1 (legacy): base64url-encoded JSON
+      json = base64ToUtf8(fromUrlSafe(encoded))
+    }
+    if (!json) return null
+    return JSON.parse(json)
+  } catch {
+    return null
+  }
+}
+
+/* ──────────────── Публичный API: State ──────────────── */
 
 /**
  * Сериализует state в компактную строку для URL.
+ * Возвращает v2-формат (с префиксом '2.').
  */
 export function encodeState(name: string, rooms: Room[]): string {
   const packed: PackedState = {
     r: rooms.map(packRoom),
   }
   if (name && name !== 'Живой Дом') packed.n = name
-  const json = JSON.stringify(packed)
-  return toUrlSafe(utf8ToBase64(json))
+  return encodePayload(packed)
 }
 
 /**
  * Декодирует строку обратно в state.
+ * Поддерживает оба формата: v2 (с префиксом '2.') и v1 (legacy base64url).
  * Генерирует id'шники через функцию nextId (store передаёт свою).
  * Возвращает null при любой ошибке разбора.
  */
@@ -155,16 +177,11 @@ export function decodeState(
   encoded: string,
   nextId: () => string,
 ): { name: string | null; rooms: Room[] } | null {
-  try {
-    const json = base64ToUtf8(fromUrlSafe(encoded))
-    const packed = JSON.parse(json) as PackedState
-    if (!packed || !Array.isArray(packed.r)) return null
-    return {
-      name: packed.n ?? null,
-      rooms: packed.r.map((p) => unpackRoom(p, nextId())),
-    }
-  } catch {
-    return null
+  const packed = decodePayload(encoded) as PackedState | null
+  if (!packed || !Array.isArray(packed.r)) return null
+  return {
+    name: packed.n ?? null,
+    rooms: packed.r.map((p) => unpackRoom(p, nextId())),
   }
 }
 
@@ -188,28 +205,23 @@ export function readHashState(): string | null {
   return match ? match[1] : null
 }
 
-/* ──────────────── Fixture sharing (#fx=...) ──────────────── */
+/* ──────────────── Публичный API: Fixture (#fx=...) ──────────────── */
 
 /**
- * Кодирует один светильник в строку для URL.
+ * Кодирует один светильник в строку для URL (v2 формат).
  */
 export function encodeFixture(fx: Fixture): string {
-  const packed = packFixture(fx)
-  const json = JSON.stringify(packed)
-  return toUrlSafe(utf8ToBase64(json))
+  return encodePayload(packFixture(fx))
 }
 
 /**
  * Декодирует строку обратно в Fixture.
+ * Поддерживает оба формата (v2 lz-string + v1 legacy).
  */
 export function decodeFixture(encoded: string): Fixture | null {
-  try {
-    const json = base64ToUtf8(fromUrlSafe(encoded))
-    const packed = JSON.parse(json)
-    return unpackFixture(packed)
-  } catch {
-    return null
-  }
+  const packed = decodePayload(encoded) as PackedFixture | null
+  if (!packed) return null
+  return unpackFixture(packed)
 }
 
 /**
