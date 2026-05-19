@@ -17,7 +17,7 @@
 import {
   compressToEncodedURIComponent,
   decompressFromEncodedURIComponent,
-} from 'lz-string'
+} from './lz-string'
 import type { Room } from '../data/rooms'
 import type { Fixture } from '../data/catalog'
 
