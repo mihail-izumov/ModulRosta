@@ -32,10 +32,6 @@ defineEmits<{
         color: PAGE.text,
       }"
     >
-      <!-- Two block-level spans so line-height is identical for both lines.
-           Plain text on line 1, shimmer treatment on line 2 — same animation
-           that used to be on "Мой лес.", now drives "Мой свет.". No periods
-           on either — the title reads as a brand mark, not a sentence. -->
       <span :style="{ display: 'block' }">Мой дизайн.</span>
       <span
         :style="{
@@ -64,18 +60,21 @@ defineEmits<{
       Идеальное пространство для света WOODLED. Настраивайте светильники, расставляйте мебель, перекрасьте стены — наполните каждый уголок дома.
     </p>
 
-    <!-- FeatureTabs moved ABOVE the CTA. Order is now:
-         AppIcon → H1 → subtitle → FeatureTabs (3 tabs + description) → CTA -->
-    <div :style="{ marginBottom: '32px' }">
-      <FeatureTabs />
-    </div>
-
-    <div :style="{ display: 'flex', justifyContent: 'center' }">
+    <!--
+      New order (May 2026): CTA first, FeatureTabs below.
+        AppIcon → H1 → subtitle → PrimaryCTA → FeatureTabs (3 tabs + desc)
+      The CTA being adjacent to the subtitle makes the «scan→tap» path
+      tighter; FeatureTabs becomes a supporting "why try it" block instead
+      of a gate between intent and action.
+    -->
+    <div :style="{ display: 'flex', justifyContent: 'center', marginBottom: '40px' }">
       <PrimaryCTA
         size="large"
         @mounted="(el) => $emit('cta-mounted', el)"
         @unmounted="$emit('cta-unmounted')"
       />
     </div>
+
+    <FeatureTabs />
   </section>
 </template>

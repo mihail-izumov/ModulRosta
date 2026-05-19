@@ -15,7 +15,9 @@ import { PAGE } from './tokens'
  * Manifesto copy (May 2026 edit) reorganised so the lyrical questions and
  * the lyrical answer ("Настоящий свет — это не люксы и люмены...") sit on
  * top, the dual-brand line sits in the middle, and the closing "Больше
- * живых домов" lands as the punchline.
+ * живых домов" lands as the punchline — flowing naturally now (the old
+ * `.lp-footer-break` forced-newline span was removed so «для жизни» wraps
+ * with the line above).
  */
 
 const WOODLED_LOGO_URL = '/woodled/customizer/woodled-logo.svg'
@@ -215,13 +217,13 @@ function toggleExpand() {
         </h3>
 
         <!--
-          Final-brief copy. Cadence/rhythm:
+          Final-brief copy. Cadence:
             1. Two lyrical questions (bold 600) — open the section
             2. Lyrical answer with "люксы и люмены" (bold 600) — the thesis
-            3. WOODLED × МОДУЛЬ РОСТА line + "новое пространство для света"
-               merged into one paragraph (500) — the partnership statement
-            4. Closing "Больше живых домов" — punchline, mobile breaks
-               before "для жизни" via .lp-footer-break
+            3. WOODLED × МОДУЛЬ РОСТА line (500) — partnership statement
+            4. Closing "Больше живых домов" — flows naturally inline now
+               ("для жизни" used to be force-broken via .lp-footer-break
+               at ≤600px; that's gone)
         -->
         <p
           :style="{
@@ -271,7 +273,7 @@ function toggleExpand() {
             color: PAGE.text,
           }"
         >
-          Больше живых домов. Для себя, семьи и&nbsp;близких&nbsp;— <span class="lp-footer-break">для жизни.</span>
+          Больше живых домов. Для себя, семьи и&nbsp;близких&nbsp;— для&nbsp;жизни.
         </p>
       </div>
     </div>
@@ -323,10 +325,6 @@ function toggleExpand() {
   transform: translateY(0);
 }
 
-/*
-  Dot 1 (left) — wave peak at 14%; see-saw: up in state A, down in state B
-  (outer dot, syncs with dot 3)
-*/
 @keyframes dot1Cycle {
   0%, 9% { transform: translateY(0); }
   14% { transform: translateY(-3px); }
@@ -334,55 +332,36 @@ function toggleExpand() {
   31% { transform: translateY(0); }
   36% { transform: translateY(0); }
   45% { transform: translateY(0); }
-  55% { transform: translateY(-3px); }   /* state A: outer up */
-  65% { transform: translateY(3px); }    /* state B: outer down */
-  75% { transform: translateY(-3px); }   /* state A again */
+  55% { transform: translateY(-3px); }
+  65% { transform: translateY(3px); }
+  75% { transform: translateY(-3px); }
   82% { transform: translateY(0); }
   100% { transform: translateY(0); }
 }
 
-/*
-  Dot 2 (middle) — wave peak at 19% (delayed); see-saw: OPPOSITE phase
-  (down in state A, up in state B → so 2 outer + 1 middle alternate)
-*/
 @keyframes dot2Cycle {
   0%, 9% { transform: translateY(0); }
   19% { transform: translateY(-3px); }
   29% { transform: translateY(3px); }
   35% { transform: translateY(0); }
   45% { transform: translateY(0); }
-  55% { transform: translateY(3px); }    /* state A: middle down */
-  65% { transform: translateY(-3px); }   /* state B: middle up */
-  75% { transform: translateY(3px); }    /* state A again */
+  55% { transform: translateY(3px); }
+  65% { transform: translateY(-3px); }
+  75% { transform: translateY(3px); }
   82% { transform: translateY(0); }
   100% { transform: translateY(0); }
 }
 
-/*
-  Dot 3 (right) — wave peak at 24% (most delayed); see-saw: SAME as dot 1
-  (outer pair moves together)
-*/
 @keyframes dot3Cycle {
   0%, 9% { transform: translateY(0); }
   24% { transform: translateY(-3px); }
   33% { transform: translateY(3px); }
   40% { transform: translateY(0); }
   45% { transform: translateY(0); }
-  55% { transform: translateY(-3px); }   /* state A: outer up */
-  65% { transform: translateY(3px); }    /* state B: outer down */
-  75% { transform: translateY(-3px); }   /* state A again */
+  55% { transform: translateY(-3px); }
+  65% { transform: translateY(3px); }
+  75% { transform: translateY(-3px); }
   82% { transform: translateY(0); }
   100% { transform: translateY(0); }
-}
-
-/*
-  "для жизни" on its own line in mobile. Inline on desktop, block (forced
-  new line) on viewports ≤ 600px. Inherits text-align from the parent <p>
-  (centered) so it sits centered on its own line.
-*/
-@media (max-width: 600px) {
-  .lp-footer-break {
-    display: block;
-  }
 }
 </style>

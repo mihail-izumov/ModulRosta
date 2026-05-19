@@ -17,14 +17,26 @@ const LOGO_URL = '/woodled/customizer/woodled-logo.svg'
       boxSizing: 'border-box',
     }"
   >
+    <!--
+      Mobile-only rebalance vs the previous spec (desktop is unchanged):
+        - title clamp: 28..40 → 22..40   ← smaller on mobile, same on desktop
+        - logo  clamp: 22..32 → 26..32   ← bigger on mobile, same on desktop
+      At 380px viewport: title 22px, logo 26px → near-1:1 visual weight.
+      At ≥800px: both hit their clamp max (40 / 32), matching the previous
+      desktop look. The vw-coefficient (4.4vw / 4vw) chosen so they meet
+      proportionally at the same breakpoint instead of one outrunning the
+      other through the mid range.
+    -->
     <div
       :style="{
         fontFamily: `'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif`,
-        fontSize: 'clamp(28px, 5vw, 40px)',
+        fontSize: 'clamp(22px, 4.4vw, 40px)',
         fontWeight: 600,
         letterSpacing: '-0.02em',
         color: PAGE.text,
         lineHeight: 1,
+        display: 'flex',
+        alignItems: 'center',
       }"
     >
       WOODLED&nbsp;Студия
@@ -43,15 +55,13 @@ const LOGO_URL = '/woodled/customizer/woodled-logo.svg'
     >
       <!--
         <img> + filter:brightness(0) — preserves the SVG's native aspect
-        ratio automatically (width:auto) and recolors any fill to pure black.
-        Height scales with viewport via clamp so the proportion to brand
-        title (clamp 28..40) stays consistent across mobile and desktop.
+        ratio (width:auto) and recolors any fill to pure black.
       -->
       <img
         :src="LOGO_URL"
         alt="WOODLED"
         :style="{
-          height: 'clamp(22px, 3.8vw, 32px)',
+          height: 'clamp(26px, 4vw, 32px)',
           width: 'auto',
           display: 'block',
           filter: 'brightness(0)',

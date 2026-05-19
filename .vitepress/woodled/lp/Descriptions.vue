@@ -5,30 +5,18 @@ import { PAGE } from './tokens'
 /**
  * Section structure (rev. May 2026):
  *   1. H2  «WOODLED Smart»  + lead paragraph (Apple Intelligence cadence)
+ *      «Шаг за шагом» punchline forced onto its own line via <br />.
  *   2. Card  3 типа дома
  *   3. Card  Доверьтесь зелёной галочке
  *   4. Card  Живые рекомендации
- *   5. Card  «Дизайнер — это Я» — the relocated section punchline, kept as
- *            an interactive card so the trailing "Я" (in a circle) still
- *            opens the dark "Привет, дизайнер" modal. Visually distinct from
- *            the three glass cards above (warmer rose tint + soft rose halo)
- *            so it reads as the action, and so it doesn't compete with the
- *            big TreesBadge heading that follows.
+ *   5. Card  «Дизайнер — это Я» — interactive trigger card
  *
- * The «Я»-button + modal mechanics are unchanged from before — only the
- * trigger has moved from a section-level H2 down into the 4th card. The
- * .ya-inline class still sizes via 1.15em so it scales with whatever font
- * size wraps it.
- *
- * Modal flow recap:
- *   - tap «Я» → modal slides up (Teleport to body, dark backdrop)
- *   - swipe-down / Esc → close instantly
- *   - tap «Включить свет» → enter `revealing` mode:
- *       · title + button fade out fast (400ms)
- *       · backdrop transitions to transparent slow (1800ms)
- *       · the LP behind is gradually revealed — "turning on the lights"
- *       · after 1900ms, modalOpen flips false → Vue Transition removes the
- *         (already-invisible) element
+ * Modal mobile fix:
+ *   .designer-modal previously used position: fixed + inset: 0, which on
+ *   iOS Safari leaves a strip of LP visible at the bottom when the URL bar
+ *   collapses (visible viewport > 100vh). Adding `height: 100dvh` makes the
+ *   modal track the dynamic viewport; `100vh` stays as fallback for browsers
+ *   that don't know dvh (pre-Safari 15.4, pre-Chrome 108).
  */
 
 const modalOpen = ref(false)
@@ -41,8 +29,6 @@ let escListener: ((e: KeyboardEvent) => void) | null = null
 let revealTimer: ReturnType<typeof setTimeout> | null = null
 
 function openModal() {
-  // If a reveal is in flight from a previous open, cancel its timer so the
-  // new session doesn't auto-close.
   if (revealTimer !== null) {
     clearTimeout(revealTimer)
     revealTimer = null
@@ -60,7 +46,6 @@ function closeModal() {
     clearTimeout(revealTimer)
     revealTimer = null
   }
-  // Reset state after Vue's leave-transition completes.
   setTimeout(() => {
     dragY.value = 0
     revealing.value = false
@@ -73,8 +58,6 @@ function closeModal() {
 function reveal() {
   if (revealing.value) return
   revealing.value = true
-  // Slightly longer than the bg fade (1800ms) so the page underneath is
-  // fully visible before the modal element is removed.
   revealTimer = setTimeout(() => {
     modalOpen.value = false
     if (typeof document !== 'undefined') {
@@ -131,14 +114,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section :style="{ padding: '20px 24px 56px', maxWidth: '720px', margin: '0 auto' }">
-    <!--
-      Section heading — drops in at the position previously held by
-      «Дизайнер — это Я». Same scale / weight / letter-spacing as before so
-      the visual rhythm of the page is preserved. Subtitle below is new — a
-      single Apple-Intelligence-style lead sentence describing what
-      WOODLED Smart does without selling it.
-    -->
+  <!--
+    Top padding bumped from 20px → clamp(56px, 11vw, 96px). On mobile that's
+    ~56–60px of breathing room above «WOODLED Smart» (was 20). On desktop
+    it lands at 96px, which gives the section a clearer break from the
+    slider above.
+  -->
+  <section :style="{ padding: 'clamp(56px, 11vw, 96px) 24px 56px', maxWidth: '720px', margin: '0 auto' }">
     <h2
       :style="{
         fontSize: 'clamp(32px, 7vw, 48px)',
@@ -165,7 +147,9 @@ onBeforeUnmount(() => {
         letterSpacing: '-0.005em',
       }"
     >
-      Работает в каждой комнате, кухне и коридоре, чтобы помочь вам управлять дизайном, настраивать атмосферу и находить правильный баланс света. Шаг за шагом.
+      Работает в каждой комнате, кухне и&nbsp;коридоре, чтобы помочь вам управлять дизайном, настраивать атмосферу и&nbsp;находить правильный баланс света.
+      <br />
+      Шаг за шагом.
     </p>
 
     <div :style="{ display: 'flex', flexDirection: 'column', gap: '14px' }">
@@ -250,17 +234,7 @@ onBeforeUnmount(() => {
         </p>
       </div>
 
-      <!--
-        Card 4 — the relocated «Дизайнер — это Я» punchline. Same shell as
-        the other three (matching radius / padding / blur) but with a
-        rose-tinted gradient background and a soft rose halo box-shadow so
-        it reads as the *action* card — visually distinct, but still part of
-        the same sequence. Bold text at clamp(24..32px) is bigger than card
-        body (22px) yet noticeably smaller than the trailing
-        «Большой лес WOODLED…» H2 (48px), so the two headings don't fight.
-        The «Я»-button is the same .ya-inline element as before, with the
-        same modal mechanics — only the wrapper changed.
-      -->
+      <!-- Card 4 — relocated «Дизайнер — это Я» trigger -->
       <div
         :style="{
           padding: '28px 26px',
@@ -310,9 +284,6 @@ onBeforeUnmount(() => {
         @touchend="onTouchEnd"
         :style="{
           transform: `translateY(${dragY}px)`,
-          // While dragging — no transform transition (follows finger).
-          // While revealing — also no transform transition (we don't want to drag during reveal).
-          // Otherwise — smooth snap-back / leave transition.
           transition: isDragging || revealing
             ? 'background-color 1800ms cubic-bezier(0.4, 0, 0.2, 1)'
             : 'transform 320ms cubic-bezier(0.4, 0, 0.2, 1), background-color 1800ms cubic-bezier(0.4, 0, 0.2, 1)',
@@ -327,7 +298,6 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <!-- Button section — pushed to bottom via flex margin-top:auto -->
         <div class="designer-modal__bottom">
           <button
             type="button"
@@ -344,14 +314,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* —— Я as a circled symbol — reads as a glyph (like ® or ©), not as a
-   colored standalone letter. Border weight matches the stroke weight of the
-   surrounding heading text. Using inline-block + line-height equal to
-   height means the inline-block's baseline = its inner letter's baseline =
-   the surrounding line's baseline. The letter sits ON the line, the circle
-   wraps around it. Because all sizing is in em, the same button scales
-   correctly whether wrapped by the previous H2 (clamp 32..48) or by the
-   new in-card H3 (clamp 24..32). */
 .ya-inline {
   display: inline-block;
   width: 1.15em;
@@ -359,15 +321,11 @@ onBeforeUnmount(() => {
   line-height: 1.15em;
   text-align: center;
   vertical-align: baseline;
-  /* Breathing room from "это" — keep regardless of wrapper size. */
   margin-left: 0.18em;
 
-  /* The ring. 0.11em at heading size keeps the stroke proportional to the
-     SF Pro 700 type weight, so it reads as part of the type rather than UI. */
   border: 0.11em solid currentColor;
   border-radius: 50%;
 
-  /* Inherit type, color, letter-spacing from the heading. */
   font: inherit;
   color: inherit;
   letter-spacing: 0;
@@ -386,15 +344,21 @@ onBeforeUnmount(() => {
 }
 </style>
 
-<!--
-  Modal styles intentionally NOT scoped — <Teleport to="body"> moves the
-  DOM out of this component's scope, so scoped attribute selectors wouldn't
-  match. Class names are namespaced (.designer-modal*) to avoid collisions.
--->
 <style>
 .designer-modal {
   position: fixed;
   inset: 0;
+  /*
+    Mobile fix — without these, iOS Safari leaves a strip of LP visible
+    below the modal when the URL bar collapses (the visible viewport then
+    exceeds 100vh, but `inset: 0` was sized against the smaller layout
+    viewport). 100dvh tracks the dynamic viewport so the modal always fills
+    whatever the user actually sees. 100vh stays as the pre-dvh fallback.
+  */
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   z-index: 1000;
   background: #000;
 
@@ -408,10 +372,9 @@ onBeforeUnmount(() => {
   will-change: transform, opacity, background-color;
 }
 
-/* Reveal mode — bg fades to transparent, "the lights turning on" */
 .designer-modal.is-revealing {
   background-color: rgba(0, 0, 0, 0);
-  pointer-events: none; /* prevent any interaction during fade */
+  pointer-events: none;
 }
 .designer-modal.is-revealing .designer-modal__title,
 .designer-modal.is-revealing .designer-modal__cta,
@@ -451,7 +414,6 @@ onBeforeUnmount(() => {
   transition: opacity 400ms ease;
 }
 
-/* Bottom CTA — pushed to bottom via auto margin */
 .designer-modal__bottom {
   margin-top: auto;
   margin-bottom: max(env(safe-area-inset-bottom, 0px), 4vh);
@@ -485,9 +447,6 @@ onBeforeUnmount(() => {
 .designer-modal__cta:active:not(:disabled) { transform: translateY(0); }
 .designer-modal__cta:disabled { cursor: default; }
 
-/* Vue <Transition name="dm"> — slide up on enter, slide down on leave.
-   Leave plays even after reveal but it's invisible (bg already transparent,
-   title+button already opacity 0), so no visual artifact. */
 .dm-enter-active,
 .dm-leave-active {
   transition: opacity 280ms ease, transform 380ms cubic-bezier(0.4, 0, 0.2, 1);

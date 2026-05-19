@@ -17,7 +17,6 @@ let observer: IntersectionObserver | null = null
 let observedEl: HTMLElement | null = null
 
 function observeCta(el: HTMLElement) {
-  // Disconnect any prior observer in case CTA remounts (rare).
   if (observer && observedEl) observer.unobserve(observedEl)
   observedEl = el
 
@@ -64,10 +63,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <!--
+    `lp-root` class is what the .lp-root CSS rule below sizes. minHeight is
+    moved out of inline-style into the global CSS block so we can declare
+    BOTH 100vh (fallback) AND 100dvh (modern) — Vue's style object can't
+    hold two values for the same property, but CSS happily takes the second
+    declaration if the browser supports it.
+  -->
   <div
     class="lp-root"
     :style="{
-      minHeight: '100vh',
       background: `linear-gradient(180deg, ${PAGE.bgTop} 0%, ${PAGE.bgMid} 50%, ${PAGE.bgBottom} 100%)`,
       color: PAGE.text,
       fontFamily: `'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif`,
@@ -150,12 +155,35 @@ onBeforeUnmount(() => {
 
 <style>
 /*
- * Global keyframes for the LP — declared without scoping so they reach
- * elements styled via inline `style="animation: …"`.
+ * Mobile viewport coverage fix.
  *
- * The :global() wrapper is unused intentionally — plain global <style>
- * is enough here, and avoids depending on scoped-css plugin features.
+ * On iOS Safari (and Chrome on Android with collapsing URL bars) the actual
+ * visible viewport is taller than `100vh` once the URL bar collapses on
+ * scroll. The LP was sized to 100vh and the gradient stopped there, so a
+ * strip of body bg (white by default) was visible at the very bottom —
+ * the "чёрная дырка" the user reported.
+ *
+ * Two-part fix:
+ *   1. .lp-root uses 100dvh (dynamic viewport height) which tracks the
+ *      real visible area. 100vh stays as fallback for older browsers.
+ *   2. html/body bg colored to PAGE.bgBottom so even if the LP doesn't
+ *      cover the very edge (rubber-band overscroll, hidden URL bar past
+ *      content end), the seam reads as a continuation of the LP gradient
+ *      instead of a sudden colour break.
  */
+.lp-root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+html,
+body {
+  background: #F0C5B5; /* PAGE.bgBottom */
+  margin: 0;
+}
+
+/* Global keyframes for the LP — declared without scoping so they reach
+ * elements styled via inline `style="animation: …"`. */
 @keyframes rotorCycle {
   0%   { transform: rotate(var(--rot)) translateY(-1.0em) scale(0.3); opacity: 0; }
   5%   { transform: rotate(var(--rot)) translateY(-0.55em) scale(1);   opacity: 0.9; }
@@ -203,16 +231,7 @@ onBeforeUnmount(() => {
 }
 
 /*
- * Bulletproof link reset. The "green underline" kept slipping through because
- * VitePress' rules and ours had the same specificity (0,1,1), so cascade order
- * decided — and that order is fragile across Vue/Vite hot-reload + production
- * builds. The fix: chain the root class so our selectors hit 0,2,1, which
- * beats any single-class link rule (.vp-doc a, .VPContent a, etc.) regardless
- * of load order. We also nuke non-text-decoration underline tricks:
- *   - border-bottom    (the "underline via border" pattern)
- *   - box-shadow       (the "inset 0 -1px 0" underline pattern)
- * Both are killed ONLY on the <a> itself, not on descendants — that way the
- * social cards and the deliberate .footer-brand-word border stay intact.
+ * Bulletproof link reset (kept verbatim from prior revision).
  */
 .lp-root.lp-root a,
 .lp-root.lp-root a:link,
@@ -229,7 +248,6 @@ onBeforeUnmount(() => {
   -webkit-text-decoration: none !important;
   -webkit-text-decoration-color: transparent !important;
   text-underline-offset: 0 !important;
-  /* Non-text-decoration underline killers — applied only to the <a> itself */
   border-bottom: 0 solid transparent !important;
   box-shadow: none !important;
 }
@@ -248,17 +266,8 @@ onBeforeUnmount(() => {
   -webkit-text-decoration: none !important;
   -webkit-text-decoration-color: transparent !important;
   text-underline-offset: 0 !important;
-  /* DELIBERATELY no border-bottom / box-shadow rules here — descendants
-     (social cards with shadows, .footer-brand-word with deliberate border)
-     keep their own decoration. */
 }
 
-/*
- * Whitelisted footer brand mark — survives all the above. Border-bottom is
- * a separate CSS property from text-decoration, and specificity 0,3,0 from
- * the chained .lp-root.lp-root .footer-brand-word selector outranks any
- * single-class rule that could possibly fight it.
- */
 .lp-root.lp-root .footer-brand-word {
   border-bottom: 1.5px solid currentColor !important;
   padding-bottom: 2px !important;
