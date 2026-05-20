@@ -35,23 +35,42 @@ function makeUrl(): string {
   return buildShareUrl(props.name, props.rooms)
 }
 
-async function getShareableUrl(): Promise<string> {
-  return shortenLongUrl(makeUrl())
-}
-
 async function copyLink() {
   if (isShortening.value) return
   isShortening.value = true
+
+  /**
+   * Важно: clipboard-операция должна стартовать СИНХРОННО в user gesture,
+   * иначе браузер показывает диалог разрешения (видели в проде).
+   * ClipboardItem поддерживает Promise — мы сразу регистрируем запись,
+   * а Promise разрешится позже коротким URL (или длинным при фейле шортнера).
+   *
+   * Для старых браузеров без ClipboardItem — fallback на копирование длинной
+   * ссылки sync, без await шортнера (иначе тоже потеряем gesture).
+   */
+  const longUrl = makeUrl()
+
   try {
-    const url = await getShareableUrl()
-    try {
-      await navigator.clipboard.writeText(url)
+    if (typeof ClipboardItem !== 'undefined') {
+      // Современный путь: clipboard.write с pending promise — без permission prompt
+      const blobPromise = shortenLongUrl(longUrl).then(
+        url => new Blob([url], { type: 'text/plain' })
+      )
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'text/plain': blobPromise }),
+      ])
       emit('feedback', 'Ссылка скопирована')
       emit('close')
-    } catch {
-      /* iOS/Safari в некоторых контекстах возвращают ошибку — покажем URL в тосте. */
-      emit('feedback', url)
+    } else {
+      // Safari старше 14 и подобные: ClipboardItem нет. Чтобы не упереться
+      // в permission prompt, копируем длинную ссылку sync прямо в gesture.
+      await navigator.clipboard.writeText(longUrl)
+      emit('feedback', 'Ссылка скопирована')
+      emit('close')
     }
+  } catch {
+    /* Любая ошибка clipboard — последний fallback: показать URL в тосте. */
+    emit('feedback', longUrl)
   } finally {
     isShortening.value = false
   }
@@ -61,7 +80,9 @@ async function webShare() {
   if (isShortening.value) return
   isShortening.value = true
   try {
-    const url = await getShareableUrl()
+    /* Web Share API сам открывает системный share sheet, permission prompt
+       для буфера тут не возникает — можно спокойно дождаться короткой ссылки. */
+    const url = await shortenLongUrl(makeUrl())
     const totalLamps = props.rooms.reduce((s, r) => s + fxLamps(r.fixtures), 0)
     const text = `${props.name} — ${totalLamps} ламп`
     if (navigator.share) {
@@ -160,7 +181,7 @@ async function webShare() {
             </svg>
           </div>
           <span :style="{ fontSize: '11px', color: T.textSec }">
-            {{ isShortening ? 'Сокращаем…' : 'Скопировать' }}
+            {{ isShortening ? 'Копируем…' : 'Скопировать' }}
           </span>
         </button>
 
@@ -212,7 +233,7 @@ async function webShare() {
             </svg>
           </div>
           <span :style="{ fontSize: '11px', color: T.textSec }">
-            {{ isShortening ? 'Сокращаем…' : 'Поделиться' }}
+            {{ isShortening ? 'Один момент…' : 'Поделиться' }}
           </span>
         </button>
       </div>

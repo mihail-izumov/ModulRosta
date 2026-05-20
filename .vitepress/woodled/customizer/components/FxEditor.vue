@@ -14,7 +14,7 @@
  *
  * stage3-shortener: shareFx() теперь делает попытку шортнуть ссылку через
  *             Apps Script (engine/shortener.ts) перед копированием.
- *             Кнопка показывает спиннер и текст «Создаём ссылку…» пока
+ *             Кнопка показывает спиннер и текст «Копируем…» пока
  *             идёт запрос. Если шортнер не ответил за 5 секунд — копируется
  *             длинная ссылка (fallback), всё равно работает.
  */
@@ -195,20 +195,31 @@ function diffMult():number{return build.value.diffuser&&model.value.diffLoss?1-m
 function buildFixture():Fixture{const b=build.value;const done=(Object.entries(b.steps) as [StepId,StepStatus][]).filter(([,st])=>st==='chosen').map(([s])=>s as string);return{m:b.m,q:props.item.q??1,wood:b.wood,zone:props.item.zone,l:b.lamps,opts:{bowl:b.bowl,mount:b.mount,wire:b.wire,btemp:b.btemp,diffuser:b.diffuser,moisture:b.moisture,bulbs:b.bulbs,bulbOpt:b.bulbOpt,baseColor:b.baseColor},done}}
 function doSave(){emit('save',buildFixture())}
 
-/* stage3-shortener: пробуем превратить длинную ссылку в короткую через Apps Script
-   (5-секундный таймаут внутри shortenLongUrl). При фейле — копируется длинная. */
+/* stage3-shortener: ClipboardItem с Promise — clipboard.write регистрируется
+   синхронно в user gesture (без permission prompt), а Promise разрешается
+   короткой ссылкой через 1-3 сек. При фейле шортнера — длинная ссылка. */
 async function shareFx() {
   if (isSharing.value) return
   isSharing.value = true
+
+  const longUrl = buildFixtureShareUrl(buildFixture())
+
   try {
-    const longUrl = buildFixtureShareUrl(buildFixture())
-    const url = await shortenLongUrl(longUrl)
-    try {
-      await navigator.clipboard.writeText(url)
+    if (typeof ClipboardItem !== 'undefined') {
+      const blobPromise = shortenLongUrl(longUrl).then(
+        url => new Blob([url], { type: 'text/plain' })
+      )
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'text/plain': blobPromise }),
+      ])
       emit('feedback', 'Ссылка на светильник скопирована')
-    } catch {
-      emit('feedback', url)
+    } else {
+      // Safari старше 14: ClipboardItem недоступен → копируем длинную sync
+      await navigator.clipboard.writeText(longUrl)
+      emit('feedback', 'Ссылка на светильник скопирована')
     }
+  } catch {
+    emit('feedback', longUrl)
   } finally {
     isSharing.value = false
   }
@@ -281,11 +292,11 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
         </div>
 
         <button :style="{width:'100%',padding:'14px',background:T.text,color:T.bg,border:'none',borderRadius:'10px',cursor:'pointer',fontSize:'14px',fontWeight:700,marginBottom:'8px'}" @click="doSave">Сохранить</button>
-        <!-- stage3-shortener: кнопка показывает спиннер и текст «Создаём ссылку…» пока идёт запрос -->
+        <!-- stage3-shortener: кнопка показывает спиннер и текст «Копируем…» пока идёт запрос -->
         <button :disabled="isSharing" :style="{width:'100%',padding:'12px',background:'none',border:`1px solid ${T.border}`,borderRadius:'8px',color:T.textSec,cursor:isSharing?'wait':'pointer',fontSize:'13px',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'6px',marginBottom:'20px',opacity:isSharing?0.6:1,transition:'opacity .15s'}" @click="shareFx">
           <svg v-if="isSharing" class="fx-share-spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a10 10 0 0 1 10 10"/></svg>
           <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-          {{ isSharing ? 'Создаём ссылку…' : 'Поделиться ссылкой на светильник' }}
+          {{ isSharing ? 'Копируем…' : 'Поделиться ссылкой на светильник' }}
         </button>
 
         <!-- Фотогалерея «{Model} в интерьере» — после Сохранить и Поделиться, с воздухом -->
