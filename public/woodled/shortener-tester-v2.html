@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>WOODLED Shortener — Tester v2</title>
+<style>
+  body { font: 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 820px; margin: 32px auto; padding: 0 20px; color: #222; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  h2 { font-size: 13px; margin: 24px 0 8px; color: #555; text-transform: uppercase; letter-spacing: .06em; }
+  .sub { color: #777; font-size: 12px; margin: 0 0 20px; }
+  input[type=text] { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; box-sizing: border-box; }
+  button { padding: 7px 13px; border: 1px solid #2b6cb0; background: #3182ce; color: #fff; border-radius: 6px; cursor: pointer; font-size: 13px; margin: 4px 4px 4px 0; }
+  button:hover { background: #2b6cb0; }
+  button:disabled { background: #aaa; border-color: #aaa; cursor: wait; }
+  pre { background: #f5f5f7; padding: 10px; border-radius: 6px; white-space: pre-wrap; word-break: break-all; font: 11px/1.5 ui-monospace, Menlo, Consolas, monospace; margin: 6px 0; max-height: 160px; overflow: auto; }
+  .ok { color: #1a7c3b; font-weight: 600; }
+  .bad { color: #c62828; font-weight: 600; }
+  .pending { color: #b8860b; }
+  .row { margin: 10px 0 20px; padding: 12px; border: 1px solid #eee; border-radius: 8px; }
+  .row h3 { margin: 0 0 4px; font-size: 13px; }
+  .row .desc { color: #888; font-size: 11px; margin: 0 0 8px; }
+  label { display: block; margin: 4px 0; font-size: 12px; color: #555; }
+</style>
+</head>
+<body>
+
+<h1>WOODLED Shortener — Tester v2</h1>
+<p class="sub">Три варианта POST. Ищем тот, который проходит CORS из браузера на Apps Script.</p>
+
+<label for="url">Web App URL</label>
+<input id="url" type="text" value="https://script.google.com/macros/s/AKfycbwAQGNtporbFyV-UC1xLrI_t-u1SwYezcMOmycrvuXVrC0yxsdRthbWQK-jd9NX1ydK/exec">
+
+<h2>POST варианты</h2>
+
+<div class="row">
+  <h3>A. text/plain (классический, как был)</h3>
+  <p class="desc">Content-Type: text/plain;charset=utf-8 — должен быть simple request без preflight.</p>
+  <button data-variant="A">Запустить A</button>
+  <div id="rA"></div>
+</div>
+
+<div class="row">
+  <h3>B. application/x-www-form-urlencoded</h3>
+  <p class="desc">Отправляет form-data с полем "data" в котором JSON-строка. В Apps Script читается из e.parameter.data.</p>
+  <button data-variant="B">Запустить B</button>
+  <div id="rB"></div>
+</div>
+
+<div class="row">
+  <h3>C. FormData (multipart)</h3>
+  <p class="desc">Отправляет multipart/form-data. В Apps Script читается из e.parameter.data.</p>
+  <button data-variant="C">Запустить C</button>
+  <div id="rC"></div>
+</div>
+
+<div class="row">
+  <h3>D. fetch без явного Content-Type</h3>
+  <p class="desc">Браузер сам определяет Content-Type для строки (обычно text/plain;charset=UTF-8).</p>
+  <button data-variant="D">Запустить D</button>
+  <div id="rD"></div>
+</div>
+
+<h2>GET retrieve</h2>
+<div class="row">
+  <label for="id">ID (заполнится автоматически после удачного POST)</label>
+  <input id="id" type="text" placeholder="например, xK4mQ7">
+  <button id="bGet" style="margin-top:8px;">Запустить GET по ID</button>
+  <div id="rGet"></div>
+</div>
+
+<script>
+const TEST_PAYLOAD = 'eyJ0ZXN0IjoidGVzdCIsImhlbGxvIjp7Im5lc3RlZCI6dHJ1ZX19';
+
+function render(el, status, info) {
+  const cls = status === 'ok' ? 'ok' : status === 'bad' ? 'bad' : 'pending';
+  const label = status === 'ok' ? '✓ OK' : status === 'bad' ? '✗ Fail' : '… запрос…';
+  el.innerHTML = `<div class="${cls}">${label}</div><pre>${info}</pre>`;
+}
+
+async function runVariant(variant) {
+  const url = document.getElementById('url').value.trim();
+  const out = document.getElementById('r' + variant);
+  render(out, 'pending', 'отправка...');
+
+  try {
+    let res;
+    if (variant === 'A') {
+      const body = JSON.stringify({ payload: TEST_PAYLOAD, type: 's' });
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: body
+      });
+    } else if (variant === 'B') {
+      const body = new URLSearchParams({ data: JSON.stringify({ payload: TEST_PAYLOAD, type: 's' }) });
+      res = await fetch(url, { method: 'POST', body: body });
+    } else if (variant === 'C') {
+      const fd = new FormData();
+      fd.append('data', JSON.stringify({ payload: TEST_PAYLOAD, type: 's' }));
+      res = await fetch(url, { method: 'POST', body: fd });
+    } else if (variant === 'D') {
+      const body = JSON.stringify({ payload: TEST_PAYLOAD, type: 's' });
+      res = await fetch(url, { method: 'POST', body: body });
+    }
+
+    const text = await res.text();
+    let parsed; try { parsed = JSON.parse(text); } catch { parsed = null; }
+    const ok = parsed && parsed.id && !parsed.error;
+    if (ok) document.getElementById('id').value = parsed.id;
+    render(out, ok ? 'ok' : 'bad',
+      `Status: ${res.status}\nResponse: ${text}` +
+      (ok ? `\n\nID: ${parsed.id}` : ''));
+  } catch (e) {
+    render(out, 'bad', 'Error: ' + e.message);
+  }
+}
+
+document.querySelectorAll('button[data-variant]').forEach(b => {
+  b.onclick = () => runVariant(b.dataset.variant);
+});
+
+document.getElementById('bGet').onclick = async () => {
+  const url = document.getElementById('url').value.trim();
+  const id = document.getElementById('id').value.trim();
+  const out = document.getElementById('rGet');
+  if (!id) { render(out, 'bad', 'Сначала проведите успешный POST или введите ID вручную.'); return; }
+  const fullUrl = url + (url.includes('?') ? '&' : '?') + 'id=' + encodeURIComponent(id);
+  render(out, 'pending', 'GET ' + fullUrl);
+  try {
+    const r = await fetch(fullUrl, { method: 'GET' });
+    const text = await r.text();
+    let parsed; try { parsed = JSON.parse(text); } catch { parsed = null; }
+    const ok = parsed && parsed.payload && !parsed.error;
+    const match = parsed && parsed.payload === TEST_PAYLOAD;
+    render(out, ok && match ? 'ok' : 'bad',
+      `Status: ${r.status}\nResponse: ${text}` +
+      (ok && match ? '\n\nPayload совпадает — round-trip полный.' : ''));
+  } catch (e) {
+    render(out, 'bad', 'Error: ' + e.message);
+  }
+};
+</script>
+</body>
+</html>
