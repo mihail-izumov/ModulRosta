@@ -95,11 +95,20 @@ export async function expandShortId(id: string): Promise<ExpandResult | null> {
 }
 
 /** URL короткой ссылки: <origin><base>share/?id=xxxxxx
- *  base подставляется VitePress на этапе билда (import.meta.env.BASE_URL).
- *  Это значит файл переносится на любой репо/base без правок. */
+ *
+ *  Base определяется из текущего URL: берём pathname и отрезаем последний
+ *  сегмент (имя текущей страницы — обычно "customizer"). Это надёжнее
+ *  чем import.meta.env.BASE_URL, который VitePress не всегда пробрасывает
+ *  в файлы вне components/ (наблюдалось: возвращал '/' вместо '/woodled/').
+ *
+ *  Примеры:
+ *    /woodled/customizer  → /woodled/
+ *    /woodled/customizer/ → /woodled/
+ *    /lighting/customizer → /lighting/
+ */
 export function buildShortUrl(id: string): string {
   if (typeof window === 'undefined') return ''
-  const base = import.meta.env.BASE_URL // '/woodled/', '/lighting/', '/' — что бы ни было
+  const base = window.location.pathname.replace(/\/[^/]*\/?$/, '/')
   return `${window.location.origin}${base}share/?id=${encodeURIComponent(id)}`
 }
 
