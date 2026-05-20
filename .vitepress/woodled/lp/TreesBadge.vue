@@ -100,8 +100,7 @@ function formatNum(n: number): string {
           marginBottom: '24px',
         }"
       >
-        7 185 светильников WOODLED<br />
-        уже наполняют дома живым светом.
+        7 185 светильников WOODLED уже наполняют дома живым светом
       </div>
 
       <div
