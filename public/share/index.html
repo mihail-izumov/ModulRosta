@@ -125,7 +125,7 @@
 (function () {
   // Тот же Apps Script Web App URL, что и в engine/shortener.ts
   var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxjtBMSKSPADp9YVE4GKhPIPW5XaP4rShzMnDCTgDMH6O6CX7_eOlSPLMPcuq_yVbj8/exec';
-  var TIMEOUT_MS = 8000;
+  var TIMEOUT_MS = 15000;
 
   // База сайта определяется из текущего URL — файл переносится на любой репо/base
   // без правок. Эта страница всегда лежит по <base>share/, поэтому отрезаем
@@ -191,7 +191,7 @@
       })
       .catch(function (e) {
         var msg = (e && e.name === 'AbortError')
-          ? 'Сервер не ответил за 8 секунд. Возможно, временный сбой — попробуйте обновить страницу через минуту.'
+          ? 'Сервер не ответил за 15 секунд. Возможно, временный сбой — попробуйте обновить страницу через минуту.'
           : 'Не удалось связаться с сервером. Проверьте интернет и попробуйте снова.';
         showError('Не получилось открыть', msg);
       });
