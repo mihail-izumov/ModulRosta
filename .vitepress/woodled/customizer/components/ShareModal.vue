@@ -11,7 +11,7 @@
  * Спиннер показывается на иконке кнопки пока идёт запрос к серверу.
  */
 
-import { ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { T } from '../theme/tokens'
 import type { Room } from '../data/rooms'
 import { fxLamps } from '../engine/brightness'
@@ -29,74 +29,68 @@ const emit = defineEmits<{
   feedback: [msg: string]
 }>()
 
-const isShortening = ref(false)
-
 function makeUrl(): string {
   return buildShareUrl(props.name, props.rooms)
 }
 
+/* ──────────── stage3-shortener: prefetch + ClipboardItem-pattern ────────────
+   Когда модалка открывается, в фоне сразу стартует запрос в шортнер.
+   Пользователь читает заголовок 1-2 секунды → к клику ссылка уже готова.
+
+   Copy: ClipboardItem с pending promise — работает синхронно с gesture,
+         ждёт promise без появления permission prompt.
+   Web Share: navigator.share требует синхронной строки. Если короткая уже
+         готова (shortenedUrl.value !== null) — используем её. Иначе длинную —
+         iOS share sheet всё равно мгновенно откроется. */
+let shortPromise: Promise<string> | null = null
+const shortenedUrl = ref<string | null>(null)
+const isShortening = ref(false)
+
+function refreshShortPromise() {
+  const longUrl = makeUrl()
+  shortenedUrl.value = null
+  shortPromise = shortenLongUrl(longUrl).catch(() => longUrl)
+  shortPromise.then(url => { shortenedUrl.value = url })
+}
+
+onMounted(refreshShortPromise)
+watch(() => [props.name, props.rooms] as const, refreshShortPromise, { deep: true })
+
 async function copyLink() {
   if (isShortening.value) return
   isShortening.value = true
-
-  /**
-   * Важно: clipboard-операция должна стартовать СИНХРОННО в user gesture,
-   * иначе браузер показывает диалог разрешения (видели в проде).
-   * ClipboardItem поддерживает Promise — мы сразу регистрируем запись,
-   * а Promise разрешится позже коротким URL (или длинным при фейле шортнера).
-   *
-   * Для старых браузеров без ClipboardItem — fallback на копирование длинной
-   * ссылки sync, без await шортнера (иначе тоже потеряем gesture).
-   */
   const longUrl = makeUrl()
-
+  const urlPromise = shortPromise ?? Promise.resolve(longUrl)
   try {
     if (typeof ClipboardItem !== 'undefined') {
-      // Современный путь: clipboard.write с pending promise — без permission prompt
-      const blobPromise = shortenLongUrl(longUrl).then(
-        url => new Blob([url], { type: 'text/plain' })
-      )
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'text/plain': blobPromise }),
-      ])
+      const blobPromise = urlPromise.then(url => new Blob([url], { type: 'text/plain' }))
+      await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blobPromise })])
       emit('feedback', 'Ссылка скопирована')
       emit('close')
     } else {
-      // Safari старше 14 и подобные: ClipboardItem нет. Чтобы не упереться
-      // в permission prompt, копируем длинную ссылку sync прямо в gesture.
+      /* Safari старше 14: ClipboardItem недоступен → длинную sync. */
       await navigator.clipboard.writeText(longUrl)
       emit('feedback', 'Ссылка скопирована')
       emit('close')
     }
   } catch {
-    /* Любая ошибка clipboard — последний fallback: показать URL в тосте. */
     emit('feedback', longUrl)
   } finally {
     isShortening.value = false
   }
 }
 
-async function webShare() {
-  if (isShortening.value) return
-  isShortening.value = true
-  try {
-    /* Web Share API сам открывает системный share sheet, permission prompt
-       для буфера тут не возникает — можно спокойно дождаться короткой ссылки. */
-    const url = await shortenLongUrl(makeUrl())
-    const totalLamps = props.rooms.reduce((s, r) => s + fxLamps(r.fixtures), 0)
-    const text = `${props.name} — ${totalLamps} ламп`
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: props.name, text, url })
-        emit('close')
-      } catch {
-        /* Отмена пользователем — тост не нужен. */
-      }
-    } else {
-      emit('feedback', 'Шаринг недоступен')
-    }
-  } finally {
-    isShortening.value = false
+function webShare() {
+  /* Если prefetch успел — даём короткую. Если нет — длинную (iOS Messages OK). */
+  const url = shortenedUrl.value ?? makeUrl()
+  const totalLamps = props.rooms.reduce((s, r) => s + fxLamps(r.fixtures), 0)
+  const text = `${props.name} — ${totalLamps} ламп`
+  if (navigator.share) {
+    navigator.share({ title: props.name, text, url })
+      .then(() => emit('close'))
+      .catch(() => { /* отмена пользователем */ })
+  } else {
+    emit('feedback', 'Шаринг недоступен')
   }
 }
 </script>
@@ -186,7 +180,6 @@ async function webShare() {
         </button>
 
         <button
-          :disabled="isShortening"
           :style="{
             display: 'flex',
             flexDirection: 'column',
@@ -194,9 +187,7 @@ async function webShare() {
             gap: '6px',
             background: 'none',
             border: 'none',
-            cursor: isShortening ? 'wait' : 'pointer',
-            opacity: isShortening ? 0.7 : 1,
-            transition: 'opacity .15s',
+            cursor: 'pointer',
           }"
           @click="webShare"
         >
@@ -213,16 +204,6 @@ async function webShare() {
             }"
           >
             <svg
-              v-if="isShortening"
-              class="share-spinner"
-              width="22" height="22" viewBox="0 0 24 24"
-              fill="none" :stroke="T.text" stroke-width="2.5"
-              stroke-linecap="round"
-            >
-              <path d="M12 2a10 10 0 0 1 10 10" />
-            </svg>
-            <svg
-              v-else
               width="22" height="22" viewBox="0 0 24 24"
               fill="none" :stroke="T.text" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round"
@@ -232,9 +213,7 @@ async function webShare() {
               <line x1="12" y1="2" x2="12" y2="15" />
             </svg>
           </div>
-          <span :style="{ fontSize: '11px', color: T.textSec }">
-            {{ isShortening ? 'Один момент…' : 'Поделиться' }}
-          </span>
+          <span :style="{ fontSize: '11px', color: T.textSec }">Поделиться</span>
         </button>
       </div>
     </div>

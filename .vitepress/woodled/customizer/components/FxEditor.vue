@@ -11,12 +11,6 @@
  * batch11 #1: Иконка в summary-карточке — fxIcName(model.type) вместо
  *             захардкоженного "ceiling". Теперь бра, торшер, настольная
  *             и спот показывают свою иконку.
- *
- * stage3-shortener: shareFx() теперь делает попытку шортнуть ссылку через
- *             Apps Script (engine/shortener.ts) перед копированием.
- *             Кнопка показывает спиннер и текст «Копируем…» пока
- *             идёт запрос. Если шортнер не ответил за 5 секунд — копируется
- *             длинная ссылка (fallback), всё равно работает.
  */
 
 import { computed, ref, watch } from 'vue'
@@ -85,9 +79,6 @@ const showHelp = ref(false)
 const showDeleteConfirm = ref(false)
 const touched = ref(new Set<StepId>())
 const priceOpen = ref(false)
-
-/* stage3-shortener: состояние кнопки «Поделиться» пока идёт запрос к серверу */
-const isSharing = ref(false)
 
 interface Build { m:ModelId;wood:Wood;mount:string;bowl:string;btemp:string;lamps:number;diffuser:boolean;moisture:boolean;bulbs:boolean;wire:string;baseColor:string;bulbOpt:string;steps:Record<string,StepStatus> }
 
@@ -195,39 +186,42 @@ function diffMult():number{return build.value.diffuser&&model.value.diffLoss?1-m
 function buildFixture():Fixture{const b=build.value;const done=(Object.entries(b.steps) as [StepId,StepStatus][]).filter(([,st])=>st==='chosen').map(([s])=>s as string);return{m:b.m,q:props.item.q??1,wood:b.wood,zone:props.item.zone,l:b.lamps,opts:{bowl:b.bowl,mount:b.mount,wire:b.wire,btemp:b.btemp,diffuser:b.diffuser,moisture:b.moisture,bulbs:b.bulbs,bulbOpt:b.bulbOpt,baseColor:b.baseColor},done}}
 function doSave(){emit('save',buildFixture())}
 
-/* stage3-shortener: ClipboardItem с Promise — clipboard.write регистрируется
-   синхронно в user gesture (без permission prompt), а Promise разрешается
-   короткой ссылкой через 1-3 сек. При фейле шортнера — длинная ссылка. */
-async function shareFx() {
-  if (isSharing.value) return
-  isSharing.value = true
-
+/* ──────────── stage3-shortener: prefetch + ClipboardItem-pattern ──────────── */
+/* Промис с короткой ссылкой готовится в фоне при каждом изменении build.
+   К моменту клика «Поделиться» он чаще всего уже разрешён → клик мгновенный,
+   ClipboardItem забирает готовый результат без потери user gesture. */
+let shortPromise: Promise<string> | null = null
+function refreshShortPromise() {
   const longUrl = buildFixtureShareUrl(buildFixture())
+  shortPromise = shortenLongUrl(longUrl).catch(() => longUrl)
+}
+watch(build, refreshShortPromise, { deep: true, immediate: true })
 
+async function shareFx() {
+  /* ClipboardItem с pending promise — clipboard.write регистрируется
+     синхронно в user gesture, prompt не появляется. shortPromise обычно
+     уже разрешён к моменту клика (prefetch при изменении build). */
+  const longUrl = buildFixtureShareUrl(buildFixture())
+  const urlPromise = shortPromise ?? Promise.resolve(longUrl)
   try {
     if (typeof ClipboardItem !== 'undefined') {
-      const blobPromise = shortenLongUrl(longUrl).then(
-        url => new Blob([url], { type: 'text/plain' })
-      )
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'text/plain': blobPromise }),
-      ])
+      const blobPromise = urlPromise.then(url => new Blob([url], { type: 'text/plain' }))
+      await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blobPromise })])
       emit('feedback', 'Ссылка на светильник скопирована')
     } else {
-      // Safari старше 14: ClipboardItem недоступен → копируем длинную sync
+      /* Старый Safari без ClipboardItem: копируем длинную sync,
+         иначе после await gesture сгорает и появляется prompt. */
       await navigator.clipboard.writeText(longUrl)
       emit('feedback', 'Ссылка на светильник скопирована')
     }
   } catch {
     emit('feedback', longUrl)
-  } finally {
-    isSharing.value = false
   }
 }
 
 const fmt=(n:number)=>n.toLocaleString('ru-RU')
 function spw(n:number){const a=Math.abs(n),l=a%10,t=a%100;if(t>=11&&t<=19)return'патронов';if(l===1)return'патрон';if(l>=2&&l<=4)return'патрона';return'патронов'}
-function slw(n:number){const a=Math.abs(n),l=a%10,t=a%100;if(t>=11&&t<=19)return'лампочек';if(l===1)return'лампочка';if(l>=2&&l<=4)return'лампочки';return'лампочки'}
+function slw(n:number){const a=Math.abs(n),l=a%10,t=a%100;if(t>=11&&t<=19)return'лампочек';if(l===1)return'лампочка';if(l>=2&&l<=4)return'лампочки';return'лампочек'}
 function bowlName(){return ALL_BOWLS.find(x=>x.id===build.value.bowl)?.name??'—'}
 function btempK(){const bt=BTEMPS.find(x=>x.id===build.value.btemp);return bt?bt.kelvin+'К':'—'}
 function bulbTotal(){const bp=model.value.bulbPrice??OPT_PRICE.bulbsPerLamp*model.value.lamps;return Math.round((bp*build.value.lamps)/model.value.lamps)}
@@ -292,12 +286,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
         </div>
 
         <button :style="{width:'100%',padding:'14px',background:T.text,color:T.bg,border:'none',borderRadius:'10px',cursor:'pointer',fontSize:'14px',fontWeight:700,marginBottom:'8px'}" @click="doSave">Сохранить</button>
-        <!-- stage3-shortener: кнопка показывает спиннер и текст «Копируем…» пока идёт запрос -->
-        <button :disabled="isSharing" :style="{width:'100%',padding:'12px',background:'none',border:`1px solid ${T.border}`,borderRadius:'8px',color:T.textSec,cursor:isSharing?'wait':'pointer',fontSize:'13px',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'6px',marginBottom:'20px',opacity:isSharing?0.6:1,transition:'opacity .15s'}" @click="shareFx">
-          <svg v-if="isSharing" class="fx-share-spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a10 10 0 0 1 10 10"/></svg>
-          <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-          {{ isSharing ? 'Копируем…' : 'Поделиться ссылкой на светильник' }}
-        </button>
+        <button :style="{width:'100%',padding:'12px',background:'none',border:`1px solid ${T.border}`,borderRadius:'8px',color:T.textSec,cursor:'pointer',fontSize:'13px',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'6px',marginBottom:'20px'}" @click="shareFx"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Поделиться ссылкой на светильник</button>
 
         <!-- Фотогалерея «{Model} в интерьере» — после Сохранить и Поделиться, с воздухом -->
         <div :style="{marginTop:'24px'}">
@@ -404,15 +393,5 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
   80%  { transform: rotate(var(--rot)) translateY(-10px) scale(1);   opacity: 0.95; }
   90%  { transform: rotate(var(--rot)) translateY(-22px) scale(0.3); opacity: 0; }
   100% { transform: rotate(var(--rot)) translateY(-22px) scale(0.3); opacity: 0; }
-}
-
-/* stage3-shortener: спиннер на кнопке "Поделиться" пока идёт запрос */
-.fx-share-spinner {
-  transform-origin: center;
-  animation: fxShareSpin 0.8s linear infinite;
-}
-@keyframes fxShareSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 </style>
