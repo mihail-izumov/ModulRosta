@@ -48,26 +48,25 @@ defineEmits<{
     </h1>
 
     <!--
-      Subtitle restructure.
+      Subtitle — two stacked blocks on EVERY viewport (mobile + desktop).
 
-      DESKTOP (>600px):
-        Both <span>s are inline; <br class="lp-mobile-only">s are hidden.
-        Reads as one flowing paragraph with two font-weights mixed inline:
-        bold-600 first sentence → regular-400 second sentence. The single
-        space between </span><span> in source collapses to one separator.
+      Behaviour:
+        • .lp-line is `display: block` universally now (was mobile-only in
+          the previous revision). This means the two sentences always read
+          as two separate blocks, with the bold-600 «Идеальное пространство
+          для света WOODLED.» sitting above the regular-400 «Настраивайте…»
+          paragraph, separated by a 14px gap.
+        • Side-effect benefit: the previous desktop bug — where the space
+          between </span><span> in the source was being stripped by the
+          template compiler, gluing «WOODLED.Настраивайте» together — is
+          mooted, because block elements stack vertically regardless of
+          the whitespace between them in source.
 
-      MOBILE (≤600px):
-        Both <span>s become display: block; <br>s engage.
-        Block 1 (600):  «Идеальное пространство»
-                        «для света WOODLED.»
-        ↓ 14px margin — bigger than line spacing (9px visual gap) but
-          smaller than the previous double-<br> (~36px), so the two
-          sentences read as distinct blocks without a full empty line.
-        Block 2 (400):  «Настраивайте … наполните каждый»
-                        «уголок дома.»
-        The second <br> inside block 2 pins «уголок дома.» to its own line
-        regardless of viewport width (otherwise it wraps as «…каждый уголок»
-        + «дома.» on iPhone widths).
+      Mobile-specific line breaks (the <br class="lp-mobile-only">s) stay
+      mobile-only: on iPhone widths, «Идеальное пространство» / «для света
+      WOODLED.» splits onto two lines, and «уголок дома.» is pinned to its
+      own line. On desktop, those breaks are hidden and each block wraps
+      naturally inside the 540px maxWidth container.
     -->
     <p
       :style="{
@@ -96,8 +95,8 @@ defineEmits<{
 
 <style scoped>
 /*
-  Subtitle weight contrast — applied on every viewport so the
-  desktop paragraph also reads as bold-lead + regular-body.
+  Subtitle weight contrast — applied universally so desktop and mobile
+  read the same way: bold-600 lead, regular-400 body.
 */
 .lp-line--bold {
   font-weight: 600;
@@ -107,30 +106,27 @@ defineEmits<{
 }
 
 /*
-  Mobile-only line-break utility — used on the <br>s inside the subtitle
-  so the desktop paragraph stays single-flow and identical to the previous
-  spec, but on mobile each forced break engages.
+  Block stacking applied EVERYWHERE (no @media wrapper) so desktop matches
+  mobile: two visually distinct blocks separated by a 14px gap. The
+  adjacent-sibling selector means only the second block carries the
+  margin, so the first block sits flush with the H1 above.
+*/
+.lp-line {
+  display: block;
+}
+.lp-line + .lp-line {
+  margin-top: 14px;
+}
+
+/*
+  Mobile-only line-break utility. The <br>s engage at ≤600px to break
+  «Идеальное пространство» / «для света WOODLED.» across two lines and to
+  pin «уголок дома.» to its own line. On desktop they're hidden — the
+  text in each block wraps naturally inside the 540px container.
 */
 @media (min-width: 601px) {
   .lp-mobile-only {
     display: none;
-  }
-}
-
-/*
-  Mobile: spans become blocks; the second block gets a 14px top gap.
-  Adjacent-sibling selector (.lp-line + .lp-line) means only the SECOND
-  block carries the margin, so the first block sits flush with whatever
-  is above it (the H1). 14px lands deliberately between "continuous
-  paragraph" (~9px visible gap) and "empty line" (~36px) — distinctly
-  paragraph-break but not over-spaced.
-*/
-@media (max-width: 600px) {
-  .lp-line {
-    display: block;
-  }
-  .lp-line + .lp-line {
-    margin-top: 14px;
   }
 }
 </style>
