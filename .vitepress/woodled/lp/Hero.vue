@@ -11,13 +11,6 @@ defineEmits<{
 </script>
 
 <template>
-  <!--
-    Bottom padding tightened from 52 → 16. Combined with Slider's existing
-    inner padding (12 outer + 24 inner = 36px above the first card), the
-    gap from the FeatureTabs description to the slider images is ~52px —
-    down from ~88px — so the slider visually "rises" without crashing into
-    the description.
-  -->
   <section
     :style="{
       padding: '28px 24px 16px',
@@ -55,28 +48,38 @@ defineEmits<{
     </h1>
 
     <!--
-      Mobile-only line breaks. Three <br class="lp-mobile-only"> elements
-      become active only at viewports ≤ 600px:
-        1. After «Идеальное пространство» — forces «для света WOODLED.»
-           onto its own line, so the first thought reads as a two-line
-           heading-like fragment.
-        2 + 3. Two consecutive <br> create an empty line between the two
-           sentences, so the second sentence ("Настраивайте светильники…")
-           reads as a separate paragraph on mobile.
-      On desktop the <br>s collapse to nothing (display: none) and the
-      paragraph flows continuously, byte-identical to the previous spec.
+      Subtitle restructure.
+
+      DESKTOP (>600px):
+        Both <span>s are inline; <br class="lp-mobile-only">s are hidden.
+        Reads as one flowing paragraph with two font-weights mixed inline:
+        bold-600 first sentence → regular-400 second sentence. The single
+        space between </span><span> in source collapses to one separator.
+
+      MOBILE (≤600px):
+        Both <span>s become display: block; <br>s engage.
+        Block 1 (600):  «Идеальное пространство»
+                        «для света WOODLED.»
+        ↓ 14px margin — bigger than line spacing (9px visual gap) but
+          smaller than the previous double-<br> (~36px), so the two
+          sentences read as distinct blocks without a full empty line.
+        Block 2 (400):  «Настраивайте … наполните каждый»
+                        «уголок дома.»
+        The second <br> inside block 2 pins «уголок дома.» to its own line
+        regardless of viewport width (otherwise it wraps as «…каждый уголок»
+        + «дома.» on iPhone widths).
     -->
     <p
       :style="{
         fontSize: '18px',
-        fontWeight: 500,
         lineHeight: 1.5,
         color: PAGE.text,
         maxWidth: '540px',
         margin: '0 auto 32px',
       }"
     >
-      Идеальное пространство <br class="lp-mobile-only" />для света WOODLED. <br class="lp-mobile-only" /><br class="lp-mobile-only" />Настраивайте светильники, расставляйте мебель, перекрасьте стены — наполните каждый уголок дома.
+      <span class="lp-line lp-line--bold">Идеальное пространство <br class="lp-mobile-only" />для света WOODLED.</span>
+      <span class="lp-line lp-line--regular">Настраивайте светильники, расставляйте мебель, перекрасьте стены — наполните каждый <br class="lp-mobile-only" />уголок дома.</span>
     </p>
 
     <div :style="{ display: 'flex', justifyContent: 'center', marginBottom: '40px' }">
@@ -93,17 +96,41 @@ defineEmits<{
 
 <style scoped>
 /*
-  Utility: any element with .lp-mobile-only is laid out on mobile and
-  invisible on desktop. Used on the subtitle <br>s above so the desktop
-  paragraph stays a single flowing line of prose; on mobile the same
-  paragraph splits into two visually distinct blocks.
+  Subtitle weight contrast — applied on every viewport so the
+  desktop paragraph also reads as bold-lead + regular-body.
+*/
+.lp-line--bold {
+  font-weight: 600;
+}
+.lp-line--regular {
+  font-weight: 400;
+}
 
-  Breakpoint at 600px matches the existing site convention (Footer's old
-  .lp-footer-break used the same value).
+/*
+  Mobile-only line-break utility — used on the <br>s inside the subtitle
+  so the desktop paragraph stays single-flow and identical to the previous
+  spec, but on mobile each forced break engages.
 */
 @media (min-width: 601px) {
   .lp-mobile-only {
     display: none;
+  }
+}
+
+/*
+  Mobile: spans become blocks; the second block gets a 14px top gap.
+  Adjacent-sibling selector (.lp-line + .lp-line) means only the SECOND
+  block carries the margin, so the first block sits flush with whatever
+  is above it (the H1). 14px lands deliberately between "continuous
+  paragraph" (~9px visible gap) and "empty line" (~36px) — distinctly
+  paragraph-break but not over-spaced.
+*/
+@media (max-width: 600px) {
+  .lp-line {
+    display: block;
+  }
+  .lp-line + .lp-line {
+    margin-top: 14px;
   }
 }
 </style>
