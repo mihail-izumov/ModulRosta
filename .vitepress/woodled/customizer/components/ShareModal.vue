@@ -2,15 +2,21 @@
 /**
  * ShareModal.vue — Поделиться ссылкой c текущим состоянием.
  *
- * Источник: woodled-v42.jsx (ShareModal inline).
- * Состояние конфигуратора пакуется в URL hash (#s=...) —
- * получатель ссылки видит ту же самую сборку без бэкенда.
+ * Состояние конфигуратора пакуется в URL hash (#s=...). Перед копированием
+ * пробуем сходить в шортнер (Apps Script) — при успехе копируется короткая
+ * ссылка вида /woodled/share/?id=xxxxxx (~50 символов). Если шортнер не
+ * ответил за 5 секунд — fallback на длинную ссылку, всё работает без
+ * деградации функциональности, только URL длиннее.
+ *
+ * Спиннер показывается на иконке кнопки пока идёт запрос к серверу.
  */
 
+import { ref } from 'vue'
 import { T } from '../theme/tokens'
 import type { Room } from '../data/rooms'
 import { fxLamps } from '../engine/brightness'
 import { buildShareUrl } from '../engine/share'
+import { shortenLongUrl } from '../engine/shortener'
 import Modal from './ui/Modal.vue'
 
 interface Props {
@@ -23,35 +29,53 @@ const emit = defineEmits<{
   feedback: [msg: string]
 }>()
 
+const isShortening = ref(false)
+
 function makeUrl(): string {
   return buildShareUrl(props.name, props.rooms)
 }
 
+async function getShareableUrl(): Promise<string> {
+  return shortenLongUrl(makeUrl())
+}
+
 async function copyLink() {
-  const url = makeUrl()
+  if (isShortening.value) return
+  isShortening.value = true
   try {
-    await navigator.clipboard.writeText(url)
-    emit('feedback', 'Ссылка скопирована')
-    emit('close')
-  } catch {
-    /* iOS/Safari в некоторых контекстах возвращают ошибку — покажем URL в тосте. */
-    emit('feedback', url)
+    const url = await getShareableUrl()
+    try {
+      await navigator.clipboard.writeText(url)
+      emit('feedback', 'Ссылка скопирована')
+      emit('close')
+    } catch {
+      /* iOS/Safari в некоторых контекстах возвращают ошибку — покажем URL в тосте. */
+      emit('feedback', url)
+    }
+  } finally {
+    isShortening.value = false
   }
 }
 
 async function webShare() {
-  const url = makeUrl()
-  const totalLamps = props.rooms.reduce((s, r) => s + fxLamps(r.fixtures), 0)
-  const text = `${props.name} — ${totalLamps} ламп`
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: props.name, text, url })
-      emit('close')
-    } catch {
-      /* Отмена пользователем — тост не нужен. */
+  if (isShortening.value) return
+  isShortening.value = true
+  try {
+    const url = await getShareableUrl()
+    const totalLamps = props.rooms.reduce((s, r) => s + fxLamps(r.fixtures), 0)
+    const text = `${props.name} — ${totalLamps} ламп`
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: props.name, text, url })
+        emit('close')
+      } catch {
+        /* Отмена пользователем — тост не нужен. */
+      }
+    } else {
+      emit('feedback', 'Шаринг недоступен')
     }
-  } else {
-    emit('feedback', 'Шаринг недоступен')
+  } finally {
+    isShortening.value = false
   }
 }
 </script>
@@ -90,6 +114,7 @@ async function webShare() {
 
       <div :style="{ display: 'flex', justifyContent: 'center', gap: '20px' }">
         <button
+          :disabled="isShortening"
           :style="{
             display: 'flex',
             flexDirection: 'column',
@@ -97,7 +122,9 @@ async function webShare() {
             gap: '6px',
             background: 'none',
             border: 'none',
-            cursor: 'pointer',
+            cursor: isShortening ? 'wait' : 'pointer',
+            opacity: isShortening ? 0.7 : 1,
+            transition: 'opacity .15s',
           }"
           @click="copyLink"
         >
@@ -114,6 +141,16 @@ async function webShare() {
             }"
           >
             <svg
+              v-if="isShortening"
+              class="share-spinner"
+              width="22" height="22" viewBox="0 0 24 24"
+              fill="none" :stroke="T.text" stroke-width="2.5"
+              stroke-linecap="round"
+            >
+              <path d="M12 2a10 10 0 0 1 10 10" />
+            </svg>
+            <svg
+              v-else
               width="22" height="22" viewBox="0 0 24 24"
               fill="none" :stroke="T.text" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round"
@@ -122,10 +159,13 @@ async function webShare() {
               <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
             </svg>
           </div>
-          <span :style="{ fontSize: '11px', color: T.textSec }">Скопировать</span>
+          <span :style="{ fontSize: '11px', color: T.textSec }">
+            {{ isShortening ? 'Сокращаем…' : 'Скопировать' }}
+          </span>
         </button>
 
         <button
+          :disabled="isShortening"
           :style="{
             display: 'flex',
             flexDirection: 'column',
@@ -133,7 +173,9 @@ async function webShare() {
             gap: '6px',
             background: 'none',
             border: 'none',
-            cursor: 'pointer',
+            cursor: isShortening ? 'wait' : 'pointer',
+            opacity: isShortening ? 0.7 : 1,
+            transition: 'opacity .15s',
           }"
           @click="webShare"
         >
@@ -150,6 +192,16 @@ async function webShare() {
             }"
           >
             <svg
+              v-if="isShortening"
+              class="share-spinner"
+              width="22" height="22" viewBox="0 0 24 24"
+              fill="none" :stroke="T.text" stroke-width="2.5"
+              stroke-linecap="round"
+            >
+              <path d="M12 2a10 10 0 0 1 10 10" />
+            </svg>
+            <svg
+              v-else
               width="22" height="22" viewBox="0 0 24 24"
               fill="none" :stroke="T.text" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round"
@@ -159,9 +211,22 @@ async function webShare() {
               <line x1="12" y1="2" x2="12" y2="15" />
             </svg>
           </div>
-          <span :style="{ fontSize: '11px', color: T.textSec }">Поделиться</span>
+          <span :style="{ fontSize: '11px', color: T.textSec }">
+            {{ isShortening ? 'Сокращаем…' : 'Поделиться' }}
+          </span>
         </button>
       </div>
     </div>
   </Modal>
 </template>
+
+<style scoped>
+.share-spinner {
+  transform-origin: center;
+  animation: shareSpin 0.8s linear infinite;
+}
+@keyframes shareSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+</style>
