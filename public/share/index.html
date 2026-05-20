@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>WOODLED — Открываем дом…</title>
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --bg: #1a1a1a;
+    --card: #232323;
+    --border: #2e2e2e;
+    --text: #e8e8e8;
+    --text-dim: #888;
+    --accent: #d4b87a;
+    --red: #c95757;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .card {
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+  }
+  .logo {
+    font-size: 11px;
+    letter-spacing: 0.6em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    font-weight: 600;
+  }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 24px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  h1 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--text);
+  }
+  p {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin: 0 0 24px;
+    line-height: 1.6;
+  }
+  .btn {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: opacity .15s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    margin-left: 8px;
+  }
+  .error-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: var(--red);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">WOODLED</div>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <h1>Открываем дом…</h1>
+    <p>Загружаем настройки светильников</p>
+  </div>
+
+  <div id="error" class="hidden">
+    <div class="error-icon">!</div>
+    <h1 id="errorTitle">Не получилось открыть</h1>
+    <p id="errorMsg">Ссылка устарела или сервер временно недоступен.</p>
+    <a id="errorBtn" href="#" class="btn">Открыть конфигуратор</a>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Тот же Apps Script Web App URL, что и в engine/shortener.ts
+  var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxjtBMSKSPADp9YVE4GKhPIPW5XaP4rShzMnDCTgDMH6O6CX7_eOlSPLMPcuq_yVbj8/exec';
+  var TIMEOUT_MS = 8000;
+
+  // База сайта определяется из текущего URL — файл переносится на любой репо/base
+  // без правок. Эта страница всегда лежит по <base>share/, поэтому отрезаем
+  // последний сегмент пути.
+  // Примеры: '/woodled/share/' → '/woodled/'; '/lighting/share/index.html' → '/lighting/'
+  var BASE = window.location.pathname.replace(/share\/(index\.html)?$/, '');
+  var CUSTOMIZER_PATH = BASE + 'customizer';
+
+  // Динамически подставить правильный path в кнопку «Открыть конфигуратор»
+  document.getElementById('errorBtn').href = CUSTOMIZER_PATH;
+
+  function showError(title, msg) {
+    document.getElementById('loading').classList.add('hidden');
+    var err = document.getElementById('error');
+    err.classList.remove('hidden');
+    if (title) document.getElementById('errorTitle').textContent = title;
+    if (msg) document.getElementById('errorMsg').textContent = msg;
+  }
+
+  function getQueryParam(name) {
+    var params = new URLSearchParams(window.location.search);
+    return params.get(name);
+  }
+
+  function fetchWithTimeout(url, ms) {
+    var ctrl = new AbortController();
+    var timer = setTimeout(function () { ctrl.abort(); }, ms);
+    return fetch(url, { signal: ctrl.signal }).finally(function () { clearTimeout(timer); });
+  }
+
+  function loadAndRedirect() {
+    var id = getQueryParam('id');
+    if (!id) {
+      showError('Ссылка повреждена', 'В ссылке не указан идентификатор дома.');
+      return;
+    }
+    if (!/^[A-Za-z0-9]{1,12}$/.test(id)) {
+      showError('Ссылка повреждена', 'Идентификатор имеет неправильный формат.');
+      return;
+    }
+
+    var url = WEBAPP_URL + '?id=' + encodeURIComponent(id);
+
+    fetchWithTimeout(url, TIMEOUT_MS)
+      .then(function (r) {
+        if (!r.ok) throw new Error('http_' + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data) throw new Error('no_data');
+        if (data.error === 'not_found') {
+          showError('Дом не найден', 'По этой ссылке ничего нет. Возможно, ссылка устарела или была введена с ошибкой.');
+          return;
+        }
+        if (data.error) throw new Error('server:' + data.error);
+        if (!data.payload) throw new Error('empty_payload');
+
+        // Всё ОК — редирект на конфигуратор с расшифрованным state
+        var type = data.type === 'fx' ? 'fx' : 's';
+        var target = CUSTOMIZER_PATH + '#' + type + '=2.' + data.payload;
+        // replace, чтобы не оставлять /share/ в истории
+        window.location.replace(target);
+      })
+      .catch(function (e) {
+        var msg = (e && e.name === 'AbortError')
+          ? 'Сервер не ответил за 8 секунд. Возможно, временный сбой — попробуйте обновить страницу через минуту.'
+          : 'Не удалось связаться с сервером. Проверьте интернет и попробуйте снова.';
+        showError('Не получилось открыть', msg);
+      });
+  }
+
+  loadAndRedirect();
+})();
+</script>
+
+</body>
+</html>
