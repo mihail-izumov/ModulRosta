@@ -187,30 +187,43 @@ function buildFixture():Fixture{const b=build.value;const done=(Object.entries(b
 function doSave(){emit('save',buildFixture())}
 
 /* ──────────── stage3-shortener: prefetch + ClipboardItem-pattern ──────────── */
-/* Промис с короткой ссылкой готовится в фоне при каждом изменении build.
-   К моменту клика «Поделиться» он чаще всего уже разрешён → клик мгновенный,
-   ClipboardItem забирает готовый результат без потери user gesture. */
-let shortPromise: Promise<string> | null = null
+/* При каждом изменении build (с debounce 500мс) в фоне готовится короткая
+   ссылка для текущего состояния. К моменту клика «Поделиться» она обычно
+   уже в руках. Проверка longUrl на клике защищает от race condition:
+   если build изменился ПОСЛЕ prefetch, делаем новый синхронный запрос. */
+let prefetched: { longUrl: string; promise: Promise<string> } | null = null
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+
 function refreshShortPromise() {
   const longUrl = buildFixtureShareUrl(buildFixture())
-  shortPromise = shortenLongUrl(longUrl).catch(() => longUrl)
+  if (prefetched && prefetched.longUrl === longUrl) return // уже есть для этого state
+  prefetched = {
+    longUrl,
+    promise: shortenLongUrl(longUrl).catch(() => longUrl),
+  }
 }
-watch(build, refreshShortPromise, { deep: true, immediate: true })
+function scheduleRefresh() {
+  if (debounceTimer) clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(refreshShortPromise, 500)
+}
+watch(build, scheduleRefresh, { deep: true, immediate: true })
 
 async function shareFx() {
-  /* ClipboardItem с pending promise — clipboard.write регистрируется
-     синхронно в user gesture, prompt не появляется. shortPromise обычно
-     уже разрешён к моменту клика (prefetch при изменении build). */
   const longUrl = buildFixtureShareUrl(buildFixture())
-  const urlPromise = shortPromise ?? Promise.resolve(longUrl)
+  /* Используем prefetched только если он для ТЕКУЩЕГО longUrl — иначе
+     это будет ссылка на старое состояние конфигурации (которая в Sheet
+     записана, но не соответствует тому что юзер видит на экране). */
+  const urlPromise =
+    prefetched && prefetched.longUrl === longUrl
+      ? prefetched.promise
+      : shortenLongUrl(longUrl).catch(() => longUrl)
   try {
     if (typeof ClipboardItem !== 'undefined') {
       const blobPromise = urlPromise.then(url => new Blob([url], { type: 'text/plain' }))
       await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blobPromise })])
       emit('feedback', 'Ссылка на светильник скопирована')
     } else {
-      /* Старый Safari без ClipboardItem: копируем длинную sync,
-         иначе после await gesture сгорает и появляется prompt. */
+      /* Старый Safari без ClipboardItem: длинную sync. */
       await navigator.clipboard.writeText(longUrl)
       emit('feedback', 'Ссылка на светильник скопирована')
     }

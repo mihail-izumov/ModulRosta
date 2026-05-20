@@ -11,7 +11,7 @@
  * Спиннер показывается на иконке кнопки пока идёт запрос к серверу.
  */
 
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { T } from '../theme/tokens'
 import type { Room } from '../data/rooms'
 import { fxLamps } from '../engine/brightness'
@@ -34,33 +34,43 @@ function makeUrl(): string {
 }
 
 /* ──────────── stage3-shortener: prefetch + ClipboardItem-pattern ────────────
-   Когда модалка открывается, в фоне сразу стартует запрос в шортнер.
-   Пользователь читает заголовок 1-2 секунды → к клику ссылка уже готова.
+   При открытии модалки в фоне готовится короткая ссылка. К моменту клика
+   обычно уже разрешена.
 
-   Copy: ClipboardItem с pending promise — работает синхронно с gesture,
-         ждёт promise без появления permission prompt.
-   Web Share: navigator.share требует синхронной строки. Если короткая уже
-         готова (shortenedUrl.value !== null) — используем её. Иначе длинную —
-         iOS share sheet всё равно мгновенно откроется. */
-let shortPromise: Promise<string> | null = null
+   Cache check: используем prefetched promise только если он соответствует
+   ТЕКУЩЕМУ longUrl. Если props.name или props.rooms изменились между
+   prefetch и кликом — делаем свежий запрос. */
+let prefetched: { longUrl: string; promise: Promise<string> } | null = null
 const shortenedUrl = ref<string | null>(null)
 const isShortening = ref(false)
 
 function refreshShortPromise() {
   const longUrl = makeUrl()
+  if (prefetched && prefetched.longUrl === longUrl) return
   shortenedUrl.value = null
-  shortPromise = shortenLongUrl(longUrl).catch(() => longUrl)
-  shortPromise.then(url => { shortenedUrl.value = url })
+  const promise = shortenLongUrl(longUrl).catch(() => longUrl)
+  prefetched = { longUrl, promise }
+  promise.then(url => {
+    /* Сохраняем результат в ref ТОЛЬКО если это всё ещё актуальный prefetch
+       (иначе перезапишем результатом устаревшего запроса). */
+    if (prefetched && prefetched.longUrl === longUrl) {
+      shortenedUrl.value = url
+    }
+  })
 }
 
 onMounted(refreshShortPromise)
-watch(() => [props.name, props.rooms] as const, refreshShortPromise, { deep: true })
 
 async function copyLink() {
   if (isShortening.value) return
   isShortening.value = true
   const longUrl = makeUrl()
-  const urlPromise = shortPromise ?? Promise.resolve(longUrl)
+  /* Если prefetched для текущего longUrl — берём готовый promise.
+     Иначе свежий запрос (ClipboardItem подождёт его). */
+  const urlPromise =
+    prefetched && prefetched.longUrl === longUrl
+      ? prefetched.promise
+      : shortenLongUrl(longUrl).catch(() => longUrl)
   try {
     if (typeof ClipboardItem !== 'undefined') {
       const blobPromise = urlPromise.then(url => new Blob([url], { type: 'text/plain' }))
@@ -68,7 +78,7 @@ async function copyLink() {
       emit('feedback', 'Ссылка скопирована')
       emit('close')
     } else {
-      /* Safari старше 14: ClipboardItem недоступен → длинную sync. */
+      /* Safari старше 14: длинную sync. */
       await navigator.clipboard.writeText(longUrl)
       emit('feedback', 'Ссылка скопирована')
       emit('close')
@@ -81,12 +91,16 @@ async function copyLink() {
 }
 
 function webShare() {
-  /* Если prefetch успел — даём короткую. Если нет — длинную (iOS Messages OK). */
+  /* URL встраиваем В ТЕКСТ, без отдельного поля `url`. Telegram macOS
+     Desktop игнорирует параметр url при шаринге через Web Share API
+     (видели в проде — отправляет только text). С URL внутри текста
+     все share targets (Telegram, Messages, Notes, WhatsApp) корректно
+     распознают ссылку и делают её кликабельной. */
   const url = shortenedUrl.value ?? makeUrl()
   const totalLamps = props.rooms.reduce((s, r) => s + fxLamps(r.fixtures), 0)
-  const text = `${props.name} — ${totalLamps} ламп`
+  const text = `${props.name} — ${totalLamps} ламп\n${url}`
   if (navigator.share) {
-    navigator.share({ title: props.name, text, url })
+    navigator.share({ title: props.name, text })
       .then(() => emit('close'))
       .catch(() => { /* отмена пользователем */ })
   } else {
