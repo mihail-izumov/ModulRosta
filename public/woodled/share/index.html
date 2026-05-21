@@ -6,6 +6,12 @@
 <title>WOODLED Студия — открываем ссылку…</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0A0908">
+<meta name="description" content="Соберите свой лес света WOODLED — конфигуратор домашнего освещения">
+
+<!-- Favicon и apple-touch-icon — нужны iOS для отображения иконки
+     в share sheet preview. Используем тот же og-cover.jpg. -->
+<link rel="icon" type="image/jpeg" href="https://runscale.ru/woodled/og-cover.jpg">
+<link rel="apple-touch-icon" href="https://runscale.ru/woodled/og-cover.jpg">
 
 <!-- Open Graph для preview в мессенджерах и iOS share sheet -->
 <meta property="og:type" content="website">
@@ -98,9 +104,35 @@
     background: linear-gradient(to bottom, var(--oakL), var(--oak), var(--oakD));
     opacity: 0;
     transform-origin: center center;
-    transition: opacity 0.6s ease-out;
+    /* Зеркалит Preloader.vue: ламель «прилетает» с дальней позиции
+       (R+90) к финальной (R). Задержка по индексу даёт волну по часовой. */
+    transition: transform 1s, opacity 0.8s;
   }
   .lamella.in { opacity: 0.85; }
+
+  /* Внутреннее пульсирующее свечение — pl-rsg из Preloader.vue */
+  .rs-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 24px;
+    margin-top: -12px;
+    margin-left: -2px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--warm) 7%, transparent);
+    filter: blur(4px);
+    transform-origin: center center;
+    animation: rsGlow 2.5s ease-in-out infinite;
+    opacity: 0;
+    transition: opacity 0.8s;
+  }
+  .rs-glow.in { opacity: 1; }
+  @keyframes rsGlow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
   @keyframes rotorSpin { to { transform: rotate(360deg); } }
   .rotor::before {
     content: '';
@@ -365,15 +397,52 @@
 
   function createLamellae() {
     var asm = $('rotorAsm');
+    /* Зеркалим Preloader.vue:
+       - Создаём 20 ламелей в начальной позиции translateY(-(R+90)) — далеко
+         за пределами круга, opacity 0.
+       - Каждая получает transition-delay = i*50ms — это создаёт «волну»
+         по часовой стрелке: ламели прилетают одна за другой.
+       - Через RAF + setTimeout триггерим переход к финальной позиции R. */
+    var elements = [];
     for (var i = 0; i < LAMELLA_COUNT; i++) {
+      var angle = (i / LAMELLA_COUNT) * 360;
       var el = document.createElement('div');
       el.className = 'lamella';
-      el.style.transform = 'rotate(' + (i / LAMELLA_COUNT * 360) + 'deg) translateY(-' + LAMELLA_RADIUS + 'px)';
+      el.style.transitionDelay = (i * 50) + 'ms';
+      /* Начальная позиция — за пределами круга. */
+      el.style.transform = 'rotate(' + angle + 'deg) translateY(-' + (LAMELLA_RADIUS + 90) + 'px)';
       asm.appendChild(el);
-      (function (e, idx) {
-        setTimeout(function () { e.classList.add('in'); }, 200 + idx * 40);
-      })(el, i);
+      elements.push({ el: el, angle: angle });
     }
+    /* Двойной RAF + микро-задержка чтобы браузер успел зафиксировать
+       начальную позицию ДО transition. */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        elements.forEach(function (item) {
+          item.el.style.transform = 'rotate(' + item.angle + 'deg) translateY(-' + LAMELLA_RADIUS + 'px)';
+          item.el.classList.add('in');
+        });
+      });
+    });
+
+    /* Через ~2 сек (когда все ламели уже встали в круг) добавляем
+       внутреннее пульсирующее свечение — pl-rsg из Preloader.vue. */
+    setTimeout(function () {
+      for (var j = 0; j < LAMELLA_COUNT; j++) {
+        var ang = (j / LAMELLA_COUNT) * 360;
+        var g = document.createElement('div');
+        g.className = 'rs-glow';
+        g.style.transform = 'rotate(' + ang + 'deg) translateY(-' + (LAMELLA_RADIUS * 0.55) + 'px)';
+        g.style.animationDelay = (j * 0.15) + 's';
+        asm.appendChild(g);
+        /* Появление через RAF для transition. */
+        (function (elem) {
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () { elem.classList.add('in'); });
+          });
+        })(g);
+      }
+    }, 2000);
   }
 
   function sleep(ms) {
@@ -539,6 +608,14 @@
     line3.classList.add('on');
     await sleep(PHASE_3_HOLD);
 
+    /* Плавный fade-out всей страницы перед редиректом — чтобы переход
+       к конфигуратору не был резким. 600мс полного выцветания + redirect. */
+    var stage = $('stage');
+    stage.style.transition = 'opacity 0.6s ease-out';
+    stage.style.opacity = '0';
+    await sleep(600);
+
+    /* Редирект — replace, чтобы /share/ не оставался в истории. */
     var target = CUSTOMIZER_PATH + '#' + type + '=2.' + data.payload;
     location.replace(target);
   }
