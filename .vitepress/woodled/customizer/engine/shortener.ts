@@ -18,7 +18,7 @@
 const WEBAPP_URL =
   'https://script.google.com/macros/s/AKfycbxjtBMSKSPADp9YVE4GKhPIPW5XaP4rShzMnDCTgDMH6O6CX7_eOlSPLMPcuq_yVbj8/exec'
 
-const TIMEOUT_MS = 10000 // Apps Script на cold start может думать 3-7 секунд
+const TIMEOUT_MS = 20000 // Apps Script на cold start может думать 8-12 сек
 
 export type ShareType = 's' | 'fx'
 
