@@ -18,7 +18,7 @@
 const WEBAPP_URL =
   'https://script.google.com/macros/s/AKfycbxjtBMSKSPADp9YVE4GKhPIPW5XaP4rShzMnDCTgDMH6O6CX7_eOlSPLMPcuq_yVbj8/exec'
 
-const TIMEOUT_MS = 20000 // Apps Script на cold start может думать 8-12 сек
+const TIMEOUT_MS = 25000 // Apps Script cold start + возможный VPN: даём 25 сек
 
 export type ShareType = 's' | 'fx'
 
@@ -142,4 +142,33 @@ export async function shortenLongUrl(longUrl: string): Promise<string> {
   const r = await shortenPayload(payload, type)
   if (!r) return longUrl
   return buildShortUrl(r.id)
+}
+
+/**
+ * warmupShortener — лёгкий ping к Apps Script для прогрева инстанса.
+ *
+ * Apps Script бесплатного тира «остывает» через 5-10 минут простоя — первый
+ * запрос после этого занимает 10-25 секунд (cold start). Если вызвать
+ * warmupShortener() при mount конфигуратора, к моменту когда юзер откроет
+ * ShareModal сервер уже прогрет и шортнер ответит за 1-2 секунды.
+ *
+ * Вызов идемпотентный (срабатывает только один раз за сессию) и работает
+ * fire-and-forget — ошибки игнорируются, response не используется.
+ *
+ * Подключить например в App.vue:
+ *   import { warmupShortener } from './engine/shortener'
+ *   onMounted(() => warmupShortener())
+ */
+let warmupDone = false
+export function warmupShortener(): void {
+  if (warmupDone) return
+  warmupDone = true
+  /* Ping endpoint: GET без параметров → {ok: true, service: '...'}.
+     Используем короткий таймаут — нам не нужен ответ, нужно только разбудить
+     инстанс. Если не получится — не страшно, шортнер сам потом разбудит. */
+  const ctrl = new AbortController()
+  const t = setTimeout(() => ctrl.abort(), 10000)
+  fetch(WEBAPP_URL, { signal: ctrl.signal })
+    .catch(() => { /* fire-and-forget */ })
+    .finally(() => clearTimeout(t))
 }
