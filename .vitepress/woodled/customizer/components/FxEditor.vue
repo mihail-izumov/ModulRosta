@@ -24,7 +24,7 @@ import Icon, { fxIcName, type IconName } from './ui/Icons.vue'
 import NavHeader from './ui/NavHeader.vue'
 import SmartHelpModal from './ui/SmartHelpModal.vue'
 import { buildFixtureShareUrl } from '../engine/share'
-import { shortenLongUrl } from '../engine/shortener'
+import ShareModal from './ShareModal.vue'
 
 /* Фотогалерея «{Model} в интерьере» — под чек-листом */
 import GallerySection from './gallery/GallerySection.vue'
@@ -186,70 +186,11 @@ function diffMult():number{return build.value.diffuser&&model.value.diffLoss?1-m
 function buildFixture():Fixture{const b=build.value;const done=(Object.entries(b.steps) as [StepId,StepStatus][]).filter(([,st])=>st==='chosen').map(([s])=>s as string);return{m:b.m,q:props.item.q??1,wood:b.wood,zone:props.item.zone,l:b.lamps,opts:{bowl:b.bowl,mount:b.mount,wire:b.wire,btemp:b.btemp,diffuser:b.diffuser,moisture:b.moisture,bulbs:b.bulbs,bulbOpt:b.bulbOpt,baseColor:b.baseColor},done}}
 function doSave(){emit('save',buildFixture())}
 
-/* ──────────── stage3-shortener: prefetch + ClipboardItem-pattern ──────────── */
-/* При каждом изменении build (с debounce 500мс) в фоне готовится короткая
-   ссылка для текущего состояния. К моменту клика «Поделиться» она обычно
-   уже в руках. Проверка longUrl на клике защищает от race condition:
-   если build изменился ПОСЛЕ prefetch, делаем новый синхронный запрос. */
-let prefetched: { longUrl: string; promise: Promise<string> } | null = null
-let debounceTimer: ReturnType<typeof setTimeout> | null = null
-
-function refreshShortPromise() {
-  const longUrl = buildFixtureShareUrl(buildFixture())
-  if (prefetched && prefetched.longUrl === longUrl) return // уже есть для этого state
-  const promise = shortenLongUrl(longUrl).catch(() => longUrl)
-  prefetched = { longUrl, promise }
-  /* Если шортнер реально вернул короткую (≠ longUrl) — кэш остаётся.
-     Если упал в timeout и вернулась длинная — стираем кэш, чтобы следующий
-     клик попробовал ещё раз на уже прогретом Apps Script. */
-  promise.then(url => {
-    if (url === longUrl && prefetched && prefetched.longUrl === longUrl) {
-      prefetched = null
-    }
-  })
-}
-function scheduleRefresh() {
-  if (debounceTimer) clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(refreshShortPromise, 500)
-}
-watch(build, scheduleRefresh, { deep: true, immediate: true })
-
-async function shareFx() {
-  const longUrl = buildFixtureShareUrl(buildFixture())
-  /* Используем prefetched только если он для ТЕКУЩЕГО longUrl — иначе
-     это будет ссылка на старое состояние конфигурации (которая в Sheet
-     записана, но не соответствует тому что юзер видит на экране). */
-  const urlPromise =
-    prefetched && prefetched.longUrl === longUrl
-      ? prefetched.promise
-      : shortenLongUrl(longUrl).catch(() => longUrl)
-  try {
-    if (typeof ClipboardItem !== 'undefined') {
-      /* Гарантия короткой: если promise разрешился длинной (шортнер упал),
-         кидаем ошибку из blobPromise — ClipboardItem.write rejects,
-         catch ниже ловит и показывает тост вместо молчаливого копирования
-         длинной ссылки. */
-      const blobPromise = urlPromise.then(url => {
-        if (url === longUrl) throw new Error('shortener_failed')
-        return new Blob([url], { type: 'text/plain' })
-      })
-      await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blobPromise })])
-      emit('feedback', 'Ссылка на светильник скопирована')
-    } else {
-      /* Старый Safari без ClipboardItem: тут гарантии короткой нет — нечем
-         подождать promise синхронно. Копируем длинную чтобы юзер не остался
-         совсем ни с чем. */
-      await navigator.clipboard.writeText(longUrl)
-      emit('feedback', 'Ссылка на светильник скопирована')
-    }
-  } catch (e) {
-    if (e instanceof Error && e.message === 'shortener_failed') {
-      emit('feedback', 'Не удалось создать короткую ссылку. Попробуйте ещё раз')
-    } else {
-      emit('feedback', longUrl)
-    }
-  }
-}
+/* ─────────── stage3-shortener: единая модалка ShareModal ───────────
+   Кнопка «Поделиться» открывает модалку — там встроены prefetch, ClipboardItem,
+   navigator.share и UI с гарантией короткой ссылки. */
+const showShare = ref(false)
+const fixtureLongUrl = computed(() => buildFixtureShareUrl(buildFixture()))
 
 const fmt=(n:number)=>n.toLocaleString('ru-RU')
 function spw(n:number){const a=Math.abs(n),l=a%10,t=a%100;if(t>=11&&t<=19)return'патронов';if(l===1)return'патрон';if(l>=2&&l<=4)return'патрона';return'патронов'}
@@ -318,7 +259,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
         </div>
 
         <button :style="{width:'100%',padding:'14px',background:T.text,color:T.bg,border:'none',borderRadius:'10px',cursor:'pointer',fontSize:'14px',fontWeight:700,marginBottom:'8px'}" @click="doSave">Сохранить</button>
-        <button :style="{width:'100%',padding:'12px',background:'none',border:`1px solid ${T.border}`,borderRadius:'8px',color:T.textSec,cursor:'pointer',fontSize:'13px',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'6px',marginBottom:'20px'}" @click="shareFx"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Поделиться ссылкой на светильник</button>
+        <button :style="{width:'100%',padding:'12px',background:'none',border:`1px solid ${T.border}`,borderRadius:'8px',color:T.textSec,cursor:'pointer',fontSize:'13px',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'6px',marginBottom:'20px'}" @click="showShare=true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Поделиться ссылкой на светильник</button>
 
         <!-- Фотогалерея «{Model} в интерьере» — после Сохранить и Поделиться, с воздухом -->
         <div :style="{marginTop:'24px'}">
@@ -404,6 +345,16 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
     </div>
 
     <SmartHelpModal v-if="showHelp" @close="showHelp=false" />
+
+    <ShareModal
+      v-if="showShare"
+      :longUrl="fixtureLongUrl"
+      subtitle="Поделитесь светильником WOODLED"
+      :shareTitle="model.name"
+      :shareText="model.name"
+      @close="showShare=false"
+      @feedback="(msg) => emit('feedback', msg)"
+    />
   </div>
 </template>
 
