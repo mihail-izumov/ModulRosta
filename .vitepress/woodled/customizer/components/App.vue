@@ -43,6 +43,14 @@ import Modal from './ui/Modal.vue'
 import { readModelLink, clearModelLink } from '../engine/useModelLink'
 import { decodeFixture, readHashFixture } from '../engine/share'
 
+/* Предзагрузка коротких ссылок */
+import { onMounted } from 'vue'
+import { warmupShortener } from './engine/shortener'
+
+onMounted(() => {
+  warmupShortener()
+})
+
 /* Фотогалерея «Лес шепчет» — на главной «Живой Дом» */
 import GallerySection from './gallery/GallerySection.vue'
 import { random, toDisplayItem, preloadAspects } from '../engine/gallery-engine'
