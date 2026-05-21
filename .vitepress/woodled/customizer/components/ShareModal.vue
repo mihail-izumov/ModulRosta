@@ -62,13 +62,10 @@ const subtitle = computed(() => props.subtitle ?? 'Поделитесь свои
 /* shareTitle для navigator.share — по умолчанию название дома. */
 const shareTitle = computed(() => props.shareTitle ?? props.name ?? 'WOODLED')
 
-/* shareText — по умолчанию собираем из имени дома и количества ламп. */
+/* shareText по умолчанию — для дома. Светильник передаёт свой через props. */
 const shareText = computed(() => {
   if (props.shareText) return props.shareText
-  const totalLamps = (props.rooms ?? []).reduce((s, r) => s + fxLamps(r.fixtures), 0)
-  return totalLamps > 0
-    ? `${props.name ?? 'WOODLED'} — ${totalLamps} ламп`
-    : props.name ?? 'WOODLED'
+  return `Посмотрите ${props.name ?? 'дом'} WOODLED`
 })
 
 /* ─────────── stage3-shortener: prefetch + cache ─────────── */
@@ -124,12 +121,16 @@ function copyLink() {
 }
 
 function webShare() {
-  /* Кнопка disabled пока shortenedUrl null. Sync navigator.share с готовым URL. */
+  /* Кнопка disabled пока shortenedUrl null. Sync navigator.share с готовым URL.
+     Передаём И url отдельным полем (для iOS preview с иконкой через OG-теги
+     приёмной страницы), И URL внутри text (для Telegram macOS Desktop,
+     который игнорирует url field и берёт только text). Дубликация URL —
+     меньшее зло чем потеря URL на macOS. */
   const url = shortenedUrl.value
   if (!url) return
   const text = `${shareText.value}\n${url}`
   if (navigator.share) {
-    navigator.share({ title: shareTitle.value, text })
+    navigator.share({ title: shareTitle.value, text, url })
       .then(() => emit('close'))
       .catch(() => { /* отмена пользователем */ })
   } else {

@@ -259,7 +259,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
         </div>
 
         <button :style="{width:'100%',padding:'14px',background:T.text,color:T.bg,border:'none',borderRadius:'10px',cursor:'pointer',fontSize:'14px',fontWeight:700,marginBottom:'8px'}" @click="doSave">Сохранить</button>
-        <button :style="{width:'100%',padding:'12px',background:'none',border:`1px solid ${T.border}`,borderRadius:'8px',color:T.textSec,cursor:'pointer',fontSize:'13px',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'6px',marginBottom:'20px'}" @click="showShare=true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Поделиться ссылкой на светильник</button>
+        <button :style="{width:'100%',padding:'14px',background:'none',border:`2px solid ${T.text}`,borderRadius:'10px',color:T.text,cursor:'pointer',fontSize:'14px',fontWeight:700,display:'inline-flex',alignItems:'center',justifyContent:'center',gap:'8px',marginBottom:'20px'}" @click="showShare=true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Поделиться ссылкой на светильник</button>
 
         <!-- Фотогалерея «{Model} в интерьере» — после Сохранить и Поделиться, с воздухом -->
         <div :style="{marginTop:'24px'}">
@@ -351,7 +351,7 @@ function bulbPer(){return model.value.bulbPrice?Math.round(model.value.bulbPrice
       :longUrl="fixtureLongUrl"
       subtitle="Поделитесь светильником WOODLED"
       :shareTitle="model.name"
-      :shareText="model.name"
+      :shareText="`Посмотрите светильник ${model.name} WOODLED`"
       @close="showShare=false"
       @feedback="(msg) => emit('feedback', msg)"
     />
