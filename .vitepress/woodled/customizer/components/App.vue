@@ -42,14 +42,7 @@ import HouseStats from './HouseStats.vue'
 import Modal from './ui/Modal.vue'
 import { readModelLink, clearModelLink } from '../engine/useModelLink'
 import { decodeFixture, readHashFixture } from '../engine/share'
-
-/* Предзагрузка коротких ссылок */
-import { onMounted } from 'vue'
-import { warmupShortener } from './engine/shortener'
-
-onMounted(() => {
-  warmupShortener()
-})
+import { warmupShortener } from '../engine/shortener'
 
 /* Фотогалерея «Лес шепчет» — на главной «Живой Дом» */
 import GallerySection from './gallery/GallerySection.vue'
@@ -68,6 +61,7 @@ function lockViewport() {
 }
 
 onMounted(() => {
+  warmupShortener()
   lockViewport()
   window.addEventListener('beforeunload', cfg.persistState)
   if (cfg.loadFromHash()) { cfg.dismissWelcome(); return }
