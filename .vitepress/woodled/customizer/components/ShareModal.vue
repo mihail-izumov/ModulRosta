@@ -42,7 +42,6 @@ function makeUrl(): string {
    prefetch и кликом — делаем свежий запрос. */
 let prefetched: { longUrl: string; promise: Promise<string> } | null = null
 const shortenedUrl = ref<string | null>(null)
-const isShortening = ref(false)
 
 function refreshShortPromise() {
   const longUrl = makeUrl()
@@ -51,52 +50,50 @@ function refreshShortPromise() {
   const promise = shortenLongUrl(longUrl).catch(() => longUrl)
   prefetched = { longUrl, promise }
   promise.then(url => {
-    /* Сохраняем результат в ref ТОЛЬКО если это всё ещё актуальный prefetch
-       (иначе перезапишем результатом устаревшего запроса). */
-    if (prefetched && prefetched.longUrl === longUrl) {
-      shortenedUrl.value = url
+    /* Если шортнер реально вернул короткую (отличается от длинной) — кэшируем
+       и обновляем ref для Web Share. Если вернулась длинная (cold start timeout
+       или сервер недоступен) — НЕ кэшируем: следующий клик сделает fresh
+       запрос, который попадёт на уже прогретый Apps Script и обычно
+       успевает за 1-2 секунды. */
+    if (url !== longUrl) {
+      if (prefetched && prefetched.longUrl === longUrl) {
+        shortenedUrl.value = url
+      }
+    } else {
+      // Длинная в результате — стираем кэш, чтобы следующий клик попробовал снова
+      if (prefetched && prefetched.longUrl === longUrl) {
+        prefetched = null
+      }
     }
   })
 }
 
 onMounted(refreshShortPromise)
 
-async function copyLink() {
-  if (isShortening.value) return
-  isShortening.value = true
-  const longUrl = makeUrl()
-  /* Если prefetched для текущего longUrl — берём готовый promise.
-     Иначе свежий запрос (ClipboardItem подождёт его). */
-  const urlPromise =
-    prefetched && prefetched.longUrl === longUrl
-      ? prefetched.promise
-      : shortenLongUrl(longUrl).catch(() => longUrl)
-  try {
-    if (typeof ClipboardItem !== 'undefined') {
-      const blobPromise = urlPromise.then(url => new Blob([url], { type: 'text/plain' }))
-      await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blobPromise })])
+function copyLink() {
+  /* Кнопка в template :disabled="!shortenedUrl" — сюда попадаем только
+     когда короткая готова. Используем её синхронно (в user gesture context)
+     без всякого promise-ожидания — это гарантирует что в буфер пойдёт
+     именно короткая, никаких fallback на длинную. */
+  const url = shortenedUrl.value
+  if (!url) return
+  navigator.clipboard.writeText(url)
+    .then(() => {
       emit('feedback', 'Ссылка скопирована')
       emit('close')
-    } else {
-      /* Safari старше 14: длинную sync. */
-      await navigator.clipboard.writeText(longUrl)
-      emit('feedback', 'Ссылка скопирована')
-      emit('close')
-    }
-  } catch {
-    emit('feedback', longUrl)
-  } finally {
-    isShortening.value = false
-  }
+    })
+    .catch(() => {
+      /* Очень редкий случай — clipboard.writeText упал. Показываем URL в тосте,
+         чтобы юзер мог скопировать вручную. */
+      emit('feedback', url)
+    })
 }
 
 function webShare() {
-  /* URL встраиваем В ТЕКСТ, без отдельного поля `url`. Telegram macOS
-     Desktop игнорирует параметр url при шаринге через Web Share API
-     (видели в проде — отправляет только text). С URL внутри текста
-     все share targets (Telegram, Messages, Notes, WhatsApp) корректно
-     распознают ссылку и делают её кликабельной. */
-  const url = shortenedUrl.value ?? makeUrl()
+  /* Кнопка в template помечена :disabled="!shortenedUrl", так что сюда
+     попадаем только когда shortenedUrl готова. На всякий случай защита: */
+  const url = shortenedUrl.value
+  if (!url) return
   const totalLamps = props.rooms.reduce((s, r) => s + fxLamps(r.fixtures), 0)
   const text = `${props.name} — ${totalLamps} ламп\n${url}`
   if (navigator.share) {
@@ -143,7 +140,7 @@ function webShare() {
 
       <div :style="{ display: 'flex', justifyContent: 'center', gap: '20px' }">
         <button
-          :disabled="isShortening"
+          :disabled="!shortenedUrl"
           :style="{
             display: 'flex',
             flexDirection: 'column',
@@ -151,9 +148,9 @@ function webShare() {
             gap: '6px',
             background: 'none',
             border: 'none',
-            cursor: isShortening ? 'wait' : 'pointer',
-            opacity: isShortening ? 0.7 : 1,
-            transition: 'opacity .15s',
+            cursor: shortenedUrl ? 'pointer' : 'wait',
+            opacity: shortenedUrl ? 1 : 0.5,
+            transition: 'opacity .2s',
           }"
           @click="copyLink"
         >
@@ -170,7 +167,7 @@ function webShare() {
             }"
           >
             <svg
-              v-if="isShortening"
+              v-if="!shortenedUrl"
               class="share-spinner"
               width="22" height="22" viewBox="0 0 24 24"
               fill="none" :stroke="T.text" stroke-width="2.5"
@@ -189,11 +186,12 @@ function webShare() {
             </svg>
           </div>
           <span :style="{ fontSize: '11px', color: T.textSec }">
-            {{ isShortening ? 'Копируем…' : 'Скопировать' }}
+            {{ shortenedUrl ? 'Скопировать' : 'Готовим…' }}
           </span>
         </button>
 
         <button
+          :disabled="!shortenedUrl"
           :style="{
             display: 'flex',
             flexDirection: 'column',
@@ -201,7 +199,9 @@ function webShare() {
             gap: '6px',
             background: 'none',
             border: 'none',
-            cursor: 'pointer',
+            cursor: shortenedUrl ? 'pointer' : 'wait',
+            opacity: shortenedUrl ? 1 : 0.5,
+            transition: 'opacity .2s',
           }"
           @click="webShare"
         >
@@ -218,6 +218,16 @@ function webShare() {
             }"
           >
             <svg
+              v-if="!shortenedUrl"
+              class="share-spinner"
+              width="22" height="22" viewBox="0 0 24 24"
+              fill="none" :stroke="T.text" stroke-width="2.5"
+              stroke-linecap="round"
+            >
+              <path d="M12 2a10 10 0 0 1 10 10" />
+            </svg>
+            <svg
+              v-else
               width="22" height="22" viewBox="0 0 24 24"
               fill="none" :stroke="T.text" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round"
@@ -227,7 +237,9 @@ function webShare() {
               <line x1="12" y1="2" x2="12" y2="15" />
             </svg>
           </div>
-          <span :style="{ fontSize: '11px', color: T.textSec }">Поделиться</span>
+          <span :style="{ fontSize: '11px', color: T.textSec }">
+            {{ shortenedUrl ? 'Поделиться' : 'Готовим…' }}
+          </span>
         </button>
       </div>
     </div>

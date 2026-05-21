@@ -197,10 +197,16 @@ let debounceTimer: ReturnType<typeof setTimeout> | null = null
 function refreshShortPromise() {
   const longUrl = buildFixtureShareUrl(buildFixture())
   if (prefetched && prefetched.longUrl === longUrl) return // уже есть для этого state
-  prefetched = {
-    longUrl,
-    promise: shortenLongUrl(longUrl).catch(() => longUrl),
-  }
+  const promise = shortenLongUrl(longUrl).catch(() => longUrl)
+  prefetched = { longUrl, promise }
+  /* Если шортнер реально вернул короткую (≠ longUrl) — кэш остаётся.
+     Если упал в timeout и вернулась длинная — стираем кэш, чтобы следующий
+     клик попробовал ещё раз на уже прогретом Apps Script. */
+  promise.then(url => {
+    if (url === longUrl && prefetched && prefetched.longUrl === longUrl) {
+      prefetched = null
+    }
+  })
 }
 function scheduleRefresh() {
   if (debounceTimer) clearTimeout(debounceTimer)
@@ -219,16 +225,29 @@ async function shareFx() {
       : shortenLongUrl(longUrl).catch(() => longUrl)
   try {
     if (typeof ClipboardItem !== 'undefined') {
-      const blobPromise = urlPromise.then(url => new Blob([url], { type: 'text/plain' }))
+      /* Гарантия короткой: если promise разрешился длинной (шортнер упал),
+         кидаем ошибку из blobPromise — ClipboardItem.write rejects,
+         catch ниже ловит и показывает тост вместо молчаливого копирования
+         длинной ссылки. */
+      const blobPromise = urlPromise.then(url => {
+        if (url === longUrl) throw new Error('shortener_failed')
+        return new Blob([url], { type: 'text/plain' })
+      })
       await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blobPromise })])
       emit('feedback', 'Ссылка на светильник скопирована')
     } else {
-      /* Старый Safari без ClipboardItem: длинную sync. */
+      /* Старый Safari без ClipboardItem: тут гарантии короткой нет — нечем
+         подождать promise синхронно. Копируем длинную чтобы юзер не остался
+         совсем ни с чем. */
       await navigator.clipboard.writeText(longUrl)
       emit('feedback', 'Ссылка на светильник скопирована')
     }
-  } catch {
-    emit('feedback', longUrl)
+  } catch (e) {
+    if (e instanceof Error && e.message === 'shortener_failed') {
+      emit('feedback', 'Не удалось создать короткую ссылку. Попробуйте ещё раз')
+    } else {
+      emit('feedback', longUrl)
+    }
   }
 }
 
