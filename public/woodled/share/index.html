@@ -8,19 +8,29 @@
 <meta name="theme-color" content="#0A0908">
 <meta name="description" content="Соберите свой лес света WOODLED — конфигуратор домашнего освещения">
 
-<!-- Favicon и apple-touch-icon — нужны iOS для отображения иконки
-     в share sheet preview. Используем тот же og-cover.jpg. -->
+<!-- Favicon и apple-touch-icon. Apple использует именно apple-touch-icon.png
+     (PNG 180×180) для preview в iOS share sheet, иконки в iMessage,
+     добавления на главный экран. -->
 <link rel="icon" type="image/jpeg" href="https://runscale.ru/woodled/og-cover.jpg">
-<link rel="apple-touch-icon" href="https://runscale.ru/woodled/og-cover.jpg">
+<link rel="apple-touch-icon" sizes="180x180" href="https://runscale.ru/woodled/apple-touch-icon.png">
 
-<!-- Open Graph для preview в мессенджерах и iOS share sheet -->
+<!-- Open Graph для preview в мессенджерах и iOS share sheet.
+     og:image:width/height помогают iOS принять решение показывать
+     preview без задержки на crawl. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="WOODLED Студия">
 <meta property="og:description" content="Соберите свой лес света WOODLED — конфигуратор домашнего освещения">
 <meta property="og:image" content="https://runscale.ru/woodled/og-cover.jpg">
+<meta property="og:image:secure_url" content="https://runscale.ru/woodled/og-cover.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1080">
+<meta property="og:image:height" content="1080">
 <meta property="og:url" content="https://runscale.ru/woodled/">
 <meta property="og:site_name" content="WOODLED Студия">
-<meta name="twitter:card" content="summary_large_image">
+<!-- twitter:card = summary даёт КВАДРАТНЫЙ preview, подходящий под наш
+     1080×1080. summary_large_image требует 1.91:1 (1200×630) и часто
+     игнорирует квадратные картинки. -->
+<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WOODLED Студия">
 <meta name="twitter:description" content="Соберите свой лес света WOODLED">
 <meta name="twitter:image" content="https://runscale.ru/woodled/og-cover.jpg">
@@ -573,19 +583,16 @@
     try {
       data = await fetchPayload(id);
     } catch (e) {
-      var msg = (e && e.name === 'AbortError')
-        ? 'Сервер не отвечает. Попробуйте ещё раз через минуту.'
-        : 'Проверьте интернет и попробуйте снова.';
-      showError('Ссылка не работает', msg);
+      showError('Ссылка не работает', 'Уточните ссылку и попробуйте снова');
       return;
     }
 
     if (!data) {
-      showError('Ссылка не работает', 'Сервер вернул пустой ответ. Попробуйте ещё раз.');
+      showError('Ссылка не работает', 'Уточните ссылку и попробуйте снова');
       return;
     }
     if (data.error === 'not_found') {
-      showError('Ссылка не работает', 'По этой ссылке ничего нет. Уточните ссылку и попробуйте снова');
+      showError('Ссылка не работает', 'Уточните ссылку и попробуйте снова');
       return;
     }
     if (data.error || !data.payload) {
@@ -608,12 +615,17 @@
     line3.classList.add('on');
     await sleep(PHASE_3_HOLD);
 
-    /* Плавный fade-out всей страницы перед редиректом — чтобы переход
-       к конфигуратору не был резким. 600мс полного выцветания + redirect. */
+    /* Плавный переход к конфигуратору: fade-out стейджа + кратковременный
+       hold на полностью чёрном фоне (даём VitePress время инициализироваться
+       без вспышки). Общая длительность 800мс fade + 250мс hold = 1.05 сек. */
     var stage = $('stage');
-    stage.style.transition = 'opacity 0.6s ease-out';
+    stage.style.transition = 'opacity 0.8s ease-out';
     stage.style.opacity = '0';
-    await sleep(600);
+    /* Подстраховка: фиксируем чёрный body на случай если VitePress
+       при инициализации применит другой background. */
+    document.body.style.background = 'var(--bg)';
+    await sleep(800);
+    await sleep(250);
 
     /* Редирект — replace, чтобы /share/ не оставался в истории. */
     var target = CUSTOMIZER_PATH + '#' + type + '=2.' + data.payload;
