@@ -128,9 +128,9 @@ async function submitForm() {
   const otherText = otherActive.value && form.otherText ? form.otherText : ''
 
   try {
-    const res = await fetch(API_URL, {
+    await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },  // text/plain чтобы избежать CORS preflight с Google Apps Script
+      mode: 'no-cors',
       body: JSON.stringify({
         name: form.name,
         company: form.company,
@@ -141,13 +141,9 @@ async function submitForm() {
         urgency: form.urgency,
       }),
     })
-    const data = await res.json()
-    if (data.ok) {
-      submitted.value = true
-    } else {
-      sendError.value = 'Ошибка отправки. Попробуйте ещё раз.'
-      console.error('API error:', data)
-    }
+    // no-cors: ответ непрозрачный, но запрос уходит.
+    // Google Apps Script получает данные и шлёт в Telegram.
+    submitted.value = true
   } catch (err) {
     sendError.value = 'Нет соединения. Попробуйте ещё раз.'
     console.error('Network error:', err)
