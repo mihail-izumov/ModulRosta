@@ -199,14 +199,13 @@ const nX = [20, 90, 160]
 
 <style scoped>
 /* === All classes prefixed with mr-ip- to avoid global collisions === */
-/* Hard-reset for the counter span: defensive against any global rule that targets short class names. */
 .mr-ip .mr-ip-cn,
 .mr-ip .mr-ip-cl,
 .mr-ip .mr-ip-pt{display:block !important;visibility:visible !important;opacity:1 !important}
 
 .mr-ip{background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:15px 32px 24px;overflow:visible}
 .mr-ip-tt{font-family:'Inter',sans-serif;font-size:52px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 8px rgba(255,255,255,.2);margin-bottom:16px;margin-top:15px;text-align:center;line-height:1.2}
-.mr-ip-sub{font-family:'Inter',sans-serif;font-size:34px;font-weight:400;color:#777;text-align:center;margin:0 0 56px;letter-spacing:1px;line-height:1.3}
+.mr-ip-sub{font-family:'Inter',sans-serif;font-size:34px;font-weight:600;color:#fff;text-align:center;margin:0 0 56px;letter-spacing:0;line-height:1.3}
 @media(max-width:768px){.mr-ip-tt{font-size:24px;letter-spacing:2px;margin-bottom:12px}.mr-ip-sub{font-size:18px;margin-bottom:36px}.mr-ip{padding:39px 16px 16px}}
 .mr-ip-dk{display:flex;align-items:flex-start;justify-content:center;gap:64px;overflow:visible}
 .mr-ip-dc{display:flex;flex-direction:column;align-items:center;overflow:visible}
@@ -230,16 +229,13 @@ const nX = [20, 90, 160]
 .mr-ip-occ{transform-origin:center;animation:mripa-sccw var(--d,10s) linear infinite}
 .mr-ip-pd{animation:mripa-dp 3s ease-in-out infinite}
 
-/* Center glow — variants */
 .mr-ip-cg{filter:drop-shadow(0 0 10px #00ff88)}
 .mr-ip-cg-v{filter:drop-shadow(0 0 10px #58a6ff)}
 
 .mr-ip-pr{filter:drop-shadow(0 0 6px #00ff88)}
 
-/* Module dots (РАСШИРЯЕМ) — green default */
 .mr-ip-dm{position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:50%;background:#00ff88;box-shadow:0 0 8px #00ff88}
 .mr-ip-dmm{width:16px;height:16px}
-/* Module dots — amber */
 .mr-ip-dm-a{background:#ff8800;box-shadow:0 0 8px #ff8800}
 
 .mr-ip-cp0{animation:mripa-c0 12s ease-out infinite}
@@ -256,10 +252,8 @@ const nX = [20, 90, 160]
 .mr-ip-lc5{animation:mripa-l5 12s ease-out infinite}
 .mr-ip-lb{animation:mripa-lba 12s ease-out infinite}
 
-/* Center hub (РАСШИРЯЕМ) — green default */
 .mr-ip-dkc{position:absolute;top:50%;left:50%;width:27px;height:27px;border-radius:50%;background:#000;border:3px solid #00ff88;box-shadow:0 0 12px #00ff88,inset 0 0 8px rgba(0,255,136,.3);animation:mripa-ca 12s ease-out infinite}
 .mr-ip-dkcm{width:28px;height:28px}
-/* Center hub — amber */
 .mr-ip-dkc-a{border-color:#ff8800;box-shadow:0 0 12px #ff8800,inset 0 0 8px rgba(255,136,0,.3)}
 
 .mr-ip-dcc{position:absolute;inset:0;z-index:10}
@@ -271,23 +265,18 @@ const nX = [20, 90, 160]
 .mr-ip-pt.mr-ip-vis{opacity:1}
 .mr-ip-ptm{font-size:17px}
 
-/* Labels — green default */
 .mr-ip-lt{font-family:'Inter',sans-serif;font-size:28px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.5;margin-top:24px}
 .mr-ip-ltm{font-family:'Inter',sans-serif;font-size:24px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:2px;text-align:center;line-height:1.4;margin-top:16px}
-/* Labels — blue / amber */
 .mr-ip-lt-v{color:#58a6ff}
 .mr-ip-lt-a{color:#ff8800}
 
 /* ── Buttons ── */
-/* Default: green outline (ЗАПУСКАЕМ) */
 .mr-ip-mb{display:inline-flex;align-items:center;justify-content:center;padding:8px 24px;margin-top:12px;background:transparent !important;color:#00ff88 !important;border:1.5px solid #00ff88 !important;border-radius:6px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:all .3s ease;text-decoration:none !important}
 .mr-ip-mb:hover{box-shadow:0 0 20px rgba(0,255,136,.4);transform:translateY(-1px);background:rgba(0,255,136,.08) !important}
 .mr-ip-mb::before,.mr-ip-mb::after{display:none !important;content:none !important}
 .mr-ip-mbm{padding:6px 20px;font-size:10px;margin-top:10px}
-/* Button — ВИДИМ: outline blue */
 .mr-ip-mb-v{background:transparent !important;color:#58a6ff !important;border:1.5px solid #58a6ff !important}
 .mr-ip-mb-v:hover{box-shadow:0 0 20px rgba(88,166,255,.4);background:rgba(88,166,255,.08) !important}
-/* Button — РАСШИРЯЕМ: outline amber */
 .mr-ip-mb-a{background:transparent !important;color:#ff8800 !important;border:1.5px solid #ff8800 !important}
 .mr-ip-mb-a:hover{box-shadow:0 0 20px rgba(255,136,0,.4);background:rgba(255,136,0,.08) !important}
 
