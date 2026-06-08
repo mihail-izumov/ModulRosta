@@ -115,8 +115,9 @@ const sending = ref(false)
 const sendError = ref('')
 const otherActive = ref(false)
 
-const TG_BOT_TOKEN = import.meta.env.VITE_TG_BOT_TOKEN
-const TG_CHAT_ID   = import.meta.env.VITE_TG_CHAT_ID
+// ─── API endpoint (Google Apps Script — токен НЕ в браузере) ───
+const _f = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5bmdCelBDckhoWlloa1FWWTBFNXEwMlg4d1JFb19fdHlBSV85UkpSS21TaEN1aGZubjRIWlRRQW5LMzZmd2J4NVI1Zy9leGVj'
+const API_URL = typeof atob !== 'undefined' ? atob(_f) : ''
 
 async function submitForm() {
   if (!allReady.value || sending.value) return
@@ -124,28 +125,20 @@ async function submitForm() {
   sendError.value = ''
 
   const bottleneckText = bottleneckArr.value.join(', ')
-  const otherText = otherActive.value && form.otherText ? `\nДругое: ${form.otherText}` : ''
-
-  const text = [
-    '*Новая заявка — Book My Launch*',
-    '',
-    `*Имя:* ${form.name}`,
-    `*Компания/Проект:* ${form.company || '—'}`,
-    `*Телефон:* ${form.contact}`,
-    '',
-    `*Что тормозит:* ${bottleneckText || '—'}${otherText}`,
-    `*Оборот:* ${form.revenue}`,
-    `*Когда нужно:* ${form.urgency}`,
-  ].join('\n')
+  const otherText = otherActive.value && form.otherText ? form.otherText : ''
 
   try {
-    const res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+    const res = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },  // text/plain чтобы избежать CORS preflight с Google Apps Script
       body: JSON.stringify({
-        chat_id: TG_CHAT_ID,
-        text,
-        parse_mode: 'Markdown',
+        name: form.name,
+        company: form.company,
+        contact: form.contact,
+        bottleneck: bottleneckText || '—',
+        otherText,
+        revenue: form.revenue,
+        urgency: form.urgency,
       }),
     })
     const data = await res.json()
@@ -153,7 +146,7 @@ async function submitForm() {
       submitted.value = true
     } else {
       sendError.value = 'Ошибка отправки. Попробуйте ещё раз.'
-      console.error('Telegram API error:', data)
+      console.error('API error:', data)
     }
   } catch (err) {
     sendError.value = 'Нет соединения. Попробуйте ещё раз.'
