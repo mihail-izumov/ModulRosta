@@ -510,11 +510,13 @@ function goToForm() {
   letter-spacing: 0.2px !important;
 }
 .mr-sl-heading-accent {
-  font-size: 42px !important;
+  font-size: 22px !important;
   font-weight: 500 !important;
   font-family: 'Inter', sans-serif !important;
-  line-height: 36px !important;
+  line-height: 28px !important;
   letter-spacing: 0.2px !important;
+  margin-top: 16px !important;
+  display: inline-block !important;
   transition: color 0.6s ease !important;
 }
 .mr-sl-nowrap {
@@ -876,8 +878,8 @@ function goToForm() {
 @media (max-width: 639px) {
   .mr-sl-root { padding-top: 56px !important; }
   .mr-sl-column { margin-bottom: 85px !important; gap: 16px !important; }
-  .mr-sl-heading-white,
-  .mr-sl-heading-accent { font-size: 28px !important; line-height: 24px !important; }
+  .mr-sl-heading-white { font-size: 28px !important; line-height: 24px !important; }
+  .mr-sl-heading-accent { font-size: 16px !important; line-height: 20px !important; margin-top: 12px !important; }
   .mr-sl-heading { padding: 0 8px !important; }
   .mr-sl-panel { border-radius: 16px !important; }
   .mr-sl-header {
