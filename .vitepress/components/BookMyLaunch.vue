@@ -4,8 +4,8 @@
       <div class="bml-glow bml-glow-1"></div>
 
       <template v-if="!submitted">
-        <h1 class="bml-title">Забронировать<br/>мой запуск</h1>
-        <p class="bml-subtitle">предполётная подготовка</p>
+        <h1 class="bml-title">РАНСКЕЙЛ-СЕССИЯ</h1>
+        <p class="bml-subtitle bml-subtitle-price">90 минут | 50 000 ₽</p>
 
         <!-- Имя -->
         <div class="bml-field" :class="{ focused: focus.name }" @click="$refs.nameInput?.focus()">
@@ -391,6 +391,7 @@ const allReady = computed(() => checks.value.every(c => c.ready))
 
 .bml-title { font-size: 20px; font-weight: 400; letter-spacing: 8px; text-transform: uppercase; text-align: center; margin-bottom: 8px; color: #fff; line-height: 1.6; }
 .bml-subtitle { font-size: 11px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; text-align: center; margin-bottom: 48px; color: rgba(255,255,255,0.3); }
+.bml-subtitle-price { color: #ff8800; font-size: 14px; font-weight: 500; letter-spacing: 3px; }
 
 /* Fields */
 .bml-field { position: relative; height: 72px; border-bottom: 1.5px solid #444; transition: border-color 0.3s; cursor: text; }
