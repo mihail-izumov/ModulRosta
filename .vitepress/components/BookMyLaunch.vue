@@ -128,21 +128,17 @@ async function submitForm() {
   const otherText = otherActive.value && form.otherText ? form.otherText : ''
 
   try {
-    await fetch(API_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: JSON.stringify({
-        name: form.name,
-        company: form.company,
-        contact: form.contact,
-        bottleneck: bottleneckText || '—',
-        otherText,
-        revenue: form.revenue,
-        urgency: form.urgency,
-      }),
+    const payload = JSON.stringify({
+      name: form.name,
+      company: form.company,
+      contact: form.contact,
+      bottleneck: bottleneckText || '—',
+      otherText,
+      revenue: form.revenue,
+      urgency: form.urgency,
     })
-    // no-cors: ответ непрозрачный, но запрос уходит.
-    // Google Apps Script получает данные и шлёт в Telegram.
+    // GET с параметром — обходит CORS и проблему потери тела при редиректе
+    await fetch(API_URL + '?data=' + encodeURIComponent(payload), { mode: 'no-cors' })
     submitted.value = true
   } catch (err) {
     sendError.value = 'Нет соединения. Попробуйте ещё раз.'
