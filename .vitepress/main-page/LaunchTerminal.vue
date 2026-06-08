@@ -271,7 +271,6 @@ function displayNum(num: number) {
 }
 
 function showCachedNum() {
-  // Мгновенно показать последнее известное значение
   const cached = parseInt(localStorage.getItem('rs_launch_num') || '0')
   displayNum(cached || 1)
 }
@@ -284,7 +283,7 @@ async function incLaunchNum() {
 // ═══ BOOKING ═══
 async function offerBooking() {
   tGap()
-  await tButton('ЗАБРОНИРОВАТЬ МОЙ ЗАПУСК', 'green')
+  await tButton('РАНСКЕЙЛ-СЕССИЯ', 'green')
   jl('Переход к бронированию', 'green')
   tGap(); await tType('[OK] Выполняется переход', 't-green', 20); jl('Сессия открыта', 'green')
   await wait(2000)
@@ -293,7 +292,7 @@ async function offerBooking() {
 
 function offerBookingSleep() {
   tGap()
-  const btn = document.createElement('button'); btn.className = 't-btn-sleep'; btn.textContent = 'ЗАБРОНИРОВАТЬ МОЙ ЗАПУСК'
+  const btn = document.createElement('button'); btn.className = 't-btn-sleep'; btn.textContent = 'РАНСКЕЙЛ-СЕССИЯ'
   ti().appendChild(btn)
   const kb = document.createElement('div'); kb.className = 't-kb-hint'; kb.textContent = 'Enter / Y для подтверждения'; ti().appendChild(kb); tScroll()
   btn.addEventListener('click', async () => {
@@ -392,9 +391,7 @@ function updateClock() {
 function onResize() { buildPixels() }
 
 onMounted(async () => {
-  // Мгновенно показать кэшированное значение
   showCachedNum()
-  // API обновит в фоне (без await — не блокирует загрузку)
   fetchAndIncrement().then(num => displayNum(num))
   updateClock(); clockIv = setInterval(updateClock, 1000)
 
@@ -589,7 +586,7 @@ onUnmounted(() => document.removeEventListener('keydown', onEsc))
 .pn-details-btn{font-family:'Fira Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.08em;color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:8px 20px;cursor:pointer;transition:all 0.3s;backdrop-filter:blur(8px);}
 .pn-details-btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);}
 
-/* DETAILS PANEL — absolute overlay inside lt-root */
+/* DETAILS PANEL */
 .dp-overlay{position:absolute;inset:0;z-index:99;background:#030510;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;}
 .dp-fade-enter-active,.dp-fade-leave-active{transition:opacity 0.3s ease;}
 .dp-fade-enter-from,.dp-fade-leave-to{opacity:0;}

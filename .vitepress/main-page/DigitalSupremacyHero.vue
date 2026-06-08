@@ -3,12 +3,12 @@
     <div class="mr-hero-glow" />
 
     <div ref="wrapRef" class="mr-hero-wrap">
-      <!-- ЦИФРОВОЕ -->
+      <!-- ТОТАЛЬНАЯ -->
       <div class="mr-hero-canvas-row" :style="{ height: fontSize * 1.15 + 'px' }">
         <canvas ref="canvas1Ref" class="mr-hero-canvas" />
       </div>
 
-      <!-- ПРЕВОСХОДСТВО -->
+      <!-- ЭФФЕКТИВНОСТЬ -->
       <div class="mr-hero-canvas-row" :style="{ height: fontSize * 1.15 + 'px', marginTop: -fontSize * 0.15 + 'px' }">
         <canvas ref="canvas2Ref" class="mr-hero-canvas" />
       </div>
@@ -44,7 +44,7 @@
 
         <!-- Accent -->
         <div class="mr-hero-accent">
-          <strong>Строим и запускаем <span class="accent-wrap">цифровые продукты.</span></strong>
+          <strong>Ускоряем бизнес в цифре. <span class="accent-wrap">60 дней.</span></strong>
         </div>
 
         <!-- Tooltip — absolute, auto-cycling fade in/out -->
@@ -286,8 +286,8 @@ function measure() {
   if (W < 20) return
   const tmp = document.createElement('canvas').getContext('2d')
   tmp.font = `700 100px ${FONT}`
-  const w1 = tmp.measureText('ЦИФРОВОЕ').width || 500
-  const w2 = tmp.measureText('ПРЕВОСХОДСТВО').width || 800
+  const w1 = tmp.measureText('ТОТАЛЬНАЯ').width || 500
+  const w2 = tmp.measureText('ЭФФЕКТИВНОСТЬ').width || 800
   const s = Math.floor((W / Math.max(w1, w2)) * 100 * 0.96)
   fontSizeInternal = s
   fontSize.value = s
@@ -300,8 +300,8 @@ function buildAll() {
 
 function draw() {
   pixelTime += 0.008 / 3
-  drawPixelText(canvas1Ref.value, pix1, 'ЦИФРОВОЕ', fontSizeInternal, pixelTime)
-  drawPixelText(canvas2Ref.value, pix2, 'ПРЕВОСХОДСТВО', fontSizeInternal, pixelTime)
+  drawPixelText(canvas1Ref.value, pix1, 'ТОТАЛЬНАЯ', fontSizeInternal, pixelTime)
+  drawPixelText(canvas2Ref.value, pix2, 'ЭФФЕКТИВНОСТЬ', fontSizeInternal, pixelTime)
 
   const isMobile = window.innerWidth <= 700
   const wavePeriod = isMobile ? 2.5 : 3.5

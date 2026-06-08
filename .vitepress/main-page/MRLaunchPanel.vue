@@ -86,7 +86,6 @@ let savedHtmlBg = ''
 function lockScroll() {
   document.body.style.overflow = 'hidden'
   document.documentElement.style.overflow = 'hidden'
-  // Match background so no foreign color peeks through any gap
   savedBodyBg = document.body.style.background
   savedHtmlBg = document.documentElement.style.background
   document.body.style.background = 'rgb(6,6,10)'
@@ -108,7 +107,6 @@ function closeModal() {
   unlockScroll()
 }
 
-// Close on Escape key
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && showModal.value) {
     closeModal()
@@ -243,10 +241,10 @@ function goToForm() {
 
       <!-- Heading -->
       <div class="mr-sl-heading">
-        <span class="mr-sl-heading-white">Вы знаете, что хотите.</span>
+        <span class="mr-sl-heading-white">90 МИН. СЕССИЯ</span>
         <br>
         <span class="mr-sl-heading-accent" :style="{ color: accentRgb }">
-          Мы делаем это <span class="mr-sl-nowrap">в&nbsp;цифре.</span>
+          Старт 50 000 ₽
         </span>
       </div>
 
@@ -366,7 +364,7 @@ function goToForm() {
               <!-- Active: icon + text -->
               <div v-if="allSelected" class="mr-sl-btn-inner">
                 <div class="mr-sl-icon-wrap">
-                  <!-- Circle overlay (visible during rotation) -->
+                  <!-- Circle overlay -->
                   <div
                     class="mr-sl-icon-circle"
                     :class="{ 'mr-sl-icon-circle--show': iconActive }"
@@ -375,7 +373,7 @@ function goToForm() {
                       <circle cx="540" cy="540" r="513" fill="none" :stroke="accentRgb" stroke-width="54"/>
                     </svg>
                   </div>
-                  <!-- Rocket (rotates + scales) -->
+                  <!-- Rocket -->
                   <div
                     class="mr-sl-icon-rocket"
                     :class="{ 'mr-sl-icon-rocket--active': iconActive }"
@@ -388,7 +386,7 @@ function goToForm() {
                   </div>
                 </div>
                 <span class="mr-sl-btn-text" :style="{ color: accentRgb }">
-                  90 мин. ранскейл сессия
+                  СТАРТ СЕЙЧАС
                 </span>
               </div>
 
@@ -420,11 +418,9 @@ function goToForm() {
           Или заполнить форму
         </span>
         <span class="mr-sl-form-icon" :style="{ color: accentRgb }">
-          <!-- Circle stays -->
           <svg class="mr-sl-form-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 12A10 10 0 1 1 12 2"/>
           </svg>
-          <!-- Arrow moves -->
           <svg
             class="mr-sl-form-svg mr-sl-form-arrow"
             :class="{ 'mr-sl-form-arrow--hover': formHover }"
@@ -447,7 +443,6 @@ function goToForm() {
           @click.self="closeModal"
         >
           <div class="mr-sl-modal-container">
-            <!-- Close button -->
             <button
               class="mr-sl-modal-close"
               @click="closeModal"
@@ -458,8 +453,6 @@ function goToForm() {
                 <line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
-
-            <!-- LaunchTerminal component -->
             <LaunchTerminal />
           </div>
         </div>
@@ -830,7 +823,6 @@ function goToForm() {
   flex-direction: column !important;
 }
 
-/* Force child component to fill full height (no navbar in modal) */
 .mr-sl-modal-container > :deep(*) {
   flex: 1 0 auto !important;
 }
