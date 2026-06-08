@@ -26,7 +26,7 @@ const isOpen = (key) => openAccordions.value.has(key)
       </div>
       <div class="md-checkpoint">
         <span class="md-checkpoint-marker"><span class="md-checkpoint-dot"></span></span>
-        <span class="md-checkpoint-text">Какой модуль запустить первым, чтобы эффект был взрывным.</span>
+        <span class="md-checkpoint-text">Какой модуль запустить первым, чтобы эффект был максимальным.</span>
       </div>
     </div>
 
