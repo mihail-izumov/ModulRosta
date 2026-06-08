@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Забронировать запуск
+title: РАНСКЕЙЛ-СЕССИЯ
 aside: false
 navbar: true
 sidebar: false
