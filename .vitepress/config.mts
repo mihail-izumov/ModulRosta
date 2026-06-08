@@ -43,7 +43,7 @@ export default defineConfig({
         html += '</div></div>';
         html += '<div style="margin-top: 24px; text-align: center;">';
         html += '<div style="color: white; font-size: 14px; font-family: Exo 2, Inter, sans-serif;">Расти по своим правилам.</div>';
-        html += '<div style="color: var(--vp-c-text-2); margin-top: 4px; font-size: 14px; text-align: center; font-family: Exo 2, Inter, sans-serif;">© Модуль Роста® • Создано в <a href="https://orxaos.sbs" target="_blank" style="color: inherit; text-decoration: underline;">Orxaos</a></div>';
+        html += '<div style="color: var(--vp-c-text-2); margin-top: 4px; font-size: 14px; text-align: center; font-family: Exo 2, Inter, sans-serif;">© Модуль Роста®</div>';
         return html;
       }
       function replaceFooter() {
