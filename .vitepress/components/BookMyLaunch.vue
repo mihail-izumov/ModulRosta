@@ -116,7 +116,7 @@ const sendError = ref('')
 const otherActive = ref(false)
 
 // ─── API endpoint (Google Apps Script — токен НЕ в браузере) ───
-const _f = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5bmdCelBDckhoWlloa1FWWTBFNXEwMlg4d1JFb19fdHlBSV85UkpSS21TaEN1aGZubjRIWlRRQW5LMzZmd2J4NVI1Zy9leGVj'
+const _f = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6U3R0T2JXUkQzeUhZcGo4bEtuSGVpSWNISEFpbW0wMzVlbGQ2SzhrQ0x4WVdRQ2R2SFdNbWZ4Umc0X1czZnpvcDVfUS9leGVj'
 const API_URL = typeof atob !== 'undefined' ? atob(_f) : ''
 
 async function submitForm() {
