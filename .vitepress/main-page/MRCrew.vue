@@ -24,7 +24,7 @@ const PEOPLE: Record<'m' | 'p', Person> = {
   m: {
     id: 'm',
     name: 'Михаил Изюмов',
-    role: 'Видит и собирает',
+    role: 'Видит\nи собирает',
     initials: 'МИ',
     photo: '/crew/mikhail-crew.png',
     bubbles: ['Стратегия', 'Аналитика', 'Дизайн', 'Маркетинг'],
@@ -38,7 +38,7 @@ const PEOPLE: Record<'m' | 'p', Person> = {
   p: {
     id: 'p',
     name: 'Павел Моторин',
-    role: 'Приземляет и расширяет',
+    role: 'Приземляет\nи расширяет',
     initials: 'ПМ',
     photo: '/crew/pavel-crew.png',
     bubbles: ['Внедрение', 'Технологии', 'Обучение', 'Расширение'],
@@ -90,10 +90,10 @@ const STAGES: Stage[] = [
 ]
 
 const VALUES = [
-  { n: '1', title: 'Наш бизнес — это перемены.', caption: 'Стабильность — самый дорогой риск.' },
-  { n: '2', title: 'Мы в атаке. Всё время.', caption: 'Оборона — это медленное поражение.' },
-  { n: '3', title: 'Сила в действии.', caption: 'Слова не двигают метрики. Запуски двигают.' },
-  { n: '4', title: 'Это будет красиво.', caption: 'Работающая система не бывает уродливой.' },
+  { n: '1', title: 'Наш бизнес —\nэто перемены.', caption: 'Стабильность — самый дорогой риск.' },
+  { n: '2', title: 'Мы в атаке. Всё время.', caption: 'Защита — это медленное поражение.' },
+  { n: '3', title: 'Сила в действии.', caption: 'Слова не двигают метрики.\nЗапуски двигают.' },
+  { n: '4', title: 'Это будет красиво.', caption: 'Работающая система\nне бывает уродливой.' },
 ]
 
 /* ── State ── */
@@ -140,6 +140,21 @@ onUnmounted(() => {
 const isLead = (id: 'm' | 'p') => stage.value.lead === id
 const isActiveBubble = (id: 'm' | 'p', b: string) => stage.value.active[id].includes(b)
 const leadStagesFor = (id: 'm' | 'p') => STAGES.filter(s => s.lead === id)
+
+/* ── Фото всегда смотрят друг на друга ──
+   PHOTO_FACES — куда смотрит ИСХОДНОЕ фото (без зеркала).
+   Если после загрузки реальных фото кто-то отвернулся — поменяйте
+   'right'/'left' у нужного человека, логика пересчитается сама. */
+const PHOTO_FACES: Record<'m' | 'p', 'left' | 'right'> = { m: 'right', p: 'left' }
+const visualSide = (id: 'm' | 'p'): 'left' | 'right' => {
+  if (id === 'm') return swapped.value ? 'right' : 'left'
+  return swapped.value ? 'left' : 'right'
+}
+const photoFlipped = (id: 'm' | 'p') => {
+  /* на левой карточке смотрим вправо, на правой — влево */
+  const want = visualSide(id) === 'left' ? 'right' : 'left'
+  return PHOTO_FACES[id] !== want
+}
 
 const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') => {
   if (!isActiveBubble(id, b)) {
@@ -280,7 +295,13 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                       ? { borderColor: stage.color, background: `rgba(${stage.colorRgb},0.12)` }
                       : {}"
                   >
-                    <img v-if="PEOPLE[id].photo" :src="PEOPLE[id].photo" :alt="PEOPLE[id].name" class="mr-crew-avatar-img" />
+                    <img
+                      v-if="PEOPLE[id].photo"
+                      :src="PEOPLE[id].photo"
+                      :alt="PEOPLE[id].name"
+                      class="mr-crew-avatar-img"
+                      :class="{ flipped: photoFlipped(id) }"
+                    />
                     <span
                       v-else
                       class="mr-crew-avatar-initials"
@@ -437,10 +458,11 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   padding: 30px 24px 26px;
   background: rgba(8, 10, 14, 0.55);
   overflow-y: auto;
+  /* скроллбар скрыт полностью — никаких миганий при раскрытии */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-.mr-crew-values::-webkit-scrollbar { width: 3px; }
-.mr-crew-values::-webkit-scrollbar-track { background: transparent; }
-.mr-crew-values::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 2px; }
+.mr-crew-values::-webkit-scrollbar { display: none; width: 0; }
 .mr-crew-values-head {
   display: flex;
   align-items: center;
@@ -508,6 +530,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   color: #fff;
   letter-spacing: 0.2px;
   line-height: 1.35;
+  white-space: pre-line;
 }
 
 /* Тумблер — крупный, не промахнёшься. Плюс поворачивается в крест. */
@@ -557,6 +580,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   font-weight: 500;
   color: rgba(255, 255, 255, 0.6);
   line-height: 1.55;
+  white-space: pre-line;
 }
 
 /* ═══ RIGHT · Main ═══ */
@@ -564,7 +588,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   flex: 1;
   min-width: 0;
   margin-left: max(33%, 280px);
-  min-height: 480px;
+  min-height: 505px;
   padding: 34px 34px 34px;
   display: flex;
   flex-direction: column;
@@ -762,7 +786,13 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 .mr-crew-card.is-lead .mr-crew-avatar-tint { opacity: 0.32; }
 .mr-crew-modal .mr-crew-avatar-tint { opacity: 0.3; }
 .mr-crew-avatar-lg { width: 80px; height: 80px; }
-.mr-crew-avatar-img { width: 100%; height: 100%; object-fit: cover; }
+.mr-crew-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mr-crew-avatar-img.flipped { transform: scaleX(-1); }
 .mr-crew-avatar-initials {
   font-family: 'Inter', sans-serif;
   font-weight: 800;
@@ -785,6 +815,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   margin-top: 3px;
   letter-spacing: 0.2px;
   line-height: 1.3;
+  white-space: pre-line;
   color: rgba(255, 255, 255, 0.55);
   transition: color 0.4s ease;
 }
@@ -891,6 +922,8 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   font-size: 14px;
   font-weight: 700;
   margin-top: 4px;
+  line-height: 1.3;
+  white-space: pre-line;
 }
 .mr-crew-modal-lead-row {
   display: flex;
@@ -961,7 +994,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 
 /* ═══ Reduced motion ═══ */
 @media (prefers-reduced-motion: reduce) {
-  .mr-crew-card-slot, .mr-crew-card, .mr-crew-badge, .mr-crew-bubble, .mr-crew-route-progress { transition: none !important; }
+  .mr-crew-card-slot, .mr-crew-card, .mr-crew-badge, .mr-crew-bubble, .mr-crew-route-progress, .mr-crew-avatar-img { transition: none !important; }
   .mr-crew-badge-dot, .mr-crew-node-ring { animation: none !important; }
   .mr-crew-card.pressing { animation: none !important; }
 }
