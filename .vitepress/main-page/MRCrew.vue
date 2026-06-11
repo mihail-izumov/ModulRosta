@@ -145,7 +145,7 @@ const leadStagesFor = (id: 'm' | 'p') => STAGES.filter(s => s.lead === id)
    PHOTO_FACES — куда смотрит ИСХОДНОЕ фото (без зеркала).
    Если после загрузки реальных фото кто-то отвернулся — поменяйте
    'right'/'left' у нужного человека, логика пересчитается сама. */
-const PHOTO_FACES: Record<'m' | 'p', 'left' | 'right'> = { m: 'left', p: 'left' }
+const PHOTO_FACES: Record<'m' | 'p', 'left' | 'right'> = { m: 'right', p: 'right' }
 const visualSide = (id: 'm' | 'p'): 'left' | 'right' => {
   if (id === 'm') return swapped.value ? 'right' : 'left'
   return swapped.value ? 'left' : 'right'
