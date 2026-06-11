@@ -44,7 +44,7 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     bubbles: ['Внедрение', 'Технологии', 'Обучение', 'Расширение'],
     bio: [
       'Приземляет скорость на технологии. Синхронизирует прототип с реальностью бизнеса: что нужно на самом деле — то и летит.',
-      'Ведёт Сверку, Взлёт и Полёт: внедрение, обучение команды, расширение системы модуль за модулем. С ним хаос не выживает.',
+      'Ведёт Стыковку, Взлёт и Полёт: внедрение, обучение команды, расширение системы модуль за модулем. С ним хаос не выживает.',
     ],
     tg: 'https://t.me/runScale',
     tgLabel: 'Телеграм-канал',
@@ -70,7 +70,7 @@ const STAGES: Stage[] = [
     active: { m: ['Стратегия', 'Аналитика', 'Дизайн'], p: ['Технологии'] },
   },
   {
-    id: 'sverka', num: '02', label: 'Сверка',
+    id: 'stykovka', num: '02', label: 'Стыковка',
     color: '#58a6ff', colorRgb: '88,166,255',
     lead: 'p', supportBadge: 'ДЕРЖИТ КУРС',
     active: { m: ['Стратегия'], p: ['Технологии', 'Внедрение'] },
@@ -129,9 +129,13 @@ const isLead = (id: 'm' | 'p') => stage.value.lead === id
 const isActiveBubble = (id: 'm' | 'p', b: string) => stage.value.active[id].includes(b)
 const leadStagesFor = (id: 'm' | 'p') => STAGES.filter(s => s.lead === id)
 
-const bubbleStyle = (id: 'm' | 'p', b: string) => {
+const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') => {
   if (!isActiveBubble(id, b)) {
-    /* неактивные — ярче, со слабым тоном цвета этапа */
+    if (ctx === 'modal') {
+      /* в модалке неактивные почти сливаются с фоном */
+      return { background: 'rgba(255,255,255,0.045)', color: 'rgba(255,255,255,0.35)' }
+    }
+    /* в карточках — ярче, со слабым тоном цвета этапа */
     return { background: `rgba(${stage.value.colorRgb},0.09)`, color: 'rgba(255,255,255,0.68)' }
   }
   if (isLead(id)) return { background: stage.value.color, color: '#06090f' }
@@ -151,7 +155,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
 
         <!-- LEFT · Values -->
         <aside class="mr-crew-values">
-          <div class="mr-crew-values-head">
+          <div class="mr-crew-values-head" :class="{ engaged: openValue !== null }">
             <svg class="mr-crew-chevron" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
               <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
                 <path :d="CHEVRON_PATH" fill="rgba(255,255,255,0.88)" />
@@ -169,7 +173,11 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
             <button class="mr-crew-value-header" @click="toggleValue(v.n)">
               <span class="mr-crew-value-num">{{ v.n }}</span>
               <span class="mr-crew-value-title">{{ v.title }}</span>
-              <span class="mr-crew-value-toggle">{{ openValue === v.n ? '−' : '+' }}</span>
+              <span class="mr-crew-value-toggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M12 5v14" /><path d="M5 12h14" />
+                </svg>
+              </span>
             </button>
             <div class="mr-crew-value-body" :class="{ expanded: openValue === v.n }">
               <p class="mr-crew-value-caption">{{ v.caption }}</p>
@@ -348,7 +356,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
                 :key="b"
                 class="mr-crew-bubble"
                 :class="{ on: isActiveBubble(modalPerson.id, b) }"
-                :style="bubbleStyle(modalPerson.id, b)"
+                :style="bubbleStyle(modalPerson.id, b, 'modal')"
               >{{ b }}</span>
             </div>
 
@@ -381,13 +389,14 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
 
 /* ═══ Statement ═══ */
 .mr-crew-statement {
-  font-size: clamp(36px, 5.5vw, 60px);
+  font-size: clamp(34px, 5vw, 56px);
   font-weight: 800;
   color: #fff;
   line-height: 1.1;
   text-align: center;
   margin: 0 0 52px;
-  letter-spacing: 0.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
 
 /* ═══ Instrument panel frame ═══ */
@@ -418,13 +427,17 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
   width: 27px;
   height: 27px;
   flex-shrink: 0;
+  transition: transform 0.35s ease;
 }
+.mr-crew-values-head.engaged .mr-crew-chevron { transform: rotate(90deg); }
 .mr-crew-values-title {
   font-size: 22px;
   font-weight: 800;
   color: #fff;
   letter-spacing: 0.3px;
+  transition: transform 0.35s ease;
 }
+.mr-crew-values-head.engaged .mr-crew-values-title { transform: translateX(5px); }
 
 /* Плашки вместо разделителей */
 .mr-crew-value {
@@ -472,23 +485,24 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
   line-height: 1.35;
 }
 
-/* Тумблер +/− — приборный, крупный */
+/* Тумблер — крупный, не промахнёшься. Плюс поворачивается в крест. */
 .mr-crew-value-toggle {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border: 1.5px solid rgba(255, 255, 255, 0.28);
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 21px;
-  font-weight: 800;
-  line-height: 1;
   color: #fff;
   background: rgba(255, 255, 255, 0.03);
   transition: all 0.25s ease;
+}
+.mr-crew-value-toggle svg {
+  width: 21px;
+  height: 21px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .mr-crew-value-header:hover .mr-crew-value-toggle {
   border-color: rgba(255, 255, 255, 0.6);
@@ -499,6 +513,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
   border-color: #fff;
   color: #06090f;
 }
+.mr-crew-value.open .mr-crew-value-toggle svg { transform: rotate(45deg); }
 
 .mr-crew-value-body {
   max-height: 0;
@@ -853,8 +868,9 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
 .mr-crew-lead-chip {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
   padding: 5px 11px;
   border-radius: 6px;
   border: 1px solid;
@@ -922,7 +938,8 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
   .mr-crew-chevron { width: 23px; height: 23px; }
   .mr-crew-value { border-radius: 12px; padding: 0 13px; }
   .mr-crew-value-title { font-size: 14px; }
-  .mr-crew-value-toggle { width: 28px; height: 28px; font-size: 18px; }
+  .mr-crew-value-toggle { width: 33px; height: 33px; border-radius: 9px; }
+  .mr-crew-value-toggle svg { width: 18px; height: 18px; }
   .mr-crew-value-caption { font-size: 13px; padding-left: 24px; }
 
   .mr-crew-route { margin-bottom: 28px; }
