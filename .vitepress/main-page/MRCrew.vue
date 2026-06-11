@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 
 /* ═══════════════════════════════════════════════════════════
    MRCrew v3 — «Системы строят люди.»
@@ -26,7 +26,7 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     name: 'Михаил Изюмов',
     role: 'Видит и собирает',
     initials: 'МИ',
-    photo: null, // например: '/ars/crew/mikhail.jpg'
+    photo: '/crew/mikhail-crew.png',
     bubbles: ['Стратегия', 'Аналитика', 'Дизайн', 'Маркетинг'],
     bio: [
       'Заходит первым. За пять дней Разбега собирает то, на что у агентств уходит квартал: аналитику, стратегию, дизайн и прототип первого цифрового продукта.',
@@ -40,7 +40,7 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     name: 'Павел Моторин',
     role: 'Приземляет и расширяет',
     initials: 'ПМ',
-    photo: null, // например: '/ars/crew/pavel.jpg'
+    photo: '/crew/pavel-crew.png',
     bubbles: ['Внедрение', 'Технологии', 'Обучение', 'Расширение'],
     bio: [
       'Приземляет скорость на технологии. Синхронизирует прототип с реальностью бизнеса: что нужно на самом деле — то и летит.',
@@ -107,6 +107,17 @@ const routeWidth = computed(() => (stageIdx.value / (STAGES.length - 1)) * 75)
 const openValue = ref<string | null>(null)
 const toggleValue = (n: string) => { openValue.value = openValue.value === n ? null : n }
 
+/* «Нажатие» карточек при каждой смене этапа — даже без свопа видно обновление */
+const pressing = ref(false)
+let pressTimer: ReturnType<typeof setTimeout> | null = null
+watch(stageIdx, async () => {
+  pressing.value = false
+  await nextTick()
+  requestAnimationFrame(() => { pressing.value = true })
+  if (pressTimer) clearTimeout(pressTimer)
+  pressTimer = setTimeout(() => { pressing.value = false }, 500)
+})
+
 const modalPerson = ref<Person | null>(null)
 const openModal = (id: 'm' | 'p') => {
   modalPerson.value = PEOPLE[id]
@@ -122,6 +133,7 @@ onMounted(() => document.addEventListener('keydown', onKeydown))
 onUnmounted(() => {
   document.removeEventListener('keydown', onKeydown)
   document.body.style.overflow = ''
+  if (pressTimer) clearTimeout(pressTimer)
 })
 
 /* ── Helpers ── */
@@ -238,7 +250,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
             >
               <div
                 class="mr-crew-card"
-                :class="{ 'is-lead': isLead(id) }"
+                :class="{ 'is-lead': isLead(id), pressing }"
                 :style="isLead(id) ? {
                   borderColor: stage.color,
                   boxShadow: `0 0 34px rgba(${stage.colorRgb},0.22), 0 14px 40px rgba(0,0,0,0.5)`,
@@ -274,6 +286,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                       class="mr-crew-avatar-initials"
                       :style="isLead(id) ? { color: stage.color } : {}"
                     >{{ PEOPLE[id].initials }}</span>
+                    <span class="mr-crew-avatar-tint" :style="{ background: stage.color }"></span>
                   </div>
 
                   <div class="mr-crew-identity">
@@ -329,6 +342,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
               >
                 <img v-if="modalPerson.photo" :src="modalPerson.photo" :alt="modalPerson.name" class="mr-crew-avatar-img" />
                 <span v-else class="mr-crew-avatar-initials mr-crew-avatar-initials-lg" :style="{ color: stage.color }">{{ modalPerson.initials }}</span>
+                <span class="mr-crew-avatar-tint" :style="{ background: stage.color }"></span>
               </div>
               <div>
                 <div class="mr-crew-modal-name">{{ modalPerson.name }}</div>
@@ -399,8 +413,11 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   text-transform: uppercase;
 }
 
-/* ═══ Instrument panel frame ═══ */
+/* ═══ Instrument panel frame ═══
+   Высоту рамки задаёт ТОЛЬКО правая колонка — раскрытие ценностей
+   слева не меняет габарит панели (левая колонка абсолютная). */
 .mr-crew-panel {
+  position: relative;
   display: flex;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 18px;
@@ -410,12 +427,20 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 
 /* ═══ LEFT · Values ═══ */
 .mr-crew-values {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
   width: 33%;
   min-width: 280px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   padding: 30px 24px 26px;
   background: rgba(8, 10, 14, 0.55);
+  overflow-y: auto;
 }
+.mr-crew-values::-webkit-scrollbar { width: 3px; }
+.mr-crew-values::-webkit-scrollbar-track { background: transparent; }
+.mr-crew-values::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 2px; }
 .mr-crew-values-head {
   display: flex;
   align-items: center;
@@ -538,6 +563,8 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 .mr-crew-main {
   flex: 1;
   min-width: 0;
+  margin-left: max(33%, 280px);
+  min-height: 480px;
   padding: 34px 34px 34px;
   display: flex;
   flex-direction: column;
@@ -661,6 +688,16 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 .mr-crew-card:hover { transform: translateY(-3px); }
 .mr-crew-card:hover .mr-crew-arrow svg { transform: translateX(3px); }
 
+/* «Нажатие» при смене этапа: ужалась → вернулась */
+.mr-crew-card.pressing {
+  animation: mr-crew-press 0.45s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+@keyframes mr-crew-press {
+  0% { transform: scale(1); }
+  35% { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
 /* Badges */
 .mr-crew-badge-row { min-height: 28px; margin-bottom: 16px; }
 .mr-crew-badge {
@@ -699,6 +736,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   margin-bottom: 18px;
 }
 .mr-crew-avatar {
+  position: relative;
   width: 62px;
   height: 62px;
   border-radius: 50%;
@@ -711,6 +749,18 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   overflow: hidden;
   transition: border-color 0.4s ease, background 0.4s ease;
 }
+/* Лёгкая тонировка фото в цвет активного этапа */
+.mr-crew-avatar-tint {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  mix-blend-mode: color;
+  opacity: 0.18;
+  pointer-events: none;
+  transition: background 0.4s ease, opacity 0.4s ease;
+}
+.mr-crew-card.is-lead .mr-crew-avatar-tint { opacity: 0.32; }
+.mr-crew-modal .mr-crew-avatar-tint { opacity: 0.3; }
 .mr-crew-avatar-lg { width: 80px; height: 80px; }
 .mr-crew-avatar-img { width: 100%; height: 100%; object-fit: cover; }
 .mr-crew-avatar-initials {
@@ -913,19 +963,22 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 @media (prefers-reduced-motion: reduce) {
   .mr-crew-card-slot, .mr-crew-card, .mr-crew-badge, .mr-crew-bubble, .mr-crew-route-progress { transition: none !important; }
   .mr-crew-badge-dot, .mr-crew-node-ring { animation: none !important; }
+  .mr-crew-card.pressing { animation: none !important; }
 }
 
 /* ═══ Tablet / Mobile ═══ */
 @media (max-width: 1000px) {
   .mr-crew-panel { flex-direction: column; }
   .mr-crew-values {
+    position: static;
     width: 100%;
     min-width: 0;
     order: 2;
     border-right: none;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+    overflow-y: visible;
   }
-  .mr-crew-main { order: 1; }
+  .mr-crew-main { order: 1; margin-left: 0; min-height: 0; }
 }
 
 @media (max-width: 700px) {
