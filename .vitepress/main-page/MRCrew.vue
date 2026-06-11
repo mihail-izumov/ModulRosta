@@ -2,16 +2,16 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 /* ═══════════════════════════════════════════════════════════
-   MRCrew v2 — «Системы строят люди.»
-   Панель приборов: ценности слева, маршрут и экипаж справа.
+   MRCrew v3 — «Системы строят люди.»
+   Один этап — один цвет. Графит, глянец, крупные органы управления.
    ═══════════════════════════════════════════════════════════ */
+
+const CHEVRON_PATH = 'M6895.66,4460.27L6895.66,4367.25L7170.76,4203.17L7445.87,4369.28L7445.87,4463.27L7609.08,4560.65L7609.08,4661.64L7608.88,4661.52L7608.48,4859.02L7446.82,4762.34L7446.82,4952.95L7171.71,4793.75L6896.61,4950.91L6896.61,4761.4L6732.45,4859.02L6732.45,4658.64C6732.45,4658.64 6732.45,4557.65 6732.45,4557.65L6895.66,4460.27ZM7171.71,4696.96L6982.75,4804.41L6982.75,4710.18L7171.71,4597.82L7360.68,4710.83L7360.68,4805.79L7171.71,4696.96ZM7391.44,4531.16L7170.76,4397.91L6895.66,4561.99L6895.66,4561.27L6814.11,4609.92L6814.14,4709.48L7171.69,4497.69L7171.71,4497.69L7527.73,4711.65L7527.68,4613.08L7391.44,4531.8L7391.44,4531.16Z'
 
 interface Person {
   id: 'm' | 'p'
   name: string
   role: string
-  color: string
-  colorRgb: string
   initials: string
   photo: string | null
   bubbles: string[]
@@ -25,8 +25,6 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     id: 'm',
     name: 'Михаил Изюмов',
     role: 'Видит и собирает',
-    color: '#58a6ff',
-    colorRgb: '88,166,255',
     initials: 'МИ',
     photo: null, // например: '/ars/crew/mikhail.jpg'
     bubbles: ['Стратегия', 'Аналитика', 'Дизайн', 'Маркетинг'],
@@ -41,8 +39,6 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     id: 'p',
     name: 'Павел Моторин',
     role: 'Приземляет и расширяет',
-    color: '#00ff88',
-    colorRgb: '0,255,136',
     initials: 'ПМ',
     photo: null, // например: '/ars/crew/pavel.jpg'
     bubbles: ['Внедрение', 'Технологии', 'Обучение', 'Расширение'],
@@ -104,7 +100,9 @@ const VALUES = [
 const stageIdx = ref(0)
 const stage = computed(() => STAGES[stageIdx.value])
 const swapped = computed(() => stage.value.lead === 'p')
-const routeProgress = computed(() => (stageIdx.value / (STAGES.length - 1)) * 100)
+/* Узлы в равных колонках: центры на 12.5% / 37.5% / 62.5% / 87.5%.
+   Прогресс — доля пройденного пути (75% ширины контейнера между крайними узлами). */
+const routeWidth = computed(() => (stageIdx.value / (STAGES.length - 1)) * 75)
 
 const openValue = ref<string | null>(null)
 const toggleValue = (n: string) => { openValue.value = openValue.value === n ? null : n }
@@ -131,6 +129,12 @@ const isLead = (id: 'm' | 'p') => stage.value.lead === id
 const isActiveBubble = (id: 'm' | 'p', b: string) => stage.value.active[id].includes(b)
 const leadStagesFor = (id: 'm' | 'p') =>
   STAGES.filter(s => s.lead === id).map(s => s.label).join(' · ')
+
+const bubbleStyle = (id: 'm' | 'p', b: string) => {
+  if (!isActiveBubble(id, b)) return {}
+  if (isLead(id)) return { background: stage.value.color, color: '#06090f' }
+  return { background: `rgba(${stage.value.colorRgb},0.16)`, color: stage.value.color }
+}
 </script>
 
 <template>
@@ -138,7 +142,6 @@ const leadStagesFor = (id: 'm' | 'p') =>
     <div class="mr-crew-container">
 
       <!-- Statement -->
-      <div class="mr-crew-label">ЭКИПАЖ</div>
       <h2 class="mr-crew-statement">Системы строят люди.</h2>
 
       <!-- ═══ Instrument panel ═══ -->
@@ -146,7 +149,15 @@ const leadStagesFor = (id: 'm' | 'p') =>
 
         <!-- LEFT · Values -->
         <aside class="mr-crew-values">
-          <div class="mr-crew-values-title">Ценности</div>
+          <div class="mr-crew-values-head">
+            <svg class="mr-crew-chevron" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+              <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
+                <path :d="CHEVRON_PATH" fill="rgba(255,255,255,0.88)" />
+              </g>
+            </svg>
+            <span class="mr-crew-values-title">Ценности</span>
+          </div>
+
           <div
             v-for="v in VALUES"
             :key="v.n"
@@ -156,7 +167,7 @@ const leadStagesFor = (id: 'm' | 'p') =>
             <button class="mr-crew-value-header" @click="toggleValue(v.n)">
               <span class="mr-crew-value-num">{{ v.n }}</span>
               <span class="mr-crew-value-title">{{ v.title }}</span>
-              <span class="mr-crew-value-icon">{{ openValue === v.n ? '−' : '+' }}</span>
+              <span class="mr-crew-value-toggle">{{ openValue === v.n ? '−' : '+' }}</span>
             </button>
             <div class="mr-crew-value-body" :class="{ expanded: openValue === v.n }">
               <p class="mr-crew-value-caption">{{ v.caption }}</p>
@@ -173,9 +184,10 @@ const leadStagesFor = (id: 'm' | 'p') =>
             <div
               class="mr-crew-route-progress"
               :style="{
-                width: routeProgress + '%',
+                width: routeWidth + '%',
                 background: stage.color,
-                boxShadow: `0 0 12px rgba(${stage.colorRgb},0.6)`,
+                boxShadow: stageIdx > 0 ? `0 0 12px rgba(${stage.colorRgb},0.6)` : 'none',
+                opacity: stageIdx > 0 ? 1 : 0,
               }"
             ></div>
             <button
@@ -219,7 +231,7 @@ const leadStagesFor = (id: 'm' | 'p') =>
                 :class="{ 'is-lead': isLead(id) }"
                 :style="isLead(id) ? {
                   borderColor: stage.color,
-                  boxShadow: `0 0 34px rgba(${stage.colorRgb},0.28), 0 14px 40px rgba(0,0,0,0.45)`,
+                  boxShadow: `0 0 34px rgba(${stage.colorRgb},0.22), 0 14px 40px rgba(0,0,0,0.5)`,
                 } : {}"
                 @click="openModal(id)"
               >
@@ -238,18 +250,38 @@ const leadStagesFor = (id: 'm' | 'p') =>
                   </span>
                 </div>
 
-                <!-- Profile -->
+                <!-- Profile: avatar · identity · big arrow -->
                 <div class="mr-crew-profile">
                   <div
                     class="mr-crew-avatar"
-                    :style="{ borderColor: PEOPLE[id].color, background: `rgba(${PEOPLE[id].colorRgb},0.1)` }"
+                    :style="isLead(id)
+                      ? { borderColor: stage.color, background: `rgba(${stage.colorRgb},0.12)` }
+                      : {}"
                   >
                     <img v-if="PEOPLE[id].photo" :src="PEOPLE[id].photo" :alt="PEOPLE[id].name" class="mr-crew-avatar-img" />
-                    <span v-else class="mr-crew-avatar-initials" :style="{ color: PEOPLE[id].color }">{{ PEOPLE[id].initials }}</span>
+                    <span
+                      v-else
+                      class="mr-crew-avatar-initials"
+                      :style="isLead(id) ? { color: stage.color } : {}"
+                    >{{ PEOPLE[id].initials }}</span>
                   </div>
+
                   <div class="mr-crew-identity">
                     <div class="mr-crew-name">{{ PEOPLE[id].name }}</div>
-                    <div class="mr-crew-role" :style="{ color: PEOPLE[id].color }">{{ PEOPLE[id].role }}</div>
+                    <div
+                      class="mr-crew-role"
+                      :style="isLead(id) ? { color: stage.color } : {}"
+                    >{{ PEOPLE[id].role }}</div>
+                  </div>
+
+                  <div
+                    class="mr-crew-arrow"
+                    :style="isLead(id) ? { background: stage.color, borderColor: stage.color, color: '#06090f' } : {}"
+                    aria-hidden="true"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M5 12h14" /><path d="m13 6 6 6-6 6" />
+                    </svg>
                   </div>
                 </div>
 
@@ -260,11 +292,9 @@ const leadStagesFor = (id: 'm' | 'p') =>
                     :key="b"
                     class="mr-crew-bubble"
                     :class="{ on: isActiveBubble(id, b) }"
-                    :style="isActiveBubble(id, b) ? { background: PEOPLE[id].color } : {}"
+                    :style="bubbleStyle(id, b)"
                   >{{ b }}</span>
                 </div>
-
-                <div class="mr-crew-more">профайл →</div>
               </div>
             </div>
           </div>
@@ -279,20 +309,20 @@ const leadStagesFor = (id: 'm' | 'p') =>
         <div v-if="modalPerson" class="mr-crew-overlay" @click.self="closeModal">
           <div class="mr-crew-modal">
             <button class="mr-crew-modal-close" @click="closeModal" aria-label="Закрыть">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
 
             <div class="mr-crew-modal-top">
               <div
                 class="mr-crew-avatar mr-crew-avatar-lg"
-                :style="{ borderColor: modalPerson.color, background: `rgba(${modalPerson.colorRgb},0.1)` }"
+                :style="{ borderColor: stage.color, background: `rgba(${stage.colorRgb},0.12)` }"
               >
                 <img v-if="modalPerson.photo" :src="modalPerson.photo" :alt="modalPerson.name" class="mr-crew-avatar-img" />
-                <span v-else class="mr-crew-avatar-initials mr-crew-avatar-initials-lg" :style="{ color: modalPerson.color }">{{ modalPerson.initials }}</span>
+                <span v-else class="mr-crew-avatar-initials mr-crew-avatar-initials-lg" :style="{ color: stage.color }">{{ modalPerson.initials }}</span>
               </div>
               <div>
                 <div class="mr-crew-modal-name">{{ modalPerson.name }}</div>
-                <div class="mr-crew-modal-role" :style="{ color: modalPerson.color }">{{ modalPerson.role }}</div>
+                <div class="mr-crew-modal-role" :style="{ color: stage.color }">{{ modalPerson.role }}</div>
               </div>
             </div>
 
@@ -308,7 +338,7 @@ const leadStagesFor = (id: 'm' | 'p') =>
                 v-for="b in modalPerson.bubbles"
                 :key="b"
                 class="mr-crew-bubble on"
-                :style="{ background: modalPerson.color }"
+                :style="{ background: stage.color, color: '#06090f' }"
               >{{ b }}</span>
             </div>
 
@@ -317,7 +347,7 @@ const leadStagesFor = (id: 'm' | 'p') =>
               :href="modalPerson.tg"
               target="_blank"
               rel="noopener"
-              :style="{ background: modalPerson.color }"
+              :style="{ background: stage.color }"
             >
               {{ modalPerson.tgLabel }} <span class="mr-crew-tg-arrow">→</span>
             </a>
@@ -340,15 +370,6 @@ const leadStagesFor = (id: 'm' | 'p') =>
 }
 
 /* ═══ Statement ═══ */
-.mr-crew-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: rgb(0, 255, 136);
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-bottom: 16px;
-  text-align: center;
-}
 .mr-crew-statement {
   font-size: clamp(36px, 5.5vw, 60px);
   font-weight: 800;
@@ -373,28 +394,47 @@ const leadStagesFor = (id: 'm' | 'p') =>
   width: 33%;
   min-width: 280px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 30px 28px 26px;
+  padding: 30px 24px 26px;
   background: rgba(8, 10, 14, 0.55);
+}
+.mr-crew-values-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-left: 2px;
+}
+.mr-crew-chevron {
+  width: 27px;
+  height: 27px;
+  flex-shrink: 0;
 }
 .mr-crew-values-title {
   font-size: 22px;
   font-weight: 800;
   color: #fff;
   letter-spacing: 0.3px;
-  margin-bottom: 18px;
 }
+
+/* Плашки вместо разделителей */
 .mr-crew-value {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: #15171c;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  padding: 0 16px;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
-.mr-crew-value:last-child {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
+.mr-crew-value:last-child { margin-bottom: 0; }
+.mr-crew-value:hover { background: #191c22; }
+.mr-crew-value.open { border-color: rgba(255, 255, 255, 0.14); }
+
 .mr-crew-value-header {
   display: flex;
-  align-items: baseline;
-  gap: 14px;
+  align-items: center;
+  gap: 13px;
   width: 100%;
-  padding: 17px 0;
+  padding: 15px 0;
   background: none !important;
   border: none !important;
   cursor: pointer;
@@ -407,33 +447,49 @@ const leadStagesFor = (id: 'm' | 'p') =>
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.3);
-  width: 14px;
+  color: rgba(255, 255, 255, 0.35);
+  width: 13px;
   flex-shrink: 0;
   transition: color 0.25s ease;
 }
+.mr-crew-value.open .mr-crew-value-num { color: #fff; }
 .mr-crew-value-title {
   flex: 1;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: #fff;
   letter-spacing: 0.2px;
   line-height: 1.35;
 }
-.mr-crew-value-icon {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 18px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.35);
+
+/* Тумблер +/− — приборный, крупный */
+.mr-crew-value-toggle {
   flex-shrink: 0;
-  width: 18px;
-  text-align: center;
-  transition: color 0.25s ease;
-  align-self: center;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 0.25s ease;
 }
-.mr-crew-value-header:hover .mr-crew-value-icon,
-.mr-crew-value.open .mr-crew-value-icon,
-.mr-crew-value.open .mr-crew-value-num { color: rgb(0, 255, 136); }
+.mr-crew-value-header:hover .mr-crew-value-toggle {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.07);
+}
+.mr-crew-value.open .mr-crew-value-toggle {
+  background: #fff;
+  border-color: #fff;
+  color: #06090f;
+}
+
 .mr-crew-value-body {
   max-height: 0;
   overflow: hidden;
@@ -446,7 +502,7 @@ const leadStagesFor = (id: 'm' | 'p') =>
 }
 .mr-crew-value-caption {
   margin: 0;
-  padding: 0 0 18px 28px;
+  padding: 0 0 16px 26px;
   font-size: 14px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.6);
@@ -462,32 +518,31 @@ const leadStagesFor = (id: 'm' | 'p') =>
   flex-direction: column;
 }
 
-/* ═══ Route ═══ */
+/* ═══ Route — равные колонки, точная геометрия ═══ */
 .mr-crew-route {
   position: relative;
   display: flex;
-  justify-content: space-between;
-  margin: 0 6px 38px;
+  margin-bottom: 36px;
 }
 .mr-crew-route-track {
   position: absolute;
-  top: 16px;
-  left: 16px;
-  right: 16px;
+  top: 15.5px;
+  left: 12.5%;
+  right: 12.5%;
   height: 3px;
   border-radius: 2px;
   background: rgba(255, 255, 255, 0.1);
 }
 .mr-crew-route-progress {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 15.5px;
+  left: 12.5%;
   height: 3px;
   border-radius: 2px;
-  max-width: calc(100% - 32px);
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, box-shadow 0.4s ease;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, box-shadow 0.4s ease, opacity 0.3s ease;
 }
 .mr-crew-waypoint {
+  flex: 1;
   position: relative;
   z-index: 1;
   display: flex;
@@ -500,6 +555,7 @@ const leadStagesFor = (id: 'm' | 'p') =>
   padding: 0;
   font-family: 'Inter', sans-serif;
   text-decoration: none !important;
+  min-width: 0;
 }
 .mr-crew-waypoint::before, .mr-crew-waypoint::after { display: none !important; content: none !important; }
 .mr-crew-node {
@@ -562,20 +618,23 @@ const leadStagesFor = (id: 'm' | 'p') =>
 .mr-crew-cards.swapped .slot-m { transform: translateX(calc(100% + 20px)); }
 .mr-crew-cards.swapped .slot-p { transform: translateX(calc(-100% - 20px)); }
 
+/* Графит + глянец на углу — как панель Ferrari Luce */
 .mr-crew-card {
   height: 100%;
-  background: #eef0f3;
-  border: 2px solid transparent;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 24%, rgba(255, 255, 255, 0) 48%),
+    #16181d;
+  border: 2px solid rgba(255, 255, 255, 0.07);
   border-radius: 20px;
-  padding: 18px 20px 16px;
+  padding: 18px 20px 18px;
   cursor: pointer;
-  transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.3s ease, background 0.45s ease;
+  transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.3s ease;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
-.mr-crew-card.is-lead { background: #fff; }
 .mr-crew-card:hover { transform: translateY(-3px); }
+.mr-crew-card:hover .mr-crew-arrow svg { transform: translateX(3px); }
 
 /* Badges */
 .mr-crew-badge-row { min-height: 28px; margin-bottom: 16px; }
@@ -602,9 +661,9 @@ const leadStagesFor = (id: 'm' | 'p') =>
 }
 @keyframes mr-crew-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 .mr-crew-badge-support {
-  color: #5b6471;
+  color: rgba(255, 255, 255, 0.5);
   background: transparent;
-  border: 1.5px solid #c9ced6;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
 }
 
 /* Profile */
@@ -612,18 +671,20 @@ const leadStagesFor = (id: 'm' | 'p') =>
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-bottom: 17px;
+  margin-bottom: 18px;
 }
 .mr-crew-avatar {
   width: 62px;
   height: 62px;
   border-radius: 50%;
-  border: 3px solid;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  transition: border-color 0.4s ease, background 0.4s ease;
 }
 .mr-crew-avatar-lg { width: 80px; height: 80px; }
 .mr-crew-avatar-img { width: 100%; height: 100%; object-fit: cover; }
@@ -632,12 +693,15 @@ const leadStagesFor = (id: 'm' | 'p') =>
   font-weight: 800;
   font-size: 19px;
   letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.75);
+  transition: color 0.4s ease;
 }
 .mr-crew-avatar-initials-lg { font-size: 25px; }
+.mr-crew-identity { min-width: 0; flex: 1; }
 .mr-crew-name {
   font-size: 18px;
   font-weight: 800;
-  color: #0b0d12;
+  color: #fff;
   line-height: 1.25;
 }
 .mr-crew-role {
@@ -645,6 +709,27 @@ const leadStagesFor = (id: 'm' | 'p') =>
   font-weight: 700;
   margin-top: 3px;
   letter-spacing: 0.2px;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 0.4s ease;
+}
+
+/* Крупная стрелка — как на штурвале */
+.mr-crew-arrow {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.45);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s ease;
+}
+.mr-crew-arrow svg {
+  width: 26px;
+  height: 26px;
+  transition: transform 0.25s ease;
 }
 
 /* Bubbles */
@@ -659,27 +744,13 @@ const leadStagesFor = (id: 'm' | 'p') =>
   font-weight: 700;
   padding: 7px 14px;
   border-radius: 9999px;
-  background: #dde0e6;
-  color: #6b7280;
+  background: #22252c;
+  color: #8a919c;
   transition: all 0.4s ease;
   white-space: nowrap;
 }
-.mr-crew-bubble.on { color: #06090f; }
 
-.mr-crew-more {
-  margin-top: auto;
-  padding-top: 15px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #aeb4bd;
-  transition: color 0.3s ease;
-}
-.mr-crew-card:hover .mr-crew-more { color: #3c424c; }
-
-/* ═══ Modal (light sheet) ═══ */
+/* ═══ Modal — графит с глянцем ═══ */
 .mr-crew-overlay {
   position: fixed;
   inset: 0;
@@ -698,7 +769,10 @@ const leadStagesFor = (id: 'm' | 'p') =>
   max-width: 480px;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
-  background: #f4f5f7;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 26%, rgba(255, 255, 255, 0) 50%),
+    #15171c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   padding: 32px 30px 28px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
@@ -707,12 +781,12 @@ const leadStagesFor = (id: 'm' | 'p') =>
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
-  background: #e3e6ea !important;
-  border: none !important;
-  color: #3c424c !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -722,7 +796,7 @@ const leadStagesFor = (id: 'm' | 'p') =>
   padding: 0;
 }
 .mr-crew-modal-close::before, .mr-crew-modal-close::after { display: none !important; content: none !important; }
-.mr-crew-modal-close:hover { background: #d4d8de !important; color: #0b0d12 !important; }
+.mr-crew-modal-close:hover { background: rgba(255, 255, 255, 0.12) !important; color: #fff !important; }
 
 .mr-crew-modal-top {
   display: flex;
@@ -733,7 +807,7 @@ const leadStagesFor = (id: 'm' | 'p') =>
 .mr-crew-modal-name {
   font-size: 22px;
   font-weight: 800;
-  color: #0b0d12;
+  color: #fff;
   line-height: 1.25;
 }
 .mr-crew-modal-role {
@@ -746,7 +820,7 @@ const leadStagesFor = (id: 'm' | 'p') =>
   align-items: baseline;
   gap: 12px;
   padding: 12px 16px;
-  background: #e8eaee;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   margin-bottom: 18px;
 }
@@ -756,7 +830,7 @@ const leadStagesFor = (id: 'm' | 'p') =>
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: #8a919c;
+  color: rgba(255, 255, 255, 0.4);
   white-space: nowrap;
 }
 .mr-crew-modal-lead-stages {
@@ -764,12 +838,12 @@ const leadStagesFor = (id: 'm' | 'p') =>
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  color: #0b0d12;
+  color: #fff;
 }
 .mr-crew-modal-bio {
   font-size: 14px;
   font-weight: 500;
-  color: #3c424c;
+  color: rgba(255, 255, 255, 0.62);
   line-height: 1.65;
   margin: 0 0 12px;
 }
@@ -790,7 +864,7 @@ const leadStagesFor = (id: 'm' | 'p') =>
   transition: all 0.3s ease;
 }
 .mr-crew-tg::before, .mr-crew-tg::after { display: none !important; content: none !important; }
-.mr-crew-tg:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25); }
+.mr-crew-tg:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35); }
 .mr-crew-tg:hover .mr-crew-tg-arrow { transform: translateX(3px); }
 .mr-crew-tg-arrow { display: inline-block; transition: transform 0.25s ease; }
 
@@ -822,17 +896,18 @@ const leadStagesFor = (id: 'm' | 'p') =>
   .mr-crew { padding: 64px 16px; }
   .mr-crew-statement { margin-bottom: 36px; }
   .mr-crew-panel { border-radius: 14px; }
-  .mr-crew-main { padding: 24px 16px 20px; }
-  .mr-crew-values { padding: 24px 20px 20px; }
+  .mr-crew-main { padding: 24px 14px 20px; }
+  .mr-crew-values { padding: 24px 16px 20px; }
   .mr-crew-values-title { font-size: 19px; }
-  .mr-crew-value-title { font-size: 15px; }
-  .mr-crew-value-caption { font-size: 13px; padding-left: 26px; }
+  .mr-crew-chevron { width: 23px; height: 23px; }
+  .mr-crew-value { border-radius: 12px; padding: 0 13px; }
+  .mr-crew-value-title { font-size: 14px; }
+  .mr-crew-value-toggle { width: 28px; height: 28px; font-size: 18px; }
+  .mr-crew-value-caption { font-size: 13px; padding-left: 24px; }
 
-  .mr-crew-route { margin: 0 0 28px; }
+  .mr-crew-route { margin-bottom: 28px; }
   .mr-crew-node { width: 28px; height: 28px; font-size: 10px; }
-  .mr-crew-route-track, .mr-crew-route-progress { top: 13px; left: 13px; }
-  .mr-crew-route-track { right: 13px; }
-  .mr-crew-route-progress { max-width: calc(100% - 26px); }
+  .mr-crew-route-track, .mr-crew-route-progress { top: 12.5px; }
   .mr-crew-waypoint { gap: 8px; }
   .mr-crew-waypoint-name { font-size: 8px; letter-spacing: 1px; }
 
@@ -841,8 +916,11 @@ const leadStagesFor = (id: 'm' | 'p') =>
   .mr-crew-card-slot { width: 100%; transform: none !important; }
   .mr-crew-card-slot.lead { order: -1; }
   .mr-crew-card { padding: 16px 16px 14px; }
+  .mr-crew-profile { gap: 12px; }
   .mr-crew-avatar { width: 52px; height: 52px; }
   .mr-crew-avatar-initials { font-size: 16px; }
+  .mr-crew-arrow { width: 52px; height: 52px; }
+  .mr-crew-arrow svg { width: 22px; height: 22px; }
   .mr-crew-name { font-size: 16px; }
 
   .mr-crew-modal { padding: 26px 20px 22px; border-radius: 16px; }
