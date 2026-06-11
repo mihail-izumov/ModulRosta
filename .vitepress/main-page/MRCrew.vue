@@ -29,8 +29,8 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     photo: null, // например: '/ars/crew/mikhail.jpg'
     bubbles: ['Стратегия', 'Аналитика', 'Дизайн', 'Маркетинг'],
     bio: [
-      'Заходит первым. За пять дней Форсажа собирает то, на что у агентств уходит квартал: аналитику, стратегию, дизайн и прототип первого цифрового продукта.',
-      'Дальше держит курс: ревью на Взлёте, аналитика и маркетинг в Полёте. Видит то, что не видят другие — и сразу превращает это в систему.',
+      'Заходит первым. За пять дней Разбега собирает то, на что у агентств уходит квартал: аналитику, стратегию, дизайн и прототип первого цифрового продукта.',
+      'Дальше держит курс: контроль на Взлёте, аналитика и маркетинг в Полёте. Видит то, что не видят другие — и сразу превращает это в систему.',
     ],
     tg: 'https://t.me/runScale',
     tgLabel: 'Телеграм-канал',
@@ -44,7 +44,7 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     bubbles: ['Внедрение', 'Технологии', 'Обучение', 'Расширение'],
     bio: [
       'Приземляет скорость на технологии. Синхронизирует прототип с реальностью бизнеса: что нужно на самом деле — то и летит.',
-      'Ведёт Взлёт и Полёт: внедрение, обучение команды, расширение системы модуль за модулем. С ним хаос не выживает.',
+      'Ведёт Сверку, Взлёт и Полёт: внедрение, обучение команды, расширение системы модуль за модулем. С ним хаос не выживает.',
     ],
     tg: 'https://t.me/runScale',
     tgLabel: 'Телеграм-канал',
@@ -64,13 +64,13 @@ interface Stage {
 
 const STAGES: Stage[] = [
   {
-    id: 'forsazh', num: '01', label: 'Форсаж',
+    id: 'razbeg', num: '01', label: 'Разбег',
     color: '#ff5555', colorRgb: '255,85,85',
     lead: 'm', supportBadge: 'ГОТОВИТ ПОЛОСУ',
     active: { m: ['Стратегия', 'Аналитика', 'Дизайн'], p: ['Технологии'] },
   },
   {
-    id: 'prep', num: '02', label: 'Предполётная',
+    id: 'sverka', num: '02', label: 'Сверка',
     color: '#58a6ff', colorRgb: '88,166,255',
     lead: 'p', supportBadge: 'ДЕРЖИТ КУРС',
     active: { m: ['Стратегия'], p: ['Технологии', 'Внедрение'] },
@@ -78,7 +78,7 @@ const STAGES: Stage[] = [
   {
     id: 'vzlet', num: '03', label: 'Взлёт',
     color: '#ff8800', colorRgb: '255,136,0',
-    lead: 'p', supportBadge: 'РЕВЬЮ',
+    lead: 'p', supportBadge: 'КОНТРОЛЬ',
     active: { m: ['Дизайн'], p: ['Внедрение', 'Технологии'] },
   },
   {
@@ -127,13 +127,15 @@ onUnmounted(() => {
 /* ── Helpers ── */
 const isLead = (id: 'm' | 'p') => stage.value.lead === id
 const isActiveBubble = (id: 'm' | 'p', b: string) => stage.value.active[id].includes(b)
-const leadStagesFor = (id: 'm' | 'p') =>
-  STAGES.filter(s => s.lead === id).map(s => s.label).join(' · ')
+const leadStagesFor = (id: 'm' | 'p') => STAGES.filter(s => s.lead === id)
 
 const bubbleStyle = (id: 'm' | 'p', b: string) => {
-  if (!isActiveBubble(id, b)) return {}
+  if (!isActiveBubble(id, b)) {
+    /* неактивные — ярче, со слабым тоном цвета этапа */
+    return { background: `rgba(${stage.value.colorRgb},0.09)`, color: 'rgba(255,255,255,0.68)' }
+  }
   if (isLead(id)) return { background: stage.value.color, color: '#06090f' }
-  return { background: `rgba(${stage.value.colorRgb},0.16)`, color: stage.value.color }
+  return { background: `rgba(${stage.value.colorRgb},0.18)`, color: stage.value.color }
 }
 </script>
 
@@ -328,7 +330,14 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
 
             <div class="mr-crew-modal-lead-row">
               <span class="mr-crew-modal-lead-label">За штурвалом</span>
-              <span class="mr-crew-modal-lead-stages">{{ leadStagesFor(modalPerson.id) }}</span>
+              <span class="mr-crew-modal-lead-chips">
+                <span
+                  v-for="s in leadStagesFor(modalPerson.id)"
+                  :key="s.id"
+                  class="mr-crew-lead-chip"
+                  :style="{ color: s.color, background: `rgba(${s.colorRgb},0.12)`, borderColor: `rgba(${s.colorRgb},0.4)` }"
+                >{{ s.label }}</span>
+              </span>
             </div>
 
             <p v-for="(line, i) in modalPerson.bio" :key="i" class="mr-crew-modal-bio">{{ line }}</p>
@@ -337,8 +346,9 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
               <span
                 v-for="b in modalPerson.bubbles"
                 :key="b"
-                class="mr-crew-bubble on"
-                :style="{ background: stage.color, color: '#06090f' }"
+                class="mr-crew-bubble"
+                :class="{ on: isActiveBubble(modalPerson.id, b) }"
+                :style="bubbleStyle(modalPerson.id, b)"
               >{{ b }}</span>
             </div>
 
@@ -709,17 +719,19 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
   font-weight: 700;
   margin-top: 3px;
   letter-spacing: 0.2px;
+  line-height: 1.3;
   color: rgba(255, 255, 255, 0.55);
   transition: color 0.4s ease;
 }
 
-/* Крупная стрелка — как на штурвале */
+/* Крупная стрелка — как на штурвале. Непрозрачная. */
 .mr-crew-arrow {
   width: 62px;
   height: 62px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.18);
-  color: rgba(255, 255, 255, 0.45);
+  border: 2px solid #454b56;
+  background: #1d2026;
+  color: #f2f4f7;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -817,7 +829,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
 }
 .mr-crew-modal-lead-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
   padding: 12px 16px;
   background: rgba(255, 255, 255, 0.05);
@@ -833,12 +845,20 @@ const bubbleStyle = (id: 'm' | 'p', b: string) => {
   color: rgba(255, 255, 255, 0.4);
   white-space: nowrap;
 }
-.mr-crew-modal-lead-stages {
+.mr-crew-modal-lead-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mr-crew-lead-chip {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  color: #fff;
+  padding: 5px 11px;
+  border-radius: 6px;
+  border: 1px solid;
+  white-space: nowrap;
 }
 .mr-crew-modal-bio {
   font-size: 14px;
