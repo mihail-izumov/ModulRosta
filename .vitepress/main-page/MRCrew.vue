@@ -447,7 +447,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 <style scoped>
 /* ═══ Root ═══ */
 .mr-crew {
-  padding: 100px 24px;
+  padding: 50px 24px 100px;
   font-family: 'Inter', -apple-system, sans-serif;
 }
 .mr-crew-container {
@@ -1020,7 +1020,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 
 /* ═══ Mobile ═══ */
 @media (max-width: 700px) {
-  .mr-crew { padding: 64px 16px; }
+  .mr-crew { padding: 36px 16px 64px; }
   .mr-crew-statement { font-size: 24px; letter-spacing: 2px; margin-bottom: 32px; }
   .mr-crew-panel { border-radius: 14px; }
   .mr-crew-main { padding: 24px 14px 20px; }
