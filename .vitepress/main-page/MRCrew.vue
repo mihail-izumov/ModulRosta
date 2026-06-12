@@ -32,7 +32,7 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     stat: '25+ лет в маркетинге',
     bio: [
       'Заходит первым. За пять дней Разбега собирает то, на что у агентств уходит квартал: аналитику, стратегию, дизайн и прототип первого цифрового продукта.',
-      'Дальше держит курс: контроль на Взлёте, аналитика и маркетинг в Полёте. Видит то, что не видят другие — и сразу превращает это в систему.',
+      'Дальше держит курс: контроль на Взлёте, аналитика и маркетинг в Полёте. Видит то, что не видят другие — и сразу превращает это в работающую систему.',
     ],
     tg: 'https://t.me/izumov',
     tgLabel: 'Телеграм-канал',
@@ -92,7 +92,7 @@ const STAGES: Stage[] = [
     id: 'polet', num: '04', label: 'Полёт',
     color: '#00ff88', colorRgb: '0,255,136',
     lead: ['m', 'p'],
-    leadBadge: { m: 'АНАЛИТИК', p: 'ИНЖЕНЕР' },
+    leadBadge: { m: 'ВЕДЁТ АНАЛИТИКУ', p: 'РАСШИРЯЕТ СИСТЕМУ' },
     supportBadge: 'АНАЛИТИКА',
     active: { m: ['Аналитика', 'Маркетинг', 'Обучение'], p: ['Обучение', 'Расширение', 'Внедрение'] },
   },
@@ -110,6 +110,24 @@ const stage = computed(() => STAGES[stageIdx.value])
 /* Карточки меняются местами, только когда штурвал передан Павлу ОДНОМУ.
    На совместных этапах порядок сохраняется (Михаил слева, Павел справа). */
 const swapped = computed(() => stage.value.lead.length === 1 && stage.value.lead[0] === 'p')
+
+/* ── Геометрия маршрута ──
+   Якоря — половины ширин крайних подписей (РАЗБЕГ / ПОЛЁТ):
+   первая подпись прижата к левому краю, последняя — к правому,
+   узлы центрированы над своим текстом, интервалы между узлами равные. */
+const labelRefs: (HTMLElement | null)[] = []
+const setLabelRef = (el: unknown, i: number) => { labelRefs[i] = el as HTMLElement | null }
+const routeAnchors = ref({ a: 40, b: 34 })
+function measureRoute() {
+  const first = labelRefs[0]
+  const last = labelRefs[STAGES.length - 1]
+  if (first && last) {
+    routeAnchors.value = {
+      a: Math.max(17, Math.round(first.offsetWidth / 2)),
+      b: Math.max(17, Math.round(last.offsetWidth / 2)),
+    }
+  }
+}
 
 const openValue = ref<string | null>(null)
 const toggleValue = (n: string) => { openValue.value = openValue.value === n ? null : n }
@@ -136,9 +154,17 @@ const closeModal = () => {
 }
 const onKeydown = (e: KeyboardEvent) => { if (e.key === 'Escape' && modalPerson.value) closeModal() }
 
-onMounted(() => document.addEventListener('keydown', onKeydown))
+onMounted(() => {
+  document.addEventListener('keydown', onKeydown)
+  nextTick(measureRoute)
+  if (typeof document !== 'undefined' && (document as any).fonts?.ready) {
+    ;(document as any).fonts.ready.then(() => measureRoute())
+  }
+  window.addEventListener('resize', measureRoute)
+})
 onUnmounted(() => {
   document.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('resize', measureRoute)
   document.body.style.overflow = ''
   if (pressTimer) clearTimeout(pressTimer)
 })
@@ -205,18 +231,33 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
               <p class="mr-crew-value-caption">{{ v.caption }}</p>
             </div>
           </div>
+
+          <!-- Смысловая точка ряда -->
+          <div class="mr-crew-tagline" :class="{ engaged: openValue !== null }">
+            <svg class="mr-crew-chevron mr-crew-tagline-chevron" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+              <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
+                <path :d="CHEVRON_PATH" fill="rgba(255,255,255,0.88)" />
+              </g>
+            </svg>
+            <span class="mr-crew-tagline-text">И никак иначе.</span>
+          </div>
         </aside>
 
         <!-- RIGHT · Route + crew -->
         <div class="mr-crew-main">
 
           <!-- Route: ширина = ширина ряда карточек, равные интервалы -->
-          <div class="mr-crew-route" role="tablist" aria-label="Этапы запуска">
+          <div
+            class="mr-crew-route"
+            role="tablist"
+            aria-label="Этапы запуска"
+            :style="{ '--mrc-a': routeAnchors.a + 'px', '--mrc-b': routeAnchors.b + 'px' }"
+          >
             <div class="mr-crew-route-track"></div>
             <div
               class="mr-crew-route-progress"
               :style="{
-                width: `calc((100% - var(--mrc-nh) * 2) * ${stageIdx / (STAGES.length - 1)})`,
+                width: `calc((100% - var(--mrc-a) - var(--mrc-b)) * ${stageIdx / (STAGES.length - 1)})`,
                 background: stage.color,
                 boxShadow: stageIdx > 0 ? `0 0 12px rgba(${stage.colorRgb},0.6)` : 'none',
                 opacity: stageIdx > 0 ? 1 : 0,
@@ -227,7 +268,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
               :key="s.id"
               class="mr-crew-waypoint"
               :class="{ active: stageIdx === i, passed: stageIdx > i }"
-              :style="{ left: `calc(var(--mrc-nh) + (100% - var(--mrc-nh) * 2) * ${i / (STAGES.length - 1)})` }"
+              :style="{ left: `calc(var(--mrc-a) + (100% - var(--mrc-a) - var(--mrc-b)) * ${i / (STAGES.length - 1)})` }"
               role="tab"
               :aria-selected="stageIdx === i"
               @click="stageIdx = i"
@@ -246,6 +287,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
               </span>
               <span
                 class="mr-crew-waypoint-name"
+                :ref="(el) => setLabelRef(el, i)"
                 :style="stageIdx === i ? { color: s.color } : {}"
               >{{ s.label }}</span>
             </button>
@@ -330,16 +372,6 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- Шеврон + подпись под карточками -->
-          <div class="mr-crew-tagline">
-            <svg class="mr-crew-chevron" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
-              <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
-                <path :d="CHEVRON_PATH" fill="rgba(255,255,255,0.88)" />
-              </g>
-            </svg>
-            <span class="mr-crew-tagline-text">И никак иначе.</span>
           </div>
 
         </div>
@@ -435,21 +467,26 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   background: rgba(10, 12, 16, 0.65);
 }
 
-/* Шеврон + подпись под карточками */
+/* Смысловая точка под ценностями — типографика как у пунктов ряда */
 .mr-crew-tagline {
-  margin-top: 28px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 12px;
+  margin-top: 18px;
+  padding: 0 16px;
 }
+.mr-crew-tagline-chevron {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.35s ease;
+}
+.mr-crew-tagline.engaged .mr-crew-tagline-chevron { transform: rotate(90deg); }
 .mr-crew-tagline-text {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 700;
   color: #fff;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+  line-height: 1.35;
 }
 
 /* ═══ LEFT · Values ═══ */
@@ -567,11 +604,12 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   flex-direction: column;
 }
 
-/* ═══ Route — узлы по краям ряда карточек, равные интервалы ═══
-   --mrc-nh = половина диаметра узла (центр первого/последнего узла
-   отстоит от края на полузла, чтобы кружки не вылезали за карточки). */
+/* ═══ Route — подписи РАЗБЕГ/ПОЛЁТ прижаты к краям ряда карточек ═══
+   --mrc-a / --mrc-b — половины ширин крайних подписей (меряются в рантайме):
+   узлы центрированы над своим текстом, интервалы между узлами равные. */
 .mr-crew-route {
-  --mrc-nh: 17px;
+  --mrc-a: 40px;
+  --mrc-b: 34px;
   position: relative;
   height: 64px;
   margin-bottom: 34px;
@@ -579,8 +617,8 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 .mr-crew-route-track {
   position: absolute;
   top: 15.5px;
-  left: var(--mrc-nh);
-  right: var(--mrc-nh);
+  left: var(--mrc-a);
+  right: var(--mrc-b);
   height: 3px;
   border-radius: 2px;
   background: rgba(255, 255, 255, 0.1);
@@ -588,7 +626,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 .mr-crew-route-progress {
   position: absolute;
   top: 15.5px;
-  left: var(--mrc-nh);
+  left: var(--mrc-a);
   height: 3px;
   border-radius: 2px;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, box-shadow 0.4s ease, opacity 0.3s ease;
@@ -964,7 +1002,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   .mr-crew-value-toggle svg { width: 16px; height: 16px; }
   .mr-crew-value-caption { font-size: 13px; }
 
-  .mr-crew-route { --mrc-nh: 14px; height: 54px; margin-bottom: 26px; }
+  .mr-crew-route { height: 54px; margin-bottom: 26px; }
   .mr-crew-node { width: 28px; height: 28px; font-size: 10px; }
   .mr-crew-route-track, .mr-crew-route-progress { top: 12.5px; }
   .mr-crew-waypoint { gap: 8px; }
