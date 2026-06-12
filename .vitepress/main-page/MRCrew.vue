@@ -15,6 +15,7 @@ interface Person {
   initials: string
   photo: string | null
   bubbles: string[]
+  stat: string
   bio: string[]
   tg: string
   tgLabel: string
@@ -27,7 +28,8 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     role: 'Видит\nи собирает',
     initials: 'МИ',
     photo: '/crew/mikhail-crew.png',
-    bubbles: ['Стратегия', 'Аналитика', 'Дизайн', 'Маркетинг'],
+    bubbles: ['Стратегия', 'Аналитика', 'Дизайн', 'Маркетинг', 'Обучение'],
+    stat: '25+ лет в маркетинге',
     bio: [
       'Заходит первым. За пять дней Разбега собирает то, на что у агентств уходит квартал: аналитику, стратегию, дизайн и прототип первого цифрового продукта.',
       'Дальше держит курс: контроль на Взлёте, аналитика и маркетинг в Полёте. Видит то, что не видят другие — и сразу превращает это в систему.',
@@ -42,9 +44,10 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     initials: 'ПМ',
     photo: '/crew/pavel-crew.png',
     bubbles: ['Внедрение', 'Технологии', 'Обучение', 'Расширение'],
+    stat: '30+ лет в IT',
     bio: [
-      'Приземляет скорость на технологии. Синхронизирует прототип с реальностью бизнеса: что нужно на самом деле — то и летит.',
-      'Ведёт Стыковку, Взлёт и Полёт: внедрение, обучение команды, расширение системы модуль за модулем. С ним хаос не выживает.',
+      'Приземляет скорость на технологии. Синхронизирует прототип с реальностью бизнеса. Что нужно на самом деле — то и летит.',
+      'Ведёт Стыковку, Взлёт и Полёт: внедрение, обучение команды, расширение системы модуль за модулем.',
     ],
     tg: 'https://t.me/runScale',
     tgLabel: 'Телеграм-канал',
@@ -57,7 +60,7 @@ interface Stage {
   label: string
   color: string
   colorRgb: string
-  lead: 'm' | 'p'
+  lead: ('m' | 'p')[]
   supportBadge: string
   active: { m: string[]; p: string[] }
 }
@@ -66,42 +69,41 @@ const STAGES: Stage[] = [
   {
     id: 'razbeg', num: '01', label: 'Разбег',
     color: '#ff5555', colorRgb: '255,85,85',
-    lead: 'm', supportBadge: 'ГОТОВИТ ПОЛОСУ',
+    lead: ['m'], supportBadge: 'ГОТОВИТ ПОЛОСУ',
     active: { m: ['Стратегия', 'Аналитика', 'Дизайн'], p: ['Технологии'] },
   },
   {
     id: 'stykovka', num: '02', label: 'Стыковка',
     color: '#58a6ff', colorRgb: '88,166,255',
-    lead: 'p', supportBadge: 'ДЕРЖИТ КУРС',
-    active: { m: ['Стратегия'], p: ['Технологии', 'Внедрение'] },
+    lead: ['m', 'p'], supportBadge: 'ДЕРЖИТ КУРС',
+    active: { m: ['Стратегия', 'Дизайн'], p: ['Технологии', 'Внедрение'] },
   },
   {
     id: 'vzlet', num: '03', label: 'Взлёт',
     color: '#ff8800', colorRgb: '255,136,0',
-    lead: 'p', supportBadge: 'КОНТРОЛЬ',
+    lead: ['p'], supportBadge: 'КОНТРОЛЬ',
     active: { m: ['Дизайн'], p: ['Внедрение', 'Технологии'] },
   },
   {
     id: 'polet', num: '04', label: 'Полёт',
     color: '#00ff88', colorRgb: '0,255,136',
-    lead: 'p', supportBadge: 'АНАЛИТИКА',
-    active: { m: ['Аналитика', 'Маркетинг'], p: ['Обучение', 'Расширение', 'Внедрение'] },
+    lead: ['m', 'p'], supportBadge: 'АНАЛИТИКА',
+    active: { m: ['Аналитика', 'Маркетинг', 'Обучение'], p: ['Обучение', 'Расширение', 'Внедрение'] },
   },
 ]
 
 const VALUES = [
-  { n: '1', title: 'Наш бизнес —\nэто перемены.', caption: 'Стабильность — самый дорогой риск.' },
-  { n: '2', title: 'Мы в атаке. Всё время.', caption: 'Защита — это медленное поражение.' },
-  { n: '3', title: 'Сила в действии.', caption: 'Слова не двигают метрики.\nЗапуски двигают.' },
-  { n: '4', title: 'Это будет красиво.', caption: 'Работающая система\nне бывает уродливой.' },
+  { n: '1', title: 'Наш бизнес про перемены.', caption: 'Новые времена — новые решения.' },
+  { n: '2', title: 'Сила в действии.', caption: 'Изменения дают результаты.' },
+  { n: '3', title: 'Это будет красиво.', caption: 'Ясность на кончиках пальцев.' },
 ]
 
 /* ── State ── */
 const stageIdx = ref(0)
 const stage = computed(() => STAGES[stageIdx.value])
-const swapped = computed(() => stage.value.lead === 'p')
-/* Узлы в равных колонках: центры на 12.5% / 37.5% / 62.5% / 87.5%.
-   Прогресс — доля пройденного пути (75% ширины контейнера между крайними узлами). */
+/* Карточки меняются местами, только когда штурвал передан Павлу ОДНОМУ.
+   На совместных этапах порядок сохраняется (Михаил слева, Павел справа). */
+const swapped = computed(() => stage.value.lead.length === 1 && stage.value.lead[0] === 'p')
 const routeWidth = computed(() => (stageIdx.value / (STAGES.length - 1)) * 75)
 
 const openValue = ref<string | null>(null)
@@ -137,9 +139,9 @@ onUnmounted(() => {
 })
 
 /* ── Helpers ── */
-const isLead = (id: 'm' | 'p') => stage.value.lead === id
+const isLead = (id: 'm' | 'p') => stage.value.lead.includes(id)
 const isActiveBubble = (id: 'm' | 'p', b: string) => stage.value.active[id].includes(b)
-const leadStagesFor = (id: 'm' | 'p') => STAGES.filter(s => s.lead === id)
+const leadStagesFor = (id: 'm' | 'p') => STAGES.filter(s => s.lead.includes(id))
 
 /* ── Фото всегда смотрят друг на друга ──
    PHOTO_FACES — куда смотрит ИСХОДНОЕ фото (без зеркала).
@@ -175,44 +177,12 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
     <div class="mr-crew-container">
 
       <!-- Statement -->
-      <h2 class="mr-crew-statement">Системы строят люди.</h2>
+      <h2 class="mr-crew-statement">Системы строят люди</h2>
 
       <!-- ═══ Instrument panel ═══ -->
       <div class="mr-crew-panel">
 
-        <!-- LEFT · Values -->
-        <aside class="mr-crew-values">
-          <div class="mr-crew-values-head" :class="{ engaged: openValue !== null }">
-            <svg class="mr-crew-chevron" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
-              <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
-                <path :d="CHEVRON_PATH" fill="rgba(255,255,255,0.88)" />
-              </g>
-            </svg>
-            <span class="mr-crew-values-title">Ценности</span>
-          </div>
-
-          <div
-            v-for="v in VALUES"
-            :key="v.n"
-            class="mr-crew-value"
-            :class="{ open: openValue === v.n }"
-          >
-            <button class="mr-crew-value-header" @click="toggleValue(v.n)">
-              <span class="mr-crew-value-num">{{ v.n }}</span>
-              <span class="mr-crew-value-title">{{ v.title }}</span>
-              <span class="mr-crew-value-toggle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                  <path d="M12 5v14" /><path d="M5 12h14" />
-                </svg>
-              </span>
-            </button>
-            <div class="mr-crew-value-body" :class="{ expanded: openValue === v.n }">
-              <p class="mr-crew-value-caption">{{ v.caption }}</p>
-            </div>
-          </div>
-        </aside>
-
-        <!-- RIGHT · Route + crew -->
+        <!-- Route + crew + values -->
         <div class="mr-crew-main">
 
           <!-- Route -->
@@ -267,9 +237,10 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                 class="mr-crew-card"
                 :class="{ 'is-lead': isLead(id), pressing }"
                 :style="isLead(id) ? {
+                  '--stage-rgb': stage.colorRgb,
                   borderColor: stage.color,
                   boxShadow: `0 0 34px rgba(${stage.colorRgb},0.22), 0 14px 40px rgba(0,0,0,0.5)`,
-                } : {}"
+                } : { '--stage-rgb': stage.colorRgb }"
                 @click="openModal(id)"
               >
                 <!-- Badge -->
@@ -279,7 +250,6 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                     class="mr-crew-badge mr-crew-badge-lead"
                     :style="{ background: stage.color }"
                   >
-                    <span class="mr-crew-badge-dot"></span>
                     ЗА ШТУРВАЛОМ
                   </span>
                   <span v-else class="mr-crew-badge mr-crew-badge-support">
@@ -287,8 +257,11 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                   </span>
                 </div>
 
-                <!-- Profile: avatar · identity · big arrow -->
-                <div class="mr-crew-profile">
+                <!-- Profile plate — фото + имя + роль, читается как кнопка -->
+                <div
+                  class="mr-crew-id-plate"
+                  :style="isLead(id) ? { background: `rgba(${stage.colorRgb},0.09)` } : {}"
+                >
                   <div
                     class="mr-crew-avatar"
                     :style="isLead(id)
@@ -317,16 +290,6 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                       :style="isLead(id) ? { color: stage.color } : {}"
                     >{{ PEOPLE[id].role }}</div>
                   </div>
-
-                  <div
-                    class="mr-crew-arrow"
-                    :style="isLead(id) ? { background: stage.color, borderColor: stage.color, color: '#06090f' } : {}"
-                    aria-hidden="true"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M5 12h14" /><path d="m13 6 6 6-6 6" />
-                    </svg>
-                  </div>
                 </div>
 
                 <!-- Bubbles -->
@@ -339,6 +302,37 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                     :style="bubbleStyle(id, b)"
                   >{{ b }}</span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Values — под карточками -->
+          <div class="mr-crew-values">
+            <div class="mr-crew-values-head" :class="{ engaged: openValue !== null }">
+              <svg class="mr-crew-chevron" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+                <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
+                  <path :d="CHEVRON_PATH" fill="rgba(255,255,255,0.88)" />
+                </g>
+              </svg>
+              <span class="mr-crew-values-title">И никак иначе.</span>
+            </div>
+
+            <div
+              v-for="v in VALUES"
+              :key="v.n"
+              class="mr-crew-value"
+              :class="{ open: openValue === v.n }"
+            >
+              <button class="mr-crew-value-header" @click="toggleValue(v.n)">
+                <span class="mr-crew-value-title">{{ v.title }}</span>
+                <span class="mr-crew-value-toggle">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M12 5v14" /><path d="M5 12h14" />
+                  </svg>
+                </span>
+              </button>
+              <div class="mr-crew-value-body" :class="{ expanded: openValue === v.n }">
+                <p class="mr-crew-value-caption">{{ v.caption }}</p>
               </div>
             </div>
           </div>
@@ -382,6 +376,8 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                 >{{ s.label }}</span>
               </span>
             </div>
+
+            <div class="mr-crew-modal-stat">{{ modalPerson.stat }}</div>
 
             <p v-for="(line, i) in modalPerson.bio" :key="i" class="mr-crew-modal-bio">{{ line }}</p>
 
@@ -447,22 +443,12 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 }
 
 /* ═══ LEFT · Values ═══ */
+/* ═══ Values — под карточками ═══ */
 .mr-crew-values {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 33%;
-  min-width: 280px;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 30px 24px 26px;
-  background: rgba(8, 10, 14, 0.55);
-  overflow-y: auto;
-  /* скроллбар скрыт полностью — никаких миганий при раскрытии */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  margin-top: 30px;
+  padding-top: 26px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
-.mr-crew-values::-webkit-scrollbar { display: none; width: 0; }
 .mr-crew-values-head {
   display: flex;
   align-items: center;
@@ -513,16 +499,6 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   font-family: 'Inter', sans-serif;
 }
 .mr-crew-value-header::before, .mr-crew-value-header::after { display: none !important; content: none !important; }
-.mr-crew-value-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.35);
-  width: 13px;
-  flex-shrink: 0;
-  transition: color 0.25s ease;
-}
-.mr-crew-value.open .mr-crew-value-num { color: #fff; }
 .mr-crew-value-title {
   flex: 1;
   font-size: 16px;
@@ -575,7 +551,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 }
 .mr-crew-value-caption {
   margin: 0;
-  padding: 0 0 16px 26px;
+  padding: 0 0 16px 0;
   font-size: 14px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.6);
@@ -583,13 +559,11 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   white-space: pre-line;
 }
 
-/* ═══ RIGHT · Main ═══ */
+/* ═══ Main ═══ */
 .mr-crew-main {
   flex: 1;
   min-width: 0;
-  margin-left: max(33%, 280px);
-  min-height: 505px;
-  padding: 34px 34px 34px;
+  padding: 34px 34px 30px;
   display: flex;
   flex-direction: column;
 }
@@ -704,13 +678,25 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   border-radius: 20px;
   padding: 18px 20px 18px;
   cursor: pointer;
-  transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.3s ease;
+  transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.3s ease, background 0.45s ease;
   display: flex;
   flex-direction: column;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
-.mr-crew-card:hover { transform: translateY(-3px); }
-.mr-crew-card:hover .mr-crew-arrow svg { transform: translateX(3px); }
+.mr-crew-card:hover {
+  transform: scale(1.02);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    0 0 60px rgba(255, 255, 255, 0.08);
+}
+.mr-crew-card.is-lead:hover {
+  /* у ведущего свечение в цвет этапа поверх существующего */
+  box-shadow:
+    0 0 34px rgba(var(--stage-rgb, 255, 255, 255), 0.32),
+    0 14px 40px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(var(--stage-rgb, 255, 255, 255), 0.18);
+}
+.mr-crew-card:hover .mr-crew-id-plate { filter: brightness(1.3); }
 
 /* «Нажатие» при смене этапа: ужалась → вернулась */
 .mr-crew-card.pressing {
@@ -722,12 +708,11 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   100% { transform: scale(1); }
 }
 
-/* Badges */
-.mr-crew-badge-row { min-height: 28px; margin-bottom: 16px; }
+/* Badges — с воздухом от верха карточки */
+.mr-crew-badge-row { min-height: 28px; margin: 6px 0 20px; }
 .mr-crew-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   font-weight: 700;
@@ -738,26 +723,22 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   white-space: nowrap;
   color: #06090f;
 }
-.mr-crew-badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #06090f;
-  animation: mr-crew-blink 1.6s ease-in-out infinite;
-}
-@keyframes mr-crew-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 .mr-crew-badge-support {
   color: rgba(255, 255, 255, 0.5);
   background: transparent;
   border: 1.5px solid rgba(255, 255, 255, 0.18);
 }
 
-/* Profile */
-.mr-crew-profile {
+/* Профайл-плашка: лёгкая прозрачность, читается как кнопка */
+.mr-crew-id-plate {
   display: flex;
   align-items: center;
   gap: 15px;
+  padding: 12px 16px;
   margin-bottom: 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: background 0.4s ease, filter 0.3s ease;
 }
 .mr-crew-avatar {
   position: relative;
@@ -818,26 +799,6 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   white-space: pre-line;
   color: rgba(255, 255, 255, 0.55);
   transition: color 0.4s ease;
-}
-
-/* Крупная стрелка — как на штурвале. Непрозрачная. */
-.mr-crew-arrow {
-  width: 62px;
-  height: 62px;
-  border-radius: 50%;
-  border: 2px solid #454b56;
-  background: #1d2026;
-  color: #f2f4f7;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.4s ease;
-}
-.mr-crew-arrow svg {
-  width: 26px;
-  height: 26px;
-  transition: transform 0.25s ease;
 }
 
 /* Bubbles */
@@ -966,6 +927,13 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   line-height: 1.65;
   margin: 0 0 12px;
 }
+.mr-crew-modal-stat {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.3px;
+  margin: 4px 0 14px;
+}
 .mr-crew-modal-bubbles { margin: 16px 0 24px; }
 .mr-crew-tg {
   display: inline-flex;
@@ -995,38 +963,24 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 /* ═══ Reduced motion ═══ */
 @media (prefers-reduced-motion: reduce) {
   .mr-crew-card-slot, .mr-crew-card, .mr-crew-badge, .mr-crew-bubble, .mr-crew-route-progress, .mr-crew-avatar-img { transition: none !important; }
-  .mr-crew-badge-dot, .mr-crew-node-ring { animation: none !important; }
+  .mr-crew-node-ring { animation: none !important; }
   .mr-crew-card.pressing { animation: none !important; }
 }
 
-/* ═══ Tablet / Mobile ═══ */
-@media (max-width: 1000px) {
-  .mr-crew-panel { flex-direction: column; }
-  .mr-crew-values {
-    position: static;
-    width: 100%;
-    min-width: 0;
-    order: 2;
-    border-right: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    overflow-y: visible;
-  }
-  .mr-crew-main { order: 1; margin-left: 0; min-height: 0; }
-}
-
+/* ═══ Mobile ═══ */
 @media (max-width: 700px) {
   .mr-crew { padding: 64px 16px; }
   .mr-crew-statement { margin-bottom: 36px; }
   .mr-crew-panel { border-radius: 14px; }
   .mr-crew-main { padding: 24px 14px 20px; }
-  .mr-crew-values { padding: 24px 16px 20px; }
+  .mr-crew-values { margin-top: 24px; padding-top: 20px; }
   .mr-crew-values-title { font-size: 19px; }
   .mr-crew-chevron { width: 23px; height: 23px; }
   .mr-crew-value { border-radius: 12px; padding: 0 13px; }
   .mr-crew-value-title { font-size: 14px; }
   .mr-crew-value-toggle { width: 33px; height: 33px; border-radius: 9px; }
   .mr-crew-value-toggle svg { width: 18px; height: 18px; }
-  .mr-crew-value-caption { font-size: 13px; padding-left: 24px; }
+  .mr-crew-value-caption { font-size: 13px; }
 
   .mr-crew-route { margin-bottom: 28px; }
   .mr-crew-node { width: 28px; height: 28px; font-size: 10px; }
@@ -1039,11 +993,9 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   .mr-crew-card-slot { width: 100%; transform: none !important; }
   .mr-crew-card-slot.lead { order: -1; }
   .mr-crew-card { padding: 16px 16px 14px; }
-  .mr-crew-profile { gap: 12px; }
+  .mr-crew-id-plate { gap: 12px; padding: 10px 12px; border-radius: 14px; }
   .mr-crew-avatar { width: 52px; height: 52px; }
   .mr-crew-avatar-initials { font-size: 16px; }
-  .mr-crew-arrow { width: 52px; height: 52px; }
-  .mr-crew-arrow svg { width: 22px; height: 22px; }
   .mr-crew-name { font-size: 16px; }
 
   .mr-crew-modal { padding: 26px 20px 22px; border-radius: 16px; }
