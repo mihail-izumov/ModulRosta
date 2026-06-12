@@ -61,6 +61,8 @@ interface Stage {
   color: string
   colorRgb: string
   lead: ('m' | 'p')[]
+  /* Текст бейджа лидера для каждого человека. Если ключа нет — fallback 'ЗА ШТУРВАЛОМ'. */
+  leadBadge?: { m?: string; p?: string }
   supportBadge: string
   active: { m: string[]; p: string[] }
 }
@@ -75,7 +77,9 @@ const STAGES: Stage[] = [
   {
     id: 'stykovka', num: '02', label: 'Стыковка',
     color: '#58a6ff', colorRgb: '88,166,255',
-    lead: ['m', 'p'], supportBadge: 'ДЕРЖИТ КУРС',
+    lead: ['m', 'p'],
+    leadBadge: { m: 'АРХИТЕКТОР', p: 'КАПИТАН' },
+    supportBadge: 'ДЕРЖИТ КУРС',
     active: { m: ['Стратегия', 'Дизайн'], p: ['Технологии', 'Внедрение'] },
   },
   {
@@ -87,7 +91,9 @@ const STAGES: Stage[] = [
   {
     id: 'polet', num: '04', label: 'Полёт',
     color: '#00ff88', colorRgb: '0,255,136',
-    lead: ['m', 'p'], supportBadge: 'АНАЛИТИКА',
+    lead: ['m', 'p'],
+    leadBadge: { m: 'АНАЛИТИК', p: 'ИНЖЕНЕР' },
+    supportBadge: 'АНАЛИТИКА',
     active: { m: ['Аналитика', 'Маркетинг', 'Обучение'], p: ['Обучение', 'Расширение', 'Внедрение'] },
   },
 ]
@@ -142,6 +148,7 @@ onUnmounted(() => {
 const isLead = (id: 'm' | 'p') => stage.value.lead.includes(id)
 const isActiveBubble = (id: 'm' | 'p', b: string) => stage.value.active[id].includes(b)
 const leadStagesFor = (id: 'm' | 'p') => STAGES.filter(s => s.lead.includes(id))
+const leadBadgeFor = (id: 'm' | 'p') => stage.value.leadBadge?.[id] ?? 'ЗА ШТУРВАЛОМ'
 
 /* ── Фото всегда смотрят друг на друга ──
    PHOTO_FACES — куда смотрит ИСХОДНОЕ фото (без зеркала).
@@ -200,8 +207,8 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
             <button class="mr-crew-value-header" @click="toggleValue(v.n)">
               <span class="mr-crew-value-title">{{ v.title }}</span>
               <span class="mr-crew-value-toggle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                  <path d="M12 5v14" /><path d="M5 12h14" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m6 9 6 6 6-6" />
                 </svg>
               </span>
             </button>
@@ -209,8 +216,6 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
               <p class="mr-crew-value-caption">{{ v.caption }}</p>
             </div>
           </div>
-
-          <div class="mr-crew-values-footer">И никак иначе.</div>
         </aside>
 
         <!-- RIGHT · Route + crew -->
@@ -281,7 +286,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                     class="mr-crew-badge mr-crew-badge-lead"
                     :style="{ background: stage.color }"
                   >
-                    ЗА ШТУРВАЛОМ
+                    {{ leadBadgeFor(id) }}
                   </span>
                   <span v-else class="mr-crew-badge mr-crew-badge-support">
                     {{ stage.supportBadge }}
@@ -336,6 +341,9 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
               </div>
             </div>
           </div>
+
+          <!-- Подпись под карточками — на всю ширину панели -->
+          <div class="mr-crew-tagline">И никак иначе.</div>
 
         </div>
       </div>
@@ -430,9 +438,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   text-transform: uppercase;
 }
 
-/* ═══ Instrument panel frame ═══
-   Высоту рамки задаёт ТОЛЬКО правая колонка — раскрытие ценностей
-   слева не меняет габарит панели (левая колонка абсолютная). */
+/* ═══ Instrument panel frame ═══ */
 .mr-crew-panel {
   position: relative;
   display: flex;
@@ -440,6 +446,18 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   border-radius: 18px;
   overflow: hidden;
   background: rgba(10, 12, 16, 0.65);
+}
+
+/* Подпись под карточками — спокойный шильд на всю ширину панели */
+.mr-crew-tagline {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* ═══ LEFT · Values ═══ */
@@ -465,14 +483,6 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   gap: 12px;
   margin-bottom: 18px;
   padding-left: 2px;
-}
-.mr-crew-values-footer {
-  margin-top: 18px;
-  padding-left: 2px;
-  font-size: 14px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.4);
-  letter-spacing: 0.2px;
 }
 .mr-crew-chevron {
   width: 27px;
@@ -527,35 +537,26 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   white-space: pre-line;
 }
 
-/* Тумблер — крупный, не промахнёшься. Плюс поворачивается в крест. */
+/* Иконка раскрытия — приглушённая стрелка вниз */
 .mr-crew-value-toggle {
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  border: 1.5px solid rgba(255, 255, 255, 0.28);
-  border-radius: 10px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.03);
-  transition: all 0.25s ease;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.25s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .mr-crew-value-toggle svg {
-  width: 21px;
-  height: 21px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 18px;
+  height: 18px;
 }
-.mr-crew-value-header:hover .mr-crew-value-toggle {
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.07);
-}
+.mr-crew-value-header:hover .mr-crew-value-toggle { color: rgba(255, 255, 255, 0.85); }
 .mr-crew-value.open .mr-crew-value-toggle {
-  background: #fff;
-  border-color: #fff;
-  color: #06090f;
+  color: #fff;
+  transform: rotate(180deg);
 }
-.mr-crew-value.open .mr-crew-value-toggle svg { transform: rotate(45deg); }
 
 .mr-crew-value-body {
   max-height: 0;
@@ -707,14 +708,14 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   transform: scale(1.02);
   box-shadow:
     0 12px 32px rgba(0, 0, 0, 0.45),
-    0 0 60px rgba(255, 255, 255, 0.08);
+    0 0 80px 8px rgba(255, 255, 255, 0.16);
 }
 .mr-crew-card.is-lead:hover {
-  /* у ведущего свечение в цвет этапа поверх существующего */
+  /* свечение в цвет этапа: ближнее плотное + дальнее размытое */
   box-shadow:
-    0 0 34px rgba(var(--stage-rgb, 255, 255, 255), 0.32),
-    0 14px 40px rgba(0, 0, 0, 0.5),
-    0 0 80px rgba(var(--stage-rgb, 255, 255, 255), 0.18);
+    0 0 50px 6px rgba(var(--stage-rgb, 255, 255, 255), 0.5),
+    0 0 120px 24px rgba(var(--stage-rgb, 255, 255, 255), 0.32),
+    0 14px 40px rgba(0, 0, 0, 0.5);
 }
 .mr-crew-card:hover .mr-crew-id-plate { filter: brightness(1.3); }
 
