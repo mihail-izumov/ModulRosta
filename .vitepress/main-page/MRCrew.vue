@@ -160,15 +160,13 @@ const photoFlipped = (id: 'm' | 'p') => {
 
 const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') => {
   if (!isActiveBubble(id, b)) {
-    if (ctx === 'modal') {
-      /* в модалке неактивные почти сливаются с фоном */
-      return { background: 'rgba(255,255,255,0.045)', color: 'rgba(255,255,255,0.35)' }
-    }
-    /* в карточках — ярче, со слабым тоном цвета этапа */
-    return { background: `rgba(${stage.value.colorRgb},0.09)`, color: 'rgba(255,255,255,0.68)' }
+    /* почти сливаются с фоном — видны только активные */
+    return ctx === 'modal'
+      ? { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.25)' }
+      : { background: 'rgba(255,255,255,0.035)', color: 'rgba(255,255,255,0.22)' }
   }
-  if (isLead(id)) return { background: stage.value.color, color: '#06090f' }
-  return { background: `rgba(${stage.value.colorRgb},0.18)`, color: stage.value.color }
+  /* активные — приглушённый тон цвета этапа, как раньше у второго пилота */
+  return { background: `rgba(${stage.value.colorRgb},0.16)`, color: stage.value.color }
 }
 </script>
 
@@ -182,7 +180,40 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
       <!-- ═══ Instrument panel ═══ -->
       <div class="mr-crew-panel">
 
-        <!-- Route + crew + values -->
+        <!-- LEFT · Values (desktop only) -->
+        <aside class="mr-crew-values mr-crew-values-aside">
+          <div class="mr-crew-values-head">
+            <svg class="mr-crew-chevron" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+              <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
+                <path :d="CHEVRON_PATH" fill="rgba(255,255,255,0.88)" />
+              </g>
+            </svg>
+            <span class="mr-crew-values-title">Ценности</span>
+          </div>
+
+          <div
+            v-for="v in VALUES"
+            :key="v.n"
+            class="mr-crew-value"
+            :class="{ open: openValue === v.n }"
+          >
+            <button class="mr-crew-value-header" @click="toggleValue(v.n)">
+              <span class="mr-crew-value-title">{{ v.title }}</span>
+              <span class="mr-crew-value-toggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M12 5v14" /><path d="M5 12h14" />
+                </svg>
+              </span>
+            </button>
+            <div class="mr-crew-value-body" :class="{ expanded: openValue === v.n }">
+              <p class="mr-crew-value-caption">{{ v.caption }}</p>
+            </div>
+          </div>
+
+          <div class="mr-crew-values-footer">И никак иначе.</div>
+        </aside>
+
+        <!-- RIGHT · Route + crew -->
         <div class="mr-crew-main">
 
           <!-- Route -->
@@ -306,37 +337,6 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
             </div>
           </div>
 
-          <!-- Values — под карточками -->
-          <div class="mr-crew-values">
-            <div class="mr-crew-values-head" :class="{ engaged: openValue !== null }">
-              <svg class="mr-crew-chevron" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
-                <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
-                  <path :d="CHEVRON_PATH" fill="rgba(255,255,255,0.88)" />
-                </g>
-              </svg>
-              <span class="mr-crew-values-title">И никак иначе.</span>
-            </div>
-
-            <div
-              v-for="v in VALUES"
-              :key="v.n"
-              class="mr-crew-value"
-              :class="{ open: openValue === v.n }"
-            >
-              <button class="mr-crew-value-header" @click="toggleValue(v.n)">
-                <span class="mr-crew-value-title">{{ v.title }}</span>
-                <span class="mr-crew-value-toggle">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                    <path d="M12 5v14" /><path d="M5 12h14" />
-                  </svg>
-                </span>
-              </button>
-              <div class="mr-crew-value-body" :class="{ expanded: openValue === v.n }">
-                <p class="mr-crew-value-caption">{{ v.caption }}</p>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
@@ -443,18 +443,36 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 }
 
 /* ═══ LEFT · Values ═══ */
-/* ═══ Values — под карточками ═══ */
-.mr-crew-values {
-  margin-top: 30px;
-  padding-top: 26px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+/* ═══ Values — слева на десктопе ═══ */
+.mr-crew-values-aside {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 33%;
+  min-width: 280px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 30px 24px 26px;
+  background: rgba(8, 10, 14, 0.55);
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.mr-crew-values-aside::-webkit-scrollbar { display: none; width: 0; }
 .mr-crew-values-head {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 18px;
   padding-left: 2px;
+}
+.mr-crew-values-footer {
+  margin-top: 18px;
+  padding-left: 2px;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.2px;
 }
 .mr-crew-chevron {
   width: 27px;
@@ -563,7 +581,9 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 .mr-crew-main {
   flex: 1;
   min-width: 0;
-  padding: 34px 34px 30px;
+  margin-left: max(33%, 280px);
+  min-height: 480px;
+  padding: 34px 34px 34px;
   display: flex;
   flex-direction: column;
 }
@@ -967,13 +987,28 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   .mr-crew-card.pressing { animation: none !important; }
 }
 
+/* ═══ Tablet: ценности уходят под карточки ═══ */
+@media (max-width: 1000px) {
+  .mr-crew-panel { flex-direction: column; }
+  .mr-crew-values-aside {
+    position: static;
+    width: 100%;
+    min-width: 0;
+    order: 2;
+    border-right: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    overflow-y: visible;
+  }
+  .mr-crew-main { order: 1; margin-left: 0; min-height: 0; }
+}
+
 /* ═══ Mobile ═══ */
 @media (max-width: 700px) {
   .mr-crew { padding: 64px 16px; }
   .mr-crew-statement { margin-bottom: 36px; }
   .mr-crew-panel { border-radius: 14px; }
   .mr-crew-main { padding: 24px 14px 20px; }
-  .mr-crew-values { margin-top: 24px; padding-top: 20px; }
+  .mr-crew-values-aside { padding: 24px 16px 20px; }
   .mr-crew-values-title { font-size: 19px; }
   .mr-crew-chevron { width: 23px; height: 23px; }
   .mr-crew-value { border-radius: 12px; padding: 0 13px; }
