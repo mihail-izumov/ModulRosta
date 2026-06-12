@@ -27,7 +27,7 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     role: 'Видит\nи собирает',
     initials: 'МИ',
     photo: '/crew/mikhail-crew.png',
-    bubbles: ['Стратегия', 'Аналитика', 'Дизайн', 'Маркетинг', 'Обучение'],
+    bubbles: ['Стратегия', 'Обучение', 'Аналитика', 'Дизайн', 'Маркетинг'],
     stat: '25+ лет в маркетинге',
     bio: [
       'Заходит первым. За пять дней Разбега собирает то, на что у агентств уходит квартал: аналитику, стратегию, дизайн и прототип первого цифрового продукта.',
@@ -42,7 +42,7 @@ const PEOPLE: Record<'m' | 'p', Person> = {
     role: 'Приземляет\nи расширяет',
     initials: 'ПМ',
     photo: '/crew/pavel-crew.png',
-    bubbles: ['Внедрение', 'Технологии', 'Обучение', 'Расширение'],
+    bubbles: ['Стратегия', 'Обучение', 'Внедрение', 'Технологии', 'Расширение'],
     stat: '30+ лет в IT',
     bio: [
       'Приземляет скорость на технологии. Синхронизирует прототип с реальностью бизнеса. Что нужно на самом деле — то и летит.',
@@ -98,7 +98,7 @@ const STAGES: Stage[] = [
 ]
 
 const VALUES = [
-  { n: '1', title: 'Наш бизнес про перемены.', caption: 'Новые времена — новые решения.' },
+  { n: '1', title: 'Перемены делают бизнес.', caption: 'Новые времена — новые решения.' },
   { n: '2', title: 'Сила в действии.', caption: 'Изменения дают результаты.' },
   { n: '3', title: 'Это будет красиво.', caption: 'Ясность на кончиках пальцев.' },
 ]
@@ -173,15 +173,18 @@ const isLead = (id: 'm' | 'p') => stage.value.lead.includes(id)
 const isActiveBubble = (id: 'm' | 'p', b: string) => stage.value.active[id].includes(b)
 const leadBadgeFor = (id: 'm' | 'p') => stage.value.leadBadge?.[id] ?? 'ЗА ШТУРВАЛОМ'
 
-/* Свечение карточек: считаем, кто на какой стороне, и светим в цвет этапа.
-   Ведущий — плотно, второй пилот — мягче. */
+/* Свечение карточек: только при наведении, плотно к канту.
+   Слой лежит ПОД карточками, поэтому на соседа не наезжает.
+   Ведущий — плотнее, второй пилот — мягче. */
+const hoveredCard = ref<'m' | 'p' | null>(null)
 const glowStyle = (side: 'left' | 'right') => {
   const leftId: 'm' | 'p' = swapped.value ? 'p' : 'm'
   const id: 'm' | 'p' = side === 'left' ? leftId : (leftId === 'm' ? 'p' : 'm')
+  if (hoveredCard.value !== id) return { boxShadow: 'none' }
   const rgb = stage.value.colorRgb
   return isLead(id)
-    ? { boxShadow: `0 0 38px 8px rgba(${rgb},0.5), 0 0 110px 30px rgba(${rgb},0.3)` }
-    : { boxShadow: `0 0 30px 4px rgba(${rgb},0.2), 0 0 80px 18px rgba(${rgb},0.11)` }
+    ? { boxShadow: `0 0 14px 2px rgba(${rgb},0.55), 0 0 30px 6px rgba(${rgb},0.3)` }
+    : { boxShadow: `0 0 12px 1px rgba(${rgb},0.28), 0 0 24px 4px rgba(${rgb},0.15)` }
 }
 
 /* ── Фото всегда смотрят друг на друга ──
@@ -317,6 +320,8 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                   borderColor: stage.color,
                 } : { '--stage-rgb': stage.colorRgb }"
                 @click="openModal(id)"
+                @mouseenter="hoveredCard = id"
+                @mouseleave="hoveredCard = null"
               >
                 <!-- Badge -->
                 <div class="mr-crew-badge-row">
@@ -373,7 +378,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                     v-for="b in PEOPLE[id].bubbles"
                     :key="b"
                     class="mr-crew-bubble"
-                    :class="{ on: isActiveBubble(id, b) }"
+                    :class="{ on: isActiveBubble(id, b), shimmer: b === 'Стратегия' }"
                     :style="bubbleStyle(id, b)"
                   >{{ b }}</span>
                 </div>
@@ -418,7 +423,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
                 v-for="b in modalPerson.bubbles"
                 :key="b"
                 class="mr-crew-bubble"
-                :class="{ on: isActiveBubble(modalPerson.id, b) }"
+                :class="{ on: isActiveBubble(modalPerson.id, b), shimmer: b === 'Стратегия' }"
                 :style="bubbleStyle(modalPerson.id, b, 'modal')"
               >{{ b }}</span>
             </div>
@@ -851,6 +856,37 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   color: #8a919c;
   transition: all 0.4s ease;
   white-space: nowrap;
+}
+
+/* «Стратегия» — переливается бегущим бликом поверх обычной раскраски */
+.mr-crew-bubble.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.mr-crew-bubble.shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 32%,
+    rgba(255, 255, 255, 0.16) 48%,
+    rgba(255, 255, 255, 0.22) 52%,
+    transparent 68%
+  );
+  background-size: 250% 100%;
+  background-position: 130% 0;
+  animation: mr-crew-shimmer 3.2s ease-in-out infinite;
+}
+@keyframes mr-crew-shimmer {
+  0% { background-position: 130% 0; }
+  55% { background-position: -60% 0; }
+  100% { background-position: -60% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mr-crew-bubble.shimmer::after { animation: none; display: none; }
 }
 
 /* ═══ Modal — графит с глянцем ═══ */
