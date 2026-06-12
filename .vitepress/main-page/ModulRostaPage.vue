@@ -4,6 +4,7 @@
     <DigitalSupremacyHero />
     <InstrumentPanel />
     <MRProtocol />
+    <MRCrew />
     <MRRunscale404 />
   </div>
 </template>
@@ -15,6 +16,7 @@ import MRHero from './MRHero.vue'
 import MRTeams from './MRTeams.vue'
 import MRRunscale404 from './MRRunscale404.vue'
 import MRProtocol from './MRProtocol.vue'
+import MRCrew from './MRCrew.vue'
 import MRLaunchPanel from './MRLaunchPanel.vue'
 import DigitalSupremacyHero from './DigitalSupremacyHero.vue'
 import MRRadarBadge from './MRRadarBadge.vue' 
