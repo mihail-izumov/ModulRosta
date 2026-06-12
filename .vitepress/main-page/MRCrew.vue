@@ -451,7 +451,8 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   font-family: 'Inter', -apple-system, sans-serif;
 }
 .mr-crew-container {
-  max-width: 1200px;
+  /* в ритме главной: у MRProtocol и MRSneakPeek контейнер 1100px */
+  max-width: 1100px;
   margin: 0 auto;
 }
 
