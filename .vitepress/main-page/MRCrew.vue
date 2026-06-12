@@ -447,7 +447,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 <style scoped>
 /* ═══ Root ═══ */
 .mr-crew {
-  padding: 90px 24px;
+  padding: 100px 24px;
   font-family: 'Inter', -apple-system, sans-serif;
 }
 .mr-crew-container {
