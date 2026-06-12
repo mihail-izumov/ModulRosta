@@ -34,7 +34,7 @@ const PEOPLE: Record<'m' | 'p', Person> = {
       'Заходит первым. За пять дней Разбега собирает то, на что у агентств уходит квартал: аналитику, стратегию, дизайн и прототип первого цифрового продукта.',
       'Дальше держит курс: контроль на Взлёте, аналитика и маркетинг в Полёте. Видит то, что не видят другие — и сразу превращает это в систему.',
     ],
-    tg: 'https://t.me/runScale',
+    tg: 'https://t.me/izumov',
     tgLabel: 'Телеграм-канал',
   },
   p: {
@@ -110,7 +110,6 @@ const stage = computed(() => STAGES[stageIdx.value])
 /* Карточки меняются местами, только когда штурвал передан Павлу ОДНОМУ.
    На совместных этапах порядок сохраняется (Михаил слева, Павел справа). */
 const swapped = computed(() => stage.value.lead.length === 1 && stage.value.lead[0] === 'p')
-const routeWidth = computed(() => (stageIdx.value / (STAGES.length - 1)) * 75)
 
 const openValue = ref<string | null>(null)
 const toggleValue = (n: string) => { openValue.value = openValue.value === n ? null : n }
@@ -147,7 +146,6 @@ onUnmounted(() => {
 /* ── Helpers ── */
 const isLead = (id: 'm' | 'p') => stage.value.lead.includes(id)
 const isActiveBubble = (id: 'm' | 'p', b: string) => stage.value.active[id].includes(b)
-const leadStagesFor = (id: 'm' | 'p') => STAGES.filter(s => s.lead.includes(id))
 const leadBadgeFor = (id: 'm' | 'p') => stage.value.leadBadge?.[id] ?? 'ЗА ШТУРВАЛОМ'
 
 /* ── Фото всегда смотрят друг на друга ──
@@ -189,15 +187,6 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 
         <!-- LEFT · Values (desktop only) -->
         <aside class="mr-crew-values mr-crew-values-aside">
-          <div class="mr-crew-values-head">
-            <svg class="mr-crew-chevron" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
-              <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
-                <path :d="CHEVRON_PATH" fill="rgba(255,255,255,0.88)" />
-              </g>
-            </svg>
-            <span class="mr-crew-values-title">Ценности</span>
-          </div>
-
           <div
             v-for="v in VALUES"
             :key="v.n"
@@ -221,13 +210,13 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
         <!-- RIGHT · Route + crew -->
         <div class="mr-crew-main">
 
-          <!-- Route -->
+          <!-- Route: ширина = ширина ряда карточек, равные интервалы -->
           <div class="mr-crew-route" role="tablist" aria-label="Этапы запуска">
             <div class="mr-crew-route-track"></div>
             <div
               class="mr-crew-route-progress"
               :style="{
-                width: routeWidth + '%',
+                width: `calc((100% - var(--mrc-nh) * 2) * ${stageIdx / (STAGES.length - 1)})`,
                 background: stage.color,
                 boxShadow: stageIdx > 0 ? `0 0 12px rgba(${stage.colorRgb},0.6)` : 'none',
                 opacity: stageIdx > 0 ? 1 : 0,
@@ -238,6 +227,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
               :key="s.id"
               class="mr-crew-waypoint"
               :class="{ active: stageIdx === i, passed: stageIdx > i }"
+              :style="{ left: `calc(var(--mrc-nh) + (100% - var(--mrc-nh) * 2) * ${i / (STAGES.length - 1)})` }"
               role="tab"
               :aria-selected="stageIdx === i"
               @click="stageIdx = i"
@@ -342,8 +332,15 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
             </div>
           </div>
 
-          <!-- Подпись под карточками — на всю ширину панели -->
-          <div class="mr-crew-tagline">И никак иначе.</div>
+          <!-- Шеврон + подпись под карточками -->
+          <div class="mr-crew-tagline">
+            <svg class="mr-crew-chevron" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+              <g transform="matrix(1.23199,0,0,1.23199,-8294.3,-5100.12)">
+                <path :d="CHEVRON_PATH" fill="rgba(255,255,255,0.88)" />
+              </g>
+            </svg>
+            <span class="mr-crew-tagline-text">И никак иначе.</span>
+          </div>
 
         </div>
       </div>
@@ -369,20 +366,8 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
               </div>
               <div>
                 <div class="mr-crew-modal-name">{{ modalPerson.name }}</div>
-                <div class="mr-crew-modal-role" :style="{ color: stage.color }">{{ modalPerson.role }}</div>
+                <div class="mr-crew-modal-role" :style="{ color: stage.color }">{{ modalPerson.role.replace('\n', ' ') }}</div>
               </div>
-            </div>
-
-            <div class="mr-crew-modal-lead-row">
-              <span class="mr-crew-modal-lead-label">За штурвалом</span>
-              <span class="mr-crew-modal-lead-chips">
-                <span
-                  v-for="s in leadStagesFor(modalPerson.id)"
-                  :key="s.id"
-                  class="mr-crew-lead-chip"
-                  :style="{ color: s.color, background: `rgba(${s.colorRgb},0.12)`, borderColor: `rgba(${s.colorRgb},0.4)` }"
-                >{{ s.label }}</span>
-              </span>
             </div>
 
             <div class="mr-crew-modal-stat">{{ modalPerson.stat }}</div>
@@ -428,14 +413,16 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 
 /* ═══ Statement ═══ */
 .mr-crew-statement {
-  font-size: clamp(34px, 5vw, 56px);
-  font-weight: 800;
+  font-family: 'Inter', sans-serif;
+  font-size: 52px;
+  font-weight: 700;
   color: #fff;
-  line-height: 1.1;
+  line-height: 1.2;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
   text-align: center;
   margin: 0 0 52px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
 }
 
 /* ═══ Instrument panel frame ═══ */
@@ -448,16 +435,21 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   background: rgba(10, 12, 16, 0.65);
 }
 
-/* Подпись под карточками — спокойный шильд на всю ширину панели */
+/* Шеврон + подпись под карточками */
 .mr-crew-tagline {
-  margin-top: 26px;
-  padding-top: 22px;
+  margin-top: 28px;
+  padding-top: 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  text-align: center;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.mr-crew-tagline-text {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.3px;
 }
 
 /* ═══ LEFT · Values ═══ */
@@ -477,41 +469,27 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   -ms-overflow-style: none;
 }
 .mr-crew-values-aside::-webkit-scrollbar { display: none; width: 0; }
-.mr-crew-values-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-  padding-left: 2px;
-}
 .mr-crew-chevron {
   width: 27px;
   height: 27px;
   flex-shrink: 0;
-  transition: transform 0.35s ease;
 }
-.mr-crew-values-head.engaged .mr-crew-chevron { transform: rotate(90deg); }
-.mr-crew-values-title {
-  font-size: 22px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: 0.3px;
-  transition: transform 0.35s ease;
-}
-.mr-crew-values-head.engaged .mr-crew-values-title { transform: translateX(5px); }
 
-/* Плашки вместо разделителей */
+/* Плашки ценностей — без обводки, фон чуть светлее, подъём на ховере */
 .mr-crew-value {
-  background: #15171c;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #1a1d23;
   border-radius: 14px;
   margin-bottom: 10px;
   padding: 0 16px;
-  transition: background 0.25s ease, border-color 0.25s ease;
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 .mr-crew-value:last-child { margin-bottom: 0; }
-.mr-crew-value:hover { background: #191c22; }
-.mr-crew-value.open { border-color: rgba(255, 255, 255, 0.14); }
+.mr-crew-value:hover {
+  background: #22262e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+.mr-crew-value.open { background: #1e222a; }
 
 .mr-crew-value-header {
   display: flex;
@@ -589,17 +567,20 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   flex-direction: column;
 }
 
-/* ═══ Route — равные колонки, точная геометрия ═══ */
+/* ═══ Route — узлы по краям ряда карточек, равные интервалы ═══
+   --mrc-nh = половина диаметра узла (центр первого/последнего узла
+   отстоит от края на полузла, чтобы кружки не вылезали за карточки). */
 .mr-crew-route {
+  --mrc-nh: 17px;
   position: relative;
-  display: flex;
-  margin-bottom: 36px;
+  height: 64px;
+  margin-bottom: 34px;
 }
 .mr-crew-route-track {
   position: absolute;
   top: 15.5px;
-  left: 12.5%;
-  right: 12.5%;
+  left: var(--mrc-nh);
+  right: var(--mrc-nh);
   height: 3px;
   border-radius: 2px;
   background: rgba(255, 255, 255, 0.1);
@@ -607,14 +588,15 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 .mr-crew-route-progress {
   position: absolute;
   top: 15.5px;
-  left: 12.5%;
+  left: var(--mrc-nh);
   height: 3px;
   border-radius: 2px;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, box-shadow 0.4s ease, opacity 0.3s ease;
 }
 .mr-crew-waypoint {
-  flex: 1;
-  position: relative;
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -626,7 +608,6 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   padding: 0;
   font-family: 'Inter', sans-serif;
   text-decoration: none !important;
-  min-width: 0;
 }
 .mr-crew-waypoint::before, .mr-crew-waypoint::after { display: none !important; content: none !important; }
 .mr-crew-node {
@@ -905,41 +886,7 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
   font-weight: 700;
   margin-top: 4px;
   line-height: 1.3;
-  white-space: pre-line;
-}
-.mr-crew-modal-lead-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  margin-bottom: 18px;
-}
-.mr-crew-modal-lead-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: rgba(255, 255, 255, 0.4);
-  white-space: nowrap;
-}
-.mr-crew-modal-lead-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.mr-crew-lead-chip {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  padding: 5px 11px;
-  border-radius: 6px;
-  border: 1px solid;
-  white-space: nowrap;
+  white-space: normal;
 }
 .mr-crew-modal-bio {
   font-size: 14px;
@@ -1006,19 +953,18 @@ const bubbleStyle = (id: 'm' | 'p', b: string, ctx: 'card' | 'modal' = 'card') =
 /* ═══ Mobile ═══ */
 @media (max-width: 700px) {
   .mr-crew { padding: 64px 16px; }
-  .mr-crew-statement { margin-bottom: 36px; }
+  .mr-crew-statement { font-size: 24px; letter-spacing: 2px; margin-bottom: 32px; }
   .mr-crew-panel { border-radius: 14px; }
   .mr-crew-main { padding: 24px 14px 20px; }
   .mr-crew-values-aside { padding: 24px 16px 20px; }
-  .mr-crew-values-title { font-size: 19px; }
   .mr-crew-chevron { width: 23px; height: 23px; }
+  .mr-crew-tagline-text { font-size: 18px; }
   .mr-crew-value { border-radius: 12px; padding: 0 13px; }
   .mr-crew-value-title { font-size: 14px; }
-  .mr-crew-value-toggle { width: 33px; height: 33px; border-radius: 9px; }
-  .mr-crew-value-toggle svg { width: 18px; height: 18px; }
+  .mr-crew-value-toggle svg { width: 16px; height: 16px; }
   .mr-crew-value-caption { font-size: 13px; }
 
-  .mr-crew-route { margin-bottom: 28px; }
+  .mr-crew-route { --mrc-nh: 14px; height: 54px; margin-bottom: 26px; }
   .mr-crew-node { width: 28px; height: 28px; font-size: 10px; }
   .mr-crew-route-track, .mr-crew-route-progress { top: 12.5px; }
   .mr-crew-waypoint { gap: 8px; }
