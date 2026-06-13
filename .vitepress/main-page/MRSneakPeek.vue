@@ -87,10 +87,11 @@ interface Project {
 }
 
 const allProjects = ref<Project[]>([
-  { id: 'proj1', title: 'Б00М! Призотека', subtitle: 'b00m.fun', status: 'Запущен', launchDate: '31.03.2026', buildTime: '45дн', mrBranded: true, icon: '/ars/id-icons/id_icon_01_03_2026.svg' },
+  { id: 'proj40', title: 'WOODLED Студия', subtitle: 'WOODLED', status: 'Запущен', launchDate: '09.06.2026', buildTime: '57дн', mrBranded: false, icon: '/ars/id-icons/id_icon_09_06_2026.svg' },
+  { id: 'proj1', title: 'Призовая система', subtitle: 'БУМБАСТИК', status: 'Запущен', launchDate: '30.03.2026', buildTime: '57дн', mrBranded: true, icon: '/ars/id-icons/id_icon_01_03_2026.svg' },
   { id: 'proj2', title: 'Калькулятор инвестора', subtitle: 'Optima Space', status: 'Запущен', launchDate: '02.03.2026', buildTime: '10дн', mrBranded: false, icon: 'https://runscale.ru/icons/optima_space_icon.svg' },
   { id: 'proj3', title: 'Генератор сториз', subtitle: 'Корж', status: 'Запущен', launchDate: '25.12.2025', buildTime: '10дн', mrBranded: false, icon: null },
-  { id: 'proj4', title: 'Дом для WOODLED Rotor', subtitle: 'WOODLED', status: 'Скоро запуск', launchDate: '01.05.2026', buildTime: '', mrBranded: false, icon: null },
+  { id: 'proj41', title: 'Игровая система', subtitle: 'DRPCS', status: 'Скоро запуск', launchDate: '01.08.2026', buildTime: '', mrBranded: false, icon: '/ars/id-icons/id_icon_02_05_2026.svg' },
 ])
 
 const isHovered = ref(false)
