@@ -4,7 +4,7 @@
     <div class="mr-rs404-container">
       <div class="mr-rs404-terminal">
         <div class="mr-rs404-terminal-block mr-rs404-terminal-input">
-          Одна сессия. Одно решение.<span class="mr-rs404-cursor"></span>
+          90 мин. сессия<span class="mr-rs404-cursor"></span>
         </div>
         <span class="mr-rs404-terminal-arrow">→</span>
         <div class="mr-rs404-terminal-block mr-rs404-terminal-output">
@@ -12,7 +12,7 @@
         </div>
       </div>
 
-      <h2 class="mr-rs404-title">РЕЖИМ РАНСКЕЙЛ</h2>
+      <h2 class="mr-rs404-title">БЫСТРЫЙ СТАРТ</h2>
 
       <div class="mr-rs404-stats">
         <div class="mr-rs404-stat-item">
@@ -27,7 +27,7 @@
         <div class="mr-rs404-stat-divider"></div>
         <div class="mr-rs404-stat-item">
           <div class="mr-rs404-stat-value">GO</div>
-          <div class="mr-rs404-stat-label">ВЕРДИКТ</div>
+          <div class="mr-rs404-stat-label">РЕШЕНИЕ</div>
         </div>
       </div>
 
