@@ -20,7 +20,7 @@
         <button :class="['mr-filter-btn', { active: activeFilter === 'grounded' }]" @click="filterStatus('grounded')"><span class="mr-dot gray"></span>Отложен <span class="mr-count">({{ countByStatus('Отложен') }})</span></button>
         <button :class="['mr-identity-btn', { active: identityMode }]" @click="toggleIdentityMode">
           <span class="mr-identity-btn-icon" style="-webkit-mask-image: url(/icons/orxaos-icon.svg); mask-image: url(/icons/orxaos-icon.svg);"></span>
-          ORXAOS
+          Бренды
         </button>
       </div>
       
@@ -101,7 +101,6 @@
           <div class="mr-glass-content">
             <h3 class="mr-glass-title">ДНК бренда в сайте, вывеске и интерьере.</h3>
             <p class="mr-glass-text">Меняет не просто восприятие, а саму реальность вашего бизнеса. Помогает притянуть нужных людей и воплотить смелые идеи.</p>
-            <a href="https://orxaos.sbs/ars/" target="_blank" class="mr-glass-btn">Дьявол в деталях</a>
           </div>
         </div>
 
@@ -281,7 +280,7 @@ const modalVideoIdx = ref<number | null>(null)
 
 const allProjects = ref<Project[]>([
   { id: 'proj41', title: 'Игровая система', subtitle: 'DRPCS', specialization: 'Кран-машины', website: null, images: [], videos: [], tags: ['Стратегия', 'Автоматизация', 'Бренд', 'Веб', 'Анимация', 'Лояльность'], caseUrl: null, moduleUrl: null, behanceUrl: null, launchDate: '01.08.2026', buildTime: '', status: 'Скоро запуск', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_02_05_2026.svg' },
-  { id: 'proj40', title: 'WOODLED Студия', subtitle: 'WOODLED', specialization: 'Производитель дизайнерских светильников из дерева', website: 'https://woodled-studio.ru', images: [{ src: '/gallery/proj40/images/run_woodled-studio_ban_1.jpg' }], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Веб', 'Анимация', 'Видео', 'CJM'], caseUrl: null, moduleUrl: null, behanceUrl: null, launchDate: '09.06.2026', buildTime: '57дн', status: 'Запущен', mrBranded: false, details: '', logo: '/ars/id-icons/id_icon_09_06_2026.svg' },
+  { id: 'proj40', title: 'WOODLED Студия', subtitle: 'WOODLED', specialization: 'Производитель дизайнерских светильников из дерева', website: 'https://woodled-studio.ru', images: [{ src: '/gallery/proj40/images/run_woodled-studio_ban_1.jpg' }], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Веб', 'Анимация', 'Видео', 'CJM'], caseUrl: null, moduleUrl: null, behanceUrl: null, launchDate: '09.06.2026', buildTime: '57дн', status: 'Запущен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_09_06_2026.svg' },
   { id: 'proj1', title: 'Призовая система', subtitle: 'БУМБАСТИК', specialization: 'Аркадные парки', website: 'https://b00m.fun/', images: [{ src: '/gallery/proj1/images/run_b00m.fun_ban_1.jpg' }], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Бренд', 'Веб', 'Анимация', 'Видео', 'CJM', 'Лояльность', 'Стандарты', 'Продажи', 'Торговая среда'], caseUrl: '/journal/cases/cifrovaya-prizoteka-dlya-bumastic', moduleUrl: null, behanceUrl: null, launchDate: '30.03.2026', buildTime: '57дн', status: 'Запущен', mrBranded: true, details: '', logo: '/ars/id-icons/id_icon_01_03_2026.svg' },
   { id: 'proj2', title: 'Терминал инвестора', subtitle: 'Optima Space', specialization: 'Сервисные офисы', website: '/optima-space/invest', websiteLabel: 'Смотреть модуль', images: [{ src: '/gallery/proj2/images/run_optima_ban_1.jpg' }], videos: [], tags: ['Чекап', 'Стратегия', 'R&D', 'Автоматизация', 'Веб', 'Продажи'], caseUrl: '/journal/cases/kalkulyator-investiciy-dlya-optima-space', moduleUrl: null, behanceUrl: null, launchDate: '02.03.2026', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
   { id: 'proj3', title: 'Генератор сториз', subtitle: 'Корж', specialization: 'Сеть кофеен', website: 'https://korzhcoffee.ru/', images: [], videos: [], tags: ['R&D'], caseUrl: 'https://cffx.ru/signal/korzh/gift', moduleUrl: null, behanceUrl: null, launchDate: '25.12.2025', buildTime: '10дн', status: 'Запущен', mrBranded: false, details: '', logo: null },
