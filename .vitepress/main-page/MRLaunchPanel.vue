@@ -6,7 +6,7 @@ import LaunchTerminal from './LaunchTerminal.vue'
 const PAIRS = [
   { left: 'Симптом', right: 'Причина', label: 'Что ищем' },
   { left: 'Шум', right: 'Сигнал', label: 'Как решаем' },
-  { left: 'Отчёт', right: 'Вердикт', label: 'Что получаете' },
+  { left: 'Отчёт', right: 'Решение', label: 'Что получаете' },
 ]
 
 const BLUE = { r: 88, g: 166, b: 255 }
