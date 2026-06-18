@@ -70,7 +70,7 @@ const nX = [20, 90, 160]
 
 <template>
 <div class="mr-ip">
-  <h1 class="mr-ip-tt">От проблемы<br/>до работающей системы.</h1>
+  <h1 class="mr-ip-tt">От решения<br/>до работающей системы.</h1>
   <p class="mr-ip-sub">Одна команда. Полный цикл.</p>
 
   <!-- ══════ DESKTOP ══════ -->
