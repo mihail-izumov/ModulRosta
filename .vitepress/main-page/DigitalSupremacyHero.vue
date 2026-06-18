@@ -286,7 +286,7 @@ function measure() {
   if (W < 20) return
   const tmp = document.createElement('canvas').getContext('2d')
   tmp.font = `700 100px ${FONT}`
-  const w1 = tmp.measureText('ТОТАЛЬНАЯ').width || 500
+  const w1 = tmp.measureText('НОВАЯ').width || 500
   const w2 = tmp.measureText('ЭФФЕКТИВНОСТЬ').width || 800
   const s = Math.floor((W / Math.max(w1, w2)) * 100 * 0.96)
   fontSizeInternal = s
@@ -300,7 +300,7 @@ function buildAll() {
 
 function draw() {
   pixelTime += 0.008 / 3
-  drawPixelText(canvas1Ref.value, pix1, 'ТОТАЛЬНАЯ', fontSizeInternal, pixelTime)
+  drawPixelText(canvas1Ref.value, pix1, 'НОВАЯ', fontSizeInternal, pixelTime)
   drawPixelText(canvas2Ref.value, pix2, 'ЭФФЕКТИВНОСТЬ', fontSizeInternal, pixelTime)
 
   const isMobile = window.innerWidth <= 700
