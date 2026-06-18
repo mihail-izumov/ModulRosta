@@ -14,6 +14,10 @@ export default defineConfig({
     },
   },
   head: [
+    /* === Plausible Analytics === */
+    ['script', { defer: '', 'data-domain': 'runscale.ru', src: 'https://plausible.io/js/pa-AwYkJ_iN6rooX5CCwAIQH.js' }],
+    ['script', {}, `window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()`],
+
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/runscale_icon_2026.svg' }],
     ['meta', { name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
@@ -75,6 +79,15 @@ export default defineConfig({
           applyLink.parentNode.replaceChild(newLink, applyLink);
         });
       }
+      /* Plausible: клик по кнопке «Бронь запуска» в навбаре.
+         Делегированный listener на document (capture) — переживает
+         пересоздание ноды в updateApplyLinkTarget (ссылка клонируется)
+         и SPA-навигацию VitePress. Вешается один раз при инициализации. */
+      document.addEventListener('click', function(e) {
+        var el = e.target;
+        var link = el && el.closest ? el.closest('.VPSocialLink[aria-label="login-link"]') : null;
+        if (link && window.plausible) window.plausible('Бронь запуска (навбар)');
+      }, true);
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() { replaceFooter(); updateApplyLinkTarget(); });
       } else { replaceFooter(); updateApplyLinkTarget(); }
