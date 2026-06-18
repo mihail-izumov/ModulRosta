@@ -10,19 +10,19 @@
         <!-- Имя -->
         <div class="bml-field" :class="{ focused: focus.name }" @click="$refs.nameInput?.focus()">
           <span class="bml-field-label" :class="{ active: focus.name || form.name.length > 0, focused: focus.name }">Имя</span>
-          <input ref="nameInput" type="text" :value="form.name" @input="form.name = $event.target.value" @focus="focus.name = true" @blur="focus.name = false" class="bml-field-input" />
+          <input ref="nameInput" type="text" :value="form.name" @input="form.name = $event.target.value" @focus="focus.name = true; markStarted()" @blur="focus.name = false" class="bml-field-input" />
         </div>
 
         <!-- Компания / Проект -->
         <div class="bml-field" :class="{ focused: focus.company }" @click="$refs.companyInput?.focus()">
           <span class="bml-field-label" :class="{ active: focus.company || form.company.length > 0, focused: focus.company }">Компания / Проект</span>
-          <input ref="companyInput" type="text" :value="form.company" @input="form.company = $event.target.value" @focus="focus.company = true" @blur="focus.company = false" class="bml-field-input" />
+          <input ref="companyInput" type="text" :value="form.company" @input="form.company = $event.target.value" @focus="focus.company = true; markStarted()" @blur="focus.company = false" class="bml-field-input" />
         </div>
 
         <!-- Телефон -->
         <div class="bml-field" :class="{ focused: focus.contact }" @click="$refs.contactInput?.focus()">
           <span class="bml-field-label" :class="{ active: true, focused: focus.contact }">Телефон</span>
-          <input ref="contactInput" type="tel" :value="form.contact" @input="onPhoneInput" @keydown="onPhoneKeydown" @focus="focus.contact = true" @blur="focus.contact = false" class="bml-field-input" placeholder="+7(___) ___-__-__" />
+          <input ref="contactInput" type="tel" :value="form.contact" @input="onPhoneInput" @keydown="onPhoneKeydown" @focus="focus.contact = true; markStarted()" @blur="focus.contact = false" class="bml-field-input" placeholder="+7(___) ___-__-__" />
         </div>
 
         <!-- Bottleneck: multi -->
@@ -104,6 +104,18 @@
 <script setup lang="ts">
 import { ref, reactive, computed, nextTick } from 'vue'
 
+// ── Plausible: инлайн-guard, кириллица в имени, латиница в ключах ──
+function track(name: string, props?: Record<string, string>) {
+  ;(window as unknown as { plausible?: (e: string, o?: unknown) => void }).plausible?.(name, props ? { props } : undefined)
+}
+// «Начал заполнять» — один раз за визит, на первом взаимодействии
+const formStarted = ref(false)
+function markStarted() {
+  if (formStarted.value) return
+  formStarted.value = true
+  track('Начал заполнять')
+}
+
 const form = reactive({
   name: '', company: '', contact: '+7',
   bottleneck: '', revenue: '', urgency: '',
@@ -140,6 +152,8 @@ async function submitForm() {
     // GET с параметром — обходит CORS и проблему потери тела при редиректе
     await fetch(API_URL + '?data=' + encodeURIComponent(payload), { mode: 'no-cors' })
     submitted.value = true
+    // Конец воронки: форма отправлена. revenue/urgency — для сегментации лидов.
+    track('Форма отправлена', { revenue: form.revenue || '—', urgency: form.urgency || '—' })
   } catch (err) {
     sendError.value = 'Нет соединения. Попробуйте ещё раз.'
     console.error('Network error:', err)
@@ -157,6 +171,7 @@ const bottleneckArr = computed(() => form.bottleneck ? form.bottleneck.split('||
 const otherInput = ref<HTMLTextAreaElement | null>(null)
 
 function toggleMulti(key: string, val: string) {
+  markStarted()
   const arr = form[key] ? form[key].split('|||') : []
   const idx = arr.indexOf(val)
   if (idx >= 0) arr.splice(idx, 1); else arr.push(val)
@@ -164,10 +179,12 @@ function toggleMulti(key: string, val: string) {
 }
 
 function toggleSingle(key: string, val: string) {
+  markStarted()
   form[key] = form[key] === val ? '' : val
 }
 
 function toggleOther() {
+  markStarted()
   otherActive.value = !otherActive.value
   if (!otherActive.value) {
     form.otherText = ''
