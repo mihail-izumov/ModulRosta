@@ -135,7 +135,7 @@
                   <div class="mr-slot-header"><h2 class="mr-slot-title">Всё включено</h2></div>
                   <div class="mr-slot-offer"><div class="mr-slot-offer-label">ПОЛНЫЙ ЗАПУСК</div><h3 class="mr-slot-offer-title">Стратегия, дизайн, код, запуск — одна команда, один результат.</h3><div class="mr-slot-duration"><span class="mr-slot-duration-label">Срок реализации</span><span class="mr-slot-duration-value mr-slot-duration-small">~60д</span></div></div>
                   <div class="mr-slot-grid"><div class="mr-slot-box"><div class="mr-slot-box-label">ВХОДИТ:</div><ul class="mr-slot-list"><li>→ ЗАП-01  Разведка</li><li>→ ЗАП-02  Симуляция</li><li>→ ЗАП-03  Запуск</li></ul></div><div class="mr-slot-box mr-slot-price-box"><div class="mr-slot-box-label">СТОИМОСТЬ СЛОТА:</div><div class="mr-slot-price">от 800 000 ₽</div><div class="mr-slot-price-note">*оплата поэтапная (3 транша)</div></div></div>
-                  <a href="https://runscale.ru/book-my-launch" target="_blank" class="mr-slot-cta">ЗАБРОНИРОВАТЬ СЛОТ →</a>
+                  <a href="https://runscale.ru/book-my-launch" target="_blank" class="mr-slot-cta" @click="track('Бронь', { source: 'слот' })">ЗАБРОНИРОВАТЬ СЛОТ →</a>
                 </div>
               </div>
 
@@ -166,6 +166,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+// ── Plausible: инлайн-guard, кириллица в имени, латиница в ключах ──
+function track(name: string, props?: Record<string, string>) {
+  ;(window as unknown as { plausible?: (e: string, o?: unknown) => void }).plausible?.(name, props ? { props } : undefined)
+}
+const STEP_NAMES: Record<string, string> = { scout: 'разведка', checkup: 'симуляция', execute: 'запуск', slot: 'сборка' }
+
 const modalOpen = ref(false)
 const currentStep = ref(0)
 
@@ -180,6 +186,7 @@ function openProtocolModal(modeId: string) {
   currentStep.value = stepMap[modeId] ?? 0
   modalOpen.value = true
   document.body.style.overflow = 'hidden'
+  track('Протокол', { step: STEP_NAMES[modeId] ?? modeId })
 }
 
 function closeModal() { modalOpen.value = false; document.body.style.overflow = '' }

@@ -4,6 +4,12 @@ import ModalVidim from './instrument-panel/ModalVidim.vue'
 import ModalZapuskaem from './instrument-panel/ModalZapuskaem.vue'
 import ModalRasshiryaem from './instrument-panel/ModalRasshiryaem.vue'
 
+// ── Plausible: инлайн-guard, кириллица в имени, латиница в ключах ──
+function track(name, props) {
+  if (window.plausible) window.plausible(name, props ? { props } : undefined)
+}
+const PANEL_NAMES = { vidim: 'видим', zapuskaem: 'запускаем', rasshiryaem: 'расширяем' }
+
 const countdown = ref(60)
 const snakeProgress = ref(100)
 const phase = ref('countdown')
@@ -23,7 +29,11 @@ let interval = null
 
 const checkMobile = () => { isMobile.value = window.innerWidth < 768 }
 
-const openModal = (id) => { activeModal.value = id; document.body.style.overflow = 'hidden' }
+const openModal = (id) => {
+  activeModal.value = id
+  document.body.style.overflow = 'hidden'
+  track('Инструмент', { panel: PANEL_NAMES[id] || id })
+}
 const closeModal = () => { activeModal.value = null; document.body.style.overflow = '' }
 const handleEscape = (e) => { if (e.key === 'Escape' && activeModal.value) closeModal() }
 

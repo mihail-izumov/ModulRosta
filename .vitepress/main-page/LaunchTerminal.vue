@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 
+// ── Plausible: инлайн-guard, кириллица в имени, латиница в ключах ──
+function track(name: string, props?: Record<string, string>) {
+  ;(window as unknown as { plausible?: (e: string, o?: unknown) => void }).plausible?.(name, props ? { props } : undefined)
+}
+
 // ═══ REFS ═══
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const canvasWrapRef = ref<HTMLElement | null>(null)
@@ -287,6 +292,7 @@ async function offerBooking() {
   jl('Переход к бронированию', 'green')
   tGap(); await tType('[OK] Выполняется переход', 't-green', 20); jl('Сессия открыта', 'green')
   await wait(2000)
+  track('Бронь', { source: 'терминал' })
   window.location.href = '/book-my-launch'
 }
 
@@ -303,6 +309,7 @@ function offerBookingSleep() {
     tGap(); await wait(2000); await tType('[OK] Сессия подтверждена', 't-green', 20)
     tGap(); await tType('[OK] Выполняется переход', 't-green', 20); jl('Сессия открыта', 'green')
     await wait(3000)
+    track('Бронь', { source: 'терминал' })
     window.location.href = '/book-my-launch'
   })
   const handler = (e: KeyboardEvent) => { if (e.code === 'KeyY' || e.key === 'Enter') { e.preventDefault(); document.removeEventListener('keydown', handler); btn.click() } }

@@ -2,6 +2,11 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import LaunchTerminal from './LaunchTerminal.vue'
 
+// ── Plausible: инлайн-guard, кириллица в имени, латиница в ключах ──
+function track(name: string, props?: Record<string, string>) {
+  ;(window as unknown as { plausible?: (e: string, o?: unknown) => void }).plausible?.(name, props ? { props } : undefined)
+}
+
 // ── Data ──
 const PAIRS = [
   { left: 'Симптом', right: 'Причина', label: 'Что ищем' },
@@ -228,9 +233,13 @@ function onFormTouchStart() { formHover.value = true }
 function onFormTouchEnd() { setTimeout(() => { formHover.value = false }, 300) }
 
 function goToLaunch() {
-  if (allSelected.value) openModal()
+  if (allSelected.value) {
+    track('Старт сейчас')
+    openModal()
+  }
 }
 function goToForm() {
+  track('Заполнить форму')
   window.location.href = '/book-my-launch'
 }
 </script>
