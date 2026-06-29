@@ -24,7 +24,7 @@
               @click.stop="toggleTip(1)"
               @mouseenter="onHoverIn(1)"
               @mouseleave="onHoverOut"
-            >Не рисуем картинки.</span>
+            >Вы знаете, чего хотите.</span>
             <span class="beam-spacer">&ensp;</span>
             <span
               class="tip-span"
@@ -32,7 +32,7 @@
               @click.stop="toggleTip(2)"
               @mouseenter="onHoverIn(2)"
               @mouseleave="onHoverOut"
-            >Не делаем презентации.</span>
+            >Модуль Роста запускает.</span>
           </span>
 
           <!-- Track -->
@@ -44,7 +44,7 @@
 
         <!-- Accent -->
         <div class="mr-hero-accent">
-          <strong>Вы знаете, чего хотите. <span class="accent-wrap"> Модуль Роста это запускает.</span></strong>
+          <strong>Растём вместе.</strong>
         </div>
 
         <!-- Tooltip — absolute, auto-cycling fade in/out -->
@@ -80,8 +80,8 @@ const STEP = CELL + GAP
 const FONT = '"Camera Plain Variable", "Camera Plain", ui-sans-serif, system-ui, sans-serif'
 
 const tips = [
-  { id: 1, text: 'Не рисуем картинки.', bold: 'Продукт рождает нужный дизайн.', normal: 'Срезаем всё лишнее —<br>оставляем то, что работает.' },
-  { id: 2, text: 'Не делаем презентации.', bold: 'Один  — один результат.', normal: 'Конкуренты обсуждают —<br>вы уже запустили.' },
+  { id: 1, text: 'Вы знаете, чего хотите.', bold: 'Продукт рождает нужный дизайн.', normal: 'Срезаем всё лишнее —<br>оставляем то, что работает.' },
+  { id: 2, text: 'Модуль Роста запускает.', bold: 'Один модуль — один результат.', normal: 'Конкуренты обсуждают —<br>вы уже запустили.' },
 ]
 
 const wrapRef = ref(null)
