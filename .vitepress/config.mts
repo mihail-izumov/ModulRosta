@@ -335,22 +335,6 @@ export default defineConfig({
       '/clients/': sidebarClients(),
       '/terms/': sidebarTerms()
     },
-    search: {
-      provider: 'local',
-      options: {
-        placeholder: 'Поиск…',
-        translations: {
-          button: { buttonText: 'Поиск', buttonAriaLabel: 'Поиск' },
-          modal: {
-            displayDetails: 'Показать подробные результаты',
-            resetButtonTitle: 'Сбросить поиск',
-            backButtonTitle: 'Закрыть поиск',
-            noResultsText: 'Результаты не найдены для',
-            footer: { selectText: 'выбрать', navigateText: 'навигация', closeText: 'закрыть' }
-          }
-        }
-      }
-    },
     nav: nav(),
     socialLinks: [
       { 
