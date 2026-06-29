@@ -217,7 +217,7 @@ export default defineConfig({
         align-items:center!important;
         justify-content:center!important;
         width:100%!important;
-        content:"БРОНЬ ЗАПУСКА"!important;
+        content:"СТАРТ"!important;
         background:transparent!important;
         border:1.5px solid #ff8800!important;
         color:#ff8800!important;
@@ -259,7 +259,7 @@ export default defineConfig({
     
     /* ═══ БРОНЬ ЗАПУСКА — amber button ═══ */
     .VPSocialLink[aria-label="login-link"]::after{
-      content:"БРОНЬ ЗАПУСКА";
+      content:"СТАРТ";
       font-size:14px;
       font-family:'Exo 2','Inter',sans-serif;
       font-weight:500;
