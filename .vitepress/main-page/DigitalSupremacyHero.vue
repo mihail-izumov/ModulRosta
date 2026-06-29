@@ -81,7 +81,7 @@ const FONT = '"Camera Plain Variable", "Camera Plain", ui-sans-serif, system-ui,
 
 const tips = [
   { id: 1, text: 'Не рисуем картинки.', bold: 'Продукт рождает нужный дизайн.', normal: 'Срезаем всё лишнее —<br>оставляем то, что работает.' },
-  { id: 2, text: 'Не делаем презентации.', bold: 'Один модуль — один результат.', normal: 'Пока конкуренты обсуждают —<br>вы уже запустили.' },
+  { id: 2, text: 'Не делаем презентации.', bold: 'Один  — один результат.', normal: 'Пока конкуренты обсуждают —<br>вы уже запустили.' },
 ]
 
 const wrapRef = ref(null)
@@ -300,8 +300,8 @@ function buildAll() {
 
 function draw() {
   pixelTime += 0.008 / 3
-  drawPixelText(canvas1Ref.value, pix1, 'МОДУЛЬ', fontSizeInternal, pixelTime)
-  drawPixelText(canvas2Ref.value, pix2, 'РОСТА', fontSizeInternal, pixelTime)
+  drawPixelText(canvas1Ref.value, pix1, 'ЧУВСТВОВАТЬ', fontSizeInternal, pixelTime)
+  drawPixelText(canvas2Ref.value, pix2, 'БИЗНЕС', fontSizeInternal, pixelTime)
 
   const isMobile = window.innerWidth <= 700
   const wavePeriod = isMobile ? 2.5 : 3.5
