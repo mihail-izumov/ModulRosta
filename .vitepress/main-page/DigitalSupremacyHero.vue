@@ -44,7 +44,7 @@
 
         <!-- Accent -->
         <div class="mr-hero-accent">
-          <strong>Ускоряем бизнес в цифре. <span class="accent-wrap">60 дней.</span></strong>
+          <strong>Лучше чувствовать<span class="accent-wrap"> свой бизнес.</span></strong>
         </div>
 
         <!-- Tooltip — absolute, auto-cycling fade in/out -->
