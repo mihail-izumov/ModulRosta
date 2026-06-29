@@ -44,7 +44,7 @@
 
         <!-- Accent -->
         <div class="mr-hero-accent">
-          <strong>Цифры говорят, что было.<span class="accent-wrap"> Модуль Роста — что будет.</span></strong>
+          <strong>Вы знаете, чего хотите. <span class="accent-wrap"> Модуль Роста это запускает.</span></strong>
         </div>
 
         <!-- Tooltip — absolute, auto-cycling fade in/out -->
@@ -81,7 +81,7 @@ const FONT = '"Camera Plain Variable", "Camera Plain", ui-sans-serif, system-ui,
 
 const tips = [
   { id: 1, text: 'Не рисуем картинки.', bold: 'Продукт рождает нужный дизайн.', normal: 'Срезаем всё лишнее —<br>оставляем то, что работает.' },
-  { id: 2, text: 'Не делаем презентации.', bold: 'Один  — один результат.', normal: 'Пока конкуренты обсуждают —<br>вы уже запустили.' },
+  { id: 2, text: 'Не делаем презентации.', bold: 'Один  — один результат.', normal: 'Конкуренты обсуждают —<br>вы уже запустили.' },
 ]
 
 const wrapRef = ref(null)
