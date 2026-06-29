@@ -24,7 +24,7 @@
               @click.stop="toggleTip(1)"
               @mouseenter="onHoverIn(1)"
               @mouseleave="onHoverOut"
-            >Вы знаете, чего хотите.</span>
+            >Знаете, чего хотите.</span>
             <span class="beam-spacer">&ensp;</span>
             <span
               class="tip-span"
@@ -80,8 +80,8 @@ const STEP = CELL + GAP
 const FONT = '"Camera Plain Variable", "Camera Plain", ui-sans-serif, system-ui, sans-serif'
 
 const tips = [
-  { id: 1, text: 'Вы знаете, чего хотите.', bold: 'Продукт рождает нужный дизайн.', normal: 'Срезаем всё лишнее —<br>оставляем то, что работает.' },
-  { id: 2, text: 'Модуль Роста запускает.', bold: 'Один модуль — один результат.', normal: 'Конкуренты обсуждают —<br>вы уже запустили.' },
+  { id: 1, text: 'Знаете, чего хотите.', bold: 'Полная ясность.', normal: 'Что было, что будет —<br>делаем, а не гадаем.' },
+  { id: 2, text: 'Модуль Роста запускает.', bold: 'Сразу в дело.', normal: 'Конкуренты обсуждают —<br>вы уже запустили.' },
 ]
 
 const wrapRef = ref(null)
