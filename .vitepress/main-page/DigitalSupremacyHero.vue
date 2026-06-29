@@ -44,7 +44,7 @@
 
         <!-- Accent -->
         <div class="mr-hero-accent">
-          <strong>Лучше чувствовать<span class="accent-wrap"> свой бизнес.</span></strong>
+          <strong>Цифры говорят, что было.<span class="accent-wrap"> Модуль Роста — что будет.</span></strong>
         </div>
 
         <!-- Tooltip — absolute, auto-cycling fade in/out -->
@@ -286,8 +286,8 @@ function measure() {
   if (W < 20) return
   const tmp = document.createElement('canvas').getContext('2d')
   tmp.font = `700 100px ${FONT}`
-  const w1 = tmp.measureText('МОДУЛЬ').width || 500
-  const w2 = tmp.measureText('РОСТА').width || 800
+  const w1 = tmp.measureText('ЧУВСТВОВАТЬ').width || 500
+  const w2 = tmp.measureText('БИЗНЕС').width || 800
   const s = Math.floor((W / Math.max(w1, w2)) * 100 * 0.96)
   fontSizeInternal = s
   fontSize.value = s
