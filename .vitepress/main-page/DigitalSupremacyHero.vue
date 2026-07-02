@@ -80,7 +80,7 @@ const STEP = CELL + GAP
 const FONT = '"Camera Plain Variable", "Camera Plain", ui-sans-serif, system-ui, sans-serif'
 
 const tips = [
-  { id: 1, text: 'Знаете, чего хотите.', bold: 'Сигнал вместо шума.', normal: 'Что было, что будет? Знаем, а не гадаем.' },
+  { id: 1, text: 'Знаете, чего хотите.', bold: 'Расти с Мастерпланом.', normal: 'Что было, что будет? Знаем, а не гадаем.' },
   { id: 2, text: 'Модуль Роста запускает.', bold: 'На шаг впереди.', normal: 'Конкуренты обсуждают — вы уже запустили.' },
 ]
 
