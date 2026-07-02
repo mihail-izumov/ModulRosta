@@ -81,7 +81,7 @@ const FONT = '"Camera Plain Variable", "Camera Plain", ui-sans-serif, system-ui,
 
 const tips = [
   { id: 1, text: 'Знаете, чего хотите.', bold: 'Расти с Мастерпланом.', normal: 'Что было, что будет? Знаем, а не гадаем.' },
-  { id: 2, text: 'Модуль Роста запускает.', bold: 'На шаг впереди.', normal: 'Конкуренты обсуждают — вы уже запустили.' },
+  { id: 2, text: 'Модуль Роста запускает.', bold: 'Расширяться через модули.', normal: 'Конкуренты обсуждают — вы уже запустили.' },
 ]
 
 const wrapRef = ref(null)
