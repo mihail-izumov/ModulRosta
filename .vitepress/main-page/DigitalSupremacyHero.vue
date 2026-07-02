@@ -44,7 +44,7 @@
 
         <!-- Accent -->
         <div class="mr-hero-accent">
-          <strong>Растём вместе.</strong>
+          <strong>Точные сигналы для бизнеса.</strong>
         </div>
 
         <!-- Tooltip — absolute, auto-cycling fade in/out -->
@@ -286,8 +286,8 @@ function measure() {
   if (W < 20) return
   const tmp = document.createElement('canvas').getContext('2d')
   tmp.font = `700 100px ${FONT}`
-  const w1 = tmp.measureText('ЧУВСТВОВАТЬ').width || 500
-  const w2 = tmp.measureText('БИЗНЕС').width || 800
+  const w1 = tmp.measureText('МЕНЬШЕ').width || 500
+  const w2 = tmp.measureText('ШУМА').width || 800
   const s = Math.floor((W / Math.max(w1, w2)) * 100 * 0.96)
   fontSizeInternal = s
   fontSize.value = s
@@ -300,8 +300,8 @@ function buildAll() {
 
 function draw() {
   pixelTime += 0.008 / 3
-  drawPixelText(canvas1Ref.value, pix1, 'ЧУВСТВОВАТЬ', fontSizeInternal, pixelTime)
-  drawPixelText(canvas2Ref.value, pix2, 'БИЗНЕС', fontSizeInternal, pixelTime)
+  drawPixelText(canvas1Ref.value, pix1, 'МЕНЬШЕ', fontSizeInternal, pixelTime)
+  drawPixelText(canvas2Ref.value, pix2, 'ШУМА', fontSizeInternal, pixelTime)
 
   const isMobile = window.innerWidth <= 700
   const wavePeriod = isMobile ? 2.5 : 3.5
