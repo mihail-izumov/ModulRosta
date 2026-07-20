@@ -609,7 +609,7 @@ const LV_CHK=[{k:'выше',v:0.06,w:'структура игроков смещ
 // ====== ПЕРЕКАТ (свойство системы) + РЕШЕНИЯ ВЛАДЕЛЬЦА ==============
 // Фенс выше = чистый мастер-синк (BASE_ROWS, LY_*). Ниже — решения владельца; правит ТОЛЬКО оркестратор.
 const PARK={code:'ohta', ppv:1.10, dock:500};
-const PLAN_MONTH='2026-07';                       // месяц плана — единый источник (планнер + Пакеты); двигать при перекате
+const PLAN_MONTH='2026-07';const PLAN_COMMIT=5200000;/*дневной month_target (обязательство, D-01)*/                       // месяц плана — единый источник (планнер + Пакеты); двигать при перекате
 const LAST_FACT=LY_REV[LY_REV.length-1].m;         // последний факт-месяц — из серий (LY_*), не литералом
 const PREV_M=prevMonth(LAST_FACT);                 // предыдущий факт-месяц
 // PREV — каналы факт-месяца полностью из серий (tr/rc/cl/ca, ws=site), без литерала.
@@ -1090,7 +1090,7 @@ function renderLoyalty(){
       `<div class="ar">→</div>`+
       `<div class="st"><span class="l">прогноз</span><span class="v">${lyF1(jfc.rev/1e6)}</span></div>`+
       `<div class="ar">→</div>`+
-      `<div class="st plan"><span class="l">план</span><span class="v">${lyF1(planRevJ/1e6)}</span></div>`+
+      `<div class="st plan"><span class="l">план</span><span class="v">${lyF1(PLAN_COMMIT/1e6)}</span></div>`+
       `<div class="ar">→</div>`+
       `<div class="st goal"><span class="l">цель</span><span class="v">${lyF1(goalRevJ/1e6)}</span></div>`+
     `</div>`+
@@ -1102,7 +1102,7 @@ function renderLoyalty(){
       nRow('Выручка/игрока ₽',fMoney(rpg(iC)),fMoney(rpg(iC)),dG)+
       nRow('Бонусная нагрузка %',f1p(bl(iC)),f1p(bl(iC)),dG)+
     `</table>`+
-    `<p class="note"><b>План ${lyF1(planRevJ/1e6)} млн</b> = прогноз + скрипты (чек) + буст лояльности (${m1(LOY_BOOST)}, <span class="prov assume">допущение</span>). <b>Цель ${lyF1(goalRevJ/1e6)} млн</b> — амбиция +15%; разрыв план→цель закрывают драйверы на <a href="#/planner">«Плане»</a>. Ниже — цели по рычагам; захват (ТЦ) не планируем.</p>`;
+    `<p class="note"><b>План ${lyF1(PLAN_COMMIT/1e6)} млн</b> — обязательство месяца (дневной план). <b>По модели достижимо ${lyF1(planRevJ/1e6)} млн</b> (прогноз + скрипты + буст ${m1(LOY_BOOST)}) — модель перекрывает обязательство. <b>Цель ${lyF1(goalRevJ/1e6)} млн</b> — амбиция +15%; разрыв план→цель закрывают драйверы на <a href="#/planner">«Плане»</a>. Ниже — цели по рычагам; захват (ТЦ) не планируем.</p>`;
 
   // ── Слой 3 · План на PLAN_MONTH — сигнал (интерпретация данных) ──
   const checks=[['возврат',C[iP].ret,C[iC].ret],['захват',P[iP].cap,P[iC].cap],['попол/игрока',ppg(iP),ppg(iC)],['игр/игрока',gpg(iP),gpg(iC)]];

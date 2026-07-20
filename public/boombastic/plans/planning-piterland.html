@@ -339,6 +339,7 @@
       <div class="navdrop-menu">
         <a data-p="packages" href="#/packages">Чек</a>
         <a data-p="r4" href="#/r4">Ценность (LTV)</a>
+        <a data-p="tc" href="#/tc">Трафик</a>
       </div>
     </div>
   </nav>
@@ -483,6 +484,11 @@
 //          Следствие: буст лояльности В ПАРКЕ (LOY_BOOST=0); производные «на игрока» → «—» до реальных визитов.
 const FOOT={'2025-01':7265866,'2025-02':5584254,'2025-03':6833639,'2025-04':5648757,'2025-05':5933459,'2025-06':6461246,'2025-07':7112520,'2025-08':8171806,'2025-09':4999290,'2025-10':6024996,'2025-11':6349052,'2025-12':4667881};
 const FOOT26={'2026-01':6940142,'2026-02':5195900,'2026-03':6142151,'2026-04':5699064,'2026-05':6168628,'2026-06':5749013};
+const FOOT_TC={'2025-01':392574,'2025-02':345286,'2025-03':414039,'2025-04':489105,'2025-05':670567,'2025-06':774472,'2025-07':786587,'2025-08':668016,'2025-09':457078,'2025-10':397000,'2025-11':369073,'2025-12':441200}; // трафик ТЦ 2025 (piterland_traffic.md)
+const FOOT_TC26={'2026-01':306505,'2026-02':337720,'2026-03':397397,'2026-04':391133,'2026-05':536626,'2026-06':502318}; // трафик ТЦ 2026 (июль-обрезок исключён)
+const PARK_VIS={'2025-01':6319,'2025-02':4986,'2025-03':5717,'2025-04':4408,'2025-05':5476,'2025-06':5829,'2025-07':5902,'2025-08':6710,'2025-09':4231,'2025-10':4823,'2025-11':5072,'2025-12':3186}; // уники парка 2025 (analytics players visitors_total)
+const PARK_NEW26={'2026-01':3002,'2026-02':2144,'2026-03':2626,'2026-04':2358,'2026-05':2642,'2026-06':2644}; // новые визиты 2026 (уники_всего N/A → оценка ÷0,60)
+const LY_RET25={'2025-01':10.5,'2025-02':9.8,'2025-03':10.6,'2025-04':10.5,'2025-05':11.3,'2025-06':11.7,'2025-07':11.7,'2025-08':11.3,'2025-09':10.2,'2025-10':10.6,'2025-11':10.4,'2025-12':10.5}; // вернувшихся_pct 2025 (piterland_cards, «Таблица визитов/удержание»)
 const LOY=[];
 const BASE_ROWS=[{m:'2026-03',tr:6142151,rc:8715},{m:'2026-04',tr:5699064,rc:8042},{m:'2026-05',tr:6168628,rc:8828},{m:'2026-06',tr:5749013,rc:6873}];
 const PL_SERIES=[{m:'2024-04',tr:1478104,rc:1939},{m:'2024-05',tr:4715761,rc:9137},{m:'2024-06',tr:5903684,rc:11549},{m:'2024-07',tr:6642478,rc:12977},{m:'2024-08',tr:7553031,rc:13968},{m:'2024-09',tr:4924227,rc:8759},{m:'2024-10',tr:5665353,rc:9499},{m:'2024-11',tr:6181059,rc:9707},{m:'2024-12',tr:4667881,rc:7745},{m:'2025-01',tr:7591589,rc:12154},{m:'2025-02',tr:5972608,rc:9574},{m:'2025-03',tr:7525127,rc:11519},{m:'2025-04',tr:5598450,rc:null},{m:'2025-05',tr:6915987,rc:11103},{m:'2025-06',tr:7731040,rc:12262},{m:'2025-07',tr:7582562,rc:12993},{m:'2025-08',tr:8790582,rc:13998},{m:'2025-09',tr:5074354,rc:7826},{m:'2025-10',tr:6384639,rc:9389},{m:'2025-11',tr:6517044,rc:9533},{m:'2025-12',tr:4114649,rc:5942},{m:'2026-01',tr:6940142,rc:9975},{m:'2026-02',tr:5195900,rc:7073},{m:'2026-03',tr:6142151,rc:8715},{m:'2026-04',tr:5699064,rc:8042},{m:'2026-05',tr:6168628,rc:8828},{m:'2026-06',tr:5749013,rc:6873}];
@@ -550,7 +556,7 @@ const LV_CHK=[{k:'выше',v:0.06,w:'структура игроков смещ
 // ====== ПЕРЕКАТ (свойство системы) + РЕШЕНИЯ ВЛАДЕЛЬЦА ==============
 // Фенс выше = чистый мастер-синк (BASE_ROWS, LY_*). Ниже — решения владельца; правит ТОЛЬКО оркестратор.
 const PARK={code:'piterland', ppv:1.65, dock:500};
-const PLAN_MONTH='2026-07';                       // месяц плана — единый источник (планнер + Пакеты); двигать при перекате
+const PLAN_MONTH='2026-07';const PLAN_COMMIT=7500000;const PROG_OV=6690000;/*daily month_target + прогноз из дневного слоя*/                       // месяц плана — единый источник (планнер + Пакеты); двигать при перекате
 const LAST_FACT=LY_REV[LY_REV.length-1].m;         // последний факт-месяц — из серий (LY_*), не литералом
 const PREV_M=prevMonth(LAST_FACT);                 // предыдущий факт-месяц
 // PREV — каналы факт-месяца полностью из серий (tr/rc/cl/ca, ws=site), без литерала.
@@ -653,7 +659,7 @@ function arrBadge(from,to){if(from==null||to==null||from==0)return '';const d=Ma
 function renderPlanner(){
   const _h1=document.getElementById('planner-h1'); if(_h1)_h1.textContent=`План на ${mName(PLAN_MONTH).toLowerCase()} ${PLAN_MONTH.slice(0,4)}`;
   renderPlanDetail(PLAN_MONTH,'plan-head','plan-blocks');
-  const month=PLAN_MONTH, def=realityDefaults(month), fc=computeRev(def.vol,def.cap,def.freq,def.trend,def.chk);
+  const month=PLAN_MONTH, def=realityDefaults(month), fc=computeRev(def.vol,def.cap,def.freq,def.trend,def.chk); if(month==='2026-07')fc.rev=PROG_OV;
   const planRev=fc.rc*fc.ck*(1+MIX_UPLIFT)+LOY_BOOST;   // + буст лояльности (решение владельца)
   const goalRev=adjGoalOf(month);
   const driverEff=planRev-fc.rev, gap=goalRev-planRev, ok=gap<=1e4;
@@ -682,7 +688,11 @@ function renderPlanner(){
   const _li=LY_PLAYERS.length-1;
   const _uq=LY_PLAYERS[_li].uniq;
   const dRet=LY_CARDS[_li].ret, dPpg=_uq?LY_REV[_li].rc/_uq:null, dGpg=_uq?LY_GE[_li].games/_uq:null, capF=LY_PLAYERS[_li].cap;
+  const dRet25=LY_RET25['2025-'+PLAN_MONTH.slice(5)], _r25='<span class="prov assume">2025</span>';
   const tcF=FOOT26[LAST_FACT], tcP=FOOT['2025-'+PLAN_MONTH.slice(5)];
+  const _yoyTCp=Object.keys(FOOT_TC26).reduce((a,m)=>a+FOOT_TC26[m]/FOOT_TC['2025-'+m.slice(5)],0)/Object.keys(FOOT_TC26).length-1;
+  const tcFact=FOOT_TC26[LAST_FACT], tcPlan=Math.round(FOOT_TC['2025-'+PLAN_MONTH.slice(5)]*(1+_yoyTCp));
+  const _pm=PLAN_MONTH.slice(5); const _capTC=(PARK_NEW26[LAST_FACT]!=null&&FOOT_TC26[LAST_FACT])?(PARK_NEW26[LAST_FACT]/0.60/FOOT_TC26[LAST_FACT]*100):null; const _capTCp=(PARK_VIS['2025-'+_pm]&&FOOT_TC['2025-'+_pm])?(PARK_VIS['2025-'+_pm]/FOOT_TC['2025-'+_pm]*100):null;
   const cFactM=mName(LAST_FACT), cPlanM=mName(PLAN_MONTH), pctS=v=>{const s=lyF1(v);return s==='—'?'—':s+'%';};
   const eq='<span style="color:var(--hint)">= прогноз</span>', asm='<span class="prov assume">допущение</span>';
   const lkTC='<a class="lk-dash" href="#/tc">', lkLY='<a class="lk-dash" href="#/r4">';
@@ -692,14 +702,14 @@ function renderPlanner(){
     `<div class="plan-plaque">`+
     `<div class="cmp mhead pmhead"><div></div><div class="h"><b>${cFactM}</b><span class="s">факт</span></div><div class="h"><b>${cPlanM}</b><span class="s">прогноз</span></div><div class="h"><b>${cPlanM}</b><span class="s">цель ${asm}</span></div></div>`+
     `<div class="pblocks">`+
-      ctxBlk('Трафик ТЦ','—','—','—',
-        c3('Трафик ТЦ','—','—','<span class="prov assume">нет данных</span>')+
-        c3('Захват трафика','—','—','<span class="prov assume">нет данных</span>'),'Трафик ТЦ и захват — ждём отчёты (для capture). Сезонность прогноза — по своей выручке (допущение).')+
-      ctxBlk('Ценность игрока',pctS(dRet),pctS(dRet),pctS(LOY_GOAL.ret)+arrBadge(dRet,LOY_GOAL.ret),
-        c3(`${lkLY}Вернувшихся %</a>`,pctS(dRet),pctS(dRet),pctS(LOY_GOAL.ret)+arrBadge(dRet,LOY_GOAL.ret))+
+      ctxBlk('Трафик ТЦ',nf(tcFact),nf(tcPlan)+' ≈','—',
+        c3(`${lkTC}Трафик ТЦ, чел</a>`,nf(tcFact),nf(tcPlan)+' <span class="prov assume">≈2025×YoY</span>','<span class="prov assume">не таргетируем</span>')+
+        c3('Захват (уник÷трафик)',_capTC!=null?'≈'+_capTC.toFixed(2).replace('.',',')+'%':'—',_capTCp!=null?_capTCp.toFixed(2).replace('.',',')+'% <span class="prov assume">2025</span>':'—','<span class="prov assume">контр-сезонен</span>'),`Трафик ТЦ — реальные данные (см. ${lkTC}#/tc</a>): факт ${cFactM.toLowerCase()} ${nf(tcFact)} чел, прогноз ${cPlanM.toLowerCase()} ≈${nf(tcPlan)} (2025 × YoY ${Math.round(_yoyTCp*100)}%, лето — пик). Захват (визиты÷трафик) ждёт помесячные визиты парка. Сезонность прогноза — по своей выручке (допущение).`)+
+      ctxBlk('Ценность игрока',pctS(dRet),dRet25!=null?pctS(dRet25)+' '+_r25:'—',pctS(LOY_GOAL.ret)+arrBadge(dRet25,LOY_GOAL.ret),
+        c3(`${lkLY}Вернувшихся %</a>`,pctS(dRet),dRet25!=null?pctS(dRet25)+' '+_r25:'—',pctS(LOY_GOAL.ret)+arrBadge(dRet25,LOY_GOAL.ret))+
         c3(`${lkLY}Попол/игрока</a>`,lyF2(dPpg),lyF2(dPpg),lyF2(LOY_GOAL.ppg)+arrBadge(dPpg,LOY_GOAL.ppg))+
         c3(`${lkLY}Игр/игрока</a>`,lyF1(dGpg),lyF1(dGpg),lyF1(LOY_GOAL.gpv)+arrBadge(dGpg,LOY_GOAL.gpv)),
-        `Удержание/уники ПЛ за 2026 не измерены (нет таблиц визитов) → «—». Буст лояльности <b>в парке</b>; цели черновые. Подключим при появлении визитов.`)+
+        `Уники/удержание ПЛ за 2026 не измерены (нет помесячных таблиц визитов) → факт «—» (решение 07-07: не подделывать). В колонке «прогноз» — РЕАЛЬНАЯ справка 2025: вернувшихся ${dRet25!=null?pctS(dRet25):'—'} за ${mName(PLAN_MONTH).toLowerCase()} 2025 (источник «Таблица визитов · удержание», шкала совпала с целью 12%). Попол/игр на игрока ждут помесячные визиты 2026 (знаменатель). Буст лояльности — <b>в парке</b>; цели черновые.`)+
     `</div></div>`;
 }
 function plActual(m){return PL_SERIES.find(r=>r.m===m);}
@@ -710,21 +720,15 @@ function fyRow(m){
   const a=plActual(m);
   if(m<=LAST_FACT&&a){return {m,rev:a.tr,rc:a.rc,ck:a.tr/a.rc,fact:true};}
   const d=realityDefaults(m),c=computeRev(d.vol,d.cap,d.freq,d.trend,d.chk);
-  return {m,rev:c.rev,rc:c.rc,ck:c.ck,fact:false,d};
+  return {m,rev:(m==='2026-07'?PROG_OV:c.rev),rc:c.rc,ck:c.ck,fact:false,d};
 }
 // ====== ЦЕЛЬ (top-down раскладка + трекинг факта) =================
 const GOAL_YOY=0.15; // годовая амбиция владельца — из Sheets
-function modelFc(m){const d=realityDefaults(m);return computeRev(d.vol,d.cap,d.freq,d.trend,d.chk).rev;} // прогноз-траектория (коэф. ТЦ+сезонность), без роста
+function modelFc(m){if(m==='2026-07')return PROG_OV;const d=realityDefaults(m);return computeRev(d.vol,d.cap,d.freq,d.trend,d.chk).rev;} // прогноз-траектория (коэф. ТЦ+сезонность), без роста
 function goalOf(m){return modelFc(m)*(1+GOAL_YOY);} // базовая цель месяца = прогноз × (1+амбиция)
 // Цель с нагоном хвоста: годовая цель Σ goalOf фиксирована; закрытые месяцы = факт;
 // остаток раскидывается по июн–дек ∝ сезонному весу modelFc. Возвращает эффективную цель месяца.
-function adjGoalOf(m){
-  if(m<=LAST_FACT) return goalOf(m);
-  const annual=FY2026.reduce((a,x)=>a+goalOf(x),0);
-  const closedFact=FY2026.filter(x=>x<=LAST_FACT).reduce((a,x)=>{const r=plActual(x);return a+(r&&r.tr?r.tr:0);},0);
-  const rem=FY2026.filter(x=>x>LAST_FACT), sumFc=rem.reduce((a,x)=>a+modelFc(x),0);
-  return (annual-closedFact)*modelFc(m)/sumFc; // Σ по остатку = annual − closedFact ⇒ год добирается до цели
-}
+function adjGoalOf(m){return goalOf(m);} // нагон снят (владелец: цель = база +15%, без летнего спайка)
 function renderGoalPage(){
   const rows=FY2026.map(function(m){const a=plActual(m), fact=(m<=LAST_FACT&&a)?a.tr:null;
     return {m,target:adjGoalOf(m),base:goalOf(m),fact,proj:fact!=null?fact:modelFc(m),isFact:fact!=null};});
@@ -998,7 +1002,7 @@ function renderLoyalty(){
   showDrv('ret');
 
   // ── Слой 2 · Что происходит (факт LAST_FACT → прогноз/цель PLAN_MONTH, по колонкам) ──
-  const planRevJ=jfc.rc*jfc.ck*(1+MIX_UPLIFT)+LOY_BOOST, goalRevJ=adjGoalOf(PLAN_MONTH);
+  const planRevJ=PROG_OV*(1+MIX_UPLIFT)+LOY_BOOST, goalRevJ=adjGoalOf(PLAN_MONTH);
   const dG='<span style="color:var(--hint)">—</span>', eqG='<span style="color:var(--hint)">= прогноз</span>';
   const nRow=(lab,f,p,g,tgt)=>`<tr><td style="text-align:left">${lab}</td><td>${f}</td><td>${p}</td><td${tgt?' style="font-weight:600"':''}>${g}</td></tr>`;
   const th3=(m,r)=>`<th>${m}<br><span style="font-weight:400;color:var(--hint);font-size:11px">${r}</span></th>`;
@@ -1008,9 +1012,9 @@ function renderLoyalty(){
     `<div class="vrl">`+
       `<div class="st"><span class="l">факт ${mName(LAST_FACT).toLowerCase()}</span><span class="v">${lyF1(R[iC].tr/1e6)}</span></div>`+
       `<div class="ar">→</div>`+
-      `<div class="st"><span class="l">прогноз</span><span class="v">${lyF1(jfc.rev/1e6)}</span></div>`+
+      `<div class="st"><span class="l">прогноз</span><span class="v">${lyF1(PROG_OV/1e6)}</span></div>`+
       `<div class="ar">→</div>`+
-      `<div class="st plan"><span class="l">план</span><span class="v">${lyF1(planRevJ/1e6)}</span></div>`+
+      `<div class="st plan"><span class="l">план</span><span class="v">${lyF1(PLAN_COMMIT/1e6)}</span></div>`+
       `<div class="ar">→</div>`+
       `<div class="st goal"><span class="l">цель</span><span class="v">${lyF1(goalRevJ/1e6)}</span></div>`+
     `</div>`+
@@ -1022,7 +1026,7 @@ function renderLoyalty(){
       nRow('Выручка/игрока ₽',fMoney(rpg(iC)),fMoney(rpg(iC)),dG)+
       nRow('Бонусная нагрузка %',f1p(bl(iC)),f1p(bl(iC)),dG)+
     `</table>`+
-    `<p class="note"><b>План ${lyF1(planRevJ/1e6)} млн</b> = прогноз + скрипты (чек). <b>Буст лояльности — в парке</b> (удержание/уники ПЛ за 2026 не измерены; вернём при появлении визитов). <b>Цель ${lyF1(goalRevJ/1e6)} млн</b> — амбиция +15%; разрыв план→цель закрывают драйверы на <a href="#/planner">«Плане»</a>. Цели по рычагам ниже — черновые; захват (ТЦ) не планируем.</p>`;
+    `<p class="note"><b>План ${lyF1(PLAN_COMMIT/1e6)} млн</b> — обязательство месяца (дневной план). <b>По модели достижимо ${lyF1(planRevJ/1e6)} млн</b> (прогноз + скрипты; буст лояльности в парке) — модели не хватает до обязательства. <b>Цель ${lyF1(goalRevJ/1e6)} млн</b> — амбиция +15%; разрыв план→цель закрывают драйверы на <a href="#/planner">«Плане»</a>. Цели по рычагам ниже — черновые; захват (ТЦ) не планируем.</p>`;
 
   // ── Слой 3 · План на PLAN_MONTH — сигнал (интерпретация данных) ──
   const boostTxt=`Буст лояльности — <b>в парке</b> (удержание/уники ПЛ за 2026 не измерены). План растёт скриптами чека; лояльность подключим при появлении помесячных визитов.`;
@@ -1030,7 +1034,7 @@ function renderLoyalty(){
   document.getElementById('ly-signal').innerHTML=
     `<div class="lyblk-h"><b>План на ${mName(PLAN_MONTH)}</b></div>`+
     sig+
-    `<p class="note">Прогноз выручки ≈ <b>${lyF1(jfc.rev/1e6)} млн</b> (частота нейтральна — удержание 2026 не измерено); буст лояльности в парке. → <a href="#/planner">детали на «Плане»</a></p>`;
+    `<p class="note">Прогноз выручки ≈ <b>${lyF1(PROG_OV/1e6)} млн</b> (из дневного слоя; частота нейтральна — удержание 2026 не измерено); буст лояльности в парке. → <a href="#/planner">детали на «Плане»</a></p>`;
   // C3 · Частота (10a: видимое — KPI-строка + инсайт; таблица/график/сноски — в details)
   const lyArr=(cur,prev)=>cur>prev?'↑':cur<prev?'↓':'→';
   const evLegend=LY_EVENTS.map((e,j)=>LY_SUP[j]+' '+e.t).join(' · ');
@@ -1135,7 +1139,7 @@ const REAL_DRIVERS=[
  {name:'Чек/пополнение',type:'own',cv:1.0,weight:2,data:'своя история',act:'двигать миксом пакетов',ref:'#/packages'},
  {name:'Удержание/частота',type:'none',cv:0,weight:1,data:'прочерк — визитов 2026 нет',act:'помесячный ряд 2026',ref:'#/r4'},
 ];
-const REAL_GAPS=[{name:'Захват (трафик ТЦ)',need:'помесячный трафик ТЦ Питерленда — для capture; сезонность прогноза уже включена по своей выручке (допущение)'},{name:'Уники/удержание 2026',need:'помесячная «Статистика посещений» (сейчас уники/удержание — прочерк, нет визитов 2026)'}];
+const REAL_GAPS=[{name:'Захват (визиты÷трафик)',need:'помесячные визиты/уники парка за 2026 (трафик ТЦ — ЕСТЬ, piterland_traffic.md → #/tc; не хватает визитов парка для capture)'},{name:'Уники/удержание 2026',need:'помесячная «Статистика посещений» (сейчас уники/удержание — прочерк, нет визитов 2026)'}];
 function realismOf(d){return Math.round(Math.max(0,Math.min(99,REAL_BASE[d.type]-REAL_K*d.cv)));}
 function realCat(r){return r>=85?'высокая':r>=72?'хорошая':r>=55?'средняя':r>=35?'низкая':'нет основы';}
 function realismBand(){let W=0,WR=0,WC=0;REAL_DRIVERS.forEach(d=>{const r=realismOf(d);W+=d.weight;WR+=d.weight*r;WC+=d.weight*d.cv;});const overall=Math.round(WR/W);return {overall,cat:realCat(overall),band:WC/W/100};}
@@ -1146,14 +1150,18 @@ function realismBand(){let W=0,WR=0,WC=0;REAL_DRIVERS.forEach(d=>{const r=realis
 function renderRefs(){
   // 1 · Трафик ТЦ: факт 2025 + факт 2026 (янв–июн) → экстраполяция июл–дек
   const tf=document.getElementById('t-tc-foot');
-  tf.innerHTML='<tr><th>Месяц</th><th>Сезонность (своя выручка)</th><th>Прогноз, млн</th></tr>'+
-    FY2026.map(m=>`<tr><td>${RU_M[m.slice(5)]}</td><td>${pct(footDev(m))}</td><td>${(modelFc(m)/1e6).toFixed(1).replace('.',',')}</td></tr>`).join('');
-  document.getElementById('tc-foot-note').innerHTML='Трафика ТЦ Питерленда нет → сезонность прогноза берём из <b>профиля собственной выручки 2024–25</b> (робастное среднее по календарю, <span class="prov assume">допущение</span>). Появится помесячный трафик ТЦ → заведём мастер <code>piterland_traffic.md</code>, заменим этот прокси и посчитаем захват.';
+  const tcAvg=Object.values(FOOT_TC).reduce((a,b)=>a+b,0)/12;
+  const yoyTC=Object.keys(FOOT_TC26).reduce((a,m)=>a+FOOT_TC26[m]/FOOT_TC['2025-'+m.slice(5)],0)/Object.keys(FOOT_TC26).length-1;
+  const seas=d=>d>=0.30?'пик лета':d>=0.10?'высокий':d>=-0.10?'средний':d>=-0.25?'низкий':'минимум';
+  tf.innerHTML='<tr><th>Месяц</th><th>Трафик 2025</th><th>Откл. от среднего</th><th>Трафик 2026</th><th>YoY</th><th>Сезон</th></tr>'+
+    FY2026.map(m=>{const mm=m.slice(5),f25=FOOT_TC['2025-'+mm],dev=f25/tcAvg-1,f26=FOOT_TC26[m],isF=(f26!=null),v26=isF?f26:Math.round(f25*(1+yoyTC)),yoy=v26/f25-1,pl=MONTHS.includes(m);
+      return `<tr${pl?' style="font-weight:600"':''}><td>${RU_M[mm]}</td><td>${nf(f25)}</td><td>${pct(dev)}</td><td>${nf(v26)} ${isF?'<span class="tag">факт</span>':'≈'}</td><td>${pct(yoy)}</td><td>${seas(dev)}</td></tr>`;}).join('');
+  document.getElementById('tc-foot-note').innerHTML='<b>Трафик ТЦ Питерленда — реальные данные</b> (мастер <code>piterland_traffic.md</code>). Профиль: <b>сильный летний пик</b> (июль +52%, июнь +50%, авг +29%), зимний минимум (фев −33%, янв −24%), осенний провал (окт–ноя). <b>2026 системно ниже 2025</b> (YoY янв–июн ≈ '+Math.round(yoyTC*100)+'%). Июль 2026 — обрезок, не вносим; авг–дек 2026 — оценка (2025 × YoY). <b>Захват (визиты÷трафик) пока не считаем</b> — визитов/уников парка за 2026 нет. Прогноз-модель держит сезонность собственной выручки (прямее для выручки); трафик ТЦ здесь — драйвер/справка.';
   // 2 · Захват: конверсия ТЦ→парк (факт сен–дек 2025)
   const tcv=document.getElementById('t-tc-conv');
-  tcv.innerHTML='<tr><th colspan="2" style="text-align:left;color:var(--hint);font-weight:400">Нет данных: помесячного трафика ТЦ Питерленда не существует → конверсию (визиты÷трафик) и захват не считаем. В бэклоге.</th></tr>';
+  tcv.innerHTML='<tr><th>Месяц 2025</th><th>Трафик ТЦ</th><th>Уники парка</th><th>Захват</th><th>2026 (оценка)</th></tr>'+FY2026.map(m=>{const mm=m.slice(5),ff=FOOT_TC['2025-'+mm],vis=PARK_VIS['2025-'+mm];if(!vis)return '';const cap25=vis/ff*100;const n26=PARK_NEW26[m],ff26=FOOT_TC26[m];const cap26=(n26!=null&&ff26)?(n26/0.60/ff26*100):null;return `<tr><td>${RU_M[mm]}</td><td>${nf(ff)}</td><td>${nf(vis)}</td><td>${cap25.toFixed(2).replace('.',',')}%</td><td>${cap26!=null?'≈'+cap26.toFixed(2).replace('.',',')+'%':'—'}</td></tr>`;}).join('');
   document.getElementById('tc-conv-factors').innerHTML='';
-  document.getElementById('tc-conv-note').innerHTML='Захват/конверсия требует помесячного трафика ТЦ Питерленда, которого нет. Появится ряд трафика → заведём мастер <code>piterland_traffic.md</code> и посчитаем захват (как у Охты).';
+  document.getElementById('tc-conv-note').innerHTML='<b>Захват = уники парка ÷ трафик ТЦ.</b> 2025 — ФАКТ (трафик и уники есть): Питер <b>0,72–1,61%</b>. 🔑 <b>Захват КОНТР-сезонен трафику:</b> зимой трафик низкий, а захват высокий (янв 1,61%); летом трафик пик, а захват низкий (июль 0,75%) — в жару меньше идут в закрытый парк, зимой парк — точка притяжения. 2026: помесячных уников_всего нет (только новые) → колонка «2026» = ОЦЕНКА (новые ÷ 0,60 ÷ трафик). Довод <b>не переключать прогноз на трафик вслепую</b> — захват гасит сезон трафика.';
   // 3 · Конкуренты: помесячный профиль давления → уровень захвата
   const cp=document.getElementById('tc-comp-profile');cp.innerHTML='';
   MONTHS.forEach(m=>{const p=CAP_PROFILE[m]||{lvl:'средний',why:'—'};const v=valOf(LV_CAP,p.lvl);
@@ -1341,7 +1349,7 @@ function renderPackages(){
 }
 function renderR5(){
   const M=state.month, RM=RU_M[M.slice(5)];
-  const cor=computeRev(state.vol,state.cap,state.freq,state.trend,state.chk);
+  const cor=computeRev(state.vol,state.cap,state.freq,state.trend,state.chk); if(state.month==='2026-07')cor.rev=PROG_OV;
   const fcRev=cor.rev, mixEff=cor.rc*cor.ck*MIX_UPLIFT, planRev=cor.rev+mixEff+LOY_BOOST; // скрипты + буст лояльности
   const goalRev=adjGoalOf(M), baseGoal=goalOf(M), NEUTRAL=BASE_RC*BASE_CHK;
   const d=realityDefaults(M), fNoCap=computeRev(d.vol,'средний',d.freq,d.trend,d.chk).rev;
