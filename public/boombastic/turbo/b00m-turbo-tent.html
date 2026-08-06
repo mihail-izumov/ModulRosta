@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ТУРБО — тейблтент А4 (песочница-макет)</title>
+<!--
+  ПЕСОЧНИЦА макета тейблтента · DRV-06 · 2026-08-06
+  Формат: А4 вертикальный (210×297 мм), ДВУХСТОРОННИЙ.
+  Сторона А — обычное время («возьми сейчас — играй в турбо-часы»).
+  Сторона Б — турбо-часы идут (кассир переворачивает; строка в скрипт планёрки).
+  Масштаб рендера ~1:0,47 (2,15 px/мм). Цвета/эмодзи — плейсхолдеры фирменного стиля.
+  QR — плейсхолдер, ведёт на b00m.fun/turbo (у каждого парка свой QR с ?park=).
+-->
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0a2e; --tile:#171243; --tile2:#1e1856; --blue:#2d6bff; --green:#3fe06c;
+    --lime:#dfff00; /* фирменный лайм из иконки shark-eyes-icon-electric.svg */
+    --yellow:#ffd530; --pink:#ff3d68; --white:#fff; --muted:#9b94d0; --dark:#0d0a2e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#e9e7f2;font-family:'Inter',system-ui,sans-serif;color:#222;padding:20px}
+  h1{font-family:'Unbounded';font-size:18px;margin-bottom:4px}
+  .sub{font-size:13px;color:#666;margin-bottom:14px}
+  .toolbar{display:flex;gap:8px;margin-bottom:16px}
+  .toolbar button{border:1px solid #bbb;background:#fff;border-radius:9px;padding:8px 14px;font-weight:700;font-size:13px;cursor:pointer}
+  .toolbar button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .row{display:flex;gap:30px;flex-wrap:wrap}
+  .col{display:flex;flex-direction:column;gap:8px}
+  .cap{font-weight:800;font-size:13px}
+
+  .a4{
+    zoom:1.22; /* крупнее для согласования; пропорции А4 сохранены */
+    position:relative;width:452px;height:639px;  /* 210×297 @2.15 */
+    background:var(--bg);border-radius:6px;overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+    color:#fff;display:flex;flex-direction:column;
+    /* воздух: сверху ~20 мм, по бокам ~17 мм; снизу держатель 30 мм + отступ 6 мм = 78px */
+    padding:44px 36px 78px;
+  }
+  .holder{
+    position:absolute;left:0;right:0;bottom:0;height:64px; /* 30 мм — закрыто держателем */
+    background:repeating-linear-gradient(45deg, rgba(255,255,255,.12) 0 6px, transparent 6px 14px);
+    border-top:2px dashed rgba(255,255,255,.35);
+    display:flex;align-items:center;justify-content:center;
+    font-size:9px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.55);
+    text-transform:uppercase;
+  }
+  .schema .a4{filter:grayscale(1) contrast(1.05)}
+
+  /* общие элементы */
+  .brand{text-align:center}
+  .brand .turbo{font-family:'Unbounded';font-weight:900;font-size:56px;line-height:.95;color:#fff;letter-spacing:1px}
+  .brand .badge{display:inline-block;font-family:'Unbounded';font-weight:900;font-size:19px;letter-spacing:6px;text-indent:6px;
+    color:var(--dark);background:var(--lime);padding:4px 16px;border-radius:9px;transform:rotate(-2deg);margin-top:7px}
+  .brand .slog{font-family:'Unbounded';font-weight:700;font-size:12.5px;color:#fff;margin-top:9px}
+  .brand .slog b{color:var(--lime)}
+
+  /* пакеты для печати: отдельные карточки, без веб-разделителей */
+  .packs{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+  .pk{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;
+    color:var(--dark);background:#fff;border-radius:12px}
+  .pk .g{font-family:'Unbounded';font-weight:900;font-size:19px}
+  .pk .g small{display:block;font-family:'Inter';font-size:8.5px;font-weight:800;margin-top:2px}
+  .pk .g .bb{background:var(--blue);color:#fff;padding:1px 6px;border-radius:4px}
+  .pk .g .bg{background:var(--green);color:#06340f;padding:1px 6px;border-radius:4px}
+  .pk .p{text-align:right}
+  .pk .rub{font-family:'Unbounded';font-weight:900;font-size:19px}
+  .pk .per{font-size:8.5px;color:var(--blue);font-weight:800}
+  .pk.best{background:#eaffe0;box-shadow:0 0 0 2px var(--green)}
+
+  .claim{text-align:center;margin-top:10px;font-family:'Unbounded';font-weight:700;font-size:13px}
+  .claim b{color:var(--yellow)}
+  .claim small{display:block;font-family:'Inter';font-size:9.5px;font-weight:600;color:var(--muted);margin-top:4px}
+
+  .mini{display:flex;gap:16px;justify-content:center}
+  .mini .m{display:flex;flex-direction:column;align-items:center}
+  .mini .mb{position:relative;width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+    font-size:33px;background:linear-gradient(160deg,#2a2274 0%,#191352 100%);
+    border:1px solid rgba(255,255,255,.14)}
+  .mini .cnt{position:absolute;top:-8px;right:-8px;min-width:23px;height:23px;padding:0 6px;
+    background:var(--pink);color:#fff;border:2px solid var(--bg);border-radius:999px;
+    font-size:11.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
+
+  .ways{display:flex;gap:6px;margin-top:10px}
+  .way{flex:1;background:var(--tile2);border-radius:10px;padding:7px 8px;text-align:center}
+  .way .i{font-size:15px}
+  .way b{display:block;font-family:'Unbounded';font-size:9px;margin-top:3px}
+  .way span{display:block;font-size:7.5px;color:var(--muted);font-weight:600;margin-top:2px;line-height:1.3}
+
+  .tueline{margin-top:10px;background:repeating-linear-gradient(-45deg,var(--yellow) 0 14px,#ffc400 14px 28px);
+    border-radius:10px;padding:7px 10px;display:flex;align-items:center;gap:8px;color:var(--dark)}
+  .tueline b{font-family:'Unbounded';font-size:11px}
+  .tueline span{font-size:9px;font-weight:800}
+
+  .qrrow{margin-top:auto;display:flex;gap:12px;align-items:center;background:var(--tile2);border-radius:12px;padding:8px 12px}
+  .qr{width:62px;height:62px;background:
+    conic-gradient(#fff 0 25%,transparent 0 50%,#fff 0 75%,transparent 0) 0 0/18px 18px,
+    #fff;border-radius:6px;flex:none;position:relative}
+  .qr::after{content:'QR';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-weight:900;color:#0d0a2e;font-size:12px;background:rgba(255,255,255,.75);margin:15px;border-radius:4px}
+  .qrrow h4{font-family:'Unbounded';font-size:12px;line-height:1.3}
+  .qrrow p{font-size:9px;color:var(--muted);font-weight:600;margin-top:4px;line-height:1.35}
+  .qrrow p b{color:var(--lime)}
+  .fine{margin-top:8px;font-size:7.5px;color:#544d8a;font-weight:600;text-align:center;line-height:1.4}
+
+  /* сторона Б */
+  .sideB{background:linear-gradient(170deg,#0f3d24 0%,var(--bg) 55%)}
+  .now{margin-top:6px;text-align:center}
+  .now .lbl{
+    display:inline-block;
+    background:repeating-linear-gradient(-45deg,var(--yellow) 0 14px,#ffc400 14px 28px);
+    color:var(--dark);font-family:'Unbounded';font-weight:900;font-size:15px;
+    padding:7px 16px;border-radius:10px;transform:rotate(-2deg);
+  }
+  .now .big{font-family:'Unbounded';font-weight:900;font-size:40px;line-height:1.05;color:var(--green);margin-top:12px}
+  .now .sub2{font-family:'Unbounded';font-weight:700;font-size:13px;color:#fff;margin-top:10px}
+  .now .sub2 b{color:var(--yellow)}
+  .askrow{margin-top:12px;background:var(--tile2);border-radius:12px;padding:10px 12px;text-align:center}
+  .askrow b{font-family:'Unbounded';font-size:12px}
+  .askrow span{display:block;font-size:9px;color:var(--muted);font-weight:600;margin-top:4px}
+
+  /* выноски */
+  .dot{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--pink);
+    color:#fff;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;
+    border:2px solid #fff;z-index:5}
+  .legend{max-width:420px}
+  .legend h2{font-family:'Unbounded';font-size:14px;margin-bottom:10px}
+  .legend ol{margin-left:18px;font-size:13px;line-height:1.5}
+  .legend li{margin-bottom:8px}
+  .legend .spec{margin-top:12px;background:#fff;border-radius:12px;padding:14px;font-size:12.5px;line-height:1.55}
+  .legend .spec b{display:block;margin-bottom:4px}
+</style>
+</head>
+<body>
+
+<h1>Тейблтент А4 вертикальный, двухсторонний — все парки</h1>
+<div class="sub">210 × 297 мм · сторона А — обычное время · сторона Б — турбо-часы идут (переворачивает кассир) · QR → b00m.fun/turbo</div>
+
+<div class="toolbar">
+  <button id="bPrev" class="on">Превью (стиль страницы)</button>
+  <button id="bSchema">Ч-Б схема (для ТЗ)</button>
+  <span style="width:14px"></span>
+  <button class="pbtn on" data-park="ohta">Охта Молл</button>
+  <button class="pbtn" data-park="piter">Питерленд</button>
+  <button class="pbtn" data-park="iyun">Июнь</button>
+</div>
+
+<div class="row" id="root">
+
+  <!-- ══ СТОРОНА А ══ -->
+  <div class="col">
+    <div class="cap">Сторона А — обычное время</div>
+    <div class="a4">
+      <div class="brand">
+        <div class="slog" style="margin:0 0 10px">Играй больше — <b>плати меньше</b></div>
+        <div class="turbo">ТУРБО</div>
+        <div class="badge">ИГРЫ</div>
+      </div>
+
+      <div class="mini" style="margin:20px 0 0">
+        <span class="m"><span class="mb">🏎️<span class="cnt" data-t="race"></span></span></span>
+        <span class="m"><span class="mb">🎯<span class="cnt" data-t="shoot"></span></span></span>
+        <span class="m"><span class="mb">🏀<span class="cnt" data-t="basket"></span></span></span>
+        <span class="m"><span class="mb">🎵<span class="cnt" data-t="music"></span></span></span>
+        <span class="m"><span class="mb">🕹️<span class="cnt" data-t="other"></span></span></span>
+      </div>
+
+      <div class="claim"><b>Любой</b> аркадный автомат
+        <small>Купи сейчас — играй в турбо-часы</small>
+      </div>
+
+      <div class="packs">
+        <div class="pk"><div class="g">10 игр <small><span class="bb">ПОПРОБОВАТЬ</span></small></div><div class="p"><div class="rub">350 ₽</div></div></div>
+        <div class="pk"><div class="g">15 игр</div><div class="p"><div class="rub">500 ₽</div></div></div>
+        <div class="pk best"><div class="g">25 игр <small><span class="bg">МАКСИМУМ ФАНА</span></small></div><div class="p"><div class="rub">750 ₽</div></div></div>
+      </div>
+
+      <div class="tueline"><b>ТУРБО-ВТОРНИК</b><span>— турбо-часы весь день, каждую неделю</span></div>
+
+      <div class="qrrow">
+        <div class="qr"></div>
+        <div>
+          <h4>Когда следующие турбо-часы?</h4>
+          <p>Первым узнают подписчики. <b>Каждую неделю разыгрываем 15 турбо-игр.</b></p>
+        </div>
+      </div>
+      <div class="fine">Турбо-игры действуют на аркадных автоматах (без выдачи тикетов) в турбо-часы. Покупка — в любое время. Остаток игр не сгорает.</div>
+      <div class="holder">зона держателя · 30 мм</div>
+
+      <div class="dot" style="top:14px;left:10px">1</div>
+      <div class="dot" style="top:150px;left:10px">2</div>
+      <div class="dot" style="top:320px;left:10px">3</div>
+      <div class="dot" style="top:388px;left:10px">4</div>
+      <div class="dot" style="top:452px;left:10px">5</div>
+      <div class="dot" style="top:530px;left:10px">6</div>
+    </div>
+  </div>
+
+  <!-- ══ СТОРОНА Б ══ -->
+  <div class="col">
+    <div class="cap">Сторона Б — турбо-часы идут</div>
+    <div class="a4 sideB">
+      <div class="now">
+        <div class="lbl">ТУРБО-ЧАСЫ</div>
+        <div class="big">ИГРАЙ<br>СЕЙЧАС</div>
+        <div class="sub2"><b>Любой</b> аркадный автомат</div>
+      </div>
+
+      <div class="packs">
+        <div class="pk"><div class="g">10 игр <small><span class="bb">ПОПРОБОВАТЬ</span></small></div><div class="p"><div class="rub">350 ₽</div></div></div>
+        <div class="pk"><div class="g">15 игр</div><div class="p"><div class="rub">500 ₽</div></div></div>
+        <div class="pk best"><div class="g">25 игр <small><span class="bg">МАКСИМУМ ФАНА</span></small></div><div class="p"><div class="rub">750 ₽</div></div></div>
+      </div>
+
+      <div class="askrow"><b>Возьми на кассе — играй сразу</b><span>пакет добавят к пополнению одним чеком</span></div>
+
+      <div class="ways" style="margin-top:auto">
+        <div class="way"><div class="i">💳</div><b>КУПИТЬ</b><span>на кассе или в ЛК</span></div>
+        <div class="way"><div class="i">🎟️</div><b>ВЫИГРАТЬ</b><span>тикеты → игры в призотеке</span></div>
+        <div class="way"><div class="i">🎁</div><b>ПОДАРИТЬ</b><span>турбо-карта</span></div>
+      </div>
+      <div class="fine">Турбо-игры действуют на аркадных автоматах (без выдачи тикетов) в турбо-часы. Покупка — в любое время. Остаток игр не сгорает.</div>
+      <div class="holder">зона держателя · 30 мм</div>
+
+      <div class="dot" style="top:40px;left:10px">7</div>
+      <div class="dot" style="top:250px;left:10px">8</div>
+      <div class="dot" style="top:415px;left:10px">9</div>
+    </div>
+  </div>
+
+  <!-- ══ ВЫНОСКИ ══ -->
+  <div class="legend">
+    <h2>Выноски для дизайнера</h2>
+    <ol>
+      <li><b>Шапка:</b> слоган «Играй больше — плати меньше» первой строкой, под ним «ТУРБО» + бейдж «ИГРЫ» (как на наклейке); затем ряд крупных иконок автоматов с каунтами, под ними клейм «Любой аркадный автомат» + «Игры не сгорают…».</li>
+      <li><b>Пакеты</b> — для печати НЕ веб-таблица с разделителями, а три отдельные белые карточки с воздухом между ними; 750 — с зелёной обводкой. Бейджи: синий «ПОПРОБОВАТЬ» у 350, зелёный «МАКСИМУМ ФАНА» у 750, середина 500 — без бейджа (толкает к 750). <b>₽ за игру на печати НЕ ставим</b> (разгрузка 06.08) — за столом решают «сколько игр за сколько денег»; сравнение цены живёт на сайте.</li>
+      <li><b>Клейм</b> «Любой аркадный автомат» + строка механики — единственное место с объяснением «купи сейчас — играй в турбо-часы».</li>
+      <li><b>Иконки автоматов</b> — максимально крупные, с реальными каунтами парка (печатаем ПАРК-ВЕРСИИ, числа по переключателю в песочнице). Подписи категорий на печати УБРАНЫ (разгрузка 06.08): сообщение несут картинка и число.</li>
+      <li><b>Турбо-вторник</b> — жёлтая агрессивная полоса (как плитка на странице).</li>
+      <li><b>QR-блок</b> — якорная зона внизу стороны А: подписка + розыгрыш. QR у каждого парка свой (?park=). На стороне Б QR-блока НЕТ.</li>
+      <li><b>Сторона Б, герой:</b> жёлтый полосатый бейдж «ТУРБО-ЧАСЫ» (стиль плитки турбо-вторника) + зелёное «ИГРАЙ СЕЙЧАС» + клейм «Любой аркадный автомат». Печатная замена таймера страницы, зелёный код состояния тот же.</li>
+      <li><b>Пакеты на Б</b> — без ₽/игру; бейджи «ПОПРОБОВАТЬ» и «МАКСИМУМ ФАНА» остаются (навигация по выбору работает и в турбо-час).</li>
+      <li><b>Призыв Б:</b> «Возьми на кассе — играй сразу» + строка про один чек (скрипт кассира).</li>
+      <li><b>Сторона Б, низ:</b> пакеты один в один как на А (с ₽/игру и бейджами), затем «Возьми на кассе — играй сразу», затем блок купить/выиграть/подарить (переехал со стороны А — там его нет).</li>
+      <li><b>Парк-версии:</b> каунты автоматов реальные из `ТУРБО-аппараты-по-паркам.md` — Охта 28/15/6/4/44 · Питерленд 37/16/6/3/27 (оценка) · Июнь 17/10/8/2/45. Тираж печатается тремя версиями.</li>
+    </ol>
+    <div class="spec">
+      <b>Спецификация</b>
+      Формат: А4 вертикальный 210×297 мм, двухсторонний, ламинат/пластиковый холдер.<br>
+      Нижние 30 мм закрыты держателем (штрихованная зона на макете) + 6 мм отступ — контент туда не ставить.<br>
+      Воздух по бокам ~17 мм, контент собран к центру.<br>
+      Тексты — ТОЛЬКО фразы согласованной веб-страницы, новых формулировок не вводить
+      (исключение: «ИДУТ ПРЯМО СЕЙЧАС» и «Возьми на кассе — играй сразу» — печатная замена живого таймера).<br>
+      Сторона Б показывается ТОЛЬКО в турбо-часы (переворачивает кассир — строка в скрипт планёрки).<br>
+      Тираж: по числу касс + запас (уточнит владелец).<br>
+      Голое «Турбо» не пишем; тему жвачек 90-х не используем.<br>
+      Шрифты Unbounded + Inter (Google Fonts, OFL). Цвета — плейсхолдеры фирменных.<br>
+      Эмодзи — плейсхолдеры 3D-иконок (стиль СберПрайм-референса).
+    </div>
+  </div>
+</div>
+
+<script>
+const root=document.getElementById('root'),
+      bP=document.getElementById('bPrev'), bS=document.getElementById('bSchema');
+bP.onclick=()=>{root.classList.remove('schema');bP.classList.add('on');bS.classList.remove('on')};
+bS.onclick=()=>{root.classList.add('schema');bS.classList.add('on');bP.classList.remove('on')};
+
+/* Каунты автоматов — реальные, из ТУРБО-аппараты-по-паркам.md (Питерленд — оценка).
+   Тент печатается ПАРК-ВЕРСИЯМИ — переключатель показывает числа каждого парка. */
+const PARKS = {
+  ohta:  {race:28, shoot:15, basket:6, music:4, other:44},
+  piter: {race:37, shoot:16, basket:6, music:3, other:27},
+  iyun:  {race:17, shoot:10, basket:8, music:2, other:45}
+};
+function setPark(id){
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.toggle('on', b.dataset.park===id));
+  document.querySelectorAll('.mini .cnt').forEach(c=>c.textContent = PARKS[id][c.dataset.t]);
+}
+document.querySelectorAll('.pbtn').forEach(b=>b.addEventListener('click', ()=>setPark(b.dataset.park)));
+setPark('ohta');
+</script>
+</body>
+</html>

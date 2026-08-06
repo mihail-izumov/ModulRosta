@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ТУРБО — наклейка на стекло, Июнь (песочница-макет v3)</title>
+<!--
+  ПЕСОЧНИЦА макета наклейки · DRV-06 · 2026-08-06 · v3 (правки владельца ×2)
+  Объект: стеклянная витрина у входа в парк, ТЦ Июнь (угол у «Детского мира»).
+  Полотно: 2350 мм (Ш) × 3550 мм (В). Вход в парк — СПРАВА, за столом аэрохоккея.
+  v3: летящий кластер УБРАН (шум) — только иконки с цифрами; слоган ПЕРЕЕХАЛ НАД «ТУРБО»;
+  строка b00m.fun/turbo убрана; стрелка на заднем фоне — нарочито неровная, под углом
+  (как органичная «река» в референсе СберПрайм). Тексты — ТОЛЬКО фразы из согласованной
+  веб-страницы (b00m-turbo.html). Числа автоматов Июня — реальные.
+  Масштаб рендера 1:3,85 (0,26 px/мм).
+-->
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0a2e; --tile:#171243; --tile2:#1e1856; --blue:#2d6bff; --green:#3fe06c;
+    --lime:#dfff00; /* фирменный лайм из иконки shark-eyes-icon-electric.svg */
+    --yellow:#ffd530; --pink:#ff3d68; --white:#fff; --muted:#9b94d0; --dark:#0d0a2e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#e9e7f2;font-family:'Inter',system-ui,sans-serif;color:#222;padding:20px}
+  h1{font-family:'Unbounded';font-size:18px;margin-bottom:4px}
+  .sub{font-size:13px;color:#666;margin-bottom:14px}
+  .toolbar{display:flex;gap:8px;margin-bottom:16px}
+  .toolbar button{border:1px solid #bbb;background:#fff;border-radius:9px;padding:8px 14px;font-weight:700;font-size:13px;cursor:pointer}
+  .toolbar button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .wrap{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+
+  .stage{display:flex;gap:8px}
+  .ruler{position:relative;width:46px;height:923px;font-size:10px;color:#888}
+  .ruler .m{position:absolute;right:4px;transform:translateY(50%)}
+
+  .glass{
+    position:relative;width:611px;height:923px;  /* 2350×3550 @0.26 */
+    background:
+      radial-gradient(85% 46% at 50% 18%, rgba(45,107,255,.45) 0%, rgba(45,107,255,0) 70%),
+      var(--bg);
+    border:3px solid #9aa;overflow:hidden;color:#fff;
+  }
+  .schema .glass{filter:grayscale(1) contrast(1.05)}
+
+  /* ── фоновая стрелка: полная заливка тоном фона, рубленые края с диагональными
+       разрезами — по референсу иконки Бумбастика shark-eyes-icon-electric.svg ── */
+  .bigarrow{position:absolute;left:-60px;top:48px;width:800px;height:620px;
+    pointer-events:none;transform:rotate(-8deg)}
+  .bigarrow svg{width:100%;height:100%}
+
+  /* ── контент: воздух по периметру ~220 мм (57px) ── */
+  .pad{position:absolute;inset:57px;display:flex;flex-direction:column;align-items:center;text-align:center}
+
+  .slog{font-family:'Unbounded';font-weight:700;font-size:21px;color:#fff;margin-top:4px}
+  .slog b{color:var(--lime)}
+  .turbo{font-family:'Unbounded';font-weight:900;font-size:118px;line-height:.92;color:#fff;letter-spacing:2px;margin-top:22px}
+  .badge{display:inline-block;font-family:'Unbounded';font-weight:900;font-size:40px;letter-spacing:10px;text-indent:10px;
+    color:var(--dark);background:var(--lime);padding:8px 26px;border-radius:16px;transform:rotate(-2deg);margin-top:16px;
+    box-shadow:0 8px 22px rgba(198,245,46,.3)}
+
+  /* ценовой блок (сберовский), взрослый уровень ~1600 мм */
+  .price{
+    width:100%;background:#fff;border-radius:22px;color:var(--dark);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 26px;margin-top:42px;position:relative;
+    box-shadow:0 0 0 3px rgba(198,245,46,.9), 0 16px 40px rgba(0,0,0,.35);
+  }
+  .price .l{font-family:'Unbounded';font-weight:900;font-size:26px;text-align:left;line-height:1.2}
+  .price .chips{display:flex;gap:7px;align-items:center;margin-top:9px}
+  .price .chip{background:#eef1fb;border-radius:9px;font-family:'Unbounded';font-weight:900;
+    font-size:15px;padding:5px 10px;color:var(--dark)}
+  .price .chipw{font-family:'Inter';font-size:13px;font-weight:800;color:#6c67a0}
+  .price .r{font-family:'Unbounded';font-weight:900;font-size:40px;white-space:nowrap}
+  .price .tag{
+    position:absolute;right:20px;bottom:-30px;background:var(--pink);color:#fff;
+    font-family:'Unbounded';font-weight:900;font-size:26px;padding:12px 22px;border-radius:15px;
+    transform:rotate(-6deg);box-shadow:0 10px 26px rgba(255,61,104,.5);
+  }
+
+  /* иконки-приложения с каунтами, детский уровень ~1050 мм */
+  .apps{display:flex;gap:22px;justify-content:center;margin-top:52px}
+  .app{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .app .box{
+    position:relative;width:86px;height:86px;border-radius:22px;
+    display:flex;align-items:center;justify-content:center;font-size:47px;
+    background:linear-gradient(160deg,#2a2274 0%,#191352 100%);
+    border:1px solid rgba(255,255,255,.16);box-shadow:0 8px 20px rgba(0,0,0,.4);
+  }
+  .app .cnt{
+    position:absolute;top:-11px;right:-11px;min-width:32px;height:32px;padding:0 8px;
+    background:var(--pink);color:#fff;border:3px solid var(--bg);border-radius:999px;
+    font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;
+  }
+  .app .lbl{font-size:13px;font-weight:700;color:var(--muted)}
+  .claim{font-family:'Unbounded';font-weight:700;font-size:24px;margin-top:24px}
+  .claim b{color:var(--yellow)}
+  .claim small{display:block;font-family:'Inter';font-size:14px;font-weight:600;color:var(--muted);margin-top:8px}
+
+  /* турбо-вторник: крупный блок, поднят выше (низ полотна — воздух) */
+  .tue{
+    margin-top:34px;width:100%;
+    background:repeating-linear-gradient(-45deg,var(--yellow) 0 22px,#ffc400 22px 44px);
+    border-radius:20px;padding:26px 20px;color:var(--dark);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  }
+  .tue b{font-family:'Unbounded';font-weight:900;font-size:30px}
+  .tue span{font-family:'Unbounded';font-weight:700;font-size:18px}
+
+  /* линии уровня глаз (только схема) */
+  .eye{position:absolute;left:0;width:100%;border-top:2px dashed transparent;pointer-events:none}
+  .schema .eye{border-color:#e0447a}
+  .eye small{position:absolute;left:6px;top:-16px;font-size:9px;color:#e0447a;font-weight:700;background:#fff;padding:1px 5px;border-radius:4px;display:none}
+  .schema .eye small{display:inline}
+  .eyeA{top:507px} /* глаза взрослого ~1600 мм */
+  .eyeK{top:650px} /* глаза ребёнка ~1050 мм */
+
+  /* выноски */
+  .dot{position:absolute;width:24px;height:24px;border-radius:50%;background:var(--pink);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;z-index:6}
+  .legend{max-width:430px}
+  .legend h2{font-family:'Unbounded';font-size:14px;margin-bottom:10px}
+  .legend ol{margin-left:18px;font-size:13px;line-height:1.5}
+  .legend li{margin-bottom:9px}
+  .legend .spec{margin-top:14px;background:#fff;border-radius:12px;padding:14px;font-size:12.5px;line-height:1.55}
+  .legend .spec b{display:block;margin-bottom:4px}
+</style>
+</head>
+<body>
+
+<h1>Наклейка на стекло — вход у «Детского мира», парк Июнь (v3)</h1>
+<div class="sub">Полотно 2350 × 3550 мм · полная заклейка, воздух по периметру · масштаб 1:3,85 · вход СПРАВА за аэрохоккеем</div>
+
+<div class="toolbar">
+  <button id="bPrev" class="on">Превью (готовый макет)</button>
+  <button id="bSchema">Ч-Б схема (уровни глаз)</button>
+</div>
+
+<div class="wrap" id="root">
+
+  <div class="stage">
+    <div class="ruler">
+      <span class="m" style="top:0">3550</span>
+      <span class="m" style="top:231px">2660</span>
+      <span class="m" style="top:507px">1600</span>
+      <span class="m" style="top:650px">1050</span>
+      <span class="m" style="bottom:0">0 мм</span>
+    </div>
+
+    <div class="glass">
+      <!-- стрелка тоном фона: рубленые края + диагональные разрезы (реф: иконка Бумбастика) -->
+      <div class="bigarrow">
+        <svg viewBox="0 0 800 620" fill="none">
+          <!-- одна цельная стрелка, рубленые края без внутренних разрезов -->
+          <path d="M20 238 L182 224 L174 256 L342 240 L334 274 L472 256 L458 172
+                   L764 330 L470 502 L484 420 L332 442 L340 408 L172 428 L180 396 L32 410 Z"
+                fill="#3d33a8"/>
+        </svg>
+      </div>
+
+      <div class="pad">
+        <div class="slog">Играй больше — <b>плати меньше</b></div>
+        <div class="turbo">ТУРБО</div>
+        <div class="badge">ИГРЫ</div>
+
+        <div class="price">
+          <div class="l">ПАКЕТЫ
+            <div class="chips"><span class="chip">10</span><span class="chip">15</span><span class="chip">25</span><span class="chipw">игр</span></div>
+          </div>
+          <div class="r">от 350 ₽</div>
+          <div class="tag">10 ИГР</div>
+        </div>
+
+        <div class="apps">
+          <span class="app"><span class="box">🏎️<span class="cnt">17</span></span><span class="lbl">гонки</span></span>
+          <span class="app"><span class="box">🎯<span class="cnt">10</span></span><span class="lbl">стрелялки</span></span>
+          <span class="app"><span class="box">🏀<span class="cnt">8</span></span><span class="lbl">баскетбол</span></span>
+          <span class="app"><span class="box">🎵<span class="cnt">2</span></span><span class="lbl">танцы</span></span>
+          <span class="app"><span class="box">🕹️<span class="cnt">45</span></span><span class="lbl">и ещё</span></span>
+        </div>
+        <div class="claim"><b>Любой</b> аркадный автомат
+          <small>Игры не сгорают —<br>остаток ждёт следующих турбо-часов</small>
+        </div>
+
+        <div class="tue"><b>ТУРБО-ВТОРНИК</b><span>Турбо-часы весь день</span></div>
+      </div>
+
+      <!-- уровни глаз -->
+      <div class="eye eyeA"><small>глаза взрослого ~1600 мм</small></div>
+      <div class="eye eyeK"><small>глаза ребёнка ~1050 мм</small></div>
+
+      <!-- выноски -->
+      <div class="dot" style="top:46px;left:10px">1</div>
+      <div class="dot" style="top:180px;left:10px">2</div>
+      <div class="dot" style="top:490px;left:10px">3</div>
+      <div class="dot" style="top:640px;left:10px">4</div>
+      <div class="dot" style="top:330px;right:10px">5</div>
+      <div class="dot" style="top:840px;left:10px">6</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <h2>Выноски для дизайнера</h2>
+    <ol>
+      <li><b>Слоган над брендом</b> (решение владельца 06.08): «Играй больше — плати меньше» первой строкой, под ним «ТУРБО» + бейдж «ИГРЫ». Читается по ходу трафика с 15–20 м.</li>
+      <li><b>Бренд-блок:</b> связка 1:1 с веб-страницей — «ТУРБО» белым без эффектов, «ИГРЫ» на лаймовом бейдже с наклоном −2°.</li>
+      <li><b>Ценовой блок (взрослый уровень, глаза ~1600):</b> белая плашка «ПАКЕТЫ» + чипы-квадратики «10 15 25 игр» + «от 350 ₽»; розовый бейдж «10 ИГР» сидит на НИЖНЕЙ грани рамки (визуальный мост между ценой и иконками).</li>
+      <li><b>Иконки-приложения (детский уровень, глаза ~1050):</b> крупные, с числом автоматов — числа Июня РЕАЛЬНЫЕ (17/10/8/2/45). Под ними клейм «Любой аркадный автомат» + «Игры не сгорают…» в две строки. Никаких других летящих иконок — это единственная графика.</li>
+      <li><b>Фоновая стрелка:</b> ОДНА цельная фигура (без внутренних разрезов), полная заливка #3d33a8 — заметно ярче фона, но под контентом. Рубленые прямые края — по референсу фирменной иконки `shark-eyes-icon-electric.svg` (приложена к ТЗ). Угол −8°, ВЫХОДИТ ИЗ-ПОД слова «ТУРБО» в верхней трети и указывает вправо ко входу за аэрохоккеем.</li>
+      <li><b>Блок ТУРБО-ВТОРНИК:</b> крупный, двумя строками («ТУРБО-ВТОРНИК» / «Турбо-часы весь день»), поднят к контенту. Ниже — чистый фон (воздух), у пола контента нет. Ссылок/QR на наклейке нет.</li>
+    </ol>
+    <div class="spec">
+      <b>Спецификация</b>
+      Полотно: стекло 2350×3550 мм, ПОЛНАЯ заклейка, воздух по периметру ~220 мм внутри дизайна.<br>
+      Лайм — фирменный #DFFF00 (взят из иконки shark-eyes-icon-electric.svg).<br>
+      Тексты — ТОЛЬКО фразы согласованной веб-страницы, новых формулировок не вводить.<br>
+      Голое «Турбо» не пишем — только ТУРБО-ИГРЫ / ТУРБО-ЧАСЫ / ТУРБО-ВТОРНИК.<br>
+      Тему жвачек Turbo 90-х не используем (красный+жёлтый, клетчатый флаг, болид — нельзя).<br>
+      Шрифты: Unbounded + Inter (Google Fonts, OFL). Цвета — плейсхолдеры фирменных.<br>
+      Это ГОТОВЫЙ дизайн-макет: композиция и тексты финальные, от дизайнера — фирменные
+      3D-иконки вместо эмодзи, фирменные цвета, допечатная подготовка.
+    </div>
+  </div>
+</div>
+
+<script>
+const root=document.getElementById('root'),
+      bP=document.getElementById('bPrev'), bS=document.getElementById('bSchema');
+bP.onclick=()=>{root.classList.remove('schema');bP.classList.add('on');bS.classList.remove('on')};
+bS.onclick=()=>{root.classList.add('schema');bS.classList.add('on');bP.classList.remove('on')};
+</script>
+</body>
+</html>
